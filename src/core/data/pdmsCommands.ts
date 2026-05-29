@@ -6,6 +6,26 @@ export interface PdmsCommandDefinition {
 	brief: string;
 }
 
+
+// Dollar meta-commands documented by PML manuals.
+export const PML_DOLLAR_COMMANDS = [
+	'$M', '$!', '$.', '$S', '$G', '$S-', '$S+', '$QS', '$H', '$Q',
+	'$P', '$$', '$D', '$*', '$(', '$)', '$R'
+] as const;
+
+// DABACON pseudo-attributes used by query/navigation linting.
+export const DABACON_PSEUDO_ATTRS = [
+	'LASTM', 'CRDATE', 'CRUSER', 'USERM', 'ATTMOD', 'ATTMODC',
+	'ELECRE', 'ELEDEL', 'ELEMOD', 'LCLM', 'CLSNAM',
+	'DBSESS', 'SESSNO', 'MSESS', 'HIST', 'BACKREF', 'EXMOD'
+] as const;
+
+// Common database navigation keywords.
+export const NAVIGATION_KEYWORDS = [
+	'CE', 'PREV', 'NEXT', 'OWNER', 'FIRST', 'LAST',
+	'WORLD', 'SITE', 'ZONE', 'EQUI', 'PIPE', 'BRAN'
+] as const;
+
 /**
  * PDMS command line starters.
  *

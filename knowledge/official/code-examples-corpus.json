@@ -2,7 +2,7 @@
   "metadata": {
     "source_policy": "Official AVEVA docs only for official examples; MIT source examples are stored separately under knowledge/examples.",
     "pages_processed": 18,
-    "official_examples_extracted": 4,
+    "official_examples_extracted": 65,
     "requires_auth": [],
     "not_found": [],
     "blocked_or_partial": [
@@ -14,14 +14,20 @@
         "url": "multiple required child pages",
         "note": "Harness fetch returned generic AVEVA Documentation shell for several child pages; full recursive crawl remains a Phase 2 task."
       }
-    ]
+    ],
+    "local_manual_extraction": "C:\\Temp\\pml-kb-extract\\analysis\\extraction-inventory.json"
   },
   "examples": [
     {
       "section": "Control Logic",
       "url": "https://docs.aveva.com/bundle/e3d-design/page/1026762.html",
       "pml_version": "both",
-      "concepts": ["if", "elseif", "else", "endif"],
+      "concepts": [
+        "if",
+        "elseif",
+        "else",
+        "endif"
+      ],
       "description": "PML block if statement pattern used by the diagnostics smoke tests.",
       "code": "IF (!condition) THEN\n  -- statements\nELSEIF (!other) THEN\n  -- statements\nELSE\n  -- statements\nENDIF"
     },
@@ -29,7 +35,10 @@
       "section": "Control Logic",
       "url": "https://docs.aveva.com/bundle/e3d-design/page/1026762.html",
       "pml_version": "both",
-      "concepts": ["do", "enddo"],
+      "concepts": [
+        "do",
+        "enddo"
+      ],
       "description": "PML numeric loop pattern.",
       "code": "DO !index FROM 1 TO !array.Size()\n  !value = !array[!index]\nENDDO"
     },
@@ -37,7 +46,10 @@
       "section": "PML Functions and Methods",
       "url": "https://docs.aveva.com/bundle/engineering/page/1026679.html",
       "pml_version": "PML2",
-      "concepts": ["define function", "return"],
+      "concepts": [
+        "define function",
+        "return"
+      ],
       "description": "PML function definition pattern.",
       "code": "DEFINE FUNCTION !!Example(!arg IS STRING) IS STRING\n  RETURN !arg\nENDFUNCTION"
     },
@@ -45,9 +57,797 @@
       "section": "Forms",
       "url": "https://docs.aveva.com/bundle/e3d-design/page/1026966.html",
       "pml_version": "PML2",
-      "concepts": ["setup form", "exit"],
+      "concepts": [
+        "setup form",
+        "exit"
+      ],
       "description": "PML form definition pattern.",
       "code": "SETUP FORM !!MyForm DIALOG\n  -- gadgets, callbacks, members\nEXIT"
+    },
+    {
+      "id": "official-manual-001",
+      "title": "Basic numeric DO loop",
+      "category": "control-flow",
+      "language": "pml1+pml2",
+      "source": "TM-1401",
+      "description": "Extracted and normalized PML pattern for basic numeric do loop.",
+      "code": "DO !loopCounter TO 10\n  !value = !loopCounter * 2\nENDDO",
+      "tags": [
+        "do",
+        "loop"
+      ]
+    },
+    {
+      "id": "official-manual-002",
+      "title": "DO loop with FROM and BY",
+      "category": "control-flow",
+      "language": "pml1+pml2",
+      "source": "TM-1401",
+      "description": "Extracted and normalized PML pattern for do loop with from and by.",
+      "code": "DO !loopCounter FROM 5 TO 10 BY 2\n  $P Counter $!loopCounter\nENDDO",
+      "tags": [
+        "do",
+        "from",
+        "by"
+      ]
+    },
+    {
+      "id": "official-manual-003",
+      "title": "DO indices iteration",
+      "category": "control-flow",
+      "language": "pml1+pml2",
+      "source": "TM-1401",
+      "description": "Extracted and normalized PML pattern for do indices iteration.",
+      "code": "Do !x indices !Coll\n  !element = !Coll[!x]\nEnddo",
+      "tags": [
+        "do",
+        "indices"
+      ]
+    },
+    {
+      "id": "official-manual-004",
+      "title": "DO values iteration",
+      "category": "control-flow",
+      "language": "pml1+pml2",
+      "source": "TM-1401",
+      "description": "Extracted and normalized PML pattern for do values iteration.",
+      "code": "Do !x values !Coll\n  $P Element is $!x\nEnddo",
+      "tags": [
+        "do",
+        "values"
+      ]
+    },
+    {
+      "id": "official-manual-005",
+      "title": "Skip and break in loop",
+      "category": "control-flow",
+      "language": "pml1+pml2",
+      "source": "TM-1401",
+      "description": "Extracted and normalized PML pattern for skip and break in loop.",
+      "code": "DO !i TO 10\n  skip if (!i eq 5)\n  break if (!i eq 8)\nENDDO",
+      "tags": [
+        "skip",
+        "break"
+      ]
+    },
+    {
+      "id": "official-manual-006",
+      "title": "IF ELSEIF ELSE block",
+      "category": "control-flow",
+      "language": "pml1+pml2",
+      "source": "TM-1401",
+      "description": "Extracted and normalized PML pattern for if elseif else block.",
+      "code": "IF (!condition) THEN\n  $P Yes\nELSEIF (!other) THEN\n  $P Other\nELSE\n  $P No\nENDIF",
+      "tags": [
+        "if",
+        "elseif"
+      ]
+    },
+    {
+      "id": "official-manual-007",
+      "title": "Generic HANDLE ANY",
+      "category": "error-handling",
+      "language": "pml1+pml2",
+      "source": "TM-1401",
+      "description": "Extracted and normalized PML pattern for generic handle any.",
+      "code": "HANDLE ANY\n  :Description = |Checked|\nELSEHANDLE\n  $P Error: $!!Error.text\nENDHANDLE",
+      "tags": [
+        "handle",
+        "error"
+      ]
+    },
+    {
+      "id": "official-manual-008",
+      "title": "Specific error codes",
+      "category": "error-handling",
+      "language": "pml1+pml2",
+      "source": "TM-1401",
+      "description": "Extracted and normalized PML pattern for specific error codes.",
+      "code": "handle (41,12)\n  return false\nelsehandle (2,9)\n  !desmem.attribute(!attrlist[!i]) = !val.string()\nendhandle",
+      "tags": [
+        "handle",
+        "error-code"
+      ]
+    },
+    {
+      "id": "official-manual-009",
+      "title": "Handle inside loop",
+      "category": "error-handling",
+      "language": "pml1+pml2",
+      "source": "PML.docx",
+      "description": "Extracted and normalized PML pattern for handle inside loop.",
+      "code": "Do !x indices !PIPE\n  $!PIPE[$!x]\n  PSPEC /A300\n  Handle Any\n    $p Error on $!PIPE[$!x]\n  EndHandle\nEnddo",
+      "tags": [
+        "handle",
+        "loop"
+      ]
+    },
+    {
+      "id": "official-manual-010",
+      "title": "Local and global variables",
+      "category": "variable",
+      "language": "pml2",
+      "source": "TM-1401",
+      "description": "Extracted and normalized PML pattern for local and global variables.",
+      "code": "!name = |Pump A|\n!!CurrentPipe = !!ce",
+      "tags": [
+        "variables"
+      ]
+    },
+    {
+      "id": "official-manual-011",
+      "title": "Type declarations",
+      "category": "variable",
+      "language": "pml2",
+      "source": "TM-1401",
+      "description": "Extracted and normalized PML pattern for type declarations.",
+      "code": "!name = STRING()\n!length = REAL()\n!ok = BOOLEAN()\n!items = ARRAY()",
+      "tags": [
+        "types"
+      ]
+    },
+    {
+      "id": "official-manual-012",
+      "title": "PML1 VAR name",
+      "category": "variable",
+      "language": "pml1",
+      "source": "TM-1401",
+      "description": "Extracted and normalized PML pattern for pml1 var name.",
+      "code": "VAR !NAME NAME\nVAR !POS POS IN WORLD",
+      "tags": [
+        "var",
+        "pml1"
+      ]
+    },
+    {
+      "id": "official-manual-013",
+      "title": "PML2 attribute assignment",
+      "category": "variable",
+      "language": "pml2",
+      "source": "TM-1401",
+      "description": "Extracted and normalized PML pattern for pml2 attribute assignment.",
+      "code": "!name = !!ce.name\n!pos = !!ce.pos.wrt(/*)",
+      "tags": [
+        "pml2",
+        "attribute"
+      ]
+    },
+    {
+      "id": "official-manual-014",
+      "title": "Defined and undefined checks",
+      "category": "variable",
+      "language": "pml1+pml2",
+      "source": "TM-1401",
+      "description": "Extracted and normalized PML pattern for defined and undefined checks.",
+      "code": "if defined(!name) then\n  $P Name exists\nendif\nif undefined(!value) then\n  !value = |Default|\nendif",
+      "tags": [
+        "defined",
+        "undefined"
+      ]
+    },
+    {
+      "id": "official-manual-015",
+      "title": "Set and unset methods",
+      "category": "variable",
+      "language": "pml2",
+      "source": "TM-1401",
+      "description": "Extracted and normalized PML pattern for set and unset methods.",
+      "code": "if (!value.set()) then\n  $P Set\nendif\nif (!value.unset()) then\n  $P Unset\nendif",
+      "tags": [
+        "set",
+        "unset"
+      ]
+    },
+    {
+      "id": "official-manual-016",
+      "title": "Type conversion",
+      "category": "variable",
+      "language": "pml2",
+      "source": "TM-1401",
+      "description": "Extracted and normalized PML pattern for type conversion.",
+      "code": "!s = !value.string()\n!r = !value.real()\n!ref = !name.dbref()",
+      "tags": [
+        "casting"
+      ]
+    },
+    {
+      "id": "official-manual-017",
+      "title": "Explicit deletion",
+      "category": "variable",
+      "language": "pml1+pml2",
+      "source": "TM-1401",
+      "description": "Extracted and normalized PML pattern for explicit deletion.",
+      "code": "!value.delete()\nvar !oldValue delete",
+      "tags": [
+        "delete"
+      ]
+    },
+    {
+      "id": "official-manual-018",
+      "title": "Create array",
+      "category": "array",
+      "language": "pml2",
+      "source": "TM-1401",
+      "description": "Extracted and normalized PML pattern for create array.",
+      "code": "!arr = ARRAY()",
+      "tags": [
+        "array"
+      ]
+    },
+    {
+      "id": "official-manual-019",
+      "title": "Indexed assignment and append",
+      "category": "array",
+      "language": "pml2",
+      "source": "TM-1401",
+      "description": "Extracted and normalized PML pattern for indexed assignment and append.",
+      "code": "!arr[1] = |ABCD|\n!arr.Append(|EFGH|)",
+      "tags": [
+        "array",
+        "append"
+      ]
+    },
+    {
+      "id": "official-manual-020",
+      "title": "Array size and clear",
+      "category": "array",
+      "language": "pml2",
+      "source": "TM-1401",
+      "description": "Extracted and normalized PML pattern for array size and clear.",
+      "code": "!count = !arr.Size()\n!arr.Clear()",
+      "tags": [
+        "array",
+        "size",
+        "clear"
+      ]
+    },
+    {
+      "id": "official-manual-021",
+      "title": "Sort unique array",
+      "category": "array",
+      "language": "pml2",
+      "source": "TM-1401",
+      "description": "Extracted and normalized PML pattern for sort unique array.",
+      "code": "!arr.Sort()\n!arr.SortUnique()\n!unique = !arr.Unique()",
+      "tags": [
+        "array",
+        "sort"
+      ]
+    },
+    {
+      "id": "official-manual-022",
+      "title": "Intersect and difference",
+      "category": "array",
+      "language": "pml2",
+      "source": "TM-1401",
+      "description": "Extracted and normalized PML pattern for intersect and difference.",
+      "code": "!common = !arr.Intersect(!arr2)\n!missing = !arr.Difference(!arr2)",
+      "tags": [
+        "array",
+        "set"
+      ]
+    },
+    {
+      "id": "official-manual-023",
+      "title": "Sorted indices and reindex",
+      "category": "array",
+      "language": "pml2",
+      "source": "TM-1401",
+      "description": "Extracted and normalized PML pattern for sorted indices and reindex.",
+      "code": "!order = !names.SortedIndices()\n!names = !names.ReIndex(!order)",
+      "tags": [
+        "array",
+        "reindex"
+      ]
+    },
+    {
+      "id": "official-manual-024",
+      "title": "Nested arrays",
+      "category": "array",
+      "language": "pml2",
+      "source": "TM-1401",
+      "description": "Extracted and normalized PML pattern for nested arrays.",
+      "code": "!row = ARRAY()\n!row.Append(|A|)\n!x.Append(!row)",
+      "tags": [
+        "array",
+        "nested"
+      ]
+    },
+    {
+      "id": "official-manual-025",
+      "title": "PML1 collect pipes",
+      "category": "collection",
+      "language": "pml1",
+      "source": "TM-1401",
+      "description": "Extracted and normalized PML pattern for pml1 collect pipes.",
+      "code": "var !coll coll all (PIPE) with (param of catref of spco eq 100) for ce",
+      "tags": [
+        "collection",
+        "pml1"
+      ]
+    },
+    {
+      "id": "official-manual-026",
+      "title": "Collect branch members max",
+      "category": "collection",
+      "language": "pml1",
+      "source": "TM-1401",
+      "description": "Extracted and normalized PML pattern for collect branch members max.",
+      "code": "var !coll collect all bran mem with type neq |INST| for ce [MAX 10]",
+      "tags": [
+        "collection",
+        "bran"
+      ]
+    },
+    {
+      "id": "official-manual-027",
+      "title": "COLLECTION object results",
+      "category": "collection",
+      "language": "pml2",
+      "source": "TM-1401",
+      "description": "Extracted and normalized PML pattern for collection object results.",
+      "code": "!collect = object COLLECTION()\n!collect.scope(!!CE)\n!collect.type(|SCOM|)\n!memb = !collect.results()",
+      "tags": [
+        "collection",
+        "pml2"
+      ]
+    },
+    {
+      "id": "official-manual-028",
+      "title": "COLLECTION expression filter",
+      "category": "collection",
+      "language": "pml2",
+      "source": "TM-1401",
+      "description": "Extracted and normalized PML pattern for collection expression filter.",
+      "code": "!expression = object EXPRESSION()\n!expression.expression(|(occurs(:Name1, |уплотнительная|) gt 0)|)\n!collect.filter(!expression)",
+      "tags": [
+        "collection",
+        "filter"
+      ]
+    },
+    {
+      "id": "official-manual-029",
+      "title": "CollectAllFor branches",
+      "category": "collection",
+      "language": "pml2",
+      "source": "PML.docx",
+      "description": "Extracted and normalized PML pattern for collectallfor branches.",
+      "code": "!branches = !!CollectAllFor('BRAN', '', !!CE)",
+      "tags": [
+        "collectallfor"
+      ]
+    },
+    {
+      "id": "official-manual-030",
+      "title": "CollectAllFor slabs",
+      "category": "collection",
+      "language": "pml2",
+      "source": "PML.docx",
+      "description": "Extracted and normalized PML pattern for collectallfor slabs.",
+      "code": "!slabs = !!CollectAllFor('SLAB', |ATTRIB TMDWG eq 'Column'|, !!CE)",
+      "tags": [
+        "collectallfor",
+        "filter"
+      ]
+    },
+    {
+      "id": "official-manual-031",
+      "title": "Evaluate names",
+      "category": "collection",
+      "language": "pml1",
+      "source": "TM-1401",
+      "description": "Extracted and normalized PML pattern for evaluate names.",
+      "code": "var !names evaluate (name) for all from !Pipes",
+      "tags": [
+        "evaluate"
+      ]
+    },
+    {
+      "id": "official-manual-032",
+      "title": "Evaluate zone names",
+      "category": "collection",
+      "language": "pml1",
+      "source": "TM-1401",
+      "description": "Extracted and normalized PML pattern for evaluate zone names.",
+      "code": "var !zones evaluate (name of zone) for all from !Pipes",
+      "tags": [
+        "evaluate",
+        "zone"
+      ]
+    },
+    {
+      "id": "official-manual-033",
+      "title": "Set progress text",
+      "category": "fmsys",
+      "language": "pml2",
+      "source": "TM-1402",
+      "description": "Extracted and normalized PML pattern for set progress text.",
+      "code": "!!FMSYS.setProgressText(|Processing current element|)",
+      "tags": [
+        "fmsys",
+        "progress"
+      ]
+    },
+    {
+      "id": "official-manual-034",
+      "title": "Set progress percent",
+      "category": "fmsys",
+      "language": "pml2",
+      "source": "TM-1402",
+      "description": "Extracted and normalized PML pattern for set progress percent.",
+      "code": "!!FMSYS.setProgress(50)",
+      "tags": [
+        "fmsys",
+        "progress"
+      ]
+    },
+    {
+      "id": "official-manual-035",
+      "title": "FMSYS progress loop",
+      "category": "fmsys",
+      "language": "pml2",
+      "source": "TM-1402",
+      "description": "Extracted and normalized PML pattern for fmsys progress loop.",
+      "code": "!!FMSYS.setProgress(0)\ndo !i from 1 to !total\n  !!FMSYS.setProgressText(|Processing | & !i.string())\n  !!FMSYS.setProgress((!i * 100) / !total)\nenddo\n!!FMSYS.setProgress(100)",
+      "tags": [
+        "fmsys",
+        "loop"
+      ]
+    },
+    {
+      "id": "official-manual-036",
+      "title": "Get main form",
+      "category": "fmsys",
+      "language": "pml2",
+      "source": "TM-1402",
+      "description": "Extracted and normalized PML pattern for get main form.",
+      "code": "!form = !!fmsys.main()",
+      "tags": [
+        "fmsys",
+        "form"
+      ]
+    },
+    {
+      "id": "official-manual-037",
+      "title": "PML browser diagnostics",
+      "category": "fmsys",
+      "language": "pml1+pml2",
+      "source": "TM-1401",
+      "description": "Extracted and normalized PML pattern for pml browser diagnostics.",
+      "code": "show !!pmlBrowser\nshow !!pmlForms\nshow !!pmlVariable\nshow !!syntaxHelp",
+      "tags": [
+        "diagnostics"
+      ]
+    },
+    {
+      "id": "official-manual-038",
+      "title": "Run macro helper",
+      "category": "fmsys",
+      "language": "pml2",
+      "source": "PML.docx",
+      "description": "Extracted and normalized PML pattern for run macro helper.",
+      "code": "!!runMacro(!file.fullname(), '_MODIFY')",
+      "tags": [
+        "runtime"
+      ]
+    },
+    {
+      "id": "official-manual-039",
+      "title": "Launch process helper",
+      "category": "fmsys",
+      "language": "pml2",
+      "source": "PML.docx",
+      "description": "Extracted and normalized PML pattern for launch process helper.",
+      "code": "!!pmlLaunchProcess('transc.exe', |$!args|, false)",
+      "tags": [
+        "runtime",
+        "process"
+      ]
+    },
+    {
+      "id": "official-manual-040",
+      "title": "Define form",
+      "category": "form",
+      "language": "pml2",
+      "source": "TM-1402",
+      "description": "Extracted and normalized PML pattern for define form.",
+      "code": "define form !!myForm\n  title 'My Form Title'\nendobject",
+      "tags": [
+        "form"
+      ]
+    },
+    {
+      "id": "official-manual-041",
+      "title": "Setup form",
+      "category": "form",
+      "language": "pml2",
+      "source": "TM-1402",
+      "description": "Extracted and normalized PML pattern for setup form.",
+      "code": "setup form !!myForm dialog docking right\n  title |My Form Title|\nexit",
+      "tags": [
+        "form",
+        "setup"
+      ]
+    },
+    {
+      "id": "official-manual-042",
+      "title": "Show form if hidden",
+      "category": "form",
+      "language": "pml2",
+      "source": "TM-1402",
+      "description": "Extracted and normalized PML pattern for show form if hidden.",
+      "code": "if (!!myForm.shown()) then\n  !!myForm.initialise(!param)\nelse\n  show !!myForm\nendif",
+      "tags": [
+        "form",
+        "show"
+      ]
+    },
+    {
+      "id": "official-manual-043",
+      "title": "Button callback",
+      "category": "form",
+      "language": "pml2",
+      "source": "TM-1402",
+      "description": "Extracted and normalized PML pattern for button callback.",
+      "code": "button .run |Run| callback |!this.doAction()| width 10",
+      "tags": [
+        "form",
+        "button",
+        "callback"
+      ]
+    },
+    {
+      "id": "official-manual-044",
+      "title": "List callback",
+      "category": "form",
+      "language": "pml2",
+      "source": "TM-1402",
+      "description": "Extracted and normalized PML pattern for list callback.",
+      "code": "list .elements width 40 height 12 callback |!this.onPick()|",
+      "tags": [
+        "form",
+        "list"
+      ]
+    },
+    {
+      "id": "official-manual-045",
+      "title": "Frame with toggle",
+      "category": "form",
+      "language": "pml2",
+      "source": "TM-1402",
+      "description": "Extracted and normalized PML pattern for frame with toggle.",
+      "code": "frame .options width 45\ntoggle .includeBranches |Include branches| callback |!this.refresh()|\nexit",
+      "tags": [
+        "form",
+        "frame",
+        "toggle"
+      ]
+    },
+    {
+      "id": "official-manual-046",
+      "title": "Popup menu",
+      "category": "form",
+      "language": "pml2",
+      "source": "TM-1402",
+      "description": "Extracted and normalized PML pattern for popup menu.",
+      "code": "popup menu .elementPopup\nbutton .goto |Go To| callback |!this.gotoSelected()|\nexit",
+      "tags": [
+        "form",
+        "menu"
+      ]
+    },
+    {
+      "id": "official-manual-047",
+      "title": "Create FILE object",
+      "category": "file",
+      "language": "pml2",
+      "source": "TM-1401",
+      "description": "Extracted and normalized PML pattern for create file object.",
+      "code": "!file = object FILE('%PDMSUSER%\\report.txt')",
+      "tags": [
+        "file"
+      ]
+    },
+    {
+      "id": "official-manual-048",
+      "title": "Write file overwrite",
+      "category": "file",
+      "language": "pml2",
+      "source": "TM-1401",
+      "description": "Extracted and normalized PML pattern for write file overwrite.",
+      "code": "!file.writefile('OVERWRITE', !output)",
+      "tags": [
+        "file",
+        "write"
+      ]
+    },
+    {
+      "id": "official-manual-049",
+      "title": "Write file append",
+      "category": "file",
+      "language": "pml2",
+      "source": "TM-1401",
+      "description": "Extracted and normalized PML pattern for write file append.",
+      "code": "!file.writefile('APPEND', !output)",
+      "tags": [
+        "file",
+        "append"
+      ]
+    },
+    {
+      "id": "official-manual-050",
+      "title": "Read file array",
+      "category": "file",
+      "language": "pml2",
+      "source": "TM-1401",
+      "description": "Extracted and normalized PML pattern for read file array.",
+      "code": "!arr = !file.readfile()",
+      "tags": [
+        "file",
+        "read"
+      ]
+    },
+    {
+      "id": "official-manual-051",
+      "title": "Iterate folder files",
+      "category": "file",
+      "language": "pml2",
+      "source": "TM-1401",
+      "description": "Extracted and normalized PML pattern for iterate folder files.",
+      "code": "!folder = object FILE('%PDMSUSER%\\')\ndo !f values !folder.files()\n  !name = !f.fullname()\n  !dtm = !f.dtm()\nenddo",
+      "tags": [
+        "file",
+        "folder"
+      ]
+    },
+    {
+      "id": "official-manual-052",
+      "title": "Alpha log overwrite",
+      "category": "file",
+      "language": "pml1",
+      "source": "TM-1401",
+      "description": "Extracted and normalized PML pattern for alpha log overwrite.",
+      "code": "Alpha log /C:/test.txt over\n$R102\nAlpha log end",
+      "tags": [
+        "alpha",
+        "log"
+      ]
+    },
+    {
+      "id": "official-manual-053",
+      "title": "Current element attributes",
+      "category": "dabacon",
+      "language": "pml2",
+      "source": "TM-1401",
+      "description": "Extracted and normalized PML pattern for current element attributes.",
+      "code": "!name = !!CE.name\n!type = !!CE.type\n!owner = !!CE.owner",
+      "tags": [
+        "dabacon",
+        "ce"
+      ]
+    },
+    {
+      "id": "official-manual-054",
+      "title": "Owner navigation query",
+      "category": "dabacon",
+      "language": "pml1",
+      "source": "TM-1401",
+      "description": "Extracted and normalized PML pattern for owner navigation query.",
+      "code": "q name of owner of owner\nq pos in world\nq pos in site",
+      "tags": [
+        "dabacon",
+        "navigation"
+      ]
+    },
+    {
+      "id": "official-manual-055",
+      "title": "Audit pseudo attributes",
+      "category": "dabacon",
+      "language": "pml1",
+      "source": "TM-1401",
+      "description": "Extracted and normalized PML pattern for audit pseudo attributes.",
+      "code": "q LASTM\nq CRDATE\nq CRUSER\nq USERM\nq CLSNAM",
+      "tags": [
+        "dabacon",
+        "audit"
+      ]
+    },
+    {
+      "id": "official-manual-056",
+      "title": "Write check",
+      "category": "dabacon",
+      "language": "pml2",
+      "source": "TM-1401",
+      "description": "Extracted and normalized PML pattern for write check.",
+      "code": "if (!!ce.dbwrite) then\n  $P Writable element\nendif\n!canWrite = !!dbRefUpdatable(!!ce)",
+      "tags": [
+        "dabacon",
+        "write"
+      ]
+    },
+    {
+      "id": "official-manual-057",
+      "title": "Backref query",
+      "category": "dabacon",
+      "language": "pml1",
+      "source": "TM-1401",
+      "description": "Extracted and normalized PML pattern for backref query.",
+      "code": "Q BACKREF (attname SPREF)",
+      "tags": [
+        "dabacon",
+        "backref"
+      ]
+    },
+    {
+      "id": "official-manual-058",
+      "title": "Element operations",
+      "category": "dabacon",
+      "language": "pml1",
+      "source": "TM-1401",
+      "description": "Extracted and normalized PML pattern for element operations.",
+      "code": "EORDER /ELBO3 BEFORE FIRST ELBO\nCHANGETYPE TO :GeneralInstrument\n:Pressure default",
+      "tags": [
+        "dabacon",
+        "modify"
+      ]
+    },
+    {
+      "id": "official-manual-059",
+      "title": "Evaluate named element",
+      "category": "dabacon",
+      "language": "pml1",
+      "source": "PML.docx",
+      "description": "Extracted and normalized PML pattern for evaluate named element.",
+      "code": "var !q EVALUATE(IFT(UNSET(:ManufacturerCompanyName), :RAMManufacturer, :ManufacturerCompanyName)) for /JDA-74PDI-00032",
+      "tags": [
+        "dabacon",
+        "evaluate"
+      ]
+    },
+    {
+      "id": "official-manual-060",
+      "title": "Badref skip guard",
+      "category": "control-flow",
+      "language": "pml1+pml2",
+      "source": "PML-Basics",
+      "description": "Extracted and normalized PML pattern for badref skip guard.",
+      "code": "if badref(!myRef) then\n  skip\nendif",
+      "tags": [
+        "badref"
+      ]
+    },
+    {
+      "id": "official-manual-061",
+      "title": "Undoable update",
+      "category": "error-handling",
+      "language": "pml2",
+      "source": "TM-1401",
+      "description": "Extracted and normalized PML pattern for undoable update.",
+      "code": "!undo = object UNDOABLE()\n!undo.add()\nhandle any\n  :Description = |Updated|\nelsehandle\n  $P Error: $!!Error.text\nendhandle\n!undo.endUndoable()",
+      "tags": [
+        "undoable",
+        "handle"
+      ]
     }
   ]
 }

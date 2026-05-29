@@ -563,5 +563,140 @@
       "------------------------------------------------------------------------"
     ],
     "description": "Form header documentation block"
+  },
+  "pml-handle-any": {
+    "prefix": "pml-handle-any",
+    "body": [
+      "handle any",
+      "  ${1:-- protected PML commands}",
+      "$0",
+      "elsehandle",
+      "  $P Error: $!!Error.text",
+      "endhandle"
+    ],
+    "description": "HANDLE ANY error handling scaffold"
+  },
+  "pml-do-values": {
+    "prefix": "pml-do-values",
+    "body": [
+      "do !${1:item} values !${2:array}",
+      "  ${3:-- use !${1:item}}",
+      "$0",
+      "enddo"
+    ],
+    "description": "Iterate array or collection values"
+  },
+  "pml-do-indices": {
+    "prefix": "pml-do-indices",
+    "body": [
+      "do !${1:i} indices !${2:array}",
+      "  !${3:item} = !${2:array}[!${1:i}]",
+      "  ${4:-- use index and item}",
+      "$0",
+      "enddo"
+    ],
+    "description": "Iterate array or collection indices"
+  },
+  "pml-collection": {
+    "prefix": "pml-collection",
+    "body": [
+      "!${1:collect} = object COLLECTION()",
+      "!${1:collect}.scope(${2:!!CE})",
+      "!${1:collect}.type(|${3:SCOM}|)",
+      "!${4:expression} = object EXPRESSION()",
+      "!${4:expression}.expression(|${5:NAME ne \"\"}|)",
+      "!${1:collect}.filter(!${4:expression})",
+      "!${6:results} = !${1:collect}.results()",
+      "$0"
+    ],
+    "description": "PML2 COLLECTION object scaffold"
+  },
+  "pml-collectallfor": {
+    "prefix": "pml-collectallfor",
+    "body": [
+      "!${1:elements} = !!CollectAllFor('${2:BRAN}', |${3:}|, ${4:!!CE})",
+      "$0"
+    ],
+    "description": "CollectAllFor shorthand pattern"
+  },
+  "pml-file-write": {
+    "prefix": "pml-file-write",
+    "body": [
+      "!${1:file} = object FILE('${2:%PDMSUSER%\\output.txt}')",
+      "if (!${1:file}.exists()) then",
+      "  !${1:file}.deletefile()",
+      "endif",
+      "!${3:lines} = ARRAY()",
+      "!${3:lines}.Append(|${4:line text}|)",
+      "!${1:file}.writefile('OVERWRITE', !${3:lines})",
+      "$0"
+    ],
+    "description": "FILE write overwrite scaffold"
+  },
+  "pml-fmsys-progress": {
+    "prefix": "pml-fmsys-progress",
+    "body": [
+      "!!FMSYS.setProgress(0)",
+      "do !${1:i} from 1 to !${2:total}",
+      "  !!FMSYS.setProgressText(|Processing | & !${1:i}.string() & | of | & !${2:total}.string())",
+      "  !!FMSYS.setProgress((!${1:i} * 100) / !${2:total})",
+      "  ${3:-- work item}",
+      "$0",
+      "enddo",
+      "!!FMSYS.setProgress(100)"
+    ],
+    "description": "FMSYS progress bar scaffold"
+  },
+  "pml-undoable": {
+    "prefix": "pml-undoable",
+    "body": [
+      "!${1:undo} = object UNDOABLE()",
+      "!${1:undo}.add()",
+      "handle any",
+      "  ${2:-- database changes}",
+      "$0",
+      "elsehandle",
+      "  $P Error: $!!Error.text",
+      "endhandle",
+      "!${1:undo}.endUndoable()"
+    ],
+    "description": "UNDOABLE database update block"
+  },
+  "pml-if-elseif": {
+    "prefix": "pml-if-elseif",
+    "body": [
+      "if (${1:condition}) then",
+      "  ${2:-- true branch}",
+      "elseif (${3:otherCondition}) then",
+      "  ${4:-- alternate branch}",
+      "else",
+      "  ${5:-- fallback branch}",
+      "$0",
+      "endif"
+    ],
+    "description": "If/elseif/else/endif scaffold"
+  },
+  "pml-define-function": {
+    "prefix": "pml-define-function",
+    "body": [
+      "define function !!${1:functionName}(!${2:arg} is ${3:STRING}) is ${4:STRING}",
+      "  ${5:return !${2:arg}}",
+      "$0",
+      "endfunction"
+    ],
+    "description": "Define function scaffold"
+  },
+  "pml-define-object": {
+    "prefix": "pml-define-object",
+    "body": [
+      "define object ${1:ObjectName}",
+      "  member .${2:name} is ${3:STRING}",
+      "  define method .${4:methodName}()",
+      "    ${5:-- method body}",
+      "$0",
+      "  endmethod",
+      "endobject"
+    ],
+    "description": "Define object scaffold"
   }
 }
