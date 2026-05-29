@@ -1,0 +1,9 @@
+node_modules/
+dist/
+coverage/
+.env
+*.log
+.DS_Store
+
+# Reference clones are preserved locally but not intended for normal commits.
+temp/

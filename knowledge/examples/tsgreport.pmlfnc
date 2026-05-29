@@ -1,0 +1,113 @@
+﻿define function !!tsgreport()
+
+!inlist[1 ] = /250000-Т1
+!inlist[2 ] = /250000-Т2
+!inlist[3 ] = /250000-Т3
+!inlist[4 ] = /250000-Т4
+!inlist[5 ] = /250000-Т5
+
+!marka = 'ТСГ'
+
+var !!starttime clock
+!back = !!ce
+trace off
+!sites = array()
+
+!sites = !inlist
+
+!attlist[1 ] = 'Имя_элемента'
+!attlist[2 ] = 'Зона_расположения'
+!attlist[3 ] = 'Шифр_комплекта_РД'
+!attlist[4 ] = 'Обозначение'
+!attlist[5 ] = 'Тип_изделия'
+!attlist[6 ] = 'Наименование_изделия'
+!attlist[7 ] = 'Длина'
+!attlist[8 ] = 'Длина сваи'
+!attlist[9 ] = 'Номер сваи'
+!attlist[10] = 'Марка сваи'
+
+!headline = !!join(!attlist, ';')
+
+!csvFolder = 'C:\Share\export\csv\' & !marka & '\'
+!!mkdir(!csvFolder)
+
+!total = !sites.size()
+
+do !index index !sites
+
+    !site = !sites[!index]
+    -- if ( !site.name.matchwild('*-АС*').not() ) then
+    -- skip
+    -- endif
+
+    !result    = object array()
+    !result[1] = !headline
+    $!site
+    !branmem =           !!collectallfor('PANE'     , |not matchwild(name of zone, '*TEMP*') and                   NOT UNSET ( :Обозначение ) | , $!site   )
+    !branmem.appendarray(!!collectallfor('GENSEC'   , |not matchwild(name of zone, '*TEMP*') and cutlen gt 1mm and NOT UNSET ( :Обозначение ) | , $!site ) )
+    !branmem.appendarray(!!collectallfor('FRMW EQUI', |not matchwild(name of zone, '*TEMP*') and                   NOT UNSET ( :Обозначение ) | , $!site ) )
+
+    if ( !branmem.empty()  ) then
+
+        skip
+    endif
+
+    do !element values !branmem
+        $!element
+        !t = array()
+
+        !t[1] = !!ce.flnn
+        !t[2] = namn of zone of $!element
+
+        !t[3] = :Шифр_комплекта_РД of site
+        !t[4] = :Обозначение of $!element
+        handle any
+            !t[4] = 'Ошибка Обозначение'
+        endhandle
+
+        !t[5] = :Тип_изделия OF $!element
+        handle any
+            !t[5] = 'Ошибка: Тип_изделия'
+        endhandle
+
+        !t[6] = :Наименование_изделия OF $!element
+        handle any
+            !t[6] = 'Ошибка Наименование_изделия'
+        endhandle
+
+        if ( !element.type eq 'GENSEC' ) then
+            !len   = !element.cutlen.ConvertUnits('mm').Value().String('d0')
+            !t[7]  = !len
+            !t[8 ] = :Длина_сваи OF $!element
+            !t[9 ] = :Номер_сваи OF $!element
+            !t[10] = :Марка_сваи OF $!element
+        else
+
+            !t[7 ] = ''
+            !t[8 ] = ''
+            !t[9 ] = ''
+            !t[10] = ''
+        endif
+
+        !result.append(!!join(!t, ';'))
+
+    enddo
+
+    !filename = object file( !csvFolder & !!generatefilename( namn of $!site ) & '.csv' )
+
+    !filename.WriteFile('over', !result)
+
+    $!site
+    $P выгружено: ( $!index ) ( $!total  ) -  $!!CE.flnm
+    $P *******
+    $P
+
+enddo
+
+$!back
+
+-- var !finishtime clock
+
+!!difftime()
+
+endfunction

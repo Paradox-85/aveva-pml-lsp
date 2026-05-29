@@ -1,0 +1,326 @@
+/**
+ * Token types and definitions for PML lexer
+ */
+
+export enum TokenType {
+	// Literals
+	STRING = 'STRING',
+	NUMBER = 'NUMBER',
+	BOOLEAN = 'BOOLEAN',
+
+	// Identifiers
+	IDENTIFIER = 'IDENTIFIER',
+	LOCAL_VAR = 'LOCAL_VAR',      // !variable
+	GLOBAL_VAR = 'GLOBAL_VAR',    // !!variable
+	SUBSTITUTE_VAR = 'SUBSTITUTE_VAR',  // $!variable or $/attribute
+	METHOD = 'METHOD',            // .methodName
+
+	// Keywords
+	DEFINE = 'DEFINE',
+	METHOD_KW = 'METHOD_KW',
+	FUNCTION = 'FUNCTION',
+	OBJECT = 'OBJECT',
+	ENDOBJECT = 'ENDOBJECT',
+	ENDMETHOD = 'ENDMETHOD',
+	ENDFUNCTION = 'ENDFUNCTION',
+	IF = 'IF',
+	THEN = 'THEN',
+	ELSE = 'ELSE',
+	ELSEIF = 'ELSEIF',
+	ENDIF = 'ENDIF',
+	DO = 'DO',
+	ENDDO = 'ENDDO',
+	WHILE = 'WHILE',
+	FOR = 'FOR',
+	VALUES = 'VALUES',
+	INDEX = 'INDEX',
+	INDICES = 'INDICES',
+	FROM = 'FROM',
+	TO = 'TO',
+	BY = 'BY',
+	HANDLE = 'HANDLE',
+	ELSEHANDLE = 'ELSEHANDLE',
+	ENDHANDLE = 'ENDHANDLE',
+	RETURN = 'RETURN',
+	BREAK = 'BREAK',
+	CONTINUE = 'CONTINUE',
+	SKIP = 'SKIP',
+	GOTO = 'GOTO',
+	VAR = 'VAR',
+	SETUP = 'SETUP',
+	FORM = 'FORM',
+	FRAME = 'FRAME',
+	EXIT = 'EXIT',
+	MEMBER = 'MEMBER',
+	IS = 'IS',
+
+	// Form UI keywords (for syntax highlighting, not strict parsing)
+	TEXT = 'TEXT',
+	BUTTON = 'BUTTON',
+	OPTION = 'OPTION',
+	TOGGLE = 'TOGGLE',
+	COMBO = 'COMBO',
+	CONTAINER = 'CONTAINER',
+	MENU = 'MENU',
+	PARA = 'PARA',
+	PARAGRAPH = 'PARAGRAPH',
+	TRACK = 'TRACK',
+	CALL = 'CALL',
+	POPUP = 'POPUP',
+	NOBOX = 'NOBOX',
+	DIALOG = 'DIALOG',
+	MAIN = 'MAIN',
+	DOCUMENT = 'DOCUMENT',
+	BLOCKINGDIALOG = 'BLOCKINGDIALOG',
+	RESIZABLE = 'RESIZABLE',
+	DOCK = 'DOCK',
+	LEFT = 'LEFT',
+	RIGHT = 'RIGHT',
+	TOP = 'TOP',
+	BOTTOM = 'BOTTOM',
+	OK = 'OK',
+	CANCEL = 'CANCEL',
+	APPLY = 'APPLY',
+	RESET = 'RESET',
+	RESIZE = 'RESIZE',
+	WID = 'WID',
+	HEI = 'HEI',
+
+	// PML1 Declarative Keywords (for syntax highlighting, not strict parsing)
+	COLLECT = 'COLLECT',
+	ALL = 'ALL',
+	WITH = 'WITH',
+	USING = 'USING',
+	AT = 'AT',
+	COMPOSE = 'COMPOSE',
+	SPACE = 'SPACE',
+
+	// Types
+	STRING_TYPE = 'STRING_TYPE',
+	REAL_TYPE = 'REAL_TYPE',
+	INTEGER_TYPE = 'INTEGER_TYPE',
+	BOOLEAN_TYPE = 'BOOLEAN_TYPE',
+	ARRAY_TYPE = 'ARRAY_TYPE',
+	DBREF_TYPE = 'DBREF_TYPE',
+	ANY_TYPE = 'ANY_TYPE',
+
+	// Operators
+	PLUS = 'PLUS',
+	MINUS = 'MINUS',
+	STAR = 'STAR',
+	SLASH = 'SLASH',
+	POWER = 'POWER',          // **
+	CONCAT = 'CONCAT',        // & (PML string concatenation)
+	MOD = 'MOD',
+	DIV = 'DIV',
+	EQ = 'EQ',
+	NE = 'NE',
+	GT = 'GT',
+	LT = 'LT',
+	GE = 'GE',
+	LE = 'LE',
+	INSET = 'INSET',
+	AND = 'AND',
+	OR = 'OR',
+	NOT = 'NOT',
+	OF = 'OF',                // of (attribute access)
+	ASSIGN = 'ASSIGN',        // =
+
+	// Delimiters
+	LPAREN = 'LPAREN',        // (
+	RPAREN = 'RPAREN',        // )
+	LBRACKET = 'LBRACKET',    // [
+	RBRACKET = 'RBRACKET',    // ]
+	LBRACE = 'LBRACE',        // {
+	RBRACE = 'RBRACE',        // }
+	PIPE = 'PIPE',            // |
+	DOT = 'DOT',              // .
+	COMMA = 'COMMA',          // ,
+	COLON = 'COLON',          // :
+	SEMICOLON = 'SEMICOLON',  // ;
+
+	// Special
+	NEWLINE = 'NEWLINE',
+	COMMENT = 'COMMENT',
+	WHITESPACE = 'WHITESPACE',
+	EOF = 'EOF',
+	UNKNOWN = 'UNKNOWN',
+}
+
+export interface Token {
+	type: TokenType;
+	value: string;
+	line: number;
+	column: number;
+	offset: number;
+	length: number;
+	index: number;  // Position in token array for O(1) lookup
+	continuesPreviousLine?: boolean;
+}
+
+export const KEYWORDS: Record<string, TokenType> = {
+	// Control flow
+	'define': TokenType.DEFINE,
+	'method': TokenType.METHOD_KW,
+	'function': TokenType.FUNCTION,
+	'object': TokenType.OBJECT,
+	'endobject': TokenType.ENDOBJECT,
+	'endmethod': TokenType.ENDMETHOD,
+	'endfunction': TokenType.ENDFUNCTION,
+	'if': TokenType.IF,
+	'then': TokenType.THEN,
+	'else': TokenType.ELSE,
+	'elseif': TokenType.ELSEIF,
+	'endif': TokenType.ENDIF,
+	'do': TokenType.DO,
+	'enddo': TokenType.ENDDO,
+	'while': TokenType.WHILE,
+	'for': TokenType.FOR,
+	'values': TokenType.VALUES,
+	'index': TokenType.INDEX,
+	'indices': TokenType.INDICES,
+	'from': TokenType.FROM,
+	'to': TokenType.TO,
+	'by': TokenType.BY,
+	'handle': TokenType.HANDLE,
+	'elsehandle': TokenType.ELSEHANDLE,
+	'endhandle': TokenType.ENDHANDLE,
+	'return': TokenType.RETURN,
+	'break': TokenType.BREAK,
+	'continue': TokenType.CONTINUE,
+	'skip': TokenType.SKIP,
+	'goto': TokenType.GOTO,
+	'var': TokenType.VAR,
+	'setup': TokenType.SETUP,
+	'form': TokenType.FORM,
+	'frame': TokenType.FRAME,
+	'exit': TokenType.EXIT,
+	'member': TokenType.MEMBER,
+	'is': TokenType.IS,
+
+	// Form UI keywords (recognized but not strictly parsed)
+	'text': TokenType.TEXT,
+	'button': TokenType.BUTTON,
+	'option': TokenType.OPTION,
+	'toggle': TokenType.TOGGLE,
+	'combo': TokenType.COMBO,
+	'container': TokenType.CONTAINER,
+	'menu': TokenType.MENU,
+	'para': TokenType.PARA,
+	'paragraph': TokenType.PARAGRAPH,
+	'track': TokenType.TRACK,
+	'call': TokenType.CALL,
+	'popup': TokenType.POPUP,
+	'nobox': TokenType.NOBOX,
+	'dialog': TokenType.DIALOG,
+	'main': TokenType.MAIN,
+	'document': TokenType.DOCUMENT,
+	'blockingdialog': TokenType.BLOCKINGDIALOG,
+	'resizable': TokenType.RESIZABLE,
+	'dock': TokenType.DOCK,
+	'left': TokenType.LEFT,
+	'right': TokenType.RIGHT,
+	'top': TokenType.TOP,
+	'bottom': TokenType.BOTTOM,
+	'ok': TokenType.OK,
+	'cancel': TokenType.CANCEL,
+	'apply': TokenType.APPLY,
+	'reset': TokenType.RESET,
+	'resize': TokenType.RESIZE,
+	'wid': TokenType.WID,
+	'hei': TokenType.HEI,
+
+	// PML1 Declarative Keywords (recognized but not strictly parsed)
+	'collect': TokenType.COLLECT,
+	'all': TokenType.ALL,
+	'with': TokenType.WITH,
+	'using': TokenType.USING,
+	'at': TokenType.AT,
+	'compose': TokenType.COMPOSE,
+	'space': TokenType.SPACE,
+
+	// Types (both cases supported since PML is case-insensitive)
+	'string': TokenType.STRING_TYPE,
+	'real': TokenType.REAL_TYPE,
+	'integer': TokenType.INTEGER_TYPE,
+	'boolean': TokenType.BOOLEAN_TYPE,
+	'array': TokenType.ARRAY_TYPE,
+	'dbref': TokenType.DBREF_TYPE,
+	'any': TokenType.ANY_TYPE,
+
+	// Operators
+	'mod': TokenType.MOD,
+	'div': TokenType.DIV,
+	'eq': TokenType.EQ,
+	'ne': TokenType.NE,
+	'neq': TokenType.NE,
+	'gt': TokenType.GT,
+	'lt': TokenType.LT,
+	'ge': TokenType.GE,
+	'geq': TokenType.GE,
+	'le': TokenType.LE,
+	'leq': TokenType.LE,
+	'inset': TokenType.INSET,
+	'and': TokenType.AND,
+	'or': TokenType.OR,
+	'not': TokenType.NOT,
+	'of': TokenType.OF,
+
+	// Boolean literals
+	'TRUE': TokenType.BOOLEAN,
+	'FALSE': TokenType.BOOLEAN,
+	'true': TokenType.BOOLEAN,
+	'false': TokenType.BOOLEAN,
+};
+
+/**
+ * Check if token is a keyword
+ */
+export function isKeyword(word: string): boolean {
+	return word.toLowerCase() in KEYWORDS;
+}
+
+/**
+ * Get keyword token type
+ */
+export function getKeywordType(word: string): TokenType | undefined {
+	return KEYWORDS[word.toLowerCase()];
+}
+
+/**
+ * Check if token type is an operator
+ */
+export function isOperator(type: TokenType): boolean {
+	return [
+		TokenType.PLUS, TokenType.MINUS, TokenType.STAR, TokenType.SLASH,
+		TokenType.POWER, TokenType.CONCAT, TokenType.MOD, TokenType.DIV,
+		TokenType.EQ, TokenType.NE, TokenType.GT, TokenType.LT, TokenType.GE, TokenType.LE, TokenType.INSET,
+		TokenType.AND, TokenType.OR, TokenType.NOT,
+		TokenType.ASSIGN
+	].includes(type);
+}
+
+/**
+ * Check if token type is a comparison operator
+ */
+export function isComparisonOperator(type: TokenType): boolean {
+	return [
+		TokenType.EQ, TokenType.NE, TokenType.GT, TokenType.LT, TokenType.GE, TokenType.LE, TokenType.INSET
+	].includes(type);
+}
+
+/**
+ * Check if token type is a logical operator
+ */
+export function isLogicalOperator(type: TokenType): boolean {
+	return [TokenType.AND, TokenType.OR, TokenType.NOT].includes(type);
+}
+
+/**
+ * Check if token type is an arithmetic operator
+ */
+export function isArithmeticOperator(type: TokenType): boolean {
+	return [
+		TokenType.PLUS, TokenType.MINUS, TokenType.STAR, TokenType.SLASH, TokenType.POWER, TokenType.CONCAT, TokenType.MOD, TokenType.DIV
+	].includes(type);
+}

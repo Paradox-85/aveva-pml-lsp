@@ -1,0 +1,53 @@
+{
+  "metadata": {
+    "source_policy": "Official AVEVA docs only for official examples; MIT source examples are stored separately under knowledge/examples.",
+    "pages_processed": 18,
+    "official_examples_extracted": 4,
+    "requires_auth": [],
+    "not_found": [],
+    "blocked_or_partial": [
+      {
+        "url": "https://docs.aveva.com/bundle/e3d-design/page/1026634.html",
+        "note": "Direct Python GET returned HTTP 403; harness fetch_content succeeded for entry page."
+      },
+      {
+        "url": "multiple required child pages",
+        "note": "Harness fetch returned generic AVEVA Documentation shell for several child pages; full recursive crawl remains a Phase 2 task."
+      }
+    ]
+  },
+  "examples": [
+    {
+      "section": "Control Logic",
+      "url": "https://docs.aveva.com/bundle/e3d-design/page/1026762.html",
+      "pml_version": "both",
+      "concepts": ["if", "elseif", "else", "endif"],
+      "description": "PML block if statement pattern used by the diagnostics smoke tests.",
+      "code": "IF (!condition) THEN\n  -- statements\nELSEIF (!other) THEN\n  -- statements\nELSE\n  -- statements\nENDIF"
+    },
+    {
+      "section": "Control Logic",
+      "url": "https://docs.aveva.com/bundle/e3d-design/page/1026762.html",
+      "pml_version": "both",
+      "concepts": ["do", "enddo"],
+      "description": "PML numeric loop pattern.",
+      "code": "DO !index FROM 1 TO !array.Size()\n  !value = !array[!index]\nENDDO"
+    },
+    {
+      "section": "PML Functions and Methods",
+      "url": "https://docs.aveva.com/bundle/engineering/page/1026679.html",
+      "pml_version": "PML2",
+      "concepts": ["define function", "return"],
+      "description": "PML function definition pattern.",
+      "code": "DEFINE FUNCTION !!Example(!arg IS STRING) IS STRING\n  RETURN !arg\nENDFUNCTION"
+    },
+    {
+      "section": "Forms",
+      "url": "https://docs.aveva.com/bundle/e3d-design/page/1026966.html",
+      "pml_version": "PML2",
+      "concepts": ["setup form", "exit"],
+      "description": "PML form definition pattern.",
+      "code": "SETUP FORM !!MyForm DIALOG\n  -- gadgets, callbacks, members\nEXIT"
+    }
+  ]
+}

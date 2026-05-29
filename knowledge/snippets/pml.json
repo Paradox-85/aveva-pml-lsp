@@ -1,0 +1,567 @@
+{
+  "Define Method": {
+    "prefix": "method",
+    "body": [
+      "define method .${1:methodName}()",
+      "    ${2:-- Method body}",
+      "    $0",
+      "endmethod"
+    ],
+    "description": "Create a new method definition"
+  },
+  "If-Then-Else": {
+    "prefix": "if",
+    "body": [
+      "if (${1:condition}) then",
+      "    ${2:-- true branch}",
+      "else",
+      "    ${3:-- false branch}",
+      "endif"
+    ],
+    "description": "If-then-else statement"
+  },
+  "If-Then": {
+    "prefix": "ifthen",
+    "body": [
+      "if (${1:condition}) then",
+      "    ${2:-- code}",
+      "endif"
+    ],
+    "description": "If-then statement"
+  },
+  "Do Values Loop": {
+    "prefix": "dovalues",
+    "body": [
+      "do !${1:item} values !${2:list}",
+      "    ${3:-- loop body}",
+      "    $0",
+      "enddo"
+    ],
+    "description": "Loop over collection values"
+  },
+  "Do Index Loop": {
+    "prefix": "doindex",
+    "body": [
+      "do !${1:i} index !${2:list}",
+      "    !${3:item} = !${2:list}[!${1:i}]",
+      "    ${4:-- loop body}",
+      "    $0",
+      "enddo"
+    ],
+    "description": "Loop over collection with index"
+  },
+  "Do Index with Progress": {
+    "prefix": "doindexprogress",
+    "body": [
+      "do !${1:i} index !${2:list}",
+      "    !${3:item} = !${2:list}[!${1:i}]",
+      "    ${4:-- loop body}",
+      "    !!FMSYS.setProgress(100 / !${2:list}.size() * !${1:i})",
+      "    $0",
+      "enddo",
+      "!!FMSYS.setProgress(0)"
+    ],
+    "description": "Loop with progress indicator"
+  },
+  "Do From-To Loop": {
+    "prefix": "dofromto",
+    "body": [
+      "do !${1:i} from ${2:1} to ${3:10}",
+      "    ${4:-- loop body}",
+      "    $0",
+      "enddo"
+    ],
+    "description": "Loop from number to number"
+  },
+  "Setup Form": {
+    "prefix": "form",
+    "body": [
+      "setup form !!${1:FormName} dialog docking ${2:right}",
+      "    ${3:-- form content}",
+      "    $0",
+      "exit"
+    ],
+    "description": "Create a form"
+  },
+  "Frame": {
+    "prefix": "frame",
+    "body": [
+      "frame .${1:frameName} width ${2:50}",
+      "    ${3:-- frame content}",
+      "    $0",
+      "exit"
+    ],
+    "description": "Create a frame"
+  },
+  "NewList Evaluate": {
+    "prefix": "evaluate",
+    "body": [
+      "!new${1:List} = !${1:List}.Evaluate(object Block(|!${1:List}[!evalIndex].${2:XXXX}|))"
+    ],
+    "description": "Create evaluated list"
+  },
+  "Collect All For": {
+    "prefix": "collectallfor",
+    "body": [
+      "!types = |${1:}|",
+      "!filt  = |${2:}|",
+      "!place = ${3:!!ce}",
+      "!elements = !!collectallfor(!types, !filt, !place)"
+    ],
+    "description": "Collect elements from database"
+  },
+  "Define Object": {
+    "prefix": "object",
+    "body": [
+      "define object ${1:OBJECTNAME}",
+      "    ${2:-- object members}",
+      "    $0",
+      "endobject"
+    ],
+    "description": "Define a new object"
+  },
+  "Variable Declaration": {
+    "prefix": "var",
+    "body": [
+      "!${1:varName} = ${2:value}"
+    ],
+    "description": "Declare a local variable"
+  },
+  "Global Variable Declaration": {
+    "prefix": "gvar",
+    "body": [
+      "!!${1:varName} = ${2:value}"
+    ],
+    "description": "Declare a global variable"
+  },
+  "Comment Header": {
+    "prefix": "header",
+    "body": [
+      "-- ============================================",
+      "-- ${1:Section Name}",
+      "-- ============================================",
+      "$0"
+    ],
+    "description": "Comment section header"
+  },
+  "Try-Catch": {
+    "prefix": "try",
+    "body": [
+      "!error = object ERROR()",
+      "handle any",
+      "    ${1:-- code that might fail}",
+      "    $0",
+      "elsehandle",
+      "    !error = !!error",
+      "    |Error: | & !error.message().output()",
+      "endhandle"
+    ],
+    "description": "Error handling block"
+  },
+  "String Variable": {
+    "prefix": "str",
+    "body": [
+      "!${1:varName} = STRING()"
+    ],
+    "description": "String variable declaration"
+  },
+  "Real Variable": {
+    "prefix": "real",
+    "body": [
+      "!${1:varName} = REAL()"
+    ],
+    "description": "Real number variable declaration"
+  },
+  "Boolean Variable": {
+    "prefix": "bool",
+    "body": [
+      "!${1:varName} = BOOLEAN()"
+    ],
+    "description": "Boolean variable declaration"
+  },
+  "Array Variable": {
+    "prefix": "array",
+    "body": [
+      "!${1:varName} = ARRAY()"
+    ],
+    "description": "Array variable declaration"
+  },
+  "Output Message": {
+    "prefix": "out",
+    "body": [
+      "|${1:message}|.output()"
+    ],
+    "description": "Output a message"
+  },
+  "Alert Message": {
+    "prefix": "alert",
+    "body": [
+      "!alert(|${1:message}|)"
+    ],
+    "description": "Show alert dialog"
+  },
+  "Using Namespace": {
+    "prefix": "using",
+    "body": [
+      "using namespace '${1:namespace}'"
+    ],
+    "description": "Import namespace"
+  },
+  "Button Basic": {
+    "prefix": "button",
+    "body": [
+      "button .${1:btnName} |${2:Button Text}| width ${3:10}"
+    ],
+    "description": "Basic button"
+  },
+  "Button with Callback": {
+    "prefix": "buttoncall",
+    "body": [
+      "button .${1:btnName} |${2:Button Text}| callback |!this.${3:onButtonClick}()| width ${4:10}"
+    ],
+    "description": "Button with callback method"
+  },
+  "Button with Form": {
+    "prefix": "buttonform",
+    "body": [
+      "button .${1:btnName} |${2:More...}| form !!${3:ChildForm} width ${4:10}"
+    ],
+    "description": "Button that opens a child form"
+  },
+  "Button OK": {
+    "prefix": "buttonok",
+    "body": [
+      "button .${1:btnOk} |OK| callback |!this.${2:onOk}()| OK width ${3:8}"
+    ],
+    "description": "OK button with callback"
+  },
+  "Button Cancel": {
+    "prefix": "buttoncancel",
+    "body": [
+      "button .${1:btnCancel} |Cancel| CANCEL width ${2:8}"
+    ],
+    "description": "Cancel button (no callback needed)"
+  },
+  "Button Apply": {
+    "prefix": "buttonapply",
+    "body": [
+      "button .${1:btnApply} |Apply| callback |!this.${2:onApply}()| APPLY width ${3:8}"
+    ],
+    "description": "Apply button with callback"
+  },
+  "Button Reset": {
+    "prefix": "buttonreset",
+    "body": [
+      "button .${1:btnReset} |Reset| callback |!this.${2:onReset}()| RESET width ${3:8}"
+    ],
+    "description": "Reset button with callback"
+  },
+  "Button Help": {
+    "prefix": "buttonhelp",
+    "body": [
+      "button .${1:btnHelp} |Help| HELP width ${2:8}"
+    ],
+    "description": "Help button"
+  },
+  "Button Dismiss": {
+    "prefix": "buttondismiss",
+    "body": [
+      "button .${1:btnDismiss} |Dismiss| CANCEL"
+    ],
+    "description": "Dismiss button (closes form)"
+  },
+  "Button Toggle": {
+    "prefix": "buttontoggle",
+    "body": [
+      "button .${1:btnToggle} toggle |${2:Toggle Text}| callback |!this.${3:onToggle}()| width ${4:10}"
+    ],
+    "description": "Toggle button (pressed/unpressed states)"
+  },
+  "Button Toggle with Pixmap": {
+    "prefix": "buttontogglepix",
+    "body": [
+      "button .${1:btnToggle} toggle callback |!this.${2:onToggle}()| pixmap width ${3:72} height ${4:23}"
+    ],
+    "description": "Toggle button with pixmap images"
+  },
+  "Button Link Label": {
+    "prefix": "buttonlink",
+    "body": [
+      "button .${1:btnLink} linklabel |${2:Link Text}| callback |!this.${3:onLinkClick}()| width ${4:10}"
+    ],
+    "description": "Link label button (no border, underlines on hover)"
+  },
+  "Button with Background": {
+    "prefix": "buttonbg",
+    "body": [
+      "button .${1:btnName} |${2:Button Text}| background ${3:4} width ${4:10}"
+    ],
+    "description": "Button with background color"
+  },
+  "Button with Pixmap": {
+    "prefix": "buttonpix",
+    "body": [
+      "button .${1:btnName} pixmap /${2:filename} callback |!this.${3:onClick}()| width ${4:16} height ${5:16}"
+    ],
+    "description": "Button with pixmap image"
+  },
+  "Button at Position": {
+    "prefix": "buttonat",
+    "body": [
+      "button .${1:btnName} |${2:Button Text}| at ${3:xmax+2} ${4:ymin} width ${5:10}"
+    ],
+    "description": "Button at specific position"
+  },
+  "Frame Normal": {
+    "prefix": "frame",
+    "body": [
+      "frame .${1:frName} |${2:Frame Title}| at ${3:x0} ${4:y0} width ${5:100} height ${6:30}",
+      "    ${7:-- Frame contents}",
+      "exit"
+    ],
+    "description": "Normal frame container"
+  },
+  "Frame at Position": {
+    "prefix": "frameat",
+    "body": [
+      "frame .${1:frName} |${2:Frame Title}| at ${3:xmax+2} ${4:ymin} width ${5:100} height ${6:30}",
+      "    ${7:-- Frame contents}",
+      "exit"
+    ],
+    "description": "Frame at specific position"
+  },
+  "Frame TabSet": {
+    "prefix": "frametabset",
+    "body": [
+      "frame tabset at ${1:x0} ${2:y0} width ${3:100} height ${4:50}",
+      "    frame .${5:frTab1} |${6:Tab 1}| at ${7:x0} ${8:y0} width ${9:100} height ${10:50}",
+      "        ${11:-- Tab 1 contents}",
+      "    exit",
+      "    ",
+      "    frame .${12:frTab2} |${13:Tab 2}| at ${14:x0} ${15:y0} width ${16:100} height ${17:50}",
+      "        ${18:-- Tab 2 contents}",
+      "    exit",
+      "exit"
+    ],
+    "description": "TabSet frame with tabbed pages"
+  },
+  "Frame Toolbar": {
+    "prefix": "frametoolbar",
+    "body": [
+      "frame .${1:frToolbar} toolbar |${2:Toolbar}|",
+      "    button .${3:btnTool1} |${4:Tool 1}| callback |!this.${5:onTool1}()| width ${6:10}",
+      "    button .${7:btnTool2} |${8:Tool 2}| callback |!this.${9:onTool2}()| width ${10:10}",
+      "exit"
+    ],
+    "description": "Toolbar frame (main forms only)"
+  },
+  "Frame Panel": {
+    "prefix": "framepanel",
+    "body": [
+      "frame panel at ${1:x0} ${2:y0} width ${3:100} height ${4:30}",
+      "    ${5:-- Panel contents}",
+      "exit"
+    ],
+    "description": "Panel frame (no border)"
+  },
+  "Frame Panel Indented": {
+    "prefix": "framepanelindent",
+    "body": [
+      "frame panel indent at ${1:x0} ${2:y0} width ${3:100} height ${4:30}",
+      "    ${5:-- Panel contents}",
+      "exit"
+    ],
+    "description": "Panel frame with 3D indent"
+  },
+  "Frame FoldUp Panel": {
+    "prefix": "framefoldup",
+    "body": [
+      "frame .${1:frFoldUp} folduppanel |${2:Fold-up Panel}| at ${3:x0} ${4:y0} width ${5:100} height ${6:30}",
+      "    ${7:-- Fold-up panel contents}",
+      "exit"
+    ],
+    "description": "Fold-up panel frame (expandable/collapsible)"
+  },
+  "Frame FoldUp with Background": {
+    "prefix": "framefoldupbg",
+    "body": [
+      "frame .${1:frFoldUp} folduppanel background ${2:lightGold} |${3:Fold-up Panel}| at ${4:x0} ${5:y0} width ${6:100} height ${7:30}",
+      "    ${8:-- Fold-up panel contents}",
+      "exit"
+    ],
+    "description": "Fold-up panel with background color"
+  },
+  "Frame Radio Group": {
+    "prefix": "frameradio",
+    "body": [
+      "frame .${1:frRadio} |${2:Radio Group}| at ${3:x0} ${4:y0} width ${5:100} height ${6:30} callback |!this.${7:onRadioSelect}()|",
+      "    rtoggle .${8:opt1} |${9:Option 1}| at ${10:x0} ${11:y0}",
+      "    rtoggle .${12:opt2} |${13:Option 2}| at ${14:x0} ${15:ymax+2}",
+      "    rtoggle .${16:opt3} |${17:Option 3}| at ${18:x0} ${19:ymax+2}",
+      "exit"
+    ],
+    "description": "Frame as radio button group with RTOGGLE gadgets"
+  },
+  "Text Field": {
+    "prefix": "textfield",
+    "body": [
+      "textfield .${1:fieldName} text |${2:Default Text}| callback .${3:callbackMethod}()"
+    ],
+    "description": "Create a text field"
+  },
+  "Toggle": {
+    "prefix": "toggle",
+    "body": [
+      "toggle .${1:toggleName} text |${2:Toggle Text}| callback .${3:callbackMethod}()"
+    ],
+    "description": "Create a toggle"
+  },
+  "Option List": {
+    "prefix": "optionlist",
+    "body": [
+      "optionlist .${1:listName} options |${2:Option1}| |${3:Option2}| callback .${4:callbackMethod}()"
+    ],
+    "description": "Create an option list"
+  },
+  "Member Variable": {
+    "prefix": "member",
+    "body": [
+      "member .${1:memberName} is ${2:STRING}"
+    ],
+    "description": "Define object member variable"
+  },
+  "Constructor": {
+    "prefix": "constructor",
+    "body": [
+      "define method .${1:ObjectName}()",
+      "    ${2:-- Initialize object}",
+      "    $0",
+      "endmethod"
+    ],
+    "description": "Define constructor method"
+  },
+  "Callback Method": {
+    "prefix": "callback",
+    "body": [
+      "define method .${1:callbackName}()",
+      "    ${2:-- Callback code}",
+      "    $0",
+      "endmethod"
+    ],
+    "description": "Define callback method"
+  },
+  "File Read": {
+    "prefix": "fileread",
+    "body": [
+      "!file = object FILE(|${1:filepath}|)",
+      "!file.open('read')",
+      "do !line values !file",
+      "    ${2:-- process line}",
+      "    $0",
+      "enddo",
+      "!file.close()"
+    ],
+    "description": "Read file line by line"
+  },
+  "File Write": {
+    "prefix": "filewrite",
+    "body": [
+      "!file = object FILE(|${1:filepath}|)",
+      "!file.open('write')",
+      "!file.writeline(|${2:content}|)",
+      "!file.close()"
+    ],
+    "description": "Write to file"
+  },
+  "Skip to Next": {
+    "prefix": "skip",
+    "body": [
+      "skip to next"
+    ],
+    "description": "Skip to next iteration"
+  },
+  "Break Loop": {
+    "prefix": "break",
+    "body": [
+      "break"
+    ],
+    "description": "Break from loop"
+  },
+  "Return Value": {
+    "prefix": "return",
+    "body": [
+      "return ${1:value}"
+    ],
+    "description": "Return from method"
+  },
+  "Query Object": {
+    "prefix": "query",
+    "body": [
+      "!${1:result} = !${2:object}.query(|${3:attribute}|)"
+    ],
+    "description": "Query object attribute"
+  },
+  "Handle Form Events": {
+    "prefix": "handleform",
+    "body": [
+      "handle (!!${1:FormName}.show())",
+      "    ${2:-- handle events}",
+      "    $0",
+      "endhandle"
+    ],
+    "description": "Handle form events"
+  },
+  "Elseif": {
+    "prefix": "elseif",
+    "body": [
+      "elseif (${1:condition}) then",
+      "    ${2:-- code}",
+      "    $0"
+    ],
+    "description": "Else-if branch"
+  },
+  "Case Statement": {
+    "prefix": "case",
+    "body": [
+      "if (!${1:var} eq ${2:value1}) then",
+      "    ${3:-- case 1}",
+      "elseif (!${1:var} eq ${4:value2}) then",
+      "    ${5:-- case 2}",
+      "else",
+      "    ${6:-- default}",
+      "endif"
+    ],
+    "description": "Case-like statement"
+  },
+  "Progress Bar": {
+    "prefix": "progress",
+    "body": [
+      "!!FMSYS.setProgress(${1:percent})"
+    ],
+    "description": "Set progress bar"
+  },
+  "Element Name": {
+    "prefix": "name",
+    "body": [
+      "!${1:element}.query(|NAME|)"
+    ],
+    "description": "Get element name"
+  },
+  "Form Header": {
+    "prefix": "formheader",
+    "body": [
+      "----------------------------------------------------------------------",
+      "--",
+      "--  File:            ${TM_FILENAME}",
+      "--    Type:          Form Definition",
+      "--    Module:        ${1:Module}",
+      "--  Author:          ${2:Author}",
+      "--  Created:         ${CURRENT_YEAR}-${CURRENT_MONTH}-${CURRENT_DATE}",
+      "--",
+      "--  Description:     ${3:Description}",
+      "--",
+      "------------------------------------------------------------------------"
+    ],
+    "description": "Form header documentation block"
+  }
+}

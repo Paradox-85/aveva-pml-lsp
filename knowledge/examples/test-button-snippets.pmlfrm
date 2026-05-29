@@ -1,0 +1,58 @@
+-- Test file for button snippets
+-- Type snippet prefix and press Tab to expand
+-- Test each snippet below:
+
+setup form !!testButtonSnippets
+    !this.formTitle = |Button Snippets Test|
+
+    -- Try these snippet prefixes:
+    -- button          -> Basic button
+    -- buttoncall      -> Button with callback
+    -- buttonform      -> Button with child form
+    -- buttonok        -> OK button
+    -- buttoncancel    -> Cancel button
+    -- buttonapply     -> Apply button
+    -- buttonreset     -> Reset button
+    -- buttonhelp      -> Help button
+    -- buttondismiss   -> Dismiss button
+    -- buttontoggle    -> Toggle button
+    -- buttontogglepix -> Toggle with pixmap
+    -- buttonlink      -> Link label button
+    -- buttonbg        -> Button with background color
+    -- buttonpix       -> Button with pixmap
+    -- buttonat        -> Button at specific position
+
+exit
+
+------------------------------------------------------------------------
+--
+-- Method:      testButtonSnippets
+--
+-- Description:
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+--
+------------------------------------------------------------------------
+define method .testButtonSnippets()
+
+    -- Constructor
+
+    !k = object ARRAY()
+
+    do !i index !items
+        !item = !items[!i]
+        -- loop body
+        !!FMSYS.setProgress(100 / !items.size() * !i)
+
+    enddo
+    !!FMSYS.setProgress(0)
+
+endmethod
+
+!paths[1] = '/pipe-a'
+!paths[2] = '/pipe-b'
+!paths[3] = '/pipe-c'
