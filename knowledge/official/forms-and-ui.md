@@ -130,3 +130,71 @@ define method .runWithProgress()
   !!FMSYS.setProgress(100)
 endmethod
 ```
+
+## Phase 3c Forms and UI patterns
+
+### Dropdown List with Images
+
+> [unverified] This `OPTION ... PIX ... PAIRS` shorthand is not confirmed in the checked AVEVA references; validate against the target AVEVA version before use.
+
+```pml
+OPTION .myOption 'List with images' PIX WIDTH 64 HEIGHT 64
+  VAR LIST _myOption PAIRS |MYPICTURE.PNG| |1|
+                           |MYPICTURE2.PNG| |2|
+EXIT
+```
+
+### Form Lifecycle and Callbacks
+
+- **InitCall / FirstShownCall**: Special form lifecycle callbacks defined in the form setup to trigger macros or methods upon initialization or when the form is first displayed.
+- **WAITON**: Command used to pause macro execution until a specific form is dismissed.
+  ```pml
+  show !!myform
+  WAITON FORM !!myform
+  ```
+- **CALLP**: Used to call a form with a pre-initialization macro (ICOMP = init macro, FCOMP = form).
+  ```pml
+  CALLP ICOMP FCOMP
+  ```
+
+### FMSYS Progress Bar
+
+Control the system progress bar during long loops:
+
+```pml
+!!FMSYS.setProgress(0)
+!percent = 100 * $!x / !items.Size()
+!!FMSYS.setProgress(!percent)
+```
+
+### Open Forms Query
+
+List all currently shown forms on the screen:
+
+```pml
+q var !!fmsys.shownforms()
+```
+
+### UI Context and Module Info
+
+> [unverified] `!!appcntrl.formtitle` and `!!appcntrl.currentapp` were not confirmed in the checked AVEVA references; validate against the target AVEVA version before use.
+
+Get the current module form title and application name:
+
+```pml
+Q VAR !!appcntrl.formtitle
+Q VAR !!appcntrl.currentapp
+```
+
+### PML.NET Grid Control (Excel Data Source)
+
+Bind a .NET grid control to an Excel file using `NETDATASOURCE`:
+
+```pml
+using namespace 'Aveva.Pdms.Presentation'
+Import 'GridControl'
+!grid = object NETGRIDCONTROL()
+!nds  = object NETDATASOURCE('Grid Control Example', 'c:\excel.xls')
+!grid.bindToDataSource(!nds)
+!titles = !grid.getColumn(1)
+```

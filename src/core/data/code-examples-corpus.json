@@ -1,0 +1,41 @@
+
+{
+  "examples": [
+    {
+      "label": "BLOCK Array Evaluation (Lambda)",
+      "detail": "Apply PML expression to array elements",
+      "documentation": "!bl = object BLOCK('!objsArray[!evalindex].b')\n!res = !objsArray.evaluate(!bl)",
+      "kind": "Snippet"
+    },
+    {
+      "label": "PMLFILEBROWSER Open/Save",
+      "detail": ".NET Dialog for File operations",
+      "documentation": "import 'pmlfilebrowser'\n!browser = object PMLFILEBROWSER('LOAD')\n!browser.show(!path, '', 'Title', false, 'TXT (*.txt)|*.txt', 2)\n!file = !browser.file()",
+      "kind": "Snippet"
+    },
+    {
+      "label": "PMLFolderBrowser",
+      "detail": "[unverified] .NET Dialog for Folder selection; validate availability in the target AVEVA version",
+      "documentation": "import 'PMLFileBrowser'\n!folder = object PMLFolderBrowser()\n!folder.Show('Title', true)\n!path = !folder.selectedPath()",
+      "kind": "Snippet"
+    },
+    {
+      "label": "DATEFORMAT Object",
+      "detail": "Date conversion and formatting",
+      "documentation": "!df = object DATEFORMAT(|D/M/Y|)\n!poDate = !df.string(!poRef.:PurchaseOrderDate)",
+      "kind": "Snippet"
+    },
+    {
+      "label": "NETGRIDCONTROL Excel Import",
+      "detail": "Read Excel columns via PML.NET",
+      "documentation": "import 'GridControl'\n!grid = object NETGRIDCONTROL()\n!nds = object NETDATASOURCE('Title', !filePath)\n!grid.bindToDataSource(!nds)\n!col1 = !grid.getColumn(1)",
+      "kind": "Snippet"
+    },
+    {
+      "label": "SELECTION Graphical Pick",
+      "detail": "Get currently selected elements from screen",
+      "documentation": "!graSel = object SELECTION()\n!graSel.getCurrent()\n!list = !graSel.getSelection()",
+      "kind": "Snippet"
+    }
+  ]
+}
