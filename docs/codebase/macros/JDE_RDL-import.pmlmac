@@ -1,0 +1,83 @@
+-- Run path: $m "C:\Users\ADZV\OneDrive - Ramboll\AVEVA_SERVER\Addons\PMLLIB\RAM\Engineering\jackdow\JDE_RDL-import.pmlmac"
+-- PML import RDL from xlsx to AVEVA
+--Author: Andrei Aitzhanov
+-- Company Ramboll Energies
+-- Date: 21-02-2023
+
+!issueData = ARRAY()
+!msg = |Tag No;Attribute;Value;Issue Description|
+!headerList = ARRAY()
+!headerList.appendArray(!msg.split(|;|))
+
+!attributeIssues = ARRAY()
+!classIssues = ARRAY()
+!classMappingsIssues = ARRAY()
+!classGroupIssues = ARRAY()
+!classAttributeMappingIssues = ARRAY()
+
+$( !excelFullPath is STRING
+!sheetName is STRING
+!isTranspose is BOOLEAN
+!columns is ARRAY
+!isCreate is BOOLEAN
+!forceUpdate is BOOLEAN
+!arrayAppend is BOOLEAN $)
+!excelFullPath 		   	= |C:\Users\ADZV\OneDrive - Ramboll\Ramboll_Jackdaw - Admin Team\Shell request\07_emptyAreas\RDL-Master-File.xlsx|
+!columns = ARRAY()
+!attributeSheet = |AVEVA-attribute-mapping|
+!classSheet = |AVEVA-class|
+!classMappingSheet = |AVEVA-class-mapping|
+!classGroupSheet = |AVEVA-class-group|
+!classAttributeMappingSheet = |AVEVA-class-attribute-mapping|
+--!attributeIssues 		= !!createObjectsFromExcelSheet(!excelFullPath, !attributeSheet, false, !columns, true, true, true)
+--!classIssues 			= !!createObjectsFromExcelSheet(!excelFullPath, !classSheet, false, !columns, true, true, false)
+--!classMappingsIssues 	= !!createObjectsFromExcelSheet(!excelFullPath, !classMappingSheet, false, !columns, true, true, false)
+!classGroupIssues 		= !!createObjectsFromExcelSheet(!excelFullPath, !classGroupSheet, false, !columns, true, true, false)
+--!classAttributeMappingIssues 		= !!createObjectsFromExcelSheet(!excelFullPath, !classAttributeMappingSheet, false, !columns, true, true, false)
+
+if (!attributeIssues.size() gt 0) then
+	using namespace |Aveva.Core.Presentation|
+	!IssueFileName = !excelFullPath.replace(|.xlsx|, |_$!<attributeSheet>-Issues.xlsx|)
+	!dataTable = object NETGRIDCONTROL()
+	!dataTable.clearGrid()
+	!source = object NETDATASOURCE('data', !headerList, !attributeIssues)
+	!dataTable.BindToDataSource(!source)
+	!dataTable.saveGridToExcel(|$!IssueFileName|)
+endif
+if (!classIssues.size() gt 0) then
+	using namespace |Aveva.Core.Presentation|
+	!IssueFileName = !excelFullPath.replace(|.xlsx|, |_$!<classSheet>-Issues.xlsx|)
+	!dataTable = object NETGRIDCONTROL()
+	!dataTable.clearGrid()
+	!source = object NETDATASOURCE('data', !headerList, !classIssues)
+	!dataTable.BindToDataSource(!source)
+	!dataTable.saveGridToExcel(|$!IssueFileName|)
+endif
+if (!classMappingsIssues.size() gt 0) then
+	using namespace |Aveva.Core.Presentation|
+	!IssueFileName = !excelFullPath.replace(|.xlsx|, |_$!<classMappingSheet>-Issues.xlsx|)
+	!dataTable = object NETGRIDCONTROL()
+	!dataTable.clearGrid()
+	!source = object NETDATASOURCE('data', !headerList, !classMappingsIssues)
+	!dataTable.BindToDataSource(!source)
+	!dataTable.saveGridToExcel(|$!IssueFileName|)
+endif
+if (!classGroupIssues.size() gt 0) then
+	using namespace |Aveva.Core.Presentation|
+	!IssueFileName = !excelFullPath.replace(|.xlsx|, |_$!<classGroupSheet>-Issues.xlsx|)
+	!dataTable = object NETGRIDCONTROL()
+	!dataTable.clearGrid()
+	!source = object NETDATASOURCE('data', !headerList, !classGroupIssues)
+	!dataTable.BindToDataSource(!source)
+	!dataTable.saveGridToExcel(|$!IssueFileName|)
+endif
+if (!classAttributeMappingIssues.size() gt 0) then
+	using namespace |Aveva.Core.Presentation|
+	!IssueFileName = !excelFullPath.replace(|.xlsx|, |_$!<classAttributeMappingSheet>-Issues.xlsx|)
+	!dataTable = object NETGRIDCONTROL()
+	!dataTable.clearGrid()
+	!source = object NETDATASOURCE('data', !headerList, !classAttributeMappingIssues)
+	!dataTable.BindToDataSource(!source)
+	!dataTable.saveGridToExcel(|$!IssueFileName|)
+endif
+SAVEWORK

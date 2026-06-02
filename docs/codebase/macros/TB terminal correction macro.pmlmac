@@ -1,0 +1,58 @@
+--$M "C:\Users\ADZV\OneDrive - Ramboll\AVEVA_SERVER\Addons\PMLLIB\RAM\Engineering\jackdow\loops\TB terminal correction macro.pmlmac"
+!file = object FILE('C:\Users\ADZV\OneDrive - Ramboll\AVEVA_SERVER\Addons\PMLLIB\RAM\Engineering\jackdow\loops\tags.txt')
+!lines = !file.readfile()
+!result = array()
+do !line values !lines
+  !name = !line
+  !!ce = !name.dbref()
+  !Terminals = !!ce.:HavePartTerminals
+  !channels = !!ce.:HavePartChannels
+
+
+  do !idx indices !Terminals
+    !terminal = !terminals[!idx]
+    !channel = !channels[!idx]
+
+    !signals = !terminal.:refPropagatedSignals
+    !outConn = !Terminal.:Havepartoutgoingconnections
+    if(!signals.unset() AND !outConn.size().eq(2)) then
+      !isIncomConn = !outConn[1].:RefConnectionsOut.acttype.eqnocase(':IncomingConnection')
+      if(!isIncomConn) then
+        !tempOutConn = !outConn.remove(1)
+        !channelTerminals = !channel.:havepartchannelTerminals
+        --!marking = !channel.:ChannelNumber + 'A'
+        !marking = !idx.string() + 'C'
+        !markings = !channelTerminals.evaluate(object BLOCK(|!channelTerminals[!evalIndex].:marking[1]|))
+		$P Terminal: $!terminal.name ->  OUT connection: $!outConn[1].name -> Channel: $!channel.name -> Marking: $!marking
+        !i = !markings.findFirst(!marking)
+        !CHTerminal = !channelTerminals[!i]
+        !incConn = !CHTerminal.:HavePartIncomingConnections
+        if(!incConn.set()) then
+          do !d indices !incConn
+            !ele = !incConn[!d]
+            !refCon = !ele.:RefConnectionsIn
+            if(!refCon.unset()) then
+              !tempIncomConnection = !incConn.remove(!d)
+
+              -- Set outgoing Terminals
+              !tempTerminals = !CHTerminal.:HavePartOutGoingConnections
+              !tempTerminals.append(!tempOutConn)
+              !CHTerminal.:HavePartOutGoingConnections = !tempTerminals
+              !Terminal.:Havepartoutgoingconnections = !outConn
+
+
+              -- Set Incoming Terminals
+              !tempTerminals = !CHTerminal.:HavePartIncomingConnections
+              !tempTerminals.append(!tempIncomConnection)
+              !CHTerminal.:HavePartIncomingConnections = !incConn
+              !Terminal.:HavePartIncomingConnections = !tempTerminals
+            else
+              break
+            endif
+          enddo
+        endif
+      endif
+    endif
+  enddo
+
+enddo

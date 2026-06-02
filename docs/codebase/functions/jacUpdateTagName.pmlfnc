@@ -1,0 +1,47 @@
+-----------------------------------------------------------------------
+--
+-- File:        JACUPDATETAGNAME
+-- Description: Function to update the tag name attribute
+--
+------------------------------------------------------------------------
+define function !!jacUpdateTagName(!sourceAttribute is STRING, !destinationAttribute is STRING, !replaceDetails is ARRAY, !filter is STRING, !isForceUpdate is BOOLEAN)
+
+  if(undefined(!!ramCommonLogger)) then
+    !!ramCommonLogger       = object RAMCOMMONLOGGER()
+  endif
+  !!ramCommonLogger.addLogDetails('jacUpdateTagName', '--------------------Execution start--------------------', 0)
+  !!displayProgress(1, 100)
+
+  !collection               = object COLLECTION()
+  !collection.type('ENGITE')
+  if(!filter.set() AND !filter.trim().neq('')) then
+    !expression             = object EXPRESSION(!filter)
+    !collection.filter(!expression)
+  endif
+  !tags                     = !collection.results()
+  do !i indices !tags
+    !!displayProgress(!i, !tags.size())
+    !elementRefe            = !tags[!i]
+    !elementName            = !elementRefe.attribute(!sourceAttribute)
+    !tagNameValue           = !elementName
+    do !replaceDetail value !replaceDetails
+      !isArray              = !replaceDetail.objectType().EQNoCase('ARRAY')
+      !isValidDetail        = !isArray AND !replaceDetail.set() AND !replaceDetail.size().eq(2)
+      if(!isValidDetail) then
+        !toBeReplacedString = !replaceDetail[1]
+        !replacingString    = !replaceDetail[2]
+        if(!toBeReplacedString.neq('')) then
+          !tagNameValue     = !tagNameValue.replace(!toBeReplacedString, !replacingString)
+        else
+          !!ramCommonLogger.addLogDetails('jacUpdateTagName', !elementName, !destinationAttribute, 'Empty cannot be replaced')
+        endif
+      else
+        !!ramCommonLogger.addLogDetails('jacUpdateTagName', !elementName, !destinationAttribute, 'replacement string not valid')
+      endif
+    enddo
+    !!jacCheckForceUpdate('jacUpdateTagName', !elementRefe, !destinationAttribute, !tagNameValue, !isForceUpdate)
+  enddo
+
+  !!displayProgress(100, 100)
+
+endfunction

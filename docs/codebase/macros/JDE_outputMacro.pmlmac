@@ -1,0 +1,8 @@
+--$m "C:\Users\ADZV\OneDrive - Ramboll\AVEVA_SERVER\Addons\PMLLIB\RAM\Engineering\jackdow\JDE_outputMacro.pmlmac"
+var !enggrps collect all (ENGGRP) with (mcount gt 0) for /TMS_ENG
+do !enggrp values !enggrps
+	!engrpRef = !enggrp.dbref()
+	ALPHA FILE "C:\Temp\output_$!<engrpRef.seq>.txt" OVERWRITE
+	OUTPUT TABULATE 2 $!enggrp CHANGES SINCE 00:00 01 March 2024
+	ALPHA FILE END
+enddo

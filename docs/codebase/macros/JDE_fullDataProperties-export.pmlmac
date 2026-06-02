@@ -1,0 +1,12 @@
+--$m "C:\Users\ADZV\OneDrive - Ramboll\AVEVA_SERVER\Addons\PMLLIB\RAM\Engineering\jackdow\_publish\macro\JDE_fullDataProperties-export.pmlmac"
+!dt = OBJECT DATETIME()
+!year = !dt.year()
+!month = !dt.month().string('I2')
+!date = !dt.date().string('I2')
+!hour = !dt.hour().string('I2')
+!minute = !dt.minute().string('I2')
+
+!filter = ':TagStatus eq |ACTIVE| and ISNAMED and NOT(EMPTY(:RAMTAGOWNER))'
+!publishPath = |C:\Users\ADZV\OneDrive - Ramboll\Ramboll_Jackdaw - Admin Team\EIS\Export for Shell\TagPropertyValue_full_extract_$!<year>-$!<month>-$!<date>-$!<hour>.xlsx|
+
+!!jacExportFullDataReport(!publishPath, !filter)

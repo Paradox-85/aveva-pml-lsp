@@ -1,0 +1,63 @@
+-----------------------------------------------------------------------
+--
+-- File:        JACUPDATETAGNAMEWITHBORE
+-- Description: Function to update the tag name attribute
+--
+------------------------------------------------------------------------
+define function !!jacUpdateTagNameWithBore(!excelFullPath is STRING, !sheetName is STRING, !sourceAttribute is STRING, !destinationAttribute is STRING, !spaceSeparator is STRING, !filter is STRING, !isForceUpdate is BOOLEAN)
+
+  if(undefined(!!ramCommonLogger)) then
+    !!ramCommonLogger            = object RAMCOMMONLOGGER()
+  endif
+  !!ramCommonLogger.addLogDetails('jacUpdateTagNameWithBore', '--------------------Execution start--------------------', 0)
+  !!displayProgress(1, 100)
+
+  !excelReader                   = object RAMEXCELREADERCLASS()
+  !collection                    = object COLLECTION()
+  !collection.type('ENGITE')
+  if(!filter.set() AND !filter.trim().neq('')) then
+    !expression                  = object EXPRESSION(!filter)
+    !collection.filter(!expression)
+  endif
+  
+  !tags                          = !collection.results()
+  !excelReader.loadExcelData(!excelFullPath, !sheetName)
+  !splitChar                     = '-'
+  !boreIndex                     = 2
+  do !i indices !tags
+    !!displayProgress(!i, !tags.size())
+    !elementRefe                 = !tags[!i]
+    !elementName                 = !elementRefe.attribute(!sourceAttribute)
+    !tagNameValue                = ''
+    
+    if(!splitChar.Length().eq(1)) then
+      !splitList                 = !elementName.split(!splitChar)
+      if(defined(!splitList[!boreIndex])) then
+        !boreDetail              = !splitList[!boreIndex]
+        !row                     = !excelReader.getSheetRow(!sheetName, 2, !boreDetail)
+        if(!row.set()) then
+          !splitList[!boreIndex] = !row[1].replace(' ', !spaceSeparator)
+          do !j indices !splitList
+            if(!j.eq(1)) then
+              !tagNameValue      = !splitList[!j]
+            else
+              !tagNameValue      = !tagNameValue + !splitChar + !splitList[!j]
+            endif
+          enddo
+          !!jacCheckForceUpdate('jacUpdateTagNameWithBore', !elementRefe, !destinationAttribute, !tagNameValue, !isForceUpdate)
+        else
+          !!ramCommonLogger.addLogDetails('jacUpdateTagNameWithBore', !elementRefe.namn, !destinationAttribute, 'bore value not found in excel')
+        endif
+      else
+        !!ramCommonLogger.addLogDetails('jacUpdateTagNameWithBore', !elementRefe.namn, !destinationAttribute, 'bore Index is out of range')
+      endif
+    else
+      !msg                       = 'Split char should not be more than 1 character'
+      !!ramCommonLogger.addLogDetails('jacUpdateTagNameWithBore', !elementRefe.namn, !destinationAttribute, !msg)
+    endif
+
+  enddo
+
+  !!displayProgress(100, 100)
+
+endfunction

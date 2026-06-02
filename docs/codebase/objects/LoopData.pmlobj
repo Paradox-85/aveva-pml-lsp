@@ -1,0 +1,646 @@
+------------------------------------------------------------------------
+--
+-- Ramboll Energy
+--
+--   File:            JDE-loop-data-mgmt.pmlobj
+--   Type:          Object Definition
+--   Group:         cabling
+--   Keyword:     loop drawing data management
+--   Module:        Tags
+--   Replaces:
+--
+-- Author:          andrei.aitzhanov
+-- Created:         12/12/2023
+-- Path: C:\Users\ADZV\OneDrive - Ramboll\AVEVA_SERVER\Addons\PMLLIB\RAM\Engineering\jackdow\objects\JDE-loop-data-mgmt.pmlobj
+------------------------------------------------------------------------
+
+--pml reload object LoopData
+--$m "C:\Users\ADZV\OneDrive - Ramboll\AVEVA_SERVER\Addons\PMLLIB\RAM\Engineering\jackdow\run-macro\loop-creation.pmlmac"
+--$m "C:\Users\ADZV\OneDrive - Ramboll\AVEVA_SERVER\Addons\PMLLIB\RAM\Engineering\jackdow\run-macro\cable-connection.pmlmac"
+define object LoopData
+	
+	--import dlls
+	import |Aveva.Engineering.PMLElementManager|
+	handle any
+	endhandle
+	import 'GridControl'
+	handle any
+	endhandle
+	
+	--
+	member .instruments         is ARRAY
+	member .singleCables        is ARRAY
+	member .multipleCables      is ARRAY
+	member .loops         		is ARRAY
+	member .issueData         	is ARRAY
+	member .headerData         	is ARRAY
+	member .pathName         	is STRING
+	member .symbols         	is ARRAY
+	member .forceValueUpdate   	is BOOLEAN
+	
+endobject
+
+-- default constructor
+define method .LoopData()
+	
+	!this.headerData.clear()
+	!msg = |Tag No;Method;Issue Description|
+	!this.headerData.appendArray(!msg.split(|;|))
+
+	!folder = object FILE('%PDMSUSER%')
+	!this.pathName = !folder.fullname()
+	
+	!symbol = |' "|
+	!this.symbols = !symbol.split()
+	!this.forceValueUpdate = false
+
+endmethod
+
+define method .SaveLog(!logName is STRING, !isOpen is BOOLEAN)
+
+	!logFile = |$!<this.pathName>\$!logName|
+	using namespace |Aveva.Core.Presentation|
+	!dataTable = object NETGRIDCONTROL()
+	!source = object NETDATASOURCE('data', !this.headerData, !this.issueData)
+	!dataTable.bindToDataSource(!source)
+	!dataTable.saveGridToExcel(!logFile)
+	if (!isOpen) then
+		SYSCOM 'explorer /root, "$!<this.pathName>"'
+	endif
+	
+endmethod
+
+--get list of instruments
+define method .GetData()
+	
+	!this.instruments.clear()
+	!this.loops.clear()
+	!this.issueData.clear()
+	
+	--get sigle pair cables
+	var !singleCables collect all (:RAMSINGLECABLE :SignalCable) with (not(badref(:TagRefToFromTag)) and not(badref(:TagRefToToTag)) and ISNAMED and :TagStatus eq |ACTIVE| and ((:RAMNoOfCorePair INSET ('1P', '1T') AND ACTTYPE eq ':SignalCable') OR (ACTTYPE eq ':RAMSINGLECABLE')))
+	!this.singleCables = !singleCables
+	
+	--get multi core cables
+	var !multipleCables collect all (:RAMMULTICORECABLE :SignalCable) with (not(badref(:TagRefToFromTag)) and not(badref(:TagRefToToTag)) and ISNAMED and :TagStatus eq |ACTIVE| $
+																			and ((NOT(:RAMNoOfCorePair INSET ('1P', '1T')) AND (NOT(UNSET(:RAMNoOfCorePair)) OR NOT(EMPTY(:RAMNoOfCorePair))) $
+																			AND ACTTYPE eq ':SignalCable') OR (ACTTYPE eq ':RAMMULTICORECABLE')))
+	!this.multipleCables = !multipleCables
+	
+	--get instruments
+	var !instruments collect all ENGITE with (not(matchwild(upcase(acttype), |*CABLE*|)) and not(matchwild(upcase(acttype), |*CABINET*|)) and $
+											  not(matchwild(upcase(acttype), |*PANEL*|)) and not(matchwild(upcase(acttype), |*JUNCTION*|))	and $
+											  not(matchwild(upcase(acttype), |*BOARD*|)) and not(matchwild(upcase(acttype), |*LOOP*|)) and $
+											  :RAMSYSTEMCODE inset (|PCS|, |ESD|, |PPS|, |F&G|, |PMS-RIO|) and $
+											  ISNAMED and :TagStatus eq |ACTIVE|)
+											  --:RAMSYSTEMCODE eq |F&G| and 
+											  --and matchwild(name, |*57XZ-02109*|))
+											  -- 
+	!this.instruments = !instruments
+	
+	--get loops
+	do !instrName values !this.instruments
+		!inst = !instrName.dbref()
+		!loopName = part(!inst.name,1,'-') + '-' + SUBSTR(part(!inst.name,2,'-'),-2,-100) + '-' + part(!inst.name,3,'-')
+		!this.loops.append(|$!inst.name#$!loopName|)
+	enddo
+	
+endmethod
+
+define method .Debug()
+	!data = ARRAY()
+	!header = ARRAY()
+	!headerString = |Tag No;ACTTYPE;:RAMSYSTEMCODE;:TagRefToSinglePairCable|
+	!header.appendArray(!headerString.split(|;|))
+	do !instrName values !this.instruments
+		!instRef = !instrName.dbref()
+		!msg = |$!<instRef.name>;$!<instRef.acttype>;$!<instRef.:RAMSYSTEMCODE>;$!<instRef.:TagRefToSinglePairCable>|
+		!data.append(!msg.split(|;|))
+	enddo
+	!logFile = |$!<this.pathName>\debug.xlsx|
+	using namespace |Aveva.Core.Presentation|
+	!dataTable = object NETGRIDCONTROL()
+	!source = object NETDATASOURCE('data', !header, !data)
+	!dataTable.bindToDataSource(!source)
+	!dataTable.saveGridToExcel(!logFile, |data|)
+endmethod
+
+-- create loop dbRef items in Dabacon based on instrument field equipment info
+define method .LoopCreate()
+	
+	do !loopEntry values !this.loops
+		--progress
+		!rowIdx = !this.loops.findFirst(!loopEntry)
+		!!FMSYS.SetProgressText(|Loop creating..|)
+		!!displayProgress(!rowIdx, !this.loops.size())
+		
+		!isLoopCreated = false
+		!instName = !loopEntry.split(|#|)[1]
+		!loopName = !loopEntry.split(|#|)[2]
+		!instRef = !instName.dbref()
+		!loopRef = !loopName.dbref()
+		handle any
+			--!isLoopCreated = !this.TryToLoopCreate(!loopName)
+		elsehandle none
+			if (!loopRef.acttype neq |:InstrumentLoop|) then
+				$p Original Tag: $!instName LoopName: $!loopName occupied by element $!loopRef.acttype
+				--case with already created loops & try to change name of loop
+				!loopName = part(!instName,1,'-') + '-' + SUBSTR(part(!instName,2,'-'),1,3) + SUBSTR(part(!instName,2,'-'),-1,-1) + '-' + part(!instName,3,'-')
+				!loopRef = !loopName.dbref()
+				handle any
+					!isLoopCreated = !this.TryToLoopCreate(!loopName)
+				endhandle
+			endif
+		endhandle
+		
+		!loopRef = !loopName.dbref()
+		handle none
+			if (!loopRef.acttype eq |:InstrumentLoop|) then
+				--
+				if (badref(!instRef.:TagRefToLoop)) then
+					!this.TryToSetValue(!instRef, !loopRef, |:TagRefToLoop|)
+				endif
+				
+				!this.TryToSetValue(!loopRef, !instRef.:RAMIOTYPICALID, |:RAMIOTYPICALID|)
+				!this.TryToSetValue(!loopRef, |LOOP #$!loopName for $!<instRef.desc>|, |Description|)
+				
+				--loop type
+				if (!instRef.:RAMLoopType.set() and !loopRef.:RAMLoopType neq !instRef.:RAMLoopType) then
+					!this.TryToSetValue(!loopRef, !instRef.:RAMLoopType, |:RAMLoopType|)
+				endif
+				
+				var !looUniqueNumber refno of $!instRef
+				!this.TryToSetValue(!loopRef, !looUniqueNumber.part(2, |/|), |:RAMLoopNo|)
+				
+				--discipline
+				if (!instRef.:TagRefToDiscipline.badref().not() and !loopRef.:TagRefToDiscipline neq !instRef.:TagRefToDiscipline) then
+					!this.TryToSetValue(!loopRef, !instRef.:TagRefToDiscipline, |:TagRefToDiscipline|)
+				endif
+				
+				--plant code & name
+				!this.TryToSetValue(!loopRef, |JDA|, |:PlantCode|)
+				!this.TryToSetValue(!loopRef, |JACKDAW|, |:PlantName|)
+				
+				--status
+				!this.TryToSetValue(!loopRef, |ACTIVE|, |:TagStatus|)
+				
+				--tag owner
+				if (!instRef.:RAMTAGOWNER.set() and !instRef.:RAMTAGOWNER.empty().not() and !loopRef.:RAMTAGOWNER neq !instRef.:RAMTAGOWNER) then
+					!this.TryToSetValue(!loopRef, !instRef.:RAMTAGOWNER, |:RAMTAGOWNER|)
+				endif
+				
+				--maturity level
+				if (!instRef.:RambollTagStatus.set() and !instRef.:RambollTagStatus.empty().not() and !loopRef.:RambollTagStatus neq !instRef.:RambollTagStatus) then
+					!this.TryToSetValue(!loopRef, !instRef.:RambollTagStatus, |:RambollTagStatus|)
+				endif
+			else
+				!msg = |$!<instRef.name>;LoopCreate();Loop $!<loopRef.name> can't be created for Tag $!<instRef.name> because tag $!<loopRef.name> is already occupied and have a type $!<loopRef.acttype>. Please check loop name|
+				!this.issueData.append(!msg.split(|;|))
+			endif
+		elsehandle any
+		endhandle
+	enddo
+	
+endmethod
+
+--
+define method .TryToLoopCreate(!loopName is STRING) is BOOLEAN
+
+	!result = false
+	
+	--create loop
+	!etype = object ELEMENTTYPE(|:InstrumentLoop|)
+	if (!etype.name() neq |UNKNOWN|) then
+		using namespace |Aveva.Engineering.PMLElementManager|
+		!elementNet = object CREATEELEMENT()
+		!elementNet.SetElementTypeByName(|:InstrumentLoop|)
+		handle any
+			!msg = |$!loopName;TryToLoopCreate($!loopName);Class [:InstrumentLoop] is not valid in AVEVA. Loop Tag will not be created|
+			!this.issueData.append(!msg.split(|;|))
+		elsehandle none
+			!elementNet.AddAttributeValue(|NAME|, !loopName)
+			!elementNet.Execute()
+			!errors = !elementNet.GetErrors()
+			do !error values !errors
+				!msg = |$!loopName;TryToLoopCreate($!loopName);$!error|
+				!this.issueData.append(!msg.split(|;|))
+			enddo
+		endhandle
+	else
+		!msg = |$!loopName;TryToLoopCreate($!loopName);type :InstrumentLoop is not existing in AVEVA data model|
+		!this.issueData.append(!msg.split(|;|))
+	endif
+	
+	--check
+	!loopRef = !loopName.dbref()
+	handle any
+	elsehandle none
+		if (!loopRef.acttype eq |:InstrumentLoop|) then
+			!result = TRUE
+		endif
+	endhandle
+	
+	return !result
+
+endmethod
+
+
+-- create tag-cable links based on from / to connection info
+define method .SingleCableConnect()
+
+	do !singleCableName values !this.singleCables
+		--progress
+		!rowIdx = !this.singleCables.findFirst(!singleCableName)
+		!!FMSYS.SetProgressText(|Single cable data transfer..|)
+		!!displayProgress(!rowIdx, !this.singleCables.size())
+		
+		!singleCableRef = !singleCableName.dbref()
+		!instRef = !singleCableRef.:TagRefToFromTag
+		!jbRef = !singleCableRef.:TagRefToToTag
+		
+		if (!instRef.badref().not()) then
+			!this.TryToSetValue(!instRef, !singleCableRef, |:TagRefToSinglePairCable|)
+		endif
+		
+		--ref to another field equipment (addressable loops case)
+		if (!instRef.attributes().findfirst(|:TagRefToFieldEquipment|).set()) then
+			!fieldEquipmentRef = !singleCableRef.:TagRefToToTag
+			!isFieldEquipment = !fieldEquipmentRef.acttype.upcase().matchwild(|*JUNCTIONBOX*|).not() and !fieldEquipmentRef.acttype.upcase().matchwild(|*CABINET*|).not() and $
+			!fieldEquipmentRef.acttype.upcase().matchwild(|*PANEL*|).not()
+			if (!fieldEquipmentRef.badref().not() and !isFieldEquipment) then
+				!this.TryToSetValue(!instRef, !fieldEquipmentRef, |:TagRefToFieldEquipment|)
+				handle any
+					!msg = |$!<instRef.name>;SingleCableConnect();Element Type $!fieldEquipmentRef.acttype is not acceptable as a reference for :TagRefToFieldEquipment|
+					!this.issueData.append(!msg.split(|;|))
+				endhandle
+			endif
+		endif		
+	enddo
+
+endmethod
+
+-- create tag-cable links based on from / to connection info
+define method .MultipleCableConnect()
+	
+	--
+	do !multipleCableName values !this.multipleCables
+		
+		--progress
+		!rowIdx = !this.multipleCables.findFirst(!multipleCableName)
+		!!FMSYS.SetProgressText(|Muticore cable data transfer..|)
+		!!displayProgress(!rowIdx, !this.multipleCables.size())
+		
+		!multipleCableRef = !multipleCableName.dbref()
+		!jbRef = !multipleCableRef.:TagRefToFromTag
+		!cabinetRef = !multipleCableRef.:TagRefToToTag
+		
+		if (!jbRef.badref().not()) then
+			!this.TryToSetValue(!jbRef, !multipleCableRef, |:TagRefToMulticoreCable|)
+		endif		
+	enddo
+	
+endmethod
+
+
+--get JB dara from Field equipment to JB
+--in case if we need transfer data only for JBs, then forceUpdate = False
+define method .JBFEdataTransfer(!forceUpdate is BOOLEAN)
+
+	do !singleCableName values !this.singleCables
+		
+		--progress
+		!rowIdx = !this.singleCables.findFirst(!singleCableName)
+		!!FMSYS.SetProgressText(|JB data transfer..|)
+		!!displayProgress(!rowIdx, !this.singleCables.size())
+		
+		!singleCableRef = !singleCableName.dbref()
+		!instRef = !singleCableRef.:TagRefToFromTag
+		!jbRef = !singleCableRef.:TagRefToToTag
+
+		!basicCheck = !instRef.badref().not() and !instRef.attributes().findfirst(|:RAMJBTSNO|).set() and !jbRef.badref().not() and  !instRef.isnamed and !jbRef.isnamed
+		!jbTypeCheck = IFT(!forceUpdate, !forceUpdate, !jbRef.acttype inset (|:RAMFGJUNCTIONBOX|, |:RAMPROCESSJUNCTIONBOX|))
+		
+		--transfer data from Field equipment to JB
+		if (!basicCheck and !jbTypeCheck) then
+			!this.TryToSetValue(!jbRef, !instRef.:RAMJBTSNO, |:RAMJBTSNO|)
+			!this.TryToSetValue(!jbRef, !instRef.:RAMJBTBNOLevel1, |:RAMJBTBNOLevel1|)
+			!this.TryToSetValue(!jbRef, !instRef.:RAMJBTBNOLevel2, |:RAMJBTBNOLevel2|)
+			!this.TryToSetValue(!jbRef, !instRef.:RAMJBTBNOLevel3, |:RAMJBTBNOLevel3|)
+			!this.TryToSetValue(!jbRef, !instRef.:RAMJBTBNOLevel4, |:RAMJBTBNOLevel4|)
+
+			if (!instRef.attributes().findfirst(|:RAMJBCabinetNo|).set() and !instRef.:RAMJBCabinetNo neq !jbRef.namn) then
+				!this.TryToSetValue(!instRef, !jbRef.namn, |:RAMJBCabinetNo|)
+				!this.TryToSetValue(!instRef, !jbRef.:TagRefToArea.namn, |:RAMJBCabinetLocation|)
+			endif
+		endif
+	enddo
+
+endmethod
+
+-- transfer data for instrument field equipment
+define method .InstrumentFieldDataTransfer(!force is BOOLEAN)
+	
+	!null = object DBREF()
+	do !instrName values !this.instruments
+	
+		--progress
+		!rowIdx = !this.instruments.findFirst(!instrName)
+		!!FMSYS.SetProgressText(|Instrument field data transfer..|)
+		!!displayProgress(!rowIdx, !this.instruments.size())
+		
+		!transferCableRef = object DBREF()
+		!singleCableRef = object DBREF()
+		!multiCableRef = object DBREF()
+		
+		!instRef = !instrName.dbref()
+		
+		--loop type
+		!loopType = |Simple|
+		if (!instRef.:RAMLoopType.upcase().matchwild(|*LOOP*|)) then
+			!loopType = |Adressable|
+		endif
+			
+		--***CABINETS
+		if (!instRef.attributes().findfirst(|:RAMMarshallingCabinetTagNo|).set() and !instRef.attributes().findfirst(|:RAMSystemCabinetTagNo|).set()) then
+			--mc (marshalling cabinet) - link by text
+			if (!instRef.:RAMMarshallingCabinetTagNo.empty().not()) then
+				!mcName = |/$!<instRef.:RAMMarshallingCabinetTagNo>|
+				!mcRef = !mcName.dbref()
+				handle any
+					!msg = |$!<instRef.name>;InstrumentFieldDataTransfer();Marshalling cabinet $!mcName is not existing in AVEVA, please check attribute :RAMMarshallingCabinetTagNo|
+					!this.issueData.append(!msg.split(|;|))
+				elsehandle none
+					if (!instRef.:TagRefToMarshallingCabinet neq !mcRef) then
+						!this.TryToSetValue(!instRef, !mcRef, |:TagRefToMarshallingCabinet|)
+					endif
+				endhandle
+			endif
+			
+			--sc (system cabinet)
+			if (!instRef.:RAMSystemCabinetTagNo.empty().not()) then
+				!scName = |/$!<instRef.:RAMSystemCabinetTagNo>|
+				!scRef = !scName.dbref()
+				handle any
+					!msg = |$!<instRef.name>;InstrumentFieldDataTransfer();System cabinet $!scName is not existing in AVEVA, please check attribute :RAMSystemCabinetTagNo|
+					!this.issueData.append(!msg.split(|;|))
+				elsehandle none
+					if (!instRef.:TagRefToSystemCabinet neq !scRef) then
+						!this.TryToSetValue(!instRef, !scRef, |:TagRefToSystemCabinet|)
+					endif
+				endhandle
+			endif
+		endif
+		
+		--***JB / FIELD EQUIPMENT
+		--ref to JB / Field Equipment
+		if (!instRef.attributes().findfirst(|:TagRefToJB|).set() and !instRef.:RAMJBCabinetNo.empty().not()) then
+			!eleName = |/$!<instRef.:RAMJBCabinetNo>|
+			!eleRef = !eleName.dbref()
+			handle none
+				--ref to JB
+				if (!eleRef.acttype.upcase().matchwild(|*JUNCTIONBOX*|)) then
+					if (!instRef.:TagRefToJB neq !eleRef) then
+						!this.TryToSetValue(!instRef, !eleRef, |:TagRefToJB|)
+					endif
+				elseif (!eleRef.acttype.upcase().matchwild(|*CABINET*|).not() and !eleRef.acttype.upcase().matchwild(|*PANEL*|).not()) then
+					--ref to another field equipment (addressable loops case)
+					if (!instRef.attributes().findfirst(|:TagRefToFieldEquipment|).set() and !instRef.:TagRefToFieldEquipment neq !eleRef) then
+						!this.TryToSetValue(!instRef, !eleRef, |:TagRefToFieldEquipment|)
+					endif
+				endif
+			elsehandle any
+				!msg = |$!<instRef.name>;InstrumentFieldDataTransfer();JB $!eleName is not existing in AVEVA!|
+				!this.issueData.append(!msg.split(|;|))
+			endhandle
+		endif
+		
+		--***CABLES
+		if (!loopType eq |Adressable|) then
+			if (!instRef.attributes().findfirst(|:RAMJBCabinetNo|).set() and !instRef.:RAMJBCabinetNo.Empty().not()) then
+				!eleName = |/$!<instRef.:RAMJBCabinetNo>|
+				!eleRef = !eleName.dbref()
+				handle none
+					!transferCableRef = !this.TryGetCableForEle(!instRef, !eleRef, true)
+					if (!transferCableRef.badref()) then
+						!msg = |$!<instRef.name>;InstrumentFieldDataTransfer();Can't find relevant cable for connection FROM $!<instRef.name> TO $!eleName|
+						!this.issueData.append(!msg.split(|;|))
+					else
+						--
+						if (!eleRef.acttype.upcase().matchwild(|*CABINET*|) or !eleRef.acttype.upcase().matchwild(|*PANEL*|)) then
+							!this.TryToSetValue(!instRef, !transferCableRef, |:TagRefToMulticoreCable|)
+						else
+							!this.TryToSetValue(!instRef, !transferCableRef, |:TagRefToSinglePairCable|)
+						endif
+					endif
+					
+					--multicore table (manual input)
+					if (!instRef.attributes().findfirst(|:RAMMulticoreCable1|).set()) then
+						!isUserDefined = true
+						!multiCable = |/$!<instRef.:RAMMulticoreCable1>|
+						!multiCableRef = !multiCable.replace(| / |, |/|).dbref()
+						handle any
+							!msg = |$!<instRef.name>;InstrumentFieldDataTransfer();Multi-Core Cable for ADRESSABLE LOOP defined by UDA :RAMMulticoreCable1 is not existing in AVEVA!|
+							!this.issueData.append(!msg.split(|;|))
+							!isUserDefined = false
+						endhandle
+
+						if (!multiCableRef.badref().not() and !instRef.:TagRefToMulticoreCable neq !multiCableRef) then
+							!this.TryToSetValue(!instRef, !multiCableRef, |:TagRefToMulticoreCable|)
+						endif
+					endif
+				elsehandle ANY
+					!msg = |$!<instRef.name>;InstrumentFieldDataTransfer();Can't find relevant cable for connection FROM $!<instRef.name< to $!eleName, because $!eleName is not existing in AVEVA|
+					!this.issueData.append(!msg.split(|;|))
+				endhandle
+			endif
+		else
+			--case with get data from STRING fields populated by Users
+			--single core cable
+			if (!instRef.attributes().findfirst(|:RAMSinglePairCable|).set()) then
+				!isUserDefined = true
+				!singleCable = |/$!<instRef.:RAMSinglePairCable>|
+				!singleCableRef = !singleCable.replace(| / |, |/|).dbref()
+				handle any
+					!msg = |$!<instRef.name>;InstrsumentFieldDataTransfer();Single Pair Cable (Transmitter Cable) defined by UDA :RAMSinglePairCable is not existing in AVEVA!|
+					!this.issueData.append(!msg.split(|;|))
+					!isUserDefined = false
+				endhandle
+				
+				if (!singleCableRef.badref() and !instRef.:TagRefToJB.badref().not()) then
+					!singleCableRef = !this.TryGetCableForEle(!instRef, !instRef.:TagRefToJB, true)
+					if (!singleCableRef.badref()) then
+						!msg = |$!<instRef.name>;InstrumentFieldDataTransfer().Single-core cable;Can't find relevant cable for connection FROM $!<instRef.name> TO $!eleName|
+						!this.issueData.append(!msg.split(|;|))
+					endif
+				endif
+				
+				if (!singleCableRef.badref().not() or !singleCable.set()) then
+					!this.TryToSetValue(!instRef, !null, |:TagRefToSinglePairCable|)
+				endif
+				if (!singleCableRef.badref().not() and !instRef.:TagRefToSinglePairCable neq !singleCableRef) then
+					!this.TryToSetValue(!instRef, !singleCableRef, |:TagRefToSinglePairCable|)
+				endif
+			endif
+			
+			--multi core cable
+			if (!instRef.attributes().findfirst(|:RAMMulticoreCable1|).set()) then
+				!isUserDefined = true
+				!multiCable = |/$!<instRef.:RAMMulticoreCable1>|
+				!multiCableRef = !multiCable.replace(| / |, |/|).dbref()
+				handle any
+					!msg = |$!<instRef.name>;InstrumentFieldDataTransfer();Multi-Core Cable (JB to Cabinet Cable) defined by UDA :RAMMulticoreCable1 is not existing in AVEVA!|
+					!this.issueData.append(!msg.split(|;|))
+					!isUserDefined = false
+				endhandle
+				
+				if (!multiCableRef.badref() and !instRef.:TagRefToJB.badref().not() and !instRef.:TagRefToMarshallingCabinet.badref().not()) then
+					!multiCableRef = !this.TryGetCableForEle(!instRef.:TagRefToJB, !instRef.:TagRefToMarshallingCabinet, true)
+					if (!multiCableRef.badref()) then
+						!msg = |$!<instRef.name>;InstrumentFieldDataTransfer().Multi-core cable;Can't find relevant cable for connection FROM $!<instRef.name> TO $!eleName|
+						!this.issueData.append(!msg.split(|;|))
+					endif
+				endif
+
+				if (!multiCableRef.badref().not() or !multiCable.set()) then
+					!this.TryToSetValue(!instRef, !null, |:TagRefToMulticoreCable|)
+				endif
+				if (!multiCableRef.badref().not() and !instRef.:TagRefToMulticoreCable neq !multiCableRef) then
+					!this.TryToSetValue(!instRef, !multiCableRef, |:TagRefToMulticoreCable|)
+				endif
+			endif
+		endif
+		
+		--***INST ATTRIBUTES
+		--loop type (only for empty values)
+		if (!instRef.attributes().findfirst(|:RAMIOTYPICALID|).set() and !instRef.attributes().findfirst(|:RAMLoopType|).set() $
+			and !instRef.:RAMIOTYPICALID.empty().not() and !instRef.:RAMLoopType.unset()) then
+			!this.TryToSetValue(!instRef, !instRef.:RAMIOTYPICALID, |:RAMLoopType|)
+		endif
+		
+		--field name attribute Definition
+		if (!instRef.attributes().findfirst(|:RAMInstrumentLocation|).set()) then
+			!areaRef = !instRef.:TagRefToArea
+			handle none
+				if (!areaRef.badref().not() and !areaRef.isnamed) then
+					!areaCodeFirstletter = !areaRef.namn.substring(1,1)
+					if (!areaCodeFirstletter eq |L|) then
+						!this.TryToSetValue(!instRef, |LER|, |:RAMInstrumentLocation|)
+					else
+						!this.TryToSetValue(!instRef, |FIELD|, |:RAMInstrumentLocation|)
+					endif
+				endif
+			elsehandle any
+			endhandle
+		endif
+	enddo
+	
+endmethod
+
+define method .TryGetCableForEle(!fromEle is DBREF, !toEle is DBREF, !matchCheck is BOOLEAN) is dbref
+	
+	!result = object DBREF()
+	if (!fromEle.badref().not() and !toEle.badref().not()) then
+		!type = |ENGITE|
+		!filter = |:TagRefToFromTag eq $!<fromEle.name> and :TagRefToToTag eq $!<toEle.name> and matchwild(upcase(ACTTYPE), '*CABLE*') and :TagStatus eq 'ACTIVE'|
+		!result = !this.TryToGetCableRef(!fromEle, !type, !filter)
+		if (!result.badref()) then
+			!fromShortTag = !fromEle.name.after(|/JDA-|)
+			!toShortTag = !toEle.name.after(|/JDA-|)
+			!filter = |matchwild(namn, '*$!<fromShortTag>*') and matchwild(namn, '*$!<toShortTag>*') and matchwild(upcase(ACTTYPE), '*CABLE*') and :TagStatus eq 'ACTIVE'|
+			!result = !this.TryToGetCableRef(!fromEle, !type, !filter)
+		endif
+	endif
+	
+	if (!result.badref().not() and !matchCheck) then
+		var !matching MATCHWILD(NAMN of $!result, |*| + AFTER(NAMN of $!fromEle, |JDA-|) + |/| + AFTER(NAMN of $!toEle, |JDA-|) + |*|)
+		!nameCheck = !nameCheckString.boolean()
+		handle any
+			!nameCheck = false
+		endhandle
+		
+		if (!nameCheck.not()) then
+			!result = object DBREF()
+			!msg = |$!<fromEle.name>;TryGetCableForEle();Cable name $!result is not matching with FROM $!<fromEle.name> TO $!<toEle.name>|
+			!this.issueData.append(!msg.split(|;|))
+		endif
+	endif
+	
+	return !result
+
+endmethod
+
+--
+define method .TryToGetCableRef(!eleRef is DBREF, !type is STRING, !filterExp is STRING) is dbref
+	
+	!result = object DBREF()
+	!exp = |var !cables collect all ($!type) with ($!filterExp) MAX 1|
+	
+	var !cables collect all ($!type) with ($!filterExp) MAX 1
+	handle any 
+		!msg = |$!<eleRef.name>;TryToGetCableRef();PML expression for collect cables are not valid: $!!error.text Expression: [$!exp]|
+		!this.issueData.append(!msg.split(|;|))
+	elsehandle none
+		if (!cables.size() gt 0) then 
+			!result = !cables.first().dbref()
+		endif
+	endhandle
+	
+	return !result
+	
+endmethod
+
+--get value without special symbols
+define method .TryToSetValue(!eleRef is DBREF, !AttributeValue is ANY, !attributeName is STRING) is BOOLEAN
+	
+	!result = false
+
+	!isError = false
+	!attribute = object ATTRIBUTE(!attributeName)
+	if (!attribute.hash() eq 0) then
+		!isError = true
+		!msg = |$!<eleRef.name>;TryToSetValue();Attribute $!attributeName is not existing in AVEVA|
+		!this.issueData.append(!msg.split(|;|))
+	endif
+	if (!eleRef.badref()) then
+		!isError = true
+		!msg = |$!<eleRef.name>;TryToSetValue();Element $!eleRef is not existing in AVEVA|
+		!this.issueData.append(!msg.split(|;|))
+	endif
+	if (!eleRef.badref().not() and !eleRef.attributes().findfirst(|$!attributeName|).unset()) then
+		!isError = true
+		!msg = |$!<eleRef.name>;TryToSetValue();Attribute $!attributeName is not valid for the element $!<eleRef.name>|
+		!this.issueData.append(!msg.split(|;|))
+	endif
+	if (!eleRef.dbwrite.not() or !eleRef.modatt.not()) then
+		!isError = true
+		!msg = |$!<eleRef.name>;TryToSetValue();Element can't be claimed!|
+		!this.issueData.append(!msg.split(|;|))
+	endif
+	
+	!currentValue = !eleRef.attribute(!attribute.name())
+	!isUpdate = IFT(!this.forceValueUpdate, true, !currentValue neq !AttributeValue)
+	if (!isError.not() and !isUpdate) then
+		!AttributeNewValue = !AttributeValue
+		!eleRef.attribute(!attribute.name()) = !AttributeValue
+		handle (47,66)
+			!length = !AttributeValue.length() - 1
+			!AttributeNewValue = !AttributeValue.substring(1, !length)
+			!msg = |$!<eleRef.name>;TryToSetValue();Value $!AttributeValue of Attribute $!attributeName has new line symbols (\r\n), please check!|
+			!this.issueData.append(!msg.split(|;|))
+			
+			!eleRef.attribute(!attribute.name()) = !AttributeNewValue
+			handle none
+				!result = true
+			endhandle
+		elsehandle (41,52)
+			!msg = |$!<eleRef.name>;TryToSetValue();Type of element $!AttributeValue.acttype is not applicable for attribute $!attributeName|
+			!this.issueData.append(!msg.split(|;|))
+		elsehandle (2,623)
+			!msg = |$!<eleRef.name>;TryToSetValue();Unable to claim element: $!!<error.text>|
+			!this.issueData.append(!msg.split(|;|))
+		endhandle
+	endif
+
+	return !result
+endmethod
+

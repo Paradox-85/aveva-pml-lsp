@@ -1,0 +1,30 @@
+------------------------------------------------------------------------
+--
+-- File:        JACUPDATEEQUIPMENTNUMBER
+-- Description: Function to update Equipment name
+--
+------------------------------------------------------------------------
+define function !!jacUpdateEquipmentNumber(!attributeName is STRING, !mask is STRING, !isForceUpdate is BOOLEAN)
+
+  if(undefined(!!ramCommonLogger)) then
+    !!ramCommonLogger = object RAMCOMMONLOGGER()
+  endif
+  !!ramCommonLogger.addLogDetails('jacUpdateEquipmentNumber', '--------------------Execution start--------------------', 0)
+
+  !collection         = object COLLECTION()
+  !!displayProgress(1, 100)
+
+  !collection.type('ENGITE')
+  !expression         = object EXPRESSION(|NOT(UNSET(:TagStatus)) AND ISNAMED|)
+  !collection.filter(!expression)
+  !tags               = !collection.results()
+  do !i indices !tags
+    !!displayProgress(!i, !tags.size())
+    !elementRefe      = !tags[!i]
+    !value            = |$!mask|
+    !!jacCheckForceUpdate('jacUpdateEquipmentNumber', !elementRefe, !attributeName, !value, !isForceUpdate)
+  enddo
+
+  !!displayProgress(100, 100)
+
+endfunction

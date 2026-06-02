@@ -1,0 +1,1731 @@
+------------------------------------------------------------------------
+--
+-- Ramboll Energy
+--
+--   File:            JDE-loop-data-mgmt.pmlobj
+--   Type:          Object Definition
+--   Group:         cabling
+--   Keyword:     jackdaw tag data management
+--   Module:        Tags
+--   Replaces:
+--
+-- Author:          andrei.aitzhanov
+-- Created:         12/12/2023
+-- Path: C:\Users\ADZV\OneDrive - Ramboll\AVEVA_SERVER\Addons\PMLLIB\RAM\Engineering\jackdow\objects\JDE-loop-data-mgmt.pmlobj
+------------------------------------------------------------------------
+
+--pml reload object TagManagementTmp
+--$m "C:\Users\ADZV\OneDrive - Ramboll\AVEVA_SERVER\Addons\PMLLIB\RAM\Engineering\jackdow\run-macro\loop-creation.pmlmac"
+define object TagManagementTmp
+	
+	--import dlls
+	import |Aveva.Engineering.PMLElementManager|
+	handle any
+	endhandle
+	import 'GridControl'
+	handle any
+	endhandle
+	import 'RamPMLExcelReader'
+	handle any
+	endhandle
+	
+	--
+	member .tags		       		is ARRAY
+	member .classMappings      		is ARRAY
+	member .acttypes      			is ARRAY
+	member .errorList		    	is ARRAY
+	member .logPathName         	is STRING
+	member .rdlFileName			  	is STRING
+	member .specialSymbols	  		is STRING
+	
+endobject
+
+-- default constructor
+define method .TagManagementTmp()
+	
+	!this.tags.clear()
+	!this.classMappings.clear()
+	!this.acttypes.clear()
+	!this.errorList.clear()
+	!this.specialSymbols = |. , - ~ * : ; _ / \ ' " & ? ! # $ % ( ) [ ] +|
+	!this.rdlFileName = |C:\Users\ADZV\OneDrive - Ramboll\Ramboll_Jackdaw - Admin Team\RDL\_Master\RDL-Master-File.xlsx|
+
+endmethod
+
+--
+define method .GetTagData()
+	
+	--get tag list
+	!this.tags.clear()
+	var !tags COLL ALL (ENGITEM) WITH (:TagStatus eq |ACTIVE| and ISNAMED and NOT(EMPTY(:RAMTAGOWNER)) and NOT(EMPTY(:TagStatus)) and NOT(EMPTY(:RambollTagStatus)))
+	!this.tags = !tags
+
+endmethod
+
+--check type of loader file
+define method .GetSheetType(!fileName is STRING, !sheetName is STRING, !columns is ARRAY) is BOOLEAN
+	
+	!result = false
+	
+	!file = object FILE(!fileName)
+	
+	if (!file.exists()) then
+		using namespace 'RamPMLExcelReader'
+		!excelReader           = object RamPMLExcelReaderClass()
+		!excelFullPath 		   = !fileName
+		!excelRowObjects       = !excelReader.ReadExcel(!excelFullPath, !sheetName)
+		handle any
+				!!alert.warning('Problem in reading the Excel file')
+				!!fmsys.SETPROGRESS(0)
+				return !result
+		endhandle
+		!headings 	= !excelRowObjects[1]
+		!checkString = ||
+		do !column values !columns
+			!columnMatch = !headings.findfirst(!column).set()
+			!checkString = |$!<checkString>_$!<columnMatch>|
+		enddo
+
+		!result = !checkString.matchwild(|*FALSE*|).not()
+	endif
+	
+	return !result
+	
+endmethod
+
+--get class mappings
+define method .GetMappingData()
+
+	!this.classMappings.clear()
+	!this.acttypes.clear()
+	!mappingFile = object FILE(!this.rdlFileName)
+	if (!mappingFile.exists()) then
+		--get data from excel
+		using namespace 'RamPMLExcelReader'
+		!excelReader           = object RamPMLExcelReaderClass()
+		!excelFullPath 		   = !this.rdlFileName
+		!sheetName             = |Ram-Shell-mapping|
+		!excelRowObjects       = !excelReader.ReadExcel(!excelFullPath, !sheetName)
+		handle any
+				!!alert.warning('Problem in reading the Excel file')
+				!!fmsys.SETPROGRESS(0)
+				return
+		endhandle
+		!heading 	= !excelRowObjects[1]
+		!data 		= !excelRowObjects
+		!size 		= !data.size()
+		do !idx from 2 to !size
+			!row = !data[!idx]
+			!acttype = !row[1].trim()
+			!className = !row[2].trim()
+			!classType = !row[3].trim()
+			if (!className.set() and !className.empty().not()) then
+				!this.classMappings.append(|$!acttype;$!className;$!classType|)
+				!this.acttypes.append(|$!acttype|)
+			endif
+		enddo
+	endif
+
+endmethod
+
+--get attribute mappings
+define method .GetExAttributes() is ARRAY
+	
+	!result = ARRAY()
+	!attributes = ARRAY()
+	!expressions = ARRAY()
+	!mappingFile = object FILE(!this.rdlFileName)
+	if (!mappingFile.exists()) then
+		--get data from excel
+		using namespace 'RamPMLExcelReader'
+		!excelReader           = object RamPMLExcelReaderClass()
+		!excelFullPath 		   = !this.rdlFileName
+		!sheetName             = |Attributes-mapping|
+		!excelRowObjects       = !excelReader.ReadExcel(!excelFullPath, !sheetName)
+		handle any
+				!!alert.warning('Problem in reading the Excel file')
+				!!fmsys.SETPROGRESS(0)
+				return
+		endhandle
+		!heading 	= !excelRowObjects[1]
+		!data 		= !excelRowObjects
+		!size 		= !data.size()
+		do !idx from 2 to !size
+			!row = !data[!idx]
+			!isEXfield = !row[4].trim().upcase()
+			!udaName = !row[2].trim().lowcase()
+			!udaExpression = !row[5].trim()
+			if (!isEXfield.upcase() eq |TRUE| and !attributes.findFirst(!udaName).unset()) then
+				!attributes.append(!udaName.lowcase())
+				!expressions.append(!udaExpression)
+			endif
+		enddo
+	endif
+	
+	!result.append(!attributes)
+	!result.append(!expressions)
+	
+	return !result
+	
+endmethod
+
+--
+define method .ClassNameUpdate(!force is BOOLEAN)
+	
+	!emptyClassTags = ARRAY()
+	!collection = 'var !emptyClassTags COLL ALL (ENGITE) WITH ((:TagStatus eq |ACTIVE|)'
+	if (!force.not()) then
+		!collection = !collection + ' AND (EMPTY(:TAGCLASSNAME) OR EMPTY(:TAGOREQUIPMENTCLASSNAME))'
+	endif
+	!collection = !collection + ')'
+	$!<collection>
+	handle any
+		!msg = 'Common;ClassNameUpdate();$!!<error.text>'
+		!this.errorList.append(!msg.split(|;|))
+		$p COLL ALL FOR EXPRESSION ERROR $!!error.text collection: $!collection
+	elsehandle none
+		if (!emptyClassTags.size() gt 0) then
+			do !tagName values !emptyClassTags
+				--progress
+				!rowIdx = !emptyClassTags.findFirst(!tagName)
+				!!displayProgress(!rowIdx, !emptyClassTags.size())
+				
+				--update value
+				!tagRef = !tagName.dbref()
+				!acttype = !tagRef.acttype
+				!idx = !this.acttypes.findFirst(!acttype)
+				if (!idx.set()) then
+					!mappingData = !this.classMappings[!idx].split(|;|)
+					!className = !mappingData[2]
+					!classType = !mappingData[3]
+					if (!className eq |Skip|) then
+						skip
+					endif
+					if (!tagRef.:TagClassName neq !className) then
+						!tagRef.:TagClassName = !className
+						!tagRef.:TagOrEquipmentClassName = !classType
+					endif
+				else
+					!msg = '$!<tagRef.name>;ClassNameUpdate();Mapped class has not defined for ACTTYPE $!acttype'
+					!this.errorList.append(!msg.split(|;|))
+				endif
+			enddo
+		endif
+	endhandle
+	
+endmethod
+
+--
+define method .PBSpropertiesUpdate()
+
+	--process Unit
+	var !emptyUnitTags COLL ALL (ENGITE) WITH (ISNAMED and :TagStatus INSET (|ACTIVE|, |AFC|, |ASB|, |AFD|) and badref(:TagRefToProcessUnit))
+	do !tag values !emptyUnitTags
+		--progress
+		!rowIdx = !emptyUnitTags.findFirst(!tag)
+		!!displayProgress(!rowIdx, !emptyUnitTags.size())
+		
+		!tagRef = !tag.dbref()
+		!tagName = !tagRef.namn
+		!puCode = |/| + !tagName.after(|JDA-|).substring(1,2)
+		!puRef = !puCode.dbref()
+		handle any
+		elsehandle none
+			if (!puRef.acttype.upcase() eq |:PROCESSUNIT|) then
+				!tagRef.:TagRefToProcessUnit = !puRef
+			endif	
+		endhandle
+	enddo
+
+endmethod
+
+--
+define method .pipeSupportDataUpdate()
+	
+	var !pSupps COLL ALL (:PipeSupport) WITH (ISNAMED and NOT(EMPTY(:RambollTagStatus)))
+	do !pSupp values !pSupps
+		--progress
+		!rowIdx = !pSupps.findFirst(!pSupp)
+		!!displayProgress(!rowIdx, !pSupps.size())
+		
+		!pSuppRef = !pSupp.dbref()
+		!suppStatus = !pSuppRef.:TagStatus
+		if (!pSuppRef.deslnk.set()) then
+			!desSuppRef = !pSuppRef.deslnk[1]
+			if (!desSuppRef.badref().not() and !suppStatus neq |VOID|) then
+				
+				$(--weight
+				!weightSum = 0kg
+				var !weightList EVAL (DENS OF 1 OF 1 OF MATR * NVOL) FOR ALL (ANCI) FOR $!desSuppRef
+				handle any
+					$P Cant get the wheight list for support [$!desSuppRef.name]
+				elsehandle none
+					do !weightStr values !weightList
+						!weightReal = !weightStr.real()
+						!weightSum = !weightSum + !weightReal
+					enddo
+				endhandle$)
+				
+				!weightSum = !desSuppRef.SuWNSA
+				handle any
+					$P Cant get the SuWNSA list for support [$!desSuppRef.name]
+				endhandle
+				if (!weightSum eq 0) then
+					!weightSum = !desSuppRef.nwei
+				endif
+				!pSuppRef.:WeightNet = !weightSum
+				
+				--description
+				!faw = !desSuppRef.:FAV
+				!pSuppDesc = |#CALC#Special Pipe Support FAV $!<faw>|
+				
+				!pipes = ARRAY()
+				!pipes = !this.getPipesBySuppoRef(!pipes, !desSuppRef)
+				!pipes = !pipes.unique()
+				do !pipe values !pipes
+					
+					!pipeLabel = !pipe.:RAM_LINELABEL.trim()
+					if (!pipe.englnk.set()) then
+						!pipeLabel = !pipe.englnk.:TagName
+					endif
+					if (!pipes.findfirst(!pipe) eq 1) then
+						!pSuppDesc = |$!pSuppDesc for |
+						
+						--define parent tag (first line in the list)
+						!engPipe = !this.getEngPipeByDesPipe(!pipeLabel)
+						if (!engPipe.badref().not() and !pSuppRef.:TagRefToParentTag.badref()) then
+							!pSuppRef.:TagRefToParentTag = !engPipe
+						endif
+					endif
+					
+					if (!pipeLabel.empty().not() or !pipeLabel.unset()) then
+						!pSuppDesc = !pSuppDesc + |; $!pipeLabel|
+					endif
+				enddo
+				!pSuppDesc = !pSuppDesc.replace(' ; ', ' ')
+				if (!pSuppRef.:TagDescription.unset() or !pSuppRef.:TagDescription.empty()) then
+					!pSuppRef.:TagDescription = !pSuppDesc.trim()
+				endif
+				if (!suppStatus.empty()) then
+					!pSuppRef.:TagStatus = |ACTIVE|
+				endif
+				
+				--process Unit
+				if (!faw.set() and !faw.empty().not()) then
+					!areaCode = !faw.substring(1,4)
+					!areaCodeDabacon = |/$!<areaCode>|
+					!areaRef = !areaCodeDabacon.dbref()
+					handle none
+						!pSuppRef.:TagRefToArea = !areaRef
+					elsehandle any
+						$P Area $!areaCodeDabacon FAV $!faw
+					endhandle
+				endif
+				
+			else
+				--define status VOID
+				!pSuppRef.:TagStatus = |VOID|
+			endif
+		endif
+	enddo
+
+endmethod
+
+--update pipe DESCRIPTION
+define method .pipeDescriptionUpdate()
+	
+	!collection = 'var !pipes COLL ALL (:Pipeline) WITH (ISNAMED and :RAMTAGOWNER neq |LEIR|)'
+	$!<collection>
+	handle any
+		!msg = 'Common;pipeDescriptionUpdate();$!!<error.text>'
+		!this.errorList.append(!msg.split(|;|))
+		$p COLL ALL FOR EXPRESSION ERROR $!!error.text - $!collection
+	elsehandle none
+		do !pipe values !pipes
+			--progress
+			!rowIdx = !pipes.findFirst(!pipe)
+			!!displayProgress(!rowIdx, !pipes.size())
+			
+			!areaRef = object DBREF()
+			!fromDocRef = object DBREF()
+			!toDocRef = object DBREF()
+			!pipeRef = !pipe.dbref()
+			!combinedDesc = |#CALC#|
+			!puRef = !pipeRef.:TagRefToProcessUnit
+			if (!puRef.badref().not()) then
+				!puName = !puRef.:ProcessUnitName.upcase()
+				!combinedDesc = |$!<combinedDesc>$!<puName>|
+			endif
+			
+			!shortName 	= !pipeRef.:RAMSHORTTAG
+			!areaCode	= |/$!<pipeRef.:AreaCode>|
+			!areaRef = !areaCode.dbref()
+			handle any
+				!msg = '$!<pipeRef.name>;pipeDescriptionUpdate();AREA code $!<areaCode> is not exists in AVEVA'
+				!this.errorList.append(!msg.split(|;|))
+			endhandle
+			if (not(badref(!areaRef))) then
+				!combinedDesc = |$!<combinedDesc> Area [$!<areaRef.:AreaCode> = $!<areaRef.:AreaName>]|
+			endif
+			!fluid 	= !pipeRef.:FluidName.upcase()
+			if (!fluid.set()) then
+				!combinedDesc = |$!<combinedDesc> Fluid [$!<fluid>]|
+			endif
+			
+			!fromText = !pipeRef.:TagRefToFromTagText
+			!toText = !pipeRef.:TagRefToToTagText
+			
+			!fromEleRef	= !pipeRef.:TagRefToFromTag
+			!fromEleName = |$!<pipeRef.:FromTagName>|
+			if (!fromEleRef.badref()) then
+				!fromEleRef = !pipeRef.:PipelineFrom
+				if (!fromEleRef.badref()) then
+					!fromEleName = |/$!<pipeRef.:FromTagName>|
+					!fromEleRef = !fromEleName.dbref()
+					handle any
+					endhandle
+				endif
+			endif
+
+			!toEleRef	= !pipeRef.:TagRefToToTag
+			!toEleName = |$!<pipeRef.:ToTagName>|
+			if (!toEleRef.badref()) then
+				!toEleRef = !pipeRef.:PipelineTo
+				if (!toEleRef.badref()) then
+					!toEleName = |/$!<pipeRef.:ToTagName>|
+					!toEleRef = !toEleName.dbref()
+					handle any
+					endhandle
+				endif
+			endif
+			
+			--FROM
+			!fromTagName = object STRING()
+			if (not(unset(!fromText)) and not(empty(!fromText))) then
+				!fromTagName = upcase(!fromText)
+			elseif not(badref(!fromEleRef)) then
+				!fromTagName = upcase(!fromEleRef.:TagName)
+			elseif (!pipeRef.:FromTagName.set() and !pipeRef.:FromTagName.empty().not()) then
+				!fromTagName = upcase(!pipeRef.:FromTagName)
+			endif
+			if (!fromTagName.unset().not() and !fromTagName.empty().not()) then
+				!combinedDesc = |$!<combinedDesc> From [$!<fromTagName>]|
+			endif
+			
+			--TO
+			!toTagName = object STRING()
+			if (not(unset(!toText)) and not(empty(!toText))) then
+				!toTagName = upcase(!toText)
+			elseif not(badref(!toEleRef)) then
+				!toTagName = upcase(!toEleRef.:TagName)
+			elseif (!pipeRef.:toTagName.set() and !pipeRef.:toTagName.empty().not()) then
+				!toTagName = upcase(!pipeRef.:toTagName)
+			endif
+			if (!toTagName.unset().not() and !toTagName.empty().not()) then
+				!combinedDesc = |$!<combinedDesc> To [$!<toTagName>]|
+			endif
+			
+			!combinedDesc = !combinedDesc.Trim().Replace(|  |, | |)
+			!pipeRef.:TagDescription = !combinedDesc
+		enddo
+	endhandle
+endmethod
+
+--method for update data for all PIPEs in the project
+define method .pipeDataTransfer()
+	
+	--update description for pipes (only RAM scope)
+	!this.pipeDescriptionUpdate()
+	
+	--get data FROM tag name
+	var !pipes COLL ALL (:Pipeline) WITH (ISNAMED and :TagStatus INSET (|ACTIVE|, |AFC|, |ASB|, |AFD|))
+	do !pipe values !pipes
+		--progress
+		!rowIdx = !pipes.findFirst(!pipe)
+		!!displayProgress(!rowIdx, !pipes.size())
+		
+		!pipeRef = !pipe.dbref()
+
+		--get FROM tag
+		!fromTagName = ||
+		!fromTagRef = object DBREF()
+		if ((unset(!pipeRef.:TagRefToFromTagText) or empty(!pipeRef.:TagRefToFromTagText)) and (!pipeRef.:TagRefToFromTag.badref().not())) then
+			!fromTagName = !pipeRef.:TagRefToFromTag.name
+		endif
+		if (!pipeRef.:TagRefToFromTagText.set()) then
+			!fromTagName = !pipeRef.:TagRefToFromTagText
+		endif
+		!fromTagName = |/$!<fromTagName>|
+		!fromTagRef = !fromTagName.dbref()
+		handle ANY
+			if (!fromTagName.matchwild(|*JDA*|)) then
+				--case if pipeline with inches
+				if (!fromTagName.matchwild(|*"*|)) then
+					!shortName = part(!fromTagName, 3, |-|)
+					!fromTagRef = !this.getPipeByShortName(!shortName)
+				else
+					$P [PIPE] ERROR WHEN GET [FROM_TAG] [$!fromTagName] for PIPE [$!pipeRef.:TagName]
+				endif
+			elseif (!fromTagName.length() gt 5) then
+				--case if open drain
+				!pipeRef.:TagRefToFromTag = object DBREF()
+			endif
+		endhandle
+		
+		if (!fromTagRef.badref().not()) then
+			!pipeRef.:TagRefToFromTag = !fromTagRef
+			
+			--set PARENT TAG
+			!pipeRef.:TagRefToParentTag = !fromTagRef
+		endif
+		
+		--get TO tag
+		!toTagName = ||
+		!toTagRef = object DBREF()
+		if ((unset(!pipeRef.:TagRefToToTagText) or empty(!pipeRef.:TagRefToToTagText)) and (!pipeRef.:TagRefToToTag.badref().not())) then
+			!toTagName = !pipeRef.:TagRefToToTag.name
+		endif
+		if (!pipeRef.:TagRefToToTagText.set()) then
+			!toTagName = !pipeRef.:TagRefToToTagText
+		endif
+		!toTagName = |/$!<toTagName>|
+		!toTagRef = !toTagName.dbref()
+		handle ANY
+			if (!toTagName.matchwild(|*JDA*|)) then
+				--case if pipeline with inches
+				if (!toTagName.matchwild(|*"*|)) then
+					!shortName = part(!toTagName, 3, |-|)
+					!toTagRef = !this.getPipeByShortName(!shortName)
+				else
+					$P [PIPE] ERROR WHEN GET [TO_TAG] [$!toTagName] for PIPE [$!pipeRef.:TagName]
+				endif
+			elseif (!toTagName.length() gt 5) then
+				--case if open drain
+				!pipeRef.:TagRefToToTag = object DBREF()
+			endif
+		endhandle
+		
+		if (!toTagRef.badref().not()) then
+			if (!toTagRef.HardType.upcase() eq |ENGITE|) then
+				!pipeRef.:TagRefToToTag = !toTagRef
+			else
+				$P [PIPE] ERROR WHEN SET [TO_TAG] [$!toTagName] for PIPE [$!pipeRef.:TagName] - TYPE is incorrect [$!<toTagRef.HardType>]
+				!pipeRef.:TagRefToToTag = object DBREF()
+			endif
+		endif
+		
+		--update TAGNAME (case with insulation N)
+		!insulationCode = PART(!pipeRef.:TagName, 5, |-|)
+		if (!insulationCode.unset() or !insulationCode.empty()) then
+			!pipeRef.:TagName = |$!<pipeRef.:TagName>N|
+		endif
+	enddo
+
+	--ESTIMATEDLENGTH, WEIGHTNET and AREA for PIPES
+	var !pipes COLL ALL (:Pipeline) WITH (ISNAMED and :TagStatus INSET (|ACTIVE|, |AFC|, |ASB|, |AFD|) and not(unset(deslnk)) and :RAMTAGOWNER neq |LEIR|)
+	do !pipe values !pipes
+		--progress
+		!rowIdx = !pipes.findFirst(!pipe)
+		!!displayProgress(!rowIdx, !pipes.size())
+		
+		!pipe1D = !pipe.dbref()
+		!pipeLength = 0
+		!pipeWeight = 0
+		!desPipes = !pipe1D.deslnk
+		do !desPipe values !desPipes
+			if (badref(!desPipe)) then
+				$P 3D PIPE $!desPipe are not existing
+			endif
+			!desBranches = !desPipe.members
+			handle any
+				$P 3D PIPE $!<desPipe.name> are not having any members
+			elsehandle none
+				do !desBran values !desPipe.members
+					!pipeLength = !pipeLength + !desBran.CLLEN
+					handle any
+						$P Length calculation error for $!<desBran.name>: $!!error.text
+					endhandle
+					!pipeWeight = !pipeWeight + !desBran.BRWEIG
+					handle any
+						$P Weigth calculation error for $!<desBran.name>: $!!error.text
+					endhandle
+				enddo
+			endhandle
+		enddo
+
+		!pipe1D.:EstimatedLength = !pipeLength
+		!pipe1D.:WeightNet = !pipeWeight
+		
+		--get AREA code from 3D tag
+		!pipe3D = !desPipes.first()
+		var !siteName namn of site of $!pipe3D
+		!areaCode3D = |/| + part(!siteName, 1, |-|)
+		!areaCode3DRef = !areaCode3D.dbref()
+		handle ANY
+			$P [PIPE] ERROR WHEN GET AREA CODE FOR PIPE [$!<pipe1D.:TagName>] from 3D pipe [$!<pipe3D.namn>]. AREA CODE [$!areaCode3D] is not exists!
+		elsehandle none
+			if (!pipe1D.:TagRefToArea.badref().not()) then
+				!areaCode1D = !pipe1D.:TagRefToArea.name
+				if (!pipe1D.:TagRefToArea.badref().not() and (!areaCode1D neq !areaCode3D)) then
+					--$P [PIPE] ERROR WHEN UPDATE AREA CODE FOR PIPE [$!<pipe1D.:TagName>] from 3D pipe [$!<pipe3D.name>]. 3D [$!areaCode3D] != 1D [$!areaCode1D]
+				endif
+			else
+				!pipe1D.:TagRefToArea = !areaCode3DRef
+			endif
+		endhandle
+	enddo
+	
+endmethod
+
+--
+define method .getPipeByShortName(!shortName is STRING) is DBREF
+
+	!result = object DBREF()
+	
+	if (!shortName.length() eq 6) then
+		var !connectedPipes COLL ALL (:Pipeline) WITH (ISNAMED and matchwild(name, |*-$!shortName-*|) and not(:TagStatus inset (|VOID|, |Internal|)))
+		if (!connectedPipes.size() gt 0) then
+			!result = !connectedPipes.first().dbref()
+		endif
+	endif
+	
+	return !result
+
+endmethod
+
+--
+define method .valveDataUpdate()
+
+	var !valves COLL ALL (ENGITE) WITH (ISNAMED and not(:TagStatus inset (|VOID|, |Internal|)) and not(unset(:TagStatus)) and not(matchwild(name, |*SP-*|)) and matchwild(upcase(acttype), |*VALVE*|))
+	handle any
+		!msg = 'Common;manualValveDescriptionUpdate();$!!<error.text>'
+		!this.errorList.append(!msg.split(|;|))
+		$p COLL ALL FOR EXPRESSION ERROR $!!error.text - $!collection
+	elsehandle none
+		do !valve values !valves
+			--progress
+			!rowIdx = !valves.findFirst(!valve)
+			!!displayProgress(!rowIdx, !valves.size())
+			
+			--update DESCRIPTION
+			!valveRef = !valve.dbref()
+			if (!valveRef.:RAMTAGOWNER INSET(|RAM|, |AKSO|)) then
+				--collect needed parts
+				!desc = !valveRef.desc
+				!parentTag = ||
+				if (!valveRef.:TagRefToPackageUnit.badref().not()) then
+					!parentTag = !valveRef.:TagRefToParentTag.Namn
+				endif
+				!areaCode = ||
+				if (!valveRef.:TagRefToArea.badref().not()) then
+					!areaCode = !valveRef.:TagRefToArea.:RAMMainAreaCode
+				endif
+				!bore = IFT(!valveRef.:RAMNominalPipeSizeConnection.unset(), ||, !valveRef.:RAMNominalPipeSizeConnection)
+				!material = IFT(!valveRef.:RAMBodyMaterial.unset(), ||, !valveRef.:RAMBodyMaterial)
+				!type = IFT(!valveRef.:ValveType.unset(), ||, !valveRef.:ValveType)
+				!class = IFT(!valveRef.:PipingClass.unset(), ||, !valveRef.:PipingClass)
+				!articleInfo = ||
+				if (!valveRef.:TagRefToArticleCode.badref().not() and !valveRef.:TagRefToArticleCode.desc.set()) then
+					!articleInfo = !valveRef.:TagRefToArticleCode.desc
+				endif
+				!combinedDesc = |#CALC#$!desc|
+				$(if (!parentTag.Empty().not()) then
+					!combinedDesc = |$!<combinedDesc>. Package Unit [$!<parentTag>]|
+				endif$)
+				!ifMesc = false
+				if (!articleInfo.Empty().not() and !desc neq !articleInfo) then
+					!combinedDesc = |$!<combinedDesc>. Commodity Info [$!<articleInfo>]|
+					if (!articleInfo.matchwild(|*MESC*|)) then
+						!ifMesc = true
+					endif
+				endif
+				if (!areaCode.Empty().not() and !ifMesc.not()) then
+					!combinedDesc = |$!<combinedDesc>. Area [$!<areaCode>]|
+				endif
+				if (!bore.Empty().not() and !ifMesc.not()) then
+					!combinedDesc = |$!<combinedDesc>. Bore [$!<bore>]|
+				endif
+				if (!material.Empty().not() and !ifMesc.not()) then
+					!combinedDesc = |$!<combinedDesc>. Material [$!<material>]|
+				endif
+				if (!type.Empty().not() and !ifMesc.not()) then
+					!combinedDesc = |$!<combinedDesc>. Type [$!<type>]|
+				endif
+				if (!class.Empty().not() and !ifMesc.not()) then
+					!combinedDesc = |$!<combinedDesc>. Class [$!<class>]|
+				endif
+
+				--case if poor desc
+				if (!bore.empty() and !material.Empty() and !type.Empty() and !class.Empty()) then
+					if (!valveRef.:TagRefToMCPackage.badref().not() and !valveRef.:TagRefToMCPackage.desc.empty().not()) then
+						!mcPackageDesc = !valveRef.:TagRefToMCPackage.desc
+						!combinedDesc = |$!<combinedDesc>. Package Info [$!<mcPackageDesc>]|
+					endif
+				endif
+				!valveRef.:TagDescription = !combinedDesc
+			endif
+			
+			--update PARENT TAG for objects connected to design
+			if (!valveRef.deslnk.set()) then
+				!desValveRef = 	!valveRef.deslnk[1]
+				if (!desValveRef.badref().not()) then
+					var !desPipe PIPE of $!desValveRef
+					handle none
+						!desPipeRef = !desPipe.dbref()
+						if (!desPipeRef.isnamed and !desPipeRef.:SH-TAG.set()) then
+							!shortLineNumber = !desPipeRef.:SH-TAG
+							!pipeRef = !this.getPipeByShortName(!shortLineNumber)
+							if (!pipeRef.badref().not()) then
+								!valveRef.:TagRefToParentTag = !pipeRef
+							else
+								$p Can not to find element PIPELINE by short name [$!shortLineNumber]
+							endif
+						endif
+					elsehandle any
+						$p PIPE element can not be defined for [$!<valveRef.namn>]
+					endhandle
+				endif
+			endif
+		enddo
+	endhandle
+
+endmethod
+
+--update limit alarms based on index list (H/L/HH/LL)
+define method .alarmsDataUpdate()
+	
+	--void all alarms by default
+	var !alarms COLL ALL (:RAMYOKAlarm) WITH (ISNAMED and not(empty(:TagStatus)))
+	do !alarm values !alarms
+		!alarmRef = !alarm.dbref()
+		!alarmRef.:TagStatus = |VOID|
+	enddo
+	
+	var !instruments COLL ALL (ENGITE) WITH (ISNAMED and not(empty(:TagStatus)) and matchwild(:RAMIndexorIOIndicator, |*INDEX*|) and not(empty(:RAMSYSTEMCODE)))
+	!size = !instruments.size()
+	$P UPDATE ALARMS: SIZE of ARRAY [$!<size>]
+	do !inst values !instruments
+		--progress
+		!rowIdx = !instruments.findFirst(!inst)
+		!!displayProgress(!rowIdx, !size)
+		
+		!instRef = !inst.dbref()
+		!instStatus = !instRef.:TagStatus
+		!this.alarmItemDataUpdate(!instRef, |L|, true)
+		!this.alarmItemDataUpdate(!instRef, |H|, true)
+		!this.alarmItemDataUpdate(!instRef, |LL|, true)
+		!this.alarmItemDataUpdate(!instRef, |HH|, true)
+	enddo
+	
+endmethod
+
+--add tag-doc links from master
+define method .alarmItemDataUpdate(!masterTagRef is DBREF, !alarmType is STRING, !isCreate is BOOLEAN) is DBREF
+	
+	!result = object DBREF()
+	
+	if (!masterTagRef.badref().not()) then
+		!attName = |:RAM$!<alarmType>SetPoint|
+		!att = object ATTRIBUTE(!attName)
+		if (!att.hash() neq 0) then
+			!setValue = !masterTagRef.attribute(!att.name())
+			handle none
+				if (!setValue.set() and !setValue.empty().not() and not(!setValue.upcase() inset(|NA|, |N/A|, |-|, |--|))) then
+					!alarmTagName = ||
+					!masterTagNameList = !masterTagRef.namn.split(|-|)
+					if (!masterTagNameList.size() ge 3 and !masterTagNameList[1] eq |JDA|) then
+						!masterTagNameList[2] = !masterTagNameList[2] + !alarmType
+						do !masterTagPart values !masterTagNameList
+							if (!alarmTagName neq ||) then
+								!alarmTagName = |$!<alarmTagName>-$!masterTagPart|
+							else
+								!alarmTagName = !masterTagPart
+							endif
+						enddo
+						
+						--create ALARM tags (if not exusts)
+						!alarmTagName = |/$!alarmTagName|
+						if (!isCreate) then
+							!alarmTagRef = !alarmTagName.dbref()
+							handle any
+								if (!alarmTagName.length() le 50) then
+									!type = |:RAMYOKAlarm|
+									using namespace |Aveva.Engineering.PMLElementManager|
+									!createNet = object CREATEELEMENT()
+									!etype = object ELEMENTTYPE(!type)
+									if (!etype.name() neq |UNKNOWN|) then
+										!createNet.SetElementTypeByName(!type)
+										handle any
+											$P [ALARM] ERROR WHEN CREATE ALARM [$!alarmTagName] with type [$!type] - TYPE ERROR: $!!error.text
+										elsehandle none
+											!createNet.AddAttributeValue(|NAME|, !alarmTagName)
+											!createNet.Execute()
+											handle any
+												$P [ALARM] ERROR WHEN CREATE ALARM [$!alarmTagName] with type [$!type] - NAME ERROR: $!!error.text
+											endhandle
+										endhandle
+									endif
+								else
+									$P [ALARM] ERROR WHEN CREATE ALARM [$!alarmTagName] with type [$!type]: Name of element is more than 50 letters
+								endif
+							endhandle
+						endif
+						
+						--define properties for ALARM tag
+						!alarmTagRef = !alarmTagName.dbref()
+						handle none
+							!alarmDesc = !alarmTagRef.description
+							if (!alarmDesc.unset() or !alarmDesc.empty() or !alarmDesc.lowcase() inset(|to be defined|, |tbd|)) then
+								!alarmTagRef.description = |$!<masterTagRef.description> ALARM $!<alarmType>|
+							endif
+							!alarmTagRef.:ModelPartName = |NA|
+							!alarmTagRef.:ManufacturerCompanyName = |NA|
+							!alarmTagRef.:EquipmentManufacturerSerialNumber = |NA|
+							!alarmTagRef.:TagRequisitionNumber = |NA|
+							!alarmTagRef.:VendorCompanyName = |NA|
+							!alarmTagRef.:TagStatus = !masterTagRef.:TagStatus
+							!alarmTagRef.:RAMTAGOWNER = !masterTagRef.:RAMTAGOWNER
+							!alarmTagRef.:TagRefToArea = !masterTagRef.:TagRefToArea
+							!alarmTagRef.:TagRefToDiscipline = !masterTagRef.:TagRefToDiscipline
+							!alarmTagRef.:TagRefToProcessUnit = !masterTagRef.:TagRefToProcessUnit
+							!alarmTagRef.:TagRefToPurchaseOrder = !masterTagRef.:TagRefToPurchaseOrder
+							!alarmTagRef.:RambollTagStatus = !masterTagRef.:RambollTagStatus
+							!alarmTagRef.:RAMSYSTEMCODE = ||
+							!alarmTagRef.:TagRefToParentTag = !masterTagRef
+							!alarmTagRef.:TagRefToPackageUnit = !masterTagRef.:TagRefToPackageUnit
+							!alarmTagRef.:PcsEXCLASS = |N/A|
+							!alarmTagRef.:PcsIPGRADE = |NA|
+							!naSece = /NA
+							!seceArray = object ARRAY()
+							!seceArray.append(!naSece)
+							!alarmTagRef.:TagRefToDNVSECECode = !seceArray
+							
+							--calibrated range
+							!calibratedMin = IFT(unset(!masterTagRef.:pcsCALIBRATEDRANGELOWERLIMIT), !masterTagRef.:pcsCALIBRATEDRANGELOWERLIMITTEXT, string(!masterTagRef.:pcsCALIBRATEDRANGELOWERLIMIT))
+							!calibratedMin = IFT(unset(!calibratedMin) or empty(!calibratedMin) or matchwild(!calibratedMin, |*9999*|), |NA|, !calibratedMin)
+							!calibratedMax = IFT(unset(!masterTagRef.:pcsCALIBRATEDRANGEUPPERLIMIT), !masterTagRef.:pcsCALIBRATEDRANGEUPPERLIMITTEXT, string(!masterTagRef.:pcsCALIBRATEDRANGEUPPERLIMIT))
+							!calibratedMax = IFT(unset(!calibratedMax) or empty(!calibratedMax) or matchwild(!calibratedMax, |*9999*|), |NA|, !calibratedMax)
+							!alarmTagRef.:pcsCALIBRATEDRANGELOWERLIMITTEXT = !calibratedMin
+							!alarmTagRef.:pcsCALIBRATEDRANGEUPPERLIMITTEXT = !calibratedMax
+							
+							--range SI						
+							!alarmTagRef.:PcsRANGESI = IFT((!masterTagRef.:RAMMeasureRangeMin.unset() or !masterTagRef.:RAMMeasureRangeMin.empty() or (!masterTagRef.:RAMMeasureRangeMin inset (|--|, |-|, |N/A|, |NA|))) and (!masterTagRef.:RAMMeasureRangeMax.unset() or !masterTagRef.:RAMMeasureRangeMax.empty() or (!masterTagRef.:RAMMeasureRangeMax inset (|--|, |-|, |N/A|, |NA|))), |NA|, |$!<masterTagRef.:RAMMeasureRangeMin> - $!<masterTagRef.:RAMMeasureRangeMax> $!<masterTagRef.:RAMUnitOfMeasurement>|)
+							
+							--set point attributes definition
+							!alarmTagRef.:RAMLSetPoint = |NA|
+							!alarmTagRef.:RAMHSetPoint = |NA|
+							!alarmTagRef.:RAMLLSetPoint = |NA|
+							!alarmTagRef.:RAMHHSetPoint = |NA|
+							!alarmTagRef.attribute(!att.name()) = !setValue
+							!alarmTagRef.:RAMUnitOfMeasurement = !masterTagRef.:RAMUnitOfMeasurement
+							
+							--tag ref to documents
+							!docs = !masterTagRef.:TagRefToDocument 
+							!tagDocList = ARRAY()
+							do !doc values !docs
+								!docCode = !doc.:DocumentTypeShortCode
+								!docTitle = !doc.:DocumentTitle
+								!docStatus = !doc.:DocumentTitle
+								if ((matchwild(!docCode, |*2365*|) or matchwild(lowcase(!docTitle), |*cause*|)) and (!docStatus neq |CAN| and not(empty(!docStatus)))) then
+									!tagDocList.append(!doc)
+									--$!alarmTagRef :TagRefToDocument APPEND $!doc
+								endif
+							enddo
+							!alarmTagRef.:TagRefToDocument = !tagDocList
+						elsehandle any
+							if (!isCreate) then
+								$P [ALARM] ALARM TAG with NAME $!<alarmTagName> was not created: $!!error.text
+							endif
+						endhandle
+					else
+						$P [ALARM] TAG NAME ERROR! for $!<masterTagRef.name> TAG NAME is NOT correct
+					endif
+				endif
+			elsehandle ANY
+				$P [ALARM] DABACON ERROR! for $!<masterTagRef.name> ATT $!attName is NOT EXISTS: $!!error.text
+			endhandle
+		endif
+	endif
+
+	return !result
+
+endmethod
+
+-- update data for all signals (exept ALARMs)
+define method .signalsDataUpdate()
+
+	var !signals COLL ALL (:Signal :RAMYOKSignal) WITH (ISNAMED and :TagStatus neq |VOID| and not(empty(:TagStatus)) and (upcase(:pcsEXCLASS) inset (|NA|, |N/A|)))
+	!size = !signals.size()
+	$P UPDATE SIGNALS: SIZE of ARRAY [$!<size>]
+	do !signal values !signals
+	
+		--progress
+		!rowIdx = !signals.findFirst(!signal)
+		!!displayProgress(!rowIdx, !size)
+		
+		!signalRef = !signal.dbref()
+
+		--common level properties
+		!signalRef.:ModelPartName = |NA|
+		!signalRef.:ManufacturerCompanyName = |NA|
+		!signalRef.:EquipmentManufacturerSerialNumber = |NA|
+		!signalRef.:TagRequisitionNumber = |NA|
+		!signalRef.:PcsEXCLASS = |N/A|
+		!signalRef.:PcsIPGRADE = |NA|
+		
+		!calibratedMin = |NA|
+		!calibratedMax = |NA|
+		!parentTagRef = !signalRef.:TagRefToParentTag
+		if (!parentTagRef.badref().not()) then
+			if (!signalRef.:TagRefToPurchaseOrder.badref()) then
+				!signalRef.:TagRefToPurchaseOrder = !parentTagRef.:TagRefToPurchaseOrder
+			endif
+			!signalRef.:TagRefToArea = !parentTagRef.:TagRefToArea
+			!signalRef.:TagRefToDiscipline = !parentTagRef.:TagRefToDiscipline
+			!signalRef.:TagRefToProcessUnit = !parentTagRef.:TagRefToProcessUnit
+			!signalRef.:TagRefToPackageUnit = !parentTagRef.:TagRefToPackageUnit
+			
+			if (!signalRef.:TagRefToDNVSECECode.size() eq 0) then
+				!signalRef.:TagRefToDNVSECECode = !parentTagRef.:TagRefToDNVSECECode
+			endif
+			
+			--calibrated range
+			!calibratedMin = IFT(unset(!parentTagRef.:pcsCALIBRATEDRANGELOWERLIMIT), !parentTagRef.:pcsCALIBRATEDRANGELOWERLIMITTEXT, string(!parentTagRef.:pcsCALIBRATEDRANGELOWERLIMIT))
+			!calibratedMin = IFT(unset(!calibratedMin) or empty(!calibratedMin) or matchwild(!calibratedMin, |*9999*|), |NA|, !calibratedMin)
+			!calibratedMax = IFT(unset(!parentTagRef.:pcsCALIBRATEDRANGEUPPERLIMIT), !parentTagRef.:pcsCALIBRATEDRANGEUPPERLIMITTEXT, string(!parentTagRef.:pcsCALIBRATEDRANGEUPPERLIMIT))
+			!calibratedMax = IFT(unset(!calibratedMax) or empty(!calibratedMax) or matchwild(!calibratedMax, |*9999*|), |NA|, !calibratedMax)
+			
+			--get tag-doc links
+			!tagDocList = !signalRef.:TagRefToDocument
+			!tagDocList.AppendArray(!parentTagRef.:TagRefToDocument)
+			!tagDocList = !tagDocList.sortUnique()
+			!emptyArray = object ARRAY()
+			!signalRef.:TagRefToDocument = !emptyArray
+			do !tagDocItem values !tagDocList
+				$!signalRef :TagRefToDocument APPEND $!tagDocItem
+			enddo
+			
+		endif
+		!signalRef.:pcsCALIBRATEDRANGELOWERLIMITTEXT = !calibratedMin
+		!signalRef.:pcsCALIBRATEDRANGEUPPERLIMITTEXT = !calibratedMax
+		
+		--PO code
+		!poRef = !signalRef.:TagRefToPurchaseOrder
+		if (!poRef.badref().not()) then
+			!signalRef.:VendorCompanyName = !poRef.:PurchaseOrderIssuerCompanyName
+		endif
+		
+		if (!signalRef.:TagRefToProcessUnit.badref()) then
+			!puName = |/| + subs(part(!signalRef.namn, 2, |-|), 1, 2)
+			!puRef = !puName.dbref()
+			handle ANY
+			elsehandle none
+				!signalRef.:TagRefToProcessUnit = !puRef
+			endhandle
+		endif
+		
+		--if :RAMYOKSignal
+		!rangeSI = |NA|
+		!ifUoMEmpty = true
+		if (!signalRef.:RAMUnitOfMeasurement.set() and !signalRef.:RAMUnitOfMeasurement.empty().not() and not(upcase(!signalRef.:RAMUnitOfMeasurement) inset (|--|, |-|, |SECOND SINCE JAN 1ST 2000|, |100 NV|))) then
+			!ifUoMEmpty = false
+		endif
+		
+		!ifMinValueEmpty = true
+		if (!ifUoMEmpty.not() and !signalRef.:RAMYOKSignalMinimumValue.set() and !signalRef.:RAMYOKSignalMinimumValue.empty().not() and not(upcase(!signalRef.:RAMYOKSignalMinimumValue) inset (|--|, |-|, |ANY|, |AT SITE|))) then
+			!ifMinValueEmpty = false
+		endif
+		
+		!ifMaxValueEmpty = true
+		if (!ifUoMEmpty.not() and !ifMinValueEmpty.not() and !signalRef.:RAMYOKSignalMaximumValue.set() and !signalRef.:RAMYOKSignalMaximumValue.empty().not() and not(upcase(!signalRef.:RAMYOKSignalMaximumValue) inset (|--|, |-|, |ANY|, |AT SITE|))) then
+			!ifMaxValueEmpty = false
+		endif
+		
+		--define value :PcsRANGESI
+		if (!ifUoMEmpty.not() and !ifMinValueEmpty.not() and !ifMaxValueEmpty.not()) then
+			!uomValue = !signalRef.:RAMUnitOfMeasurement
+			!rangeSI = |$!<signalRef.:RAMYOKSignalMinimumValue> - $!<signalRef.:RAMYOKSignalMaximumValue> $!<uomValue>|
+		endif
+		!signalRef.:PcsRANGESI = !rangeSI
+	enddo
+
+endmethod
+
+--UPDATE data for INSTRUMENT LOOPs
+define method .loopsDataUpdate()
+	
+	var !loops COLL ALL (:InstrumentLoop) WITH (ISNAMED and not(empty(:TagStatus)))
+	!size = !loops.size()
+	$P UPDATE LOOPS: SIZE of ARRAY [$!<size>]
+	
+	do !loop values !loops
+	
+		--progress
+		!rowIdx = !loops.findFirst(!loop)
+		!!displayProgress(!rowIdx, !size)
+		
+		!loopRef = !loop.dbref()
+		!loopStatus = !loopRef.:TagStatus
+		
+		--common level properties
+		!loopRef.:ModelPartName = |NA|
+		!loopRef.:ManufacturerCompanyName = |NA|
+		!loopRef.:EquipmentManufacturerSerialNumber = |NA|
+		!loopRef.:TagRequisitionNumber = |NA|
+		!loopRef.:PcsEXCLASS = |N/A|
+		!loopRef.:VendorCompanyName = |NA|
+		!naSece = /NA
+		!seceArray = object ARRAY()
+		!seceArray.append(!naSece)
+		!loopRef.:TagRefToDNVSECECode = !seceArray
+
+		
+		if (!loopRef.namn.matchwild(|*-LOOP|).not()) then
+			if (!loopStatus.upcase() eq |ACTIVE|) then
+				$P [LOOP] WRONG LOOP NAME FORMAT for ACTIVE LOOP #[$!<loopRef.namn>]
+			endif
+			--get process unit code for the LOOP
+			!puCode = !loopRef.namn.part(2, |-|).substring(1, 2)
+			if (!puCode.isDigits()) then
+				!puName = |/$!puCode|
+				!puRef = !puName.dbref()
+				handle none
+					if (!puRef.acttype eq |:ProcessUnit|) then
+						!loopRef.:TagRefToProcessUnit = !puRef
+					else
+						$P [LOOP] PU CODE [$!puCode] has a type [$!<puRef.acttype>] for the LOOP #[$!<loopRef.namn>]
+					endif
+				elsehandle any
+					$P [LOOP] PU CODE [$!puCode] is not exsts for the LOOP #[$!<loopRef.namn>]
+				endhandle
+			endif
+		else
+			!masterTagName = !loopRef.name.before(|-LOOP|)
+			if (!masterTagName.after(|/|).matchwild(|*/*|)) then
+				!masterTagName = |/| + !masterTagName.after(|/|).before(|/|)
+			endif
+			!masterTagRef = !masterTagName.dbref()
+			handle ANY
+				$P [LOOP] MASTER TAG NAME [$!<masterTagName>] is not exists! LOOP #[$!<loopRef.namn>] to be VOIDed
+				!loopRef.:TagStatus = |VOID|
+				!loopRef.description = |(VOID) LOOP #[$!<loopRef.namn>] for the TAG #[$!<masterTagName>]|
+			elsehandle none
+				--inherit properties from master tag
+				!loopRef.:TagStatus = !masterTagRef.:TagStatus
+				if (!loopStatus.upcase() neq !masterTagRef.:TagStatus.upcase() and (!masterTagRef.:TagStatus.upcase() eq |VOID|)) then
+					$P [LOOP] STATUS for LOOP #[$!<loopRef.namn>] is changed: $!<loopStatus> -> $!<masterTagRef.:TagStatus>
+				endif
+				!loopRef.description = |LOOP # $!<masterTagRef.description>|
+				!loopRef.:RAMTAGOWNER = !masterTagRef.:RAMTAGOWNER
+				!loopRef.:TagRefToArea = !masterTagRef.:TagRefToArea
+				!loopRef.:TagRefToDiscipline = !masterTagRef.:TagRefToDiscipline
+				!loopRef.:TagRefToProcessUnit = !masterTagRef.:TagRefToProcessUnit
+				!loopRef.:TagRefToPurchaseOrder = !masterTagRef.:TagRefToPurchaseOrder
+				!loopRef.:RambollTagStatus = !masterTagRef.:RambollTagStatus
+				!loopRef.:RAMSYSTEMCODE = ||
+				!loopRef.:TagRefToParentTag = !masterTagRef
+				!loopRef.:TagRefToPackageUnit = !masterTagRef.:TagRefToPackageUnit
+				
+				--get tag-doc links
+				!tagDocList = !loopRef.:TagRefToDocument
+				!tagDocList.AppendArray(!masterTagRef.:TagRefToDocument)
+				!tagDocList = !tagDocList.sortUnique()
+				!emptyArray = object ARRAY()
+				!loopRef.:TagRefToDocument = !emptyArray
+				do !tagDocItem values !tagDocList
+					$!loopRef :TagRefToDocument APPEND $!tagDocItem
+				enddo
+			endhandle
+		endif		
+	enddo
+	
+endmethod
+
+
+--define CPI-NA for all empty / unset values for CPI tags
+define method .cpiItemsUpdate()
+	
+	var !cpiTags COLL ALL (ENGITE) WITH (ISNAMED and not(:TagStatus inset (|VOID|, |Internal|)) and not(unset(:RAMTagOwner)) and matchwild(name of :TagRefToPurchaseOrder, |*CPI*|))
+	!size = !cpiTags.size()
+	$P UPDATE CPI tags: SIZE of ARRAY [$!<size>]
+	
+	do !cpiTag values !cpiTags
+	
+		--progress
+		!rowIdx = !cpiTags.findFirst(!cpiTag)
+		!!displayProgress(!rowIdx, !size)
+	
+		!cpiTagRef = !cpiTag.dbref()
+		!manufacturerCompanyName	= ift(unset(!cpiTagRef.:manufacturerCompanyName) or empty(!cpiTagRef.:manufacturerCompanyName) or !cpiTagRef.:manufacturerCompanyName.lowcase() inset (|tba|, |tbc|, |tbd|, |na|, |n/a|), |CPI-NA|, !cpiTagRef.:manufacturerCompanyName)
+		!equipmentManufacturerSerialNumber	= ift(unset(!cpiTagRef.:equipmentManufacturerSerialNumber) or empty(!cpiTagRef.:equipmentManufacturerSerialNumber) or !cpiTagRef.:equipmentManufacturerSerialNumber.lowcase() inset (|tba|, |tbc|, |tbd|, |na|, |n/a|), |CPI-NA|, !cpiTagRef.:equipmentManufacturerSerialNumber)
+		!modelPartName	= ift(unset(!cpiTagRef.:modelPartName) or empty(!cpiTagRef.:modelPartName) or !cpiTagRef.:modelPartName.lowcase() inset (|tba|, |tbc|, |tbd|, |na|, |n/a|), |CPI-NA|, !cpiTagRef.:modelPartName)
+		
+		!cpiTagRef.:manufacturerCompanyName = !manufacturerCompanyName
+		!cpiTagRef.:equipmentManufacturerSerialNumber = !equipmentManufacturerSerialNumber
+		!cpiTagRef.:modelPartName = !modelPartName
+		
+		--get list of attributes
+		!rdlClassGroup = !cpiTagRef.:TagRefToClass.:ClassMappingRefToClass.:ClassRefToClassGroup
+		!attMappings = !rdlClassGroup.backref
+		do !attMapping values !attMappings
+			if (!attMapping.acttype eq |:ShellClassAttributeMapping|) then
+				!attRef = !attMapping.:MappingRefToAttributeMapping
+				!attName = !attRef.:RDLName
+				!attConcept = !attRef.:RDLConcept
+				!udaName = |:| + !this.GetCleanString(!attName)
+				!attribute = object ATTRIBUTE(!udaName)
+				--fallback
+				if (!attribute.hash() eq 0) then
+					!udaName = !attRef.:RDLDabaconExpression
+					!attribute = object ATTRIBUTE(!udaName)
+				endif
+				if (!attribute.hash() neq 0 and !attConcept.lowcase() neq |common|) then
+					!currentValue = !cpiTagRef.attribute(!attribute.name())
+					if (!currentValue.set().not()) then
+						skip
+					endif
+					!attributeType = !attribute.type()
+					!value = |CPI-NA|
+					if (!attributeType eq 'REAL' or !attributeType eq 'INTEGER') then
+						!value = |999999999|
+					endif
+					if (!attributeType eq 'DATETIME') then
+						!value = |01.01.1990|
+					endif
+					if (!attributeType eq 'REFERENCE') then
+						!value = |Tag-NA|
+					endif
+					$P CPI TAG [$!cpiTagRef.namn] -> ATT [$!udaName] -> $!value
+					!issues = !this.TryToSetValue(!cpiTagRef, !value, !udaName, false, true, ||, false)
+				endif
+			endif
+		enddo
+	enddo
+	
+endmethod
+
+--remove tag-docs from voided tags
+--remove dublicated tag-doc
+--recover tag-docs from UDAs
+--remove tag-docs fro deleted docs
+define method .tagDocLinksUpdate()
+	
+	!issueData = ARRAY()
+	!headerList = ARRAY()
+	!msg = |Tag No;Attribute;File Value;AVEVA Value;Issue Description|
+	!headerList.appendArray(!msg.split(|;|))
+	
+	--step 1 - transfer doc links from UDAs
+	--UDAs
+	!docLinkUDAs = ARRAY()
+	!docLinkUDAs.append(|:PcsVDSNUMBER|)
+	!docLinkUDAs.append(|:RAMArrangmentDrawing|)
+	!docLinkUDAs.append(|:RAMBlockDiagram|)
+	!docLinkUDAs.append(|:RAMConnectionDrawingNo|)
+	!docLinkUDAs.append(|:RAMENGINEERINGDATASHEET|)
+	!docLinkUDAs.append(|:RAMFromPIDNo|)
+	!docLinkUDAs.append(|:RAMFROMPIDSOURCE|)
+	!docLinkUDAs.append(|:RAMHACDrawing|)
+	!docLinkUDAs.append(|:RAMHTISODrawing|)
+	!docLinkUDAs.append(|:RAMInstrimentLoopID|)
+	!docLinkUDAs.append(|:RAMISCalculationReference|)
+	!docLinkUDAs.append(|:RAMISLoopDiagram|)
+	!docLinkUDAs.append(|:RAMLayoutDrawing|)
+	!docLinkUDAs.append(|:RAMLevelDiagramNo|)
+	!docLinkUDAs.append(|:RAMLoopDiagramNo|)
+	!docLinkUDAs.append(|:RAMPIDNUMBER|)
+	!docLinkUDAs.append(|:RAMSUPPLIERDATASHEET|)
+	!docLinkUDAs.append(|:RAMTermDwgFromEnd|)
+	!docLinkUDAs.append(|:RAMTOPIDDESTINATION|)
+	!docLinkUDAs.append(|:RAMToPIDNo|)
+	!docLinkUDAs.append(|:RAMVDSShell|)
+
+	var !tags COLL ALL (ENGITE) WITH (isnamed and not(:TagStatus inset (|VOID|, |Internal|)) and not(unset(:RAMTagOwner)) and not(unset(:TagRefToDocument)))
+	handle none
+		--step 1 - tag-doc links is recovering
+		do !tag values !tags
+			--progress
+			!!FMSYS.setProgressText(|Tag-doc links recovering from UDAs..|)
+			!rowIdx = !tags.findFirst(!tag)
+			!!displayProgress(!rowIdx, !tags.size())
+			
+			!tagRef = !tag.dbref()
+			do !uda values !docLinkUDAs
+				if (!tagRef.attributes().findFirst(!uda).set()) then
+					!docList = !tagRef.:TagRefToDocument
+					!value = !tagRef.attribute(!uda)
+					if (!value.set() and not(empty(!value))) then
+						if (!value.matchwild(|* *|)) then
+							!valueList = !value.split()
+							do !valueitem values !valueList
+								!element = !this.tryGetElement(!valueitem, |:DocumentRevision|)
+								if (!element.badref().not()) then
+									if (!docList.findFirst(!element).unset()) then
+										!cmd = |$!tagRef :TagRefToDocument APPEND $!element|
+										$!cmd
+									endif
+								else
+									!msg = |$!<tagRef.namn>;$!<uda>;$!<value>;NA;Tag name [$!<valueitem>] from list [$!<value>] with type [:DocumentRevision] is not exists in AVEVA|
+									!issueData.append(!msg.split(|;|))
+								endif
+							enddo
+						else
+							!element = !this.tryGetElement(!value, |:DocumentRevision|)
+							if (!element.badref().not()) then
+								if (!docList.findFirst(!element).unset()) then
+									!cmd = |$!tagRef :TagRefToDocument APPEND $!element|
+									$!cmd
+								endif
+							else
+								!msg = |$!<tagRef.namn>;$!<uda>;$!<value>;NA;Tag name [$!<value>] with type [:DocumentRevision] is not exists in AVEVA|
+								!issueData.append(!msg.split(|;|))
+							endif
+						endif
+					endif
+				endif
+			enddo
+		enddo
+		
+		--step 2 - remove tag-doc dublicates
+		do !tag values !tags
+			--progress
+			!!FMSYS.setProgressText(|Tag-doc dublicates removing..|)
+			!rowIdx = !tags.findFirst(!tag)
+			!!displayProgress(!rowIdx, !tags.size())
+		
+			!tagRef = !tag.dbref()
+			if (!tagRef.attributes().findFirst(|:TagRefToDocument|).set()) then
+				!docList = !tagRef.:TagRefToDocument
+				!fSize = !docList.size()
+				if (!fSize gt 0) then
+					!docUniqueList = !docList.sortUnique()
+					!uSize = !docUniqueList.size()
+					if (!uSize neq !fSize) then
+						$P Dublicates are found for TAG [$!<tagRef.name>] Unique list size [$!uSize] <> Full list size [$!fSize]
+						!msg = |$!<tagRef.namn>;:TagRefToDocument;$!uSize;$!fSize;Dublicates are found for TAG [$!<tagRef.name>] Unique list size [$!uSize] <> Full list size [$!fSize]|
+						!issueData.append(!msg.split(|;|))
+						!this.TryToSetArrayValue(!tagRef, !docUniqueList, |:TagRefToDocument|)
+					endif
+				endif
+			endif
+		enddo
+		
+	elsehandle ANY
+		!msg = |NA;NA;NA;NA;Collect all for expression error [$!!<error.text>]|
+		!issueData.append(!msg.split(|;|))
+		$p COLL ALL FOR EXPRESSION ERROR $!!error.text
+	endhandle
+	
+	--step 3 - remove tag-doc links for VOIDed tags
+	var !tagsVoded COLL ALL (ENGITE) WITH (isnamed and (:TagStatus eq |VOID|) and not(unset(:TagRefToDocument)))
+	do !tag values !tagsVoded
+		--progress
+		!!FMSYS.setProgressText(|Tag-doc removing for VOIDed tags..|)
+		!rowIdx = !tagsVoded.findFirst(!tag)
+		!!displayProgress(!rowIdx, !tagsVoded.size())
+		
+		!tagsVodedRef = !tag.dbref()
+		!cmd = |$!tagsVodedRef :TagRefToDocument DEFAULT|
+		$!cmd
+	enddo
+	
+	--step 4 - remove tag-doc links for CANceled docs
+	var !docsCanceled COLL ALL (:DocumentRevision) WITH (isnamed and (:DocumentStatusCode eq |CAN|) and not(unset(backref(attname :TagRefToDocument))))
+	do !doc values !docsCanceled
+		--progress
+		!!FMSYS.setProgressText(|Tag-doc removing for CANceled docs..|)
+		!rowIdx = !docsCanceled.findFirst(!doc)
+		!!displayProgress(!rowIdx, !docsCanceled.size())
+		
+		--
+		!docRef = !doc.dbref()
+		!connectedTags = !docRef.backref
+		do !tag values !connectedTags
+			if (!tag.:TagStatus.set() and not(!tag.:TagStatus inset (|VOID|, |Internal|))) then
+				!docList = !tag.:TagRefToDocument
+				!cancelDocIdx = !docList.findFirst(!docRef)
+				if (!cancelDocIdx.set()) then
+					!docList[!cancelDocIdx].delete()
+				endif
+				!docUniqueList = !docList.sortUnique()
+				!this.TryToSetArrayValue(!tag, !docUniqueList, |:TagRefToDocument|)
+			endif
+		enddo
+	enddo
+	
+	if (!issueData.size() gt 0) then
+		!issueData.sortUnique()
+		using namespace |Aveva.Core.Presentation|
+		!IssueFileName = |C:\Users\ADZV\OneDrive - Ramboll\Ramboll_Jackdaw - Admin Team\Aveva\Logs\Night-macro\tag-doc-updates.xlsx|
+		!dataTable = object NETGRIDCONTROL()
+		!dataTable.clearGrid()
+		!source = object NETDATASOURCE('data', !headerList, !issueData)
+		!dataTable.BindToDataSource(!source)
+		!dataTable.saveGridToExcel(|$!IssueFileName|)
+	endif
+
+endmethod
+
+--try to get element by name by
+--!name - name of the Element
+--!acttype - actual type of the element
+define method .tryGetElement(!name is STRING, !acttype is STRING) is DBREF
+
+	--try by name
+	!eleName = !name
+	if (!name.Substring(1, 1) neq |/|) then
+		!eleName = |/$!<name>|
+	endif
+	!element = !eleName.dbref()
+	handle ANY
+		var !elements COLL ALL ($!acttype) WITH(matchwild(name, |*$!<name>*|))
+		if (!elements.size() gt 0) then
+			!element = !elements.first().dbref()
+		endif
+	elsehandle none
+		if (!acttype.upcase() neq !element.acttype.upcase()) then
+			!element = object DBREF()
+		endif
+	endhandle
+	
+	return !element
+
+endmethod
+
+
+--DELETE unnamed tags
+define method .deleteUnnamedTags()
+
+	var !unnamedTags COLL ALL (ENGITEM) WITH (NOT(ISNAMED))
+	!size = !unnamedTags.size()
+	$P $!size unnamed tags has been idenfied in AVEVA Database and to be deleted
+	do !tagName values !unnamedTags
+		!tagRef = !tagName.dbref()
+		$!tagName DELETE $!tagRef.acttype
+	enddo
+
+endmethod
+
+--define area code for cables (UPDATE - all properties should be updated for cables)
+define method .cablesDataUpdate()
+	
+	var !cables COLL ALL (ENGITEM) WITH (matchwild(upcase(ACTTYPE), '*CABLE*') and (upcase(:TagStatus) inset ('ACTIVE', 'ASB', 'AFC', 'AFD')) and ISNAMED and NOT(EMPTY(:RAMTAGOWNER)) and (upcase(:pcsEXCLASS) inset (|NA|, |N/A|)))
+	do !cableName values !cables
+		--progress
+		!rowIdx = !cables.findFirst(!cableName)
+		!!displayProgress(!rowIdx, !cables.size())
+		
+		!cableRef = !cableName.dbref()
+		!fromTag = !cableRef.:TagRefToFromTag
+		!toTag = !cableRef.:TagRefToToTag
+		!cableRef.:EquipmentManufacturerSerialNumber = |NA|
+		
+		--get data from connected
+		if (!fromTag.badref().not()) then
+			--PARENT tag
+			!cableRef.:TagRefToParentTag = !fromTag
+			
+			--AREA
+			if (!fromTag.:TagRefToArea.badref().not()) then
+				!cableRef.:TagRefToArea = !fromTag.:TagRefToArea
+			endif
+			
+			--PU code
+			if (!fromTag.:TagRefToProcessUnit.badref().not()) then
+				!cableRef.:TagRefToProcessUnit = !fromTag.:TagRefToProcessUnit
+			endif
+			
+			--requsition code
+			if (!fromTag.:TagRefToArticleCode.badref().not()) then
+				!cableRef.:TagRequisitionNumber = !fromTag.:TagRefToArticleCode.namn
+			endif
+			
+			--sece
+			!cableRef.:TagRefToDNVSECECode = !fromTag.:TagRefToDNVSECECode
+			
+			--package unit
+			!cableRef.:TagRefToPackageUnit = !fromTag.:TagRefToPackageUnit
+		endif
+		
+		--EX class
+		$(!classRef = !cableRef.:TagRefToClass
+		if (!classRef.badref().not()) then
+			if (not(matchwild(:RDLName of :ClassMappingRefToClass of :TagRefToClass of $!cableName, |*HEATING CABLE*|)) or (!classRef.:pcsEXCLASS.upcase() inset (|NA|, |N/A|))) then
+				!cableRef.:PcsEXCLASS = |N/A|
+				!cableRef.:PcsIPGRADE = |NA|
+			endif
+		endif$)
+	enddo
+	
+endmethod
+
+--
+define method .truncateString(!stringValue is STRING, !length is REAL) is STRING
+
+	!result = !stringValue
+			
+	if (!stringValue.length() gt !length) then
+		!result = !stringValue.substring(1, !length)
+	endif
+			
+	return !result
+
+endmethod
+
+--
+define method .getPipesBySuppoRef(!pipes is ARRAY, !sourceElement is DBREF) is ARRAY
+
+	!result = !pipes
+	
+	var !pcomList EVAL (COMPREF) FOR ALL (ANCI) FOR $!sourceElement
+	do !pcomName values !pcomList
+		!pcomRef = !pcomName.dbref()
+		handle none
+			var !pipeName PIPE of $!pcomName
+			handle none
+				!pipeRef = !pipeName.dbref()
+				if (!result.findFirst(!pipeRef).unset()) then
+					!result.append(!pipeRef)
+				endif
+			elsehandle (2,111)
+				!result.appendArray(!this.getPipesBySuppoRef(!result, !pcomRef))
+			elsehandle (2,115)
+				!msg = |$!<pcomName>;getPipesBySuppoRef($!pipes, $!<sourceElement.name>);REFNO $!pcomName is Nullref: $!!<error.text>|
+				!this.errorList.append(!msg.split(|;|))
+			endhandle
+		elsehandle (2,107)
+			!msg = |$!<pcomName>;getPipesBySuppoRef($!pipes, $!<sourceElement.name>);REFNO $!pcomName is not exists in this DB: $!!<error.text>|
+			!this.errorList.append(!msg.split(|;|))
+		endhandle
+	enddo
+	
+	return !result
+
+endmethod
+
+--
+define method .getEngPipeByDesPipe(!lineLabel is STRING) is DBREF
+
+	!result = object DBREF()
+	
+	!shortLineLabelList = !lineLabel.split(|-|)
+	--JDA-2"-P01507-253842-N
+	if (!shortLineLabelList.size() gt 2) then
+		!shortLineLabel = !shortLineLabelList[3]
+		var !pipes COLL ALL (:Pipeline) WITH ((upcase(:TagStatus) inset ('ACTIVE', 'ASB', 'AFC', 'AFD')) and ISNAMED and NOT(EMPTY(:RAMTAGOWNER)) and matchwild(name, |*$!shortLineLabel*|)) MAX 1
+		
+		if (!pipes.unset().not() and !pipes.empty().not()) then
+			!pipe = !pipes.first()
+			!result = !pipe.dbref()
+		endif
+	endif
+	return !result
+
+endmethod
+
+--get clean string
+define method .GetCleanString(!value is STRING) is STRING
+	
+	!result = !value.lowcase().trim()
+	!specSymbolsList = !this.specialSymbols.split()
+	!specSymbolsList.append(' ')
+	!specSymbolsList.append('
+')
+	do !symb values !specSymbolsList
+		!result = !result.replace(!symb, '')
+	enddo
+	
+	return !result
+	
+endmethod
+
+--
+define method .TryToSetArrayValue(!eleRef is DBREF, !attributeValue is ARRAY, !attributeName is STRING) is BOOLEAN
+	
+	!result = false
+
+	!isError = false
+	!attribute = object ATTRIBUTE(!attributeName)
+	if (!attribute.hash() eq 0) then
+		!isError = true
+		!msg = |$!<eleRef.namn>;TryToSetArrayValue();Attribute $!attributeName is not exist in AVEVA|
+		!this.errorList.append(!msg.split(|;|))
+	endif
+	if (!eleRef.badref()) then
+		!isError = true
+		!msg = |$!<eleRef.namn>;TryToSetArrayValue();Element $!eleRef is not exist in AVEVA|
+		!this.errorList.append(!msg.split(|;|))
+	endif
+	--if (!eleRef.badref().not() and !eleRef.attributes().findfirst(!attributeName).unset()) then
+	if (!eleRef.badref().not() and !isError.not()) then
+		!val = !eleRef.attribute(!attributeName)
+		handle any
+			!isError = true
+			!msg = |$!<eleRef.namn>;TryToSetArrayValue();Attribute $!attributeName is not valid for the element $!<eleRef.name>|
+			!this.errorList.append(!msg.split(|;|))
+		endhandle
+	endif
+	if (!eleRef.dbwrite.not() or !eleRef.modatt.not()) then
+		!isError = true
+		!msg = |$!<eleRef.namn>;TryToSetArrayValue();Element can't be claimed!|
+		!this.errorList.append(!msg.split(|;|))
+		$p Element $!<eleRef.name> can not be claimed!
+	endif
+
+	if (!isError.not()) then
+		!currentValue = !eleRef.attribute(!attribute.name())
+		if (!currentValue neq !attributeValue) then
+			!valueType = !currentValue.objecttype()
+			!attributeType = !attribute.type()
+			if (!attributeType eq |REFERENCE| and !valueType eq |ARRAY|) then
+				!valueSize = !attributeValue.size()
+				!eleRef.attribute(!attribute.name()) = !attributeValue
+				handle any
+					$p List of elements is so long [$!valueSize] and can not be defined for element [$!<eleRef.name>]
+					!cmd = |$!eleRef :TagRefToDocument DEFAULT|
+					$!cmd
+					do !valueItem values !attributeValue
+						!cmd = |$!eleRef $!attributeName APPEND $!valueItem|
+						$!cmd
+					enddo
+				endhandle
+			endif
+		endif
+	endif
+	
+	return !result
+endmethod
+
+--extended method
+define method .TryToSetValue(!eleRef is DBREF, !attributeValue is STRING, !attributeName is STRING, !cleanImport is BOOLEAN, !arrayAppend is BOOLEAN, !actionType is STRING, !isEXfile is BOOLEAN) is ARRAY
+	
+	!result = ARRAY()
+
+	!isError = false
+	!attribute = object ATTRIBUTE(!attributeName)
+	if (!attribute.hash() eq 0) then
+		!isError = true
+		!msg = '$!<eleRef.namn>;$!attributeName;$!attributeValue;NA;CRITICAL: Attribute $!attributeName is not existing in AVEVA'
+		!result.append(!msg.split(|;|))
+		$P ATTRIBUTE $!attributeName is not existing in AVEVA
+	endif
+	if (!eleRef.badref()) then
+		!isError = true
+		!msg = '$!<eleRef.namn>;$!attributeName;$!attributeValue;NA;CRITICAL: Element $!eleRef is not existing in AVEVA'
+		!result.append(!msg.split(|;|))
+		$P ELEMENT $!eleRef is not existing in AVEVA
+	endif
+	if (!eleRef.badref().not() and !isError.not()) then
+		!val = !eleRef.attribute(!attributeName)
+		handle any
+			!isError = true
+			!msg = |$!<eleRef.namn>;$!attributeName;$!attributeValue;NA;CRITICAL: Attribute $!attributeName is not valid for the element $!<eleRef.namn>|
+			!result.append(!msg.split(|;|))
+			$p ATTRIBUTE $!attributeName is not valid for the element $!<eleRef.namn>
+		endhandle
+	endif
+	!isModifiable = !!dbRefUpdatable(!eleRef)
+	if (!isModifiable.not()) then
+		!isError = true
+		!msg = '$!<eleRef.namn>;$!attributeName;$!attributeValue;NA;CRITICAL: Element can not be claimed!'
+		!result.append(!msg.split(|;|))
+		$p ELEMENT $!<eleRef.namn> can not be claimed!
+	endif
+	
+	if (!isError.not()) then
+		!currentValue = !eleRef.attribute(!attribute.name())
+		handle none
+			!isError = false
+			!valueType = !currentValue.objecttype()
+			!attributeType = !attribute.type()
+			!currentValueString = !currentValue.String()
+			if (!currentValue.objecttype() eq |REAL|) then
+				!currentValueString = !currentValue.Value().String()
+			endif
+			if (!currentValue.objecttype() eq |DBREF| and !currentValue.badref().not()) then
+				!currentValueString = !currentValue.Namn
+			endif
+			
+			--$p log: ELEMENT: $!eleRef.namn ATTRIBUTE: $!attributeName FILEVALUE: $!attributeValue AVEVAVALUE: $!currentValueString AVEVAVALUETYPE: $!valueType AVEVAATTRIBUTETYPE: $!attributeType
+			--comment in case if no need to replace filled data
+			!currentValueCleanString = !this.GetCleanString(!currentValueString)
+			!attributeValueClean = !this.GetCleanString(!attributeValue)
+			
+			--skip if import value = unset
+			if (((!attributeValueClean.lowcase().trim() eq |unset|) or (!attributeValueClean.trim().empty())) and !isEXfile.not()) then
+				!msg = |$!<eleRef.namn>;$!attributeName;$!<attributeValue>;$!currentValueString;UNSET/EMPTY VALUE: Value <unset>/<empty> can't be imported in AVEVA|
+				!result.append(!msg.split(|;|))
+				return !result
+			endif
+			
+			--skip if import value = dbvalue
+			if (!currentValueCleanString eq !attributeValueClean and !valueType neq |ARRAY| and !isEXfile.not()) then
+				return !result
+			endif
+			if ((!currentValueCleanString eq !attributeValueClean or (!currentValueString.Empty().not() and !currentValueString.lowcase() neq |unset| and !valueType neq |ARRAY|)) and !cleanImport.not()) then
+				if (!currentValueString.Empty().not() and !currentValueCleanString neq !attributeValueClean) then
+					!msg = |$!<eleRef.namn>;$!attributeName;$!attributeValue;$!currentValueString;Current value [$!<currentValueString>] is not Empty and not equals [$!<attributeValue>]. For security reasons, the current value will not be overwritten.|
+					handle (47,10)
+						!attributeValue = !attributeValue.substring(120)
+						!msg = |$!<eleRef.namn>;$!attributeName;$!<attributeValue>..;$!currentValueString;$!!error.text|
+					endhandle
+					!result.append(!msg.split(|;|))
+				endif
+				return !result
+			endif
+			
+			if (!attributeType eq 'REAL') then
+				!eleRef.attribute(!attribute.name()) = !attributeValue.real()
+				handle any
+					!isError = true
+				endhandle
+			endif
+			if (!attributeType eq 'INTEGER') then
+				!eleRef.attribute(!attribute.name()) = !attributeValue.real()
+				handle any
+					!isError = true
+				endhandle
+			endif
+			if (!attributeType eq 'DATETIME') then
+				!datetime = object DATETIME( !attributeValue.split('.')[3].real(), !attributeValue.split('.')[2].real(), !attributeValue.split('.')[1].real(), 00, 00, 00)
+				handle ANY
+					!msg = |$!<eleRef.namn>;$!attributeName;$!<attributeValue>..;$!currentValueString;DABACON ERROR: $!!error.text|
+					!result.append(!msg.split(|;|))
+				elsehandle none
+					!eleRef.attribute(!attribute.name()) = !datetime
+					handle any
+						!isError = true
+					endhandle
+				endhandle
+			endif
+			if (!attributeType eq 'REFERENCE' and !valueType neq |ARRAY|) then
+				!attributeValue = |/$!attributeValue|
+				!eleRef.attribute(!attribute.name()) = !attributeValue.dbref()
+				handle any
+					!isError = true
+				endhandle
+			endif
+			if (!attributeType eq |REFERENCE| and !valueType eq |ARRAY|) then
+				!currentArrayValue = !eleRef.attribute(!attribute.name())
+				if (!arrayAppend.not()) then
+					!currentArrayValue = ARRAY()
+				endif
+				
+				!ifMultiValues = !attributeValue.matchwild(|* *|)
+				if (!ifMultiValues.not()) then
+					!attributeValue = |/$!attributeValue|
+					!attributeValueRef = !attributeValue.dbref()
+					handle any
+						!msg = |$!<eleRef.namn>;$!attributeName;$!attributeValue;$!currentValueString;Object [$!attributeValue] is not existing in AVEVA|
+						!result.append(!msg.split(|;|))
+					elsehandle none
+						!idx = !currentArrayValue.findFirst(!attributeValueRef)
+						if (!actionType.upcase() eq |DELETE| and !idx.set()) then
+							!currentArrayValue.remove(!idx)
+							!eleRef.attribute(!attribute.name()) = !currentArrayValue
+							handle ANY
+								!size = !currentArrayValue.size()
+								$P Error with ARRAY with [$!size] set for $!<eleRef.namn>
+								!emptyArray = ARRAY()
+								!eleRef.attribute(!attribute.name()) = !emptyArray
+								do !eleEntity values !currentArrayValue
+									!cmd = |$!eleRef $!attributeName APPEND $!eleEntity|												
+									$!cmd
+								enddo
+							endhandle
+						endif
+						if (!idx.unset() and !actionType.upcase() neq |DELETE|) then
+							!cmd = |$!eleRef $!attributeName APPEND $!attributeValueRef|
+							$!cmd
+							handle (2,278)
+								!size = !currentArrayValue.size()
+								$P $!<eleRef.namn> SIZE: $!size VALUE: $!attributeValue ERROR: $!!error.text Maximum links to the documents
+								!msg = |$!<eleRef.namn>;$!attributeName;$!attributeValue;$!currentValueString;$!attributeName can't save $!size links please extend cardinality in data model|
+								!result.append(!msg.split(|;|))
+							elsehandle none
+							endhandle
+						endif
+					endhandle
+				else
+					--case if ARRAY value is defined in TEXT with spaces
+					!attributeValueList = !attributeValue.split()
+					do !attributeValueItem values !attributeValueList
+						!attributeValueItem = |/$!attributeValueItem|
+						!attributeValueRef = !attributeValueItem.dbref()
+						handle any
+							!msg = |$!<eleRef.namn>;$!attributeName;$!attributeValueItem;Object [$!attributeValueItem] is not existing in AVEVA|
+							!result.append(!msg.split(|;|))
+						elsehandle none
+							!currentArrayValue.append(!attributeValueRef)
+						endhandle
+					enddo
+					!currentArrayValue.sortUnique()
+					if (!currentArrayValue.set()) then
+						!eleRef.attribute(!attribute.name()) = !currentArrayValue
+						handle any
+							if (!attributeValueRef.badref().not() and !currentArrayValue.findFirst(!attributeValueRef).unset()) then
+								!cmd = |$!eleRef $!attributeName APPEND $!attributeValueRef|
+								$!cmd
+								handle (2,278)
+									!size = !currentArrayValue.size()
+									--$P $!<eleRef.namn> SIZE: $!size VALUE: $!attributeValue ERROR: $!!error.text Maximum links to the documents
+									!msg = |$!<eleRef.namn>;$!attributeName;$!attributeValue;$!attributeName can't save $!size links please extend cardinality in data model|
+									!result.append(!msg.split(|;|))
+								elsehandle none
+								endhandle
+							endif
+						elsehandle none
+						endhandle
+					endif
+				endif
+			endif
+			if (!attributeType eq 'TEXT') then
+				!eleRef.attribute(!attribute.name()) = !attributeValue
+				handle any
+					!isError = true
+				endhandle
+			endif
+			if (!attributeType eq 'LOGICAL') then
+				!eleRef.attribute(!attribute.name()) = !attributeValue.boolean()
+				handle any
+					!isError = true
+				endhandle
+			endif
+			if (!attributeType eq 'ARRAY') then
+				!eleRef.attribute(!attribute.name()) = !attributeValue
+				handle any
+					!isError = true
+				endhandle
+			endif
+			if !isError then
+				!msg = |$!<eleRef.namn>;$!attributeName;$!attributeValue;$!currentValueString;DABACON ERROR: $!!error.text|
+				handle (47,10)
+					!attributeValue = !attributeValue.substring(120)
+					!msg = |$!<eleRef.namn>;$!attributeName;$!<attributeValue>..;$!currentValueString;DABACON ERROR: $!!error.text|
+				endhandle
+				!result.append(!msg.split(|;|))
+			endif
+		elsehandle any
+			!msg = |$!<eleRef.namn>;$!attributeName;$!attributeValue;$!currentValue;DABACON ERROR: $!!error.text|
+			!result.append(!msg.split(|;|))
+		endhandle
+	endif
+	
+	return !result
+	
+endmethod
+
+--
+define method .SaveLog(!logName is STRING, !isOpen is BOOLEAN)
+
+	!logFile = |$!<this.pathName>\$!logName|
+	using namespace |Aveva.Core.Presentation|
+	!dataTable = object NETGRIDCONTROL()
+	!source = object NETDATASOURCE('data', !this.headerData, !this.errorList)
+	!dataTable.bindToDataSource(!source)
+	!dataTable.saveGridToExcel(!logFile, |data|)
+	if (!isOpen) then
+		SYSCOM 'explorer /root, "$!<this.pathName>"'
+	endif
+	
+endmethod

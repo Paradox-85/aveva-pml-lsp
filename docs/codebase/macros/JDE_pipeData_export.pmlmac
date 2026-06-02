@@ -1,0 +1,328 @@
+-- Run path: $m "C:\Users\ADZV\OneDrive - Ramboll\AVEVA_SERVER\Addons\PMLLIB\RAM\Engineering\jackdow\JDE_pipeData_export.pmlmac"
+-- PML export pipe data from AE3D
+--Author: Andrei Aitzhanov
+-- Company Ramboll Energies
+-- Date: 21-11-2023
+
+import 'GridControl'
+handle ANY
+endhandle
+using namespace |Aveva.Core.Presentation|
+!dataList = ARRAY()
+!headerList = ARRAY()
+!headerList.append(|Circle Welds VT|)
+!headerList.append(|Circle Welds RT/UT|)
+!headerList.append(|Circle Welds PT/MT|)
+!headerList.append(|Olets VT|)
+!headerList.append(|Olets RT/UT|)
+!headerList.append(|Olets PT/MT|)
+!headerList.append(|NDT Group|)
+!headerList.append(|PMI|)
+!headerList.append(|Hardress|)
+!headerList.append(|Ferrite|)
+!headerList.append(|Chemical Cleaning|)
+!headerList.append(|EU PED / UK PER|)
+!headerList.append(|PED / PER CATEGORY|)
+!headerList.append(|Fluid State(Liquid/Gas)|)
+!headerList.append(|PED Fluid Group|)
+!headerList.append(|CE + UKCA MARKING|)
+!headerList.append(|Piping Design & layout Philosophy|)
+!headerList.append(|Piping Material Class|)
+!headerList.append(|ICV Inspection Level|)
+!headerList.append(|Piping Material Specification|)
+!headerList.append(|Specification for Pressure Test & Flush|)
+!headerList.append(|Specification For Welding & inspection|)
+!headerList.append(|Specification For Painting & Coating & Insulation|)
+!headerList.append(|Insulation Type|)
+!headerList.append(|Insulation Thickness|)
+!headerList.append(|Heat Tracing|)
+!headerList.append(|Paint System|)
+!headerList.append(|Paint Top Coat|)
+!headerList.append(|Main Color|)
+!headerList.append(|Additional Color|)
+!headerList.append(|PWHT|)
+!headerList.append(|From PID Number|)
+!headerList.append(|To PID Number|)
+!headerList.append(|Critical Line|)
+!headerList.append(|Stress calculation|)
+!headerList.append(|Test Medium|)
+!headerList.append(|Operating Pressure|)
+!headerList.append(|Operating Temperature minimum|)
+!headerList.append(|Operating Temperature maximum|)
+!headerList.append(|Design Pressure|)
+!headerList.append(|Design Temperature Minimum|)
+!headerList.append(|Design Temperature Maximum|)
+!headerList.append(|Test Pressure|)
+!headerList.append(|Test Temperature Minimum|)
+!headerList.append(|Test Temperature Maximum|)
+!headerList.append(|Line Label|)
+!headerList.append(|Line Number|)
+!headerList.append(|Drawing Number|)
+!headerList.append(|Area Code|)
+!headerList.append(|F.A.Volum.|)
+!headerList.append(|Tag Name|)
+!headerList.append(|Tag Status|)
+!headerList.append(|ACTTYPE|)
+!headerList.append(|Tag Source|)
+
+--step 1 collect data from AE3D
+var !lines COLL ALL (PIPE) WITH (matchwild(name of site, |*-MP*|) and matchwild(dbname, |*-MP*|))
+do !lineStr values !lines
+	--progress
+	!rowIdx = !lines.findFirst(!lineStr)
+	!!displayProgress(!rowIdx, !lines.size())
+
+	!rowData = ARRAY()
+	!line = !lineStr.dbref()
+	
+	!CircleWeldsVTAE3D=!line.:RAM_VISUALCIRC
+	!CircleWeldsRTUTAE3D=!line.:RAM_RADIOCIRC
+	!CircleWeldsPTMTAE3D=!line.:RAM_MAGNETCIRC
+	!OletsVTAE3D=!line.:RAM_VISUALOLET
+	!OletsRTUTAE3D=!line.:RAM_RADIOOLET
+	!OletsPTMTAE3D=!line.:RAM_MAGNETOLET
+	!NDTGroupAE3D=!line.:RAM_NDTGROUP
+	!PMIAE3D=!line.:RAM_PMI
+	!HardressAE3D=!line.:RAM_HARDNESS
+	!FerriteAE3D=!line.:RAM_FERRITE
+	!ChemicalCleaningAE3D=!line.:RAM_CHEMCLEAN
+	!EUPEDUKPERAE3D=!line.:RAM_PEDEU
+	!PEDPERCATEGORYAE3D=!line.:RAM_PEDCATEGORY
+	!FluidStateLiquidGasAE3D=!line.:RAM_FLUIDSTATE
+	!PEDFluidGroupAE3D=!line.:RAM_PEDFLUIDGROUP
+	!CEUKCAMARKINGAE3D=!line.:RAM_CEMARK
+	!PipingDesignlayoutPhilosophyAE3D=!line.:RAM_LAYOUTPHILOSOPHY
+	!PipingMaterialClassAE3D=!line.:RAM_PIPEMATLCLASS
+	!ICVInspectionLevelAE3D=!line.:RAM_ICVINSLEVEL
+	!PipingMaterialSpecificationAE3D=!line.:RAM_SPECPIPEMATERIAL
+	!SpecificationforPressureTestFlushAE3D=!line.:RAM_SPECTESTFLUSH
+	!SpecificationForWeldinginspectionAE3D=!line.:RAM_SPECWELDINSPECTING
+	!SpecificationForPaintingCoatingInsulationAE3D=!line.:RAM_SPECPAINTCOATING
+	!InsulationTypeAE3D=!line.:RAM_INSTYPE
+	!InsulationThicknessAE3D=!line.:RAM_INSLTHICK
+	!HeatTracingAE3D=!line.:RAM_HEATTRACING
+	!PaintSystemAE3D=!line.:RAM_PAINTSTSTEM
+	!PaintTopCoatAE3D=!line.:RAM_TOPCOAT
+	!MainColorAE3D=!line.:RAM_MAINCOLOR
+	!AdditionalColorAE3D=!line.:RAM_ADDTIONALCOLOR
+	!PWHTAE3D=!line.:RAM_PWHT
+	!FromPIDNumberAE3D=!line.:RAM_FROMPIDNO
+	!ToPIDNumberAE3D=!line.:RAM_TOPIDNO
+	!CriticalLineAE3D=!line.:RAM_CRITICALLINE
+	!StresscalculationAE3D=!line.:RAM_STRESSCALC
+	!TestMediumAE3D=!line.:RAM_TESTMEDIUM
+	!OperatingPressureAE3D=!line.:RAM_OPRPRES
+	!OperatingTemperatureminimumAE3D=!line.:RAM_MINOPTMP
+	!OperatingTemperaturemaximumAE3D=!line.:RAM_MAXOPTMP
+	!DesignPressureAE3D=!line.:RAM_DESIPRES
+	!DesignTemperatureMinimumAE3D=!line.:RAM_MINDESTMP
+	!DesignTemperatureMaximumAE3D=!line.:RAM_MAXDESTMP
+	!TestPressureAE3D=!line.:RAM_TESTPRES
+	!TestTemperatureMinimumAE3D=!line.:RAM_MINTESTMP
+	!TestTemperatureMaximumAE3D=!line.:RAM_MAXTESTMP
+	!LineLabelAE3D=!line.:RAM_LINELABEL
+	!LineNumberAE3D=!line.:RAM_LINENUMBER
+	!DrawingNumberAE3D=!line.:RAM_DWGNO
+	!AreaCodeAE3D=!line.:RAM_AREACODE
+	!FAVolumAE3D=!line.:RAM_FAV
+	!TagNameAE3D=!line.NAMN
+	!TagStatusAE3D=!line.:capStatus
+	!ACTTYPEAE3D=!line.ACTTYPE
+	!TagSourceAE3D=|AE3D|
+
+	!rowData.append(!CircleWeldsVTAE3D)
+	!rowData.append(!CircleWeldsRTUTAE3D)
+	!rowData.append(!CircleWeldsPTMTAE3D)
+	!rowData.append(!OletsVTAE3D)
+	!rowData.append(!OletsRTUTAE3D)
+	!rowData.append(!OletsPTMTAE3D)
+	!rowData.append(!NDTGroupAE3D)
+	!rowData.append(!PMIAE3D)
+	!rowData.append(!HardressAE3D)
+	!rowData.append(!FerriteAE3D)
+	!rowData.append(!ChemicalCleaningAE3D)
+	!rowData.append(!EUPEDUKPERAE3D)
+	!rowData.append(!PEDPERCATEGORYAE3D)
+	!rowData.append(!FluidStateLiquidGasAE3D)
+	!rowData.append(!PEDFluidGroupAE3D)
+	!rowData.append(!CEUKCAMARKINGAE3D)
+	!rowData.append(!PipingDesignlayoutPhilosophyAE3D)
+	!rowData.append(!PipingMaterialClassAE3D)
+	!rowData.append(!ICVInspectionLevelAE3D)
+	!rowData.append(!PipingMaterialSpecificationAE3D)
+	!rowData.append(!SpecificationforPressureTestFlushAE3D)
+	!rowData.append(!SpecificationForWeldinginspectionAE3D)
+	!rowData.append(!SpecificationForPaintingCoatingInsulationAE3D)
+	!rowData.append(!InsulationTypeAE3D)
+	!rowData.append(!InsulationThicknessAE3D)
+	!rowData.append(!HeatTracingAE3D)
+	!rowData.append(!PaintSystemAE3D)
+	!rowData.append(!PaintTopCoatAE3D)
+	!rowData.append(!MainColorAE3D)
+	!rowData.append(!AdditionalColorAE3D)
+	!rowData.append(!PWHTAE3D)
+	!rowData.append(!FromPIDNumberAE3D)
+	!rowData.append(!ToPIDNumberAE3D)
+	!rowData.append(!CriticalLineAE3D)
+	!rowData.append(!StresscalculationAE3D)
+	!rowData.append(!TestMediumAE3D)
+	!rowData.append(!OperatingPressureAE3D)
+	!rowData.append(!OperatingTemperatureminimumAE3D)
+	!rowData.append(!OperatingTemperaturemaximumAE3D)
+	!rowData.append(!DesignPressureAE3D)
+	!rowData.append(!DesignTemperatureMinimumAE3D)
+	!rowData.append(!DesignTemperatureMaximumAE3D)
+	!rowData.append(!TestPressureAE3D)
+	!rowData.append(!TestTemperatureMinimumAE3D)
+	!rowData.append(!TestTemperatureMaximumAE3D)
+	!rowData.append(!LineLabelAE3D)
+	!rowData.append(!LineNumberAE3D)
+	!rowData.append(!DrawingNumberAE3D)
+	!rowData.append(!AreaCodeAE3D)
+	!rowData.append(!FAVolumAE3D)
+	!rowData.append(!TagNameAE3D)
+	!rowData.append(!TagStatusAE3D)
+	!rowData.append(!ACTTYPEAE3D)
+	!rowData.append(!TagSourceAE3D)
+
+	!dataList.append(!rowData)
+enddo
+
+--step 2 collect data from AE
+var !lines COLL ALL (:Pipeline)
+do !lineStr values !lines
+	--progress
+	!rowIdx = !lines.findFirst(!lineStr)
+	!!displayProgress(!rowIdx, !lines.size())
+
+	!rowData = ARRAY()
+	!line = !lineStr.dbref()
+	
+	!CircleWeldsVTAE=!line.:RAMNDEVTPERCENTAGE
+	!CircleWeldsRTUTAE=!line.:RAMNDERTUTPERCENTAGE
+	!CircleWeldsPTMTAE=!line.:RAMNDEPTMTPERCENTAGE
+	!OletsVTAE=!line.:RAMNDTOletsVT
+	!OletsRTUTAE=!line.:RAMNDTOletsRTUT
+	!OletsPTMTAE=!line.:RAMNDTOletsPTMT
+	!NDTGroupAE=!line.:NonDestructiveTestingMethods
+	!PMIAE=!line.:RAMPMI
+	!HardressAE=!line.:RAMHARDNESS
+	!FerriteAE=!line.:RAMFERRITE
+	!ChemicalCleaningAE=!line.:ChemicalCleaningRequired
+	!EUPEDUKPERAE=!line.:RAMPED201468EU
+	!PEDPERCATEGORYAE=!line.:RAMPEDCATEGORY
+	!FluidStateLiquidGasAE=!line.:RAMPEDPhaseAt05Barg
+	!PEDFluidGroupAE=!line.:RAMPEDFLUIDCLASS
+	!CEUKCAMARKINGAE=!line.:RAMCEMarking
+	!PipingDesignlayoutPhilosophyAE=!line.:RAMPipingDesignLayoutPhilosophy
+	!PipingMaterialClassAE=!line.:PipingClass
+	!ICVInspectionLevelAE=!line.:RAMICVInspecLevel
+	!PipingMaterialSpecificationAE=!line.:RAMPipingMaterialSpecification
+	!SpecificationforPressureTestFlushAE=!line.:RAMSpecForPressTestFlush
+	!SpecificationForWeldinginspectionAE=!line.:RAMSpecForWeldingInspection
+	!SpecificationForPaintingCoatingInsulationAE=!line.:RAMSpecForPaintingCoating
+	!InsulationTypeAE=!line.:InsulationCode
+	!InsulationThicknessAE=!line.:InsulationThickness
+	!HeatTracingAE=!line.:HeatTracing
+	!PaintSystemAE=!line.:RAMPaintSystem
+	!PaintTopCoatAE=!line.:AntiCorrosionCoatingType
+	!MainColorAE=!line.:PipelineColourCode
+	!AdditionalColorAE=!line.:RAMAdditionalColor
+	!PWHTAE=!line.:PostWeldHeatTreatment
+	!FromPIDNumberAE=!line.:RAMFromPIDNo
+	!ToPIDNumberAE=!line.:RAMToPIDNo
+	!CriticalLineAE=!line.:CriticalPipeline
+	!StresscalculationAE=!line.:RAMStressCalc
+	!TestMediumAE=!line.:TestMedium
+	!OperatingPressureAE=!line.:NormalOperatingPressure
+	!OperatingTemperatureminimumAE=!line.:LowerLimitOperatingTemperature
+	!OperatingTemperaturemaximumAE=!line.:UpperLimitOperatingTemperature
+	!DesignPressureAE=!line.:UpperLimitDesignPressure
+	!DesignTemperatureMinimumAE=!line.:LowerLimitDesignTemperature
+	!DesignTemperatureMaximumAE=!line.:UpperLimitDesignTemperature
+	!TestPressureAE=!line.:TestPressure
+	!TestTemperatureMinimumAE=!line.:RAMTestTemperatureMinimum
+	!TestTemperatureMaximumAE=!line.:RAMTestTemperatureMaximum
+	!LineLabelAE=!line.NAMN
+	!LineNumberAE=!line.:RAMSHORTTAG
+	var !DrawingNumberAE :RAM_DWGNO of Deslnk of $!line
+	handle any
+		!DrawingNumberAE = ||
+	endhandle
+	var !AreaCodeAE :RAM_AREACODE of Deslnk of $!line
+	handle any
+		!AreaCodeAE = ||
+	endhandle
+	var !FAVolumAE :RAM_FAV of Deslnk of $!line
+	handle any
+		!FAVolumAE = ||
+	endhandle
+	!TagNameAE=!line.NAMN
+	!TagStatusAE=!line.:RambollTagStatus
+	!ACTTYPEAE=!line.ACTTYPE
+	!TagSourceAE=|AE|
+
+	!rowData.append(!CircleWeldsVTAE)
+	!rowData.append(!CircleWeldsRTUTAE)
+	!rowData.append(!CircleWeldsPTMTAE)
+	!rowData.append(!OletsVTAE)
+	!rowData.append(!OletsRTUTAE)
+	!rowData.append(!OletsPTMTAE)
+	!rowData.append(!NDTGroupAE)
+	!rowData.append(!PMIAE)
+	!rowData.append(!HardressAE)
+	!rowData.append(!FerriteAE)
+	!rowData.append(!ChemicalCleaningAE)
+	!rowData.append(!EUPEDUKPERAE)
+	!rowData.append(!PEDPERCATEGORYAE)
+	!rowData.append(!FluidStateLiquidGasAE)
+	!rowData.append(!PEDFluidGroupAE)
+	!rowData.append(!CEUKCAMARKINGAE)
+	!rowData.append(!PipingDesignlayoutPhilosophyAE)
+	!rowData.append(!PipingMaterialClassAE)
+	!rowData.append(!ICVInspectionLevelAE)
+	!rowData.append(!PipingMaterialSpecificationAE)
+	!rowData.append(!SpecificationforPressureTestFlushAE)
+	!rowData.append(!SpecificationForWeldinginspectionAE)
+	!rowData.append(!SpecificationForPaintingCoatingInsulationAE)
+	!rowData.append(!InsulationTypeAE)
+	!rowData.append(!InsulationThicknessAE)
+	!rowData.append(!HeatTracingAE)
+	!rowData.append(!PaintSystemAE)
+	!rowData.append(!PaintTopCoatAE)
+	!rowData.append(!MainColorAE)
+	!rowData.append(!AdditionalColorAE)
+	!rowData.append(!PWHTAE)
+	!rowData.append(!FromPIDNumberAE)
+	!rowData.append(!ToPIDNumberAE)
+	!rowData.append(!CriticalLineAE)
+	!rowData.append(!StresscalculationAE)
+	!rowData.append(!TestMediumAE)
+	!rowData.append(!OperatingPressureAE)
+	!rowData.append(!OperatingTemperatureminimumAE)
+	!rowData.append(!OperatingTemperaturemaximumAE)
+	!rowData.append(!DesignPressureAE)
+	!rowData.append(!DesignTemperatureMinimumAE)
+	!rowData.append(!DesignTemperatureMaximumAE)
+	!rowData.append(!TestPressureAE)
+	!rowData.append(!TestTemperatureMinimumAE)
+	!rowData.append(!TestTemperatureMaximumAE)
+	!rowData.append(!LineLabelAE)
+	!rowData.append(!LinenumberAE)
+	!rowData.append(!DrawingNumberAE)
+	!rowData.append(!AreaCodeAE)
+	!rowData.append(!FAVolumAE)
+	!rowData.append(!TagNameAE)
+	!rowData.append(!TagStatusAE)
+	!rowData.append(!ACTTYPEAE)
+	!rowData.append(!TagSourceAE)
+
+	!dataList.append(!rowData)
+enddo
+
+!publishPath = |C:\Users\ADZV\OneDrive - Ramboll\Ramboll_Jackdaw - Admin Team\Aveva\_RAM data\_analisys\Pipes\pipe_export.xlsx|
+!dataTable = object NETGRIDCONTROL()
+!dataTable.clearGrid()
+!source = object NETDATASOURCE('data', !headerList, !dataList)
+!dataTable.BindToDataSource(!source)
+!dataTable.saveGridToExcel(|$!publishPath|, |data|)	

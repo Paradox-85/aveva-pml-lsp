@@ -1,0 +1,282 @@
+------------------------------------------------------------------------
+--
+-- File:        JACEISDELIVERYFORM
+-- Description: Form to Export and validate tag for EIS Delivery
+--
+------------------------------------------------------------------------
+import 'GridControl'
+handle any
+endhandle
+
+import 'PMLFileBrowser'
+handle any
+endhandle
+
+using namespace 'Aveva.core.presentation'
+
+setup form !!jacEISDeliveryForm dialog resizable
+
+  !this.formTitle                = 'EIS Delivery'
+
+  bar
+  exit
+  
+  frame .frTabSet                    TABSET            anchor all   at xmin                    ymin                                             width 60
+                           
+    frame       .frReport           |EIS Report|       anchor ALL   at xmin                    ymin                                              width 60
+      list      .liReportList       |Report List|      anchor l+t+b at xmin                    ymin                    MULTI                     width 35 height 24
+      container .coSelectionList  PMLNETCONTROL 'NET'  anchor all   at xmax+2                  ymin                                              width 80 height 20
+      para      .paOutputFolder                        anchor l+b   at xmin.liReportList       ymax.liReportList+0.5   text     'Output Folder:' width 10
+      text      .teOutputFolder                        anchor l+b   at xmin.liReportList       ymax+0.1                                          width 35   string
+      button    .buBrowseFolder     |...|              anchor l+b   at xmax                    ymin                                              width 1.5
+      para      .paRevision                            anchor l+b   at xmin.liReportList       ymax.teOutputFolder+0.5 text     'CSV Revision:'  width 10
+      text      .teRevision                            anchor l+b   at xmax.paRevision+0.5     ymin                                              width 5   string
+      button    .buExportExcel     |Export XLSX|       anchor l+b   at xmin.liReportList       ymax+0.8
+      button    .buExportCSV       |Export CSV|        anchor l+b   at xmax+2                  ymin
+      button    .buPreview         |Preview|           anchor l+b   at xmin.coSelectionList+2  ymax.coSelectionList+1
+      button    .buClear           |Clear|             anchor l+b   at xmax+2                  ymin
+    exit
+
+    frame       .frTable           |QA|                anchor T+L   at xmin                    ymin                                              width 20
+    exit
+
+  exit
+
+  member .gridSelectionList   is NETGRIDCONTROL
+  member .eisDeliveryManager  is JACEISDELIVERYMANAGER
+  member .fileWriter          is RAMFILEWRITERCLASS
+  
+exit
+
+----------------------------------------------------------------------
+-- Method:      .jacEISDeliveryForm
+-- Description: Constructor
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .jacEISDeliveryForm()
+  
+  !this.initCall                 = |!this.init()|
+  !this.buBrowseFolder.callback  = |!this.browserFolder()|
+  !this.buClear.callback         = |!this.gridSelectionList.clearGrid()|
+  !this.buPreview.callback       = |!this.previewSelected()|
+  !this.buExportExcel.callback   = |!this.exportSelected('XLSX')|
+  !this.buExportCSV.callback     = |!this.exportSelected('CSV')|
+
+  -- Define Main Bar Menu
+  !bar      = !this.bar
+  !bar.add('Logger',     'logger')
+
+  !control     = !this.newMenu('logger')
+  !control.add('callback',  'Show Logger...',   'show !!RAMCOMMONLOGGERFORM')
+  !control.add('callback',  'Clear Log',        '!this.clearLog()')
+
+  using namespace 'Aveva.Core.Presentation'
+  !this.gridSelectionList        = object NETGRIDCONTROL()
+  !this.coSelectionList.control  = !this.gridSelectionList.handle()
+  !this.gridSelectionList.columnExcelFilter(true)
+  !this.gridSelectionList.fixedRows(true)
+  !this.gridSelectionList.singleRowSelection(false)
+  !this.gridSelectionList.editableGrid(true)
+  !this.gridSelectionList.outlookGroupStyle(false)
+  !this.gridSelectionList.addEventHandler('onPopup', !this, 'loadPopup')
+
+  !menu                                    = !this.newMenu('defPopUp')
+  !menu.add('callback', 'Export Preview', '!this.exportPreview()')
+  
+endmethod
+
+----------------------------------------------------------------------
+--
+-- Method:      .init
+--
+-- Description: Constructor
+--
+-- Method Type: Function/Procedure
+--
+------------------------------------------------------------------------
+define method .init()
+  !this.gridSelectionList.CLEARGRID()
+  !this.eisDeliveryManager       = object JACEISDELIVERYMANAGER()
+  !this.eisDeliveryManager.readConfiguration()
+  !this.loadReportList()
+endmethod
+
+------------------------------------------------------------------------
+-- Method:      loadPopup
+-- Description: Load the pop up menu
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--    1   R      ARRAY      Selection detail
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .loadPopup(!array is ARRAY)
+   !this.coSelectionList.popup   = !this.defPopUp
+   !this.coSelectionList.showPopup(!array[0], !array[1])
+endmethod
+
+----------------------------------------------------------------------
+--
+-- Method:      .clearLog
+--
+-- Description: Method to reset the object details
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .clearLog()
+
+  if(defined(!!ramcommonloggerform)) then
+    !!ramcommonloggerform.clearData()
+  else
+    !!RAMCOMMONLOGGER = object RAMCOMMONLOGGER()
+  endif
+  
+endmethod
+
+----------------------------------------------------------------------
+-- Method:      .loadReportList
+-- Description: Load all the EIS reports from configuration excel
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .loadReportList()
+  
+  !this.liReportList.dtext       = !this.eisDeliveryManager.getReportList('DTEXT')
+  !this.liReportList.rtext       = !this.eisDeliveryManager.getReportList('RTEXT')
+
+endmethod
+
+
+-----------------------------------------------------------------------
+--
+-- Method:      .browserFolder
+-- Description: Show standard browser
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+--
+------------------------------------------------------------------------
+define method .browserFolder()
+
+  using namespace 'Aveva.Core.Presentation'
+  !folderBrowser                 = object PMLFOLDERBROWSER()
+  !folderBrowser.show('Select Output Folder', true)
+  !this.teOutputFolder.val       = !folderBrowser.selectedPath()
+
+endmethod
+
+-----------------------------------------------------------------------
+--
+-- Method:      .previewSelected
+-- Description: Preview selected view in the grid(only for dbview)
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+--
+------------------------------------------------------------------------
+define method .previewSelected()
+
+  !pickedIndex                   = !this.liReportList.pickedfield
+  if(!pickedIndex.neq(0)) then
+    !this.eisDeliveryManager.clearData()
+    !viewName                      = !this.liReportList.rtext[!this.liReportList.pickedfield]
+    !isDetailsSet                  = !this.eisDeliveryManager.loadReportDetails(!viewName)
+    if(!isDetailsSet) then
+      if(!this.eisDeliveryManager.isPMLFunction.not()) then
+        !this.eisDeliveryManager.loadReport()
+        !this.gridSelectionList.clearGrid()
+        
+        using namespace 'Aveva.Core.Presentation'
+        !nds                       = object NETDATASOURCE('viewName', !this.eisDeliveryManager.headings, !this.eisDeliveryManager.rows)
+        !this.gridSelectionList.bindToDataSource(!nds)
+      else
+        !this.gridSelectionList.clearGrid()
+        !!alert.warning('PML Function cannot be previewed')
+      endif
+    endif
+  endif
+
+endmethod
+
+-----------------------------------------------------------------------
+--
+-- Method:      .exportSelected
+-- Description: Export selected views
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+--
+------------------------------------------------------------------------
+define method .exportSelected(!exportType is STRING)
+  
+  !file                          = object FILE(!this.teOutputFolder.val)
+  if(!file.set() AND !file.exists()) then
+    !selectedItems               = !this.liReportList.val
+
+    do !index values !selectedItems
+      !this.eisDeliveryManager.clearData()
+      !viewName                  = !this.liReportList.rtext[!index]
+      !isDetailsSet              = !this.eisDeliveryManager.loadReportDetails(!viewName)
+
+      if(!isDetailsSet AND !this.eisDeliveryManager.isPMLFunction.not()) then
+        !isLoaded                = !this.eisDeliveryManager.loadReport()
+        if(!exportType.EQNoCase('XLSX')) then
+          !excelPath             = !file.FULLNAME() + '\' + !this.eisDeliveryManager.excelFileName + '.xlsx'
+          !this.fileWriter.writeDataToExcelFile(!excelPath, false, !this.eisDeliveryManager.headings, !this.eisDeliveryManager.rows)
+        else
+          !csvPath               = !file.FULLNAME() + '\' + !this.eisDeliveryManager.csvFileName.replace('{0}', !this.teRevision.Val) + '.csv'
+          !this.fileWriter.writeDataToTextFile(!csvPath, false, !this.eisDeliveryManager.headings, !this.eisDeliveryManager.rows)
+        endif
+
+      else
+        !filePath                = !file.FULLNAME() + '\' + !this.eisDeliveryManager.excelFileName + '.xlsx'
+        !this.eisDeliveryManager.executePmlFunction(!filePath)
+      endif
+    enddo
+  else
+    !!alert.warning('Please select valid output folder to proceed export')
+  endif
+
+endmethod
+
+------------------------------------------------------------------------
+-- Method:      exportPreview
+-- Description: Export preview grid
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .exportPreview()
+
+  !fileName    = !this.fileWriter.browseFile('XLSX')
+
+  if(!fileName.set() AND !fileName.neq('')) then
+    using namespace 'Aveva.Core.Presentation'
+    !this.gridSelectionList.saveGridToExcel(!fileName)
+  endif
+
+endmethod
+

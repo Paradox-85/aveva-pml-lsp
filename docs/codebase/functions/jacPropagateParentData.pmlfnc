@@ -1,0 +1,48 @@
+-----------------------------------------------------------------------
+--
+-- File:        JACPROPAGATEPARENTDATA
+-- Description: Function to propagate data from parent to child(consideration - 1 level)
+--
+------------------------------------------------------------------------
+define function !!jacPropagateParentData(!relationAttName is STRING, !attListToPropagate is ARRAY, !filter is STRING, !isForceUpdate is BOOLEAN)
+
+  if(undefined(!!ramCommonLogger)) then
+    !!ramCommonLogger         = object RAMCOMMONLOGGER()
+  endif
+  !!ramCommonLogger.addLogDetails('jacPropagateParentData', '--------------------Execution start--------------------', 0)
+
+  !tagManagement              = object RAMTAGMANAGEMENT()
+  !valueConverter             = object RAMVALUECONVERTER()
+  !!displayProgress(1, 100)
+
+  if(!tagManagement.isAttributeAvailable(!relationAttName)) then
+    !collection               = object COLLECTION()
+    !collection.type('ENGITE')
+    if(!filter.set() AND !filter.trim().neq('')) then
+      !expression             = object EXPRESSION(!filter)
+      !collection.filter(!expression)
+    endif
+    
+    !tags                     = !collection.results()
+
+    !parentValue              = object STRING()
+    do !i indices !tags
+      !!displayProgress(!i, !tags.size())
+      !childRefe              = !tags[!i]
+      !parentElementRefe      = !childRefe.attribute(!relationAttName)
+      if(!parentElementRefe.badref().not()) then
+        do !attToPropagate values !attListToPropagate
+          !isChildHaveAtt     = !tagManagement.isAttributeAvailable(!childRefe, !attToPropagate)
+          !isParentHaveAtt    = !tagManagement.isAttributeAvailable(!parentElementRefe, !attToPropagate)
+          if(!isChildHaveAtt AND !isParentHaveAtt) then
+            !parentValue.delete()
+            !parentValue      = !parentElementRefe.attribute(!attToPropagate)
+            !!jacCheckForceUpdate('jacPropagateParentData', !childRefe, !attToPropagate, !parentValue, !isForceUpdate)
+          endif
+        enddo
+      endif
+    enddo
+  endif
+  !!displayProgress(100, 100)
+
+endfunction

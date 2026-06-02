@@ -1,0 +1,22 @@
+-----------------------------------------------------------------------
+--
+-- File:        JACDELETEUNNAMED
+-- Description: Function to delete unnamed element
+--
+------------------------------------------------------------------------
+define function !!jacDeleteUnnamed(!isLogicalDelete is BOOLEAN)
+
+  if(undefined(!!ramCommonLogger)) then
+    !!ramCommonLogger = object RAMCOMMONLOGGER()
+  endif
+  !!ramCommonLogger.addLogDetails('jacDeleteUnnamed', '--------------------Execution start--------------------', 0)
+
+  !tagManagement      = object RAMTAGMANAGEMENT()
+  !collection         = object COLLECTION()
+  !collection.type('ENGITE')
+  !expression         = object EXPRESSION(':TagStatus INSET (|ACTIVE|, |VOID|, |Future|, |ASB|, |AFD|, |AFC|, ||) and NOT(ISNAMED)')
+  !collection.filter(!expression)
+  !tags               = !collection.results()
+  !tagManagement.deleteElements(!tags, !isLogicalDelete)
+
+endfunction

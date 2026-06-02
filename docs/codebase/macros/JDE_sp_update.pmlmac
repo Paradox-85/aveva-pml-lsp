@@ -1,0 +1,17 @@
+-- Run path: $m "C:\Users\ADZV\OneDrive - Ramboll\AVEVA_SERVER\Addons\PMLLIB\RAM\Engineering\jackdow\JDE_sp_update.pmlmac"
+-- PML collect fake special items
+--Author: Andrei Aitzhanov
+-- Company Ramboll Energies
+-- Date: 25-03-2023
+
+var !spFakeList eval(:RAMMESCNO) for all ENGITE with (:RAMTAGOWNER neq |LEIR| and matchwild(:RAMMESCNO, |*SP-*|))
+do !spFake values !spFakeList
+	!spFakeName = |/$!spFake|
+	!spFakeRef = !spFakeName.dbref()
+	handle none
+		!spFakeRef.:RAMIMComments = |FAKE SP. TO BE EXLUDED|
+	elsehandle any
+		
+		$p Element $!spFakeName is not existing in AVEVA DB
+	endhandle
+enddo

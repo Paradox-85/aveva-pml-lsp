@@ -1,0 +1,231 @@
+------------------------------------------------------------------------
+--
+-- File:        RAMBiReportExport
+-- Description: fUNCTION to export BI data in Excel tables
+-- Author:      Andrei Aitzhanov
+-- Created:     26-02-2024
+--
+------------------------------------------------------------------------
+import 'GridControl'
+handle any
+endhandle
+
+import 'Aveva.Engineering.Tags.Pml'
+handle any
+endhandle
+
+
+using namespace 'Aveva.Core.Presentation'
+using namespace 'Aveva.Engineering.Tags'
+
+--!!RAMBiReportExport(|C:\Users\ADZV\OneDrive - Ramboll\Ramboll_Jackdaw - Admin Team\JDE-Power-BI|)
+define function !!RAMBiReportExport(!pathName is STRING)
+	
+	--initial variables
+	!realUnset = ARRAY()
+	!dateTime = object DATETIME()
+	var !projCode proj code
+	!dataList = ARRAY()
+	!headerList = ARRAY()
+
+	pml reload object RAMTAGMATURITYDATA
+	!maturities = ARRAY()
+	
+	var !tags collect all ENGITEM with (not(unset(:RambollTagStatus)))
+	!path = object FILE(!pathName)
+	if (!path.Exists()) then
+		!!tags = object PMLTAGS()
+		
+		--step 0 - loexport dataset for IM statistics
+		$( var !grid collect all LSTDEF with (LSTNAM eq |IM-tag-dataset|)
+		if (!grid.size() eq 1) then
+			!gridRef = !grid.first().dbref()
+			!gridRef.lstflt = !realUnset
+			!filePathOrigin = |$!pathName\_master\data\MTR-dataset.xlsx|
+			!filePath = |$!pathName\_master\data\MTR-dataset-| + !dateTime.year().string(|I4|) + '-' + !dateTime.month().string(|I2|) + '-' + !dateTime.date().string(|I2|) + '.xlsx' 
+			var !gridGroupName CATNAM of LSTGRP of $!gridRef
+			!!tags.exportasxls(!gridGroupName, '$!<gridRef.LSTNAM>', '$!filepath') 
+			!!tags.exportasxls(!gridGroupName, '$!<gridRef.LSTNAM>', '$!filePathOrigin') 
+		endif $)
+
+		--step 1 - logically deleted
+		var !grid collect all LSTDEF with (LSTNAM eq |Logically Deleted|)
+		if (!grid.size() eq 1) then
+			!gridRef = !grid.first().dbref()
+			!gridRef.lstflt = !realUnset
+			!filePath = |$!pathName\$!<gridRef.LSTNAM>\| + !dateTime.year().string() + '-' + !dateTime.month().string() + '-' + !dateTime.date().string() + '.xls' 
+			var !gridGroupName CATNAM of LSTGRP of $!gridRef
+			!!tags.exportasxls(!gridGroupName, '$!<gridRef.LSTNAM>', '$!filepath') 
+		endif
+		
+		--step 2 - stru status
+		var !grid collect all LSTDEF with (LSTNAM eq |Stru Status|)
+		if (!grid.size() eq 1) then
+			!gridRef = !grid.first().dbref()
+			!gridRef.lstflt = !realUnset
+			!filePath = |$!pathName\$!<gridRef.LSTNAM>\| + !dateTime.year().string() + '-' + !dateTime.month().string() + '-' + !dateTime.date().string() + '.xls' 
+			var !gridGroupName CATNAM of LSTGRP of $!gridRef
+			!!tags.exportasxls(!gridGroupName, '$!<gridRef.LSTNAM>', '$!filepath') 
+		endif
+		
+		--step 3 - All-Tags
+		var !grid collect all LSTDEF with (LSTNAM eq |All-Tags|)
+		if (!grid.size() eq 1) then
+			!gridRef = !grid.first().dbref()
+			!gridRef.lstflt = !realUnset
+			!filePath = |$!pathName\$!<gridRef.LSTNAM>\| + !dateTime.year().string() + '-' + !dateTime.month().string() + '-' + !dateTime.date().string() + '.xls' 
+			var !gridGroupName CATNAM of LSTGRP of $!gridRef
+			!!tags.exportasxls(!gridGroupName, '$!<gridRef.LSTNAM>', '$!filepath')
+			
+			--step 4 - All-Tags-01
+			!file = object FILE(!filePath)
+			if (!file.Exists()) then
+				!filePath2 = |$!pathName\$!<gridRef.LSTNAM>-01\| + !dateTime.year().string() + '-' + !dateTime.month().string() + '-' + !dateTime.date().string() + '.xls' 
+				SYSCOM |copy /y "$!<filePath>" "$!<filePath2>"|
+			endif
+			
+			--step 5 - All-Tags-Doc
+			!file = object FILE(!filePath)
+			if (!file.Exists()) then
+				!filePath2 = |$!pathName\$!<gridRef.LSTNAM>-Doc\All-Tags-Doc.xls|
+				SYSCOM |copy /y "$!<filePath>" "$!<filePath2>"|
+			endif
+			
+			--step 6 - All-Tags-Doc
+			!file = object FILE(!filePath)
+			if (!file.Exists()) then
+				!filePath2 = |$!pathName\$!<gridRef.LSTNAM>-OWNER\| + !dateTime.year().string() + '-' + !dateTime.month().string() + '-' + !dateTime.date().string() + '.xls' 
+				SYSCOM |copy /y "$!<filePath>" "$!<filePath2>"|
+			endif
+		endif
+		
+		--step 7 - Tag-statistics
+		--initiate list of objects
+		var !classes eval (ACTTYPE) for all ENGITEM with (not(unset(:RambollTagStatus)))
+		!classes.sortUnique()
+		do !class values !classes
+			!maturityItem = object RAMTAGMATURITYDATA()
+			!maturityItem.className = !class
+			!maturityItem.dateTime = !dateTime.string()
+			!maturities.append(!maturityItem)
+		enddo
+
+		do !tag values !tags
+			!tagRef = !tag.dbref()
+			!tagClass = !tagRef.acttype
+			!idx = !classes.findFirst(!tagClass)
+			if (!idx.set()) then
+				!maturityItem = !maturities[!idx]
+				!tagStatus = !tagRef.:RambollTagStatus.replace(|P|, ||)				
+				!expression = |!maturities[$!idx].$!<tagStatus> = !maturityItem.$!<tagStatus> + 1|
+				$!expression
+				handle any 
+					$P Error in expression $!expression : $!!error.text
+				endhandle
+			endif
+		enddo
+
+		!dataList.append(|DATE;Class;L0;L1;L2;L3;L4;L5;L6;L7;L8;TOT|)
+		do !maturityItem values !maturities
+			!total = !maturityItem.GetTotal()
+			!dataString = |$!<maturityItem.dateTime>;$!<maturityItem.className>;$!<maturityItem.L0>;$!<maturityItem.L1>;$!<maturityItem.L2>;$!<maturityItem.L3>;$!<maturityItem.L4>;$!<maturityItem.L5>;$!<maturityItem.L6>;$!<maturityItem.L7>;$!<maturityItem.L8>;$!total|
+			!dataList.append(!dataString)
+		enddo
+		
+		!filePath = |$!pathName\Tag-Progress-Report\$!projCode-TagProgressReport-| + !dateTime.year().string() + '-' + !dateTime.month().string() + '-' + !dateTime.date().string() + '.csv' 
+		!file = object FILE(!filePath)
+		!file.writefile('OVERWRITE', !dataList)
+		
+		--step 8 - Tag-Doc Status
+		!dataList.clear()
+		!headerList.clear()
+		!headerList.append(|Tag Name|)
+		!headerList.append(|Linked PID Document|)
+		!headerList.append(|Linked PID Revision|)
+		!headerList.append(|AFC Planned Date|)
+		!headerList.append(|IFA Planned Date|)
+		!headerList.append(|OK|)
+		!headerList.append(|Overdue|)
+		!headerList.append(|Nodate|)
+
+		do !tag values !tags
+			!tagRef = !tag.dbref()
+			!tagName = !tagRef.namn
+			!docs = !tagRef.:TagRefToDocument
+			handle any
+				skip
+			elsehandle none
+				!pid = object DBREF()
+				do !doc values !docs
+					if (!doc.badref().not() and !doc.isnamed and !doc.name.matchwild(|*-PX-*|)) then
+						!pid = !doc
+						break
+					endif
+				enddo
+				if (!pid.badref().not()) then
+					!rev   = !pid.:DocumentRevisionCode
+					!afcplan = !pid.:AFCPlannedDate
+					!ifaplan = !pid.:IFAPlannedDate
+					
+					!dummydate = object DATETIME(1990,1,1)
+					!afcplandate = !dummydate
+					if(!afcplan.Unset().not() and !afcplan neq '') then
+						!afcplandate = object DATETIME(!afcplan.split('-')[3].real(),!afcplan.split('-')[2].real(),!afcplan.split('-')[1].real())
+					endif
+					!ifaplandate = !dummydate
+					if (!ifaplan.Unset().not() and !ifaplan neq '') then 
+						!ifaplandate = object DATETIME(!ifaplan.split('-')[3].real(),!ifaplan.split('-')[2].real(),!ifaplan.split('-')[1].real())
+					endif
+
+					!ok = ''
+					!overdue = ''
+					!nodate = ''
+
+					if !rev.substring(1,1) eq 'C' then 
+					  !ok = 'Yes'
+					  !overdue = 'No'
+					  !nodate = 'No'
+					else
+					  if !afcplandate gt !dateTime then 
+						!ok = 'No'
+						!overdue = 'Yes'
+						!nodate = 'No'
+					  elseif !afcplandate eq !dummydate then 
+						!ok = 'No'
+						!overdue = 'No'
+						!nodate = 'Yes'
+					  elseif !afcplandate le !dateTime then
+						if !ifaplandate eq !dummydate then 
+							!ok = 'No'
+							!overdue = 'No'
+							!nodate = 'Yes'
+						elseif !ifaplandate le !dateTime then   
+							!ok = 'Yes'
+							!overdue = 'No'
+							!nodate = 'No'
+						elseif !ifaplandate gt !dateTime then
+							!ok = 'No'
+							!overdue = 'Yes'
+							!nodate = 'No'
+						endif
+					  endif
+					endif
+					!dataString = !tagname + ';' + !pid.namn + ';' + !rev + ';' + !afcplan + ';' + !ifaplan + ';' + !ok + ';' + !overdue + ';' + !nodate
+					!dataList.append(!dataString.split(|;|)) 
+				else
+					!dataString = !tagname + ';' + 'No PIDs Linked against ' + !tagname + ';' + '-' + ';' + '-' + ';' + '-' + ';' + '-' + ';' + '-' + ';' + '-'
+					!dataList.append(!dataString.split(|;|))
+				endif
+			endhandle
+		enddo
+		
+		!filePath = |$!pathName\Tag-Maturity-Doc\Tag-Maturity-Doc.xls|
+		!dataTable = object NETGRIDCONTROL()
+		!dataTable.clearGrid()
+		!source = object NETDATASOURCE('data', !headerList, !dataList)
+		!dataTable.BindToDataSource(!source)
+		!dataTable.saveGridToExcel(|$!filePath|)
+		
+	endif
+  
+endfunction

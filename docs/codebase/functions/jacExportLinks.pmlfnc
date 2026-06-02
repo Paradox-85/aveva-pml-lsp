@@ -1,0 +1,54 @@
+-----------------------------------------------------------------------
+--
+-- File:        jacExportDocLinks
+-- Description: Function to export report of tag-doc links
+--
+------------------------------------------------------------------------
+import 'JacReportExtractor'
+handle ANY
+endhandle
+
+using namespace 'JacReportExtractor'
+
+define function !!jacExportLinks(!path is STRING, !tagFilter is STRING, !refAttributeName is STRING, !columns is ARRAY)
+
+	------------------------------------------------------------------------------
+	-- Collect all tags
+	------------------------------------------------------------------------------
+	!collection                = object COLLECTION()
+	!collection.type('ENGITE')
+	if(!tagFilter.set() AND !tagFilter.trim().neq('')) then
+		!expression              = object EXPRESSION(!tagFilter)
+		!collection.filter(!expression)
+	endif
+	!tagRefes                  = !collection.results()
+
+	!startSize                 = !tagRefes.size() * 0.01
+	!!displayProgress(!startSize, !tagRefes.size())
+  
+	!isError = false
+	!refAttribute = object ATTRIBUTE(!refAttributeName)
+	if (!refAttribute.hash() eq 0) then
+		!isError = true
+		!msg = |$!<eleRef.name>;TryToSetValue();Attribute $!attributeName is not exist in AVEVA|
+		$p ATTRIBUTE $!<refAttributeName> is not existing in AVEVA
+	endif
+	
+	if (!isError.not()) then
+		do !tagRef values !tagRefes
+			if (!tagRef.badref().not()) then
+			!val = !eleRef.attribute(!refAttributeName)
+			handle any
+				!isError = true
+				$p For the ELEMENT $!<eleRef.name> ATTRIBUTE $!attributeName is not valid
+			elsehandle none
+				if (!val.objecttype() eq |ARRAY|) then
+					
+				endif
+			endhandle
+		enddo
+	endif
+
+	!!displayProgress(100, 100)
+
+endfunction

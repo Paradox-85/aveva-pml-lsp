@@ -1,0 +1,365 @@
+------------------------------------------------------------------------
+--
+-- File:        RAMEXCELREADERCLASS
+-- Description: Object to import the excel data
+--
+------------------------------------------------------------------------
+import 'RamAEPMLExcelReader'
+handle any
+endhandle
+
+define object RAMEXCELREADERCLASS
+  member .excelTables  is ARRAY
+endobject
+
+------------------------------------------------------------------------
+--
+-- Method:     ramExcelReaderClass
+-- Description: constructor method
+--
+------------------------------------------------------------------------
+define method .ramExcelReaderClass()
+  
+endmethod
+
+------------------------------------------------------------------------
+--
+-- Method:     clearData
+-- Description: Clear the existing data
+--
+------------------------------------------------------------------------
+define method .clearData()
+
+  !this.excelTables.Clear()
+
+endmethod
+
+--------------------------------------------------------------------
+--
+-- Method:      browseAndLoad
+-- Description: Browse and load excel file from explorer
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .browseAndLoad()
+
+  !fileName = !this.browseFile()
+  if(!fileName.set() AND !fileName.neq('')) then
+    !this.loadExcelData(!fileName)
+  endif
+
+endmethod
+
+--------------------------------------------------------------------
+--
+-- Method:      browseFile
+-- Description: Browse excel file from explorer
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+--   STRING       File Name
+------------------------------------------------------------------------
+define method .browseFile() is STRING
+
+  using namespace 'Aveva.Core.Presentation'
+  !filename                      = object STRING()
+  !fileBrowser                   = object PMLFILEBROWSER('OPEN')
+  !directory                     = ''
+  !seedFile                      = ''
+  !title                         = 'File Browser - Open Dialogue'
+  !extensionString               = 'xlsx files (*.xlsx)|*.xlsx'
+  !fileBrowser.show(!directory, !seedFile, !title, false , !extensionString, 2)
+  !filename                     = !fileBrowser.file()
+
+  return !filename
+
+endmethod
+
+------------------------------------------------------------------------
+--
+-- Method:     loadExcelData
+-- Description: Load excel data in array
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      STRING      Excel full path
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .loadExcelData(!excelFullPath is STRING) is BOOLEAN
+
+  !this.clearData()
+  !isError = false
+  using namespace 'RamAEPMLExcelReader'
+  !excelReader       = object RamPMLExcelReaderClass()
+  !error = !excelReader.error()
+  if(!error.set() AND !error.neq('')) then
+    !isError = true
+    !this.addErrorToList(!error)
+  endif
+  !this.excelTables  = !excelReader.ReadExcel(!excelFullPath)
+
+  return !isError
+  
+endmethod
+
+------------------------------------------------------------------------
+--
+-- Method:     loadExcelData
+-- Description: Load excel sheet data in array
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      STRING      Excel full path
+--   2    R      STRING      Excel sheet name
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .loadExcelData(!excelFullPath is STRING, !sheetName is STRING) is BOOLEAN
+
+  !this.clearData()
+  !isError = false
+  using namespace 'RamAEPMLExcelReader'
+  !excelReader                  = object RamPMLExcelReaderClass()
+  !excelData                    = !excelReader.ReadExcel(!excelFullPath, !sheetName)
+  !error = !excelReader.error()
+  if(!error.set() AND !error.neq('')) then
+    !isError = true
+    !this.addErrorToList(!error)
+  endif
+  !excelTable = object ARRAY()
+  !excelTable.Append(!sheetName)
+  !excelTable.Append(!excelData)
+  !this.excelTables.Append(!excelTable)
+
+  return !isError
+  
+endmethod
+
+------------------------------------------------------------------------
+--
+-- Method:     getSheetHeadings
+-- Description: Get Headings for the sheet
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      STRING      Excel sheet name
+-- Return:
+--   [Data Type] [Description]
+--    ARRAY       Sheet headings
+------------------------------------------------------------------------
+define method .getSheetHeadings(!sheetName is STRING) is ARRAY
+
+  !headings         = object ARRAY()
+  !excelSheetNames  = !this.excelTables.evaluate(object BLOCK(|!this.excelTables[!evalIndex][1]|))
+  !index            = !excelSheetNames.FindFirst(!sheetName)
+  if(!index.set()) then
+    !table          = !this.excelTables[!index][2]
+    if(!table.set()) then
+      !headings     = !table[1]
+    endif
+  endif
+  
+  return !headings
+  
+endmethod
+
+------------------------------------------------------------------------
+--
+-- Method:     getSheetRows
+-- Description: Get row details for the sheet
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      STRING      Excel sheet name
+-- Return:
+--   [Data Type] [Description]
+--    ARRAY       List of All Rows
+------------------------------------------------------------------------
+define method .getSheetRows(!sheetName is STRING) is ARRAY
+
+  !rows             = object ARRAY()
+  !excelSheetNames  = !this.excelTables.evaluate(object BLOCK(|!this.excelTables[!evalIndex][1]|))
+  !index            = !excelSheetNames.FindFirst(!sheetName)
+  if(!index.set()) then
+    !table          = !this.excelTables[!index][2]
+    if(!table.set()) then
+
+      -- Removed the heading row
+      !table.remove(1)
+      !rows         = !table
+    endif
+  endif
+  
+  return !rows
+
+endmethod
+
+------------------------------------------------------------------------
+--
+-- Method:     getSheetRows
+-- Description: Get row details for the sheet based on filter
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      STRING      Excel sheet name
+--   2    R      STRING      Excel column name
+--   3    R      STRING      Excel row detail
+-- Return:
+--   [Data Type] [Description]
+--   ARRAY        List of all matched rows
+------------------------------------------------------------------------
+define method .getSheetRows(!sheetName is STRING, !columnName is STRING, !detail is STRING) is ARRAY
+
+  !rows           = object ARRAY()
+  !columnDetails = !this.getSheetColumn(!sheetName, !columnName)
+  !sheetRows     = !this.getSheetRows(!sheetName)
+  !indices       = !columnDetails.find(!detail)
+  do !index values !indices
+    !rows.append(!sheetRows[!index])
+  enddo
+  
+  return !rows
+
+endmethod
+
+------------------------------------------------------------------------
+--
+-- Method:     getSheetRow
+-- Description: Get row details for the sheet based on filter
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      STRING      Excel sheet name
+--   2    R      REAL        Excel column Index
+--   3    R      STRING      Excel row detail
+-- Return:
+--   [Data Type] [Description]
+--    ARRAY       First matched row based on passed detail
+------------------------------------------------------------------------
+define method .getSheetRow(!sheetName is STRING, !columnIndex is REAL, !detail is STRING) is ARRAY
+  !row           = object ARRAY()
+
+  !columnDetails = !this.getSheetColumn(!sheetName, !columnIndex)
+  !index         = !columnDetails.findFirst(!detail)
+  if(!index.set()) then
+    !rows        = !this.getSheetRows(!sheetName)
+    !row         = !rows[!index]
+  endif
+  
+  return !row
+
+endmethod
+
+------------------------------------------------------------------------
+--
+-- Method:     getSheetRow
+-- Description: Get row details for the sheet based on filter
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      STRING      Excel sheet name
+--   2    R      STRING      Excel column name
+--   3    R      STRING      Excel row detail
+-- Return:
+--   [Data Type] [Description]
+--    ARRAY       First matched row based on passed detail
+------------------------------------------------------------------------
+define method .getSheetRow(!sheetName is STRING, !columnName is STRING, !detail is STRING) is ARRAY
+  !row           = object ARRAY()
+
+  !columnDetails = !this.getSheetColumn(!sheetName, !columnName)
+  !index         = !columnDetails.findFirst(!detail)
+  if(!index.set()) then
+    !rows        = !this.getSheetRows(!sheetName)
+    !row         = !rows[!index]
+  endif
+  
+  return !row
+
+endmethod
+
+------------------------------------------------------------------------
+--
+-- Method:     getSheetColumn
+-- Description: Get column details for the sheet
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      STRING      Excel sheet name
+--   2    R      REAL        Excel Column index
+-- Return:
+--   [Data Type] [Description]
+--    ARRAY       Column details
+------------------------------------------------------------------------
+define method .getSheetColumn(!sheetName is STRING, !columnIdx is REAL) is ARRAY
+  
+  !rows   = !this.getSheetRows(!sheetName)
+  !column = !rows.evaluate(object BLOCK(|!rows[!evalIndex][!columnIdx]|))
+  
+  return !column
+
+endmethod
+
+------------------------------------------------------------------------
+--
+-- Method:     getSheetColumn
+-- Description: Get column details for the sheet
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      STRING      Excel sheet name
+--   2    R      STRING      Excel Column name
+-- Return:
+--   [Data Type] [Description]
+--    ARRAY       Column details
+------------------------------------------------------------------------
+define method .getSheetColumn(!sheetName is STRING, !columnName is STRING) is ARRAY
+  
+  !column    = object ARRAY()
+  !rows      = !this.getSheetRows(!sheetName)
+  !headings  = !this.getSheetHeadings(!sheetName)
+  !columnIdx = !headings.findFirst(!columnName)
+  if(!columnIdx.set()) then
+    !column  = !rows.evaluate(object BLOCK(|!rows[!evalIndex][!columnIdx]|))
+  endif
+
+  return !column
+
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     addErrorToList
+-- Description: Method to add errors to common logger
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R     STRING       Error Data
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .addErrorToList(!errorData is STRING)
+
+  if(undefined(!!ramCommonLogger)) then
+    !!ramCommonLogger = object RAMCOMMONLOGGER()
+  endif
+
+  !errorList          = !errorData.split('#')
+  !!ramCommonLogger.addLogDetails(!this.objecttype(), !errorList)
+
+endmethod

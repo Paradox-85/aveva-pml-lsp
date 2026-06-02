@@ -1,0 +1,4 @@
+--$m "C:\Users\ADZV\OneDrive - Ramboll\AVEVA_SERVER\Addons\PMLLIB\RAM\Engineering\jackdow\run-macro\equipment-name-refresh.pmlmac"
+PML RELOAD OBJECT TAGMANAGEMENTTMP
+!tagMgmt = object TAGMANAGEMENTTMP()
+!tagMgmt.EquipmentNameUpdate(false)

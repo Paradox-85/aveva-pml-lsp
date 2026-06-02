@@ -1,0 +1,93 @@
+-- Author: Andrei Aitzhanov
+-- Customer: Ramboll
+-- Rev: 01
+-- Purpose: export tags properties for Shell
+-- $m "C:\Users\ADZV\OneDrive - Ramboll\AVEVA_SERVER\Addons\PMLLIB\RAM\Engineering\jackdow\JDE_tagProperties_export.pmlmac"
+
+import 'GridControl'
+handle ANY
+endhandle
+using namespace |Aveva.Core.Presentation|
+!dataList = ARRAY()
+!headerList = ARRAY()
+!headerList.append(|Tag Name|)
+!headerList.append(|Tag Owner|)
+!headerList.append(|Tag Status|)
+!headerList.append(|Tag Maturity Level|)
+!headerList.append(|RAM Class Name|)
+!headerList.append(|Shell Class Name|)
+!headerList.append(|Property Name|)
+!headerList.append(|Property Category|)
+!headerList.append(|Property Type|)
+!headerList.append(|Property Value|)
+!headerList.append(|Property UoM|)
+
+!idx = 0
+var !tags COLL ALL (ENGITEM) WITH (:TagStatus eq |ACTIVE| and ISNAMED and NOT(EMPTY(:RAMTAGOWNER)) and :RAMTAGOWNER eq |LEIR|)
+do !tagString values !tags
+	!idx = !idx + 1
+	!tagRef = !tagString.dbref()
+	
+	--set progress
+	!tagIdx = !tags.findFirst(!tagString)
+	!!displayProgress(!tagIdx, !tags.size())
+	do !attString values !tagRef.attributes()
+		--clean
+		var !attValue DELETE
+		var !value DELETE
+		!isUnset = false
+		
+		!attValue = !tagRef.attribute(!attString)
+		!value = !attValue.string()
+		if (!attValue.unset() or !value.unset() or !value.empty() or !value eq |Unset| or !value eq |NA| or !value eq |N/A| or !value eq |-| or !value eq |--|) then
+			skip
+			!value = |Unset|
+			!isUnset = true
+		endif
+		var !repTxt ATTDEF $!attString RPTX
+		!tagDataRow = ARRAY()
+		!tagDataRow.append(!tagRef.namn)
+		!tagDataRow.append(!tagRef.:RAMTAGOWNER)
+		!tagDataRow.append(!tagRef.:TagStatus)
+		!tagDataRow.append(!tagRef.:RambollTagStatus)
+		!tagDataRow.append(!tagRef.acttype)
+		!tagDataRow.append(!tagRef.:TagClassName)
+		!attref = object ATTRIBUTE(!attString)
+		!tagDataRow.append(!repTxt.first())
+		!tagDataRow.append(!attref.category().trim())
+		!tagDataRow.append(!attref.type())
+
+		!uom = ||
+		!valueType = !attValue.objecttype()
+		if (!valueType eq 'REAL' and !isUnset.not()) then
+			!value = !attValue.value().string()
+			!uom = !attValue.unit().string()
+		endif
+		if (!valueType eq 'DBREF' and !isUnset.not()) then
+			!value = !attValue.namn
+			handle any
+			endhandle
+		endif
+		if (!valueType eq 'ARRAY' and !isUnset.not()) then
+			!value = |List of items|
+		endif
+		
+		!tagDataRow.append(!value)
+		!tagDataRow.append(!uom)
+		!dataList.append(!tagDataRow)
+	enddo
+enddo
+
+!dt = OBJECT DATETIME()
+!year = !dt.year()
+!month = !dt.month().string('I2')
+!date = !dt.date().string('I2')
+!hour = !dt.hour().string('I2')
+!minute = !dt.minute().string('I2')
+
+!publishPath = |C:\Users\ADZV\OneDrive - Ramboll\Ramboll_Jackdaw - Admin Team\EIS\Export for Shell\TagPropertyValue_extract_$!<year>-$!<month>-$!<date>-$!<hour>.xlsx|
+!dataTable = object NETGRIDCONTROL()
+!dataTable.clearGrid()
+!source = object NETDATASOURCE('data', !headerList, !dataList)
+!dataTable.BindToDataSource(!source)
+!dataTable.saveGridToExcel(|$!publishPath|, |data|)	

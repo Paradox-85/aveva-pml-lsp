@@ -1,0 +1,405 @@
+------------------------------------------------------------------------
+--
+-- File:        JACEISDELIVERYMANAGER
+-- Description: Object Manage EIS Delivery Report
+--
+------------------------------------------------------------------------
+import 'JacReportExtractor'
+handle ANY
+endhandle
+
+define object JACEISDELIVERYMANAGER
+
+  member .excelConfiguration is RAMEXCELREADERCLASS
+  member .rows               is ARRAY
+  member .headings           is ARRAY
+
+  member .configViewName     is STRING
+  member .excelFileName      is STRING
+  member .csvFileName        is STRING
+  member .isPMLFunction      is BOOLEAN
+  member .dbviewName         is STRING
+  member .filter             is STRING
+  member .columnOrder        is ARRAY
+  member .columnAlias        is ARRAY
+
+endobject
+
+------------------------------------------------------------------------
+--
+-- Method:     jacEISDeliveryManager
+-- Description: constructor method
+-- Method Type: Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+--
+------------------------------------------------------------------------
+define method .jacEISDeliveryManager()
+  
+  !this.excelConfiguration = object ramExcelReaderClass()
+  
+endmethod
+
+------------------------------------------------------------------------
+--
+-- Method:     clearData
+-- Description: constructor method
+-- Method Type: Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+--
+------------------------------------------------------------------------
+define method .clearData()
+  
+  !this.rows               = object ARRAY()
+  !this.headings           = object ARRAY()
+  !this.configViewName     = object STRING()
+  !this.excelFileName      = object STRING()
+  !this.csvFileName        = object STRING()
+  !this.dbviewName         = object STRING()
+  !this.filter             = object STRING()
+  !this.columnOrder        = object ARRAY()
+  !this.columnAlias        = object ARRAY()
+  !this.isPMLFunction      = object BOOLEAN()
+  
+endmethod
+
+------------------------------------------------------------------------
+--
+-- Method:     readConfiguration
+-- Description: Read the excel configuration file
+-- Method Type: Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+--
+------------------------------------------------------------------------
+define method .readConfiguration()
+  
+  !filePath                  = !!evar(|PDMSUSER|) + |\EISConfiguration.xlsx|
+  !file                      = object FILE(!filePath)
+  if(!file.exists().not()) then
+    var !projectCode PROJECT CODE
+    !filePath                = !!evar(!projectCode + |DFLTS|) + |\EISConfiguration.xlsx|
+  endif
+
+  !file                      = object FILE(!filePath)
+  if(!file.exists()) then
+    !isError                 = !this.excelConfiguration.loadExcelData(!filePath, 'Report')
+  else
+    !this.addErrorToList('Configuration - Excel configuration not found in USERDATA/project defaults')
+  endif
+
+endmethod
+
+------------------------------------------------------------------------
+--
+-- Method:     getReportList
+-- Description: Get all the report list from excel
+-- Method Type: Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      STRING      RTEXT/DTEXT
+-- Return:
+--   [Data Type] [Description]
+--    ARRAY       List of view and functions
+------------------------------------------------------------------------
+define method .getReportList(!type is STRING) is ARRAY
+  
+  !details                 = object ARRAY()
+
+  if(!type.EQNoCase('DTEXT')) then
+    !nameList              = !this.excelConfiguration.getSheetColumn('Report', 1)
+    !sourceList            = !this.excelConfiguration.getSheetColumn('Report', 4)
+    do !i indices !nameList
+      !source              = !sourceList[!i].after('#').before('(')
+      !details.Append(!nameList[!i] + ' (' + !source + ')')
+    enddo
+
+  else
+    !details               = !this.excelConfiguration.getSheetColumn('Report', 1)
+  endif
+
+  return !details
+
+endmethod
+
+------------------------------------------------------------------------
+--
+-- Method:     columnCollection
+-- Description: Get all the dbview column based on filter
+-- Method Type: Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      DBREF       DBView Element
+--   2    R      STRING      ATTCOL/EXPCOL Filter
+-- Return:
+--   [Data Type] [Description]
+--    ARRAY       DBView Column Reference Number
+------------------------------------------------------------------------
+define method .columnCollection(!dbviewRefe is DBREF, !filter is STRING) is ARRAY
+  
+  !collection              = object COLLECTION()
+  !types                   = |ATTCOL EXPCOL|
+  !collection.Types(!types.split())
+  !collection.scope(!dbviewRefe)
+
+  if(!filter.set() AND !filter.Trim().neq('')) then
+    !expression            = object EXPRESSION(!filter)
+    !collection.Filter(!expression)
+  endif
+
+  !columns                 = !collection.Results()
+  !columnRefNos            = !columns.evaluate(object BLOCK(|!columns[!evalIndex].string()|))
+
+  return !columnRefNos
+
+endmethod
+
+------------------------------------------------------------------------
+--
+-- Method:     loadReportDetails
+-- Description: Load the view details in the object
+-- Method Type: Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      STRING      Excel View Name
+-- Return:
+--   [Data Type] [Description]
+--    BOOLEAN     Load flag
+--
+------------------------------------------------------------------------
+define method .loadReportDetails(!viewName is STRING) is BOOLEAN
+
+  !isDetailsSet            = false
+  !viewDetails             = !this.excelConfiguration.getSheetRow('Report', 1, !viewName)
+  if(!viewDetails.set() AND !viewDetails.size().eq(7)) then
+    !this.configViewName   = !viewDetails[1]
+    !this.excelFileName    = !viewDetails[2]
+    !this.csvFileName      = !viewDetails[3]
+    !this.dbviewName       = !viewDetails[4]
+    !this.filter           = !viewDetails[5]
+    !this.columnOrder      = object ARRAY()
+    !columnOrder           = !viewDetails[6]
+    if(!columnOrder.set() AND !columnOrder.trim().neq('')) then
+      !this.columnOrder      = !columnOrder.split(';')
+    endif
+    !this.columnAlias      = object ARRAY()
+    !columnAlias           = !viewDetails[7]
+    if(!columnAlias.set() AND !columnAlias.trim().neq('')) then
+      !this.columnAlias      = !columnAlias.split('
+')
+    endif
+    !this.isPMLFunction    = !this.dbviewName.matchwild('#PML*')
+    !isDetailsSet          = true
+  else
+    !this.clearData()
+  endif
+
+  return !isDetailsSet
+
+endmethod
+
+------------------------------------------------------------------------
+--
+-- Method:     loadReport
+-- Description: Load the report data in object
+-- Method Type: Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+--
+------------------------------------------------------------------------
+define method .loadReport() is BOOLEAN
+  
+  !pivotColumnName                     = object STRING()
+  !isLoaded                            = false
+  !isDbview                            = !this.dbviewName.UpCase().matchwild('#DBVIEW*')
+  if(!isDbview) then
+    using namespace 'JacReportExtractor'
+    !dbviewExtractor                   = object EISDBVIEWEXTRACTOR()
+    !result                            = object ARRAY()
+    !this.rows                         = object ARRAY()
+    !this.headings                     = object ARRAY()
+    !rows                              = object ARRAY()
+    !headings                          = object ARRAY()
+
+    !isPivotView                       = !this.dbviewName.UpCase().matchwild('#DBVIEWPIVOT*')
+    if(!isPivotView) then
+      !dbViewName                      = !this.dbviewName.after('(').before(',').trim()
+      !pivotColumnName                 = !this.dbviewName.after(',').before(')').trim()
+    else
+      !dbViewName                      = !this.dbviewName.after('(').before(')').trim()
+    endif
+
+    VAR !dbViewColl COLLECT ALL DBVW WITH UDNAME EQ '$!dbViewName'
+    if(!dbViewColl.set()) then
+      !dbviewRefe                      = object DBREF(!dbViewColl.first())
+      !dbviewExtractor.loadGrid(!dbviewRefe.string())
+      !neededColumn                    = !this.columnCollection(!dbviewRefe, !this.filter)
+      !dbviewExtractor.setRequiredColumn(!neededColumn)
+      !headings                        = !dbviewExtractor.getColumnHeader()
+      !headings                        = !headings.evaluate(object BLOCK(|!headings[!evalIndex][1]|))
+      !upcaseHeadings                  = !headings.evaluate(object BLOCK(|!headings[!evalIndex].upcase()|))
+
+      if(!pivotColumnName.set() AND !pivotColumnName.neq('')) then
+        !pivotColIdx                   = !upcaseHeadings.FindFirst(!pivotColumnName.UpCase())
+        if(!pivotColIdx.set()) then
+          !rows                        = !dbviewExtractor.getUnpivotRows(!pivotColumnName)
+        else
+          !this.addErrorToList('Unpivot Error - $!pivotColumnName column not found in dbview headings for ' + !this.configViewName)
+        endif
+      else
+        !rows                          = !dbviewExtractor.getRows()
+      endif
+      -- !rows                            = !this.getUnpivotRows(!upcaseHeadings, !rows, !pivotColumnName)
+      
+      -- Reorder index collection if column order provided in config excel
+      if(!this.columnOrder.set()) then
+        !tempRows           = object ARRAY()
+        !reIndexOrder       = !this.getColumnOrder(!upcaseHeadings)
+        !headings.ReIndex(!reIndexOrder)
+        do !rowDetail values !rows
+          !tempRows.append(!rowDetail.ReIndex(!reIndexOrder))
+        enddo
+        !rows               = !tempRows
+      endif
+      
+      -- Rename the column headings with alias
+      if(!this.columnAlias.set()) then
+        do !columnAlias values !this.columnAlias
+          !columnNameDetails = !columnAlias.split(';')
+          if(!columnNameDetails.size().eq(2)) then
+            !index = !upcaseHeadings.FindFirst(!columnNameDetails[1].upcase())
+            if(!index.set()) then
+              !headings[!index] = !columnNameDetails[2]
+            endif
+          endif
+        enddo
+      endif
+      !this.rows                       = !rows
+      !this.headings                   = !headings
+      !isLoaded                        = true
+
+    else
+      !this.addErrorToList('DBView - Not able to identify dbview')
+    endif
+  else
+    !this.addErrorToList('Source - Different source cannot be exported as dbview')
+  endif
+
+  return !isLoaded
+
+endmethod
+
+------------------------------------------------------------------------
+--
+-- Method:     getColumnOrder
+-- Description: Get Report Column Order
+-- Method Type: Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      STRING      Excel View Name
+-- Return:
+--   [Data Type] [Description]
+--    BOOLEAN     Load flag
+--
+------------------------------------------------------------------------
+define method .getColumnOrder(!upcaseHeadings is ARRAY) is ARRAY
+
+  !reIndexOrder        = object ARRAY()
+  !alreadyAddedList    = object ARRAY()
+
+  do !columnName values !this.columnOrder
+    !upcaseColumnName  = !columnName.UpCase()
+    if(!alreadyAddedList.FindFirst(!upcaseColumnName).unset()) then
+      !columnIndices   = !upcaseHeadings.Find(!upcaseColumnName)
+      if(!columnIndices.set()) then
+        !alreadyAddedList.append(!upcaseColumnName)
+        !reIndexOrder.AppendArray(!columnIndices)
+      else
+        !this.addErrorToList('Reorder Error - $!columnName column not found in dbview headings for ' + !this.configViewName)
+      endif
+    endif
+  enddo
+
+  do !i indices !upcaseHeadings
+    if(!reIndexOrder.FindFirst(!i).unset()) then
+      !reIndexOrder.Append(!i)
+    endif
+  enddo
+
+  return !reIndexOrder
+
+endmethod
+
+------------------------------------------------------------------------
+--
+-- Method:     executePmlFunction
+-- Description: Execute PML Function
+-- Method Type: Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--    1   R      STRING      PML file path
+-- Return:
+--   [Data Type] [Description]
+--
+------------------------------------------------------------------------
+define method .executePmlFunction(!filePath is STRING) is BOOLEAN
+  
+  !isExecuted              = false
+  if(!this.isPMLFunction) then
+    !isError               = false
+    !function              = !this.dbviewName.After('#PML(').substring(-2)
+    !arguments             = !this.filter
+    !argumentList          = !arguments.split('
+')
+
+    do !argument values !argumentList
+      $!argument
+      handle ANY
+        !isError           = true
+        !this.addErrorToList('Arguments - Problem with PML Function arguments in excel configuration')
+        break
+      endhandle
+    enddo
+
+    if(!isError.not()) then
+      $!function
+      handle ANY
+        !this.addErrorToList('Invoke - Problem with PML Function invoke in excel configuration')
+      elsehandle none
+        !isExecuted        = true
+      endhandle
+    endif
+  endif
+
+  return !isExecuted
+
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     addErrorToList
+-- Description: Method to add errors to common logger
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R     STRING       Error Data
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .addErrorToList(!errorData is STRING)
+
+  if(undefined(!!ramCommonLogger)) then
+    !!ramCommonLogger = object RAMCOMMONLOGGER()
+  endif
+
+  !errorList          = !errorData.split('#')
+  !!ramCommonLogger.addLogDetails(!this.objecttype(), !errorList)
+
+endmethod

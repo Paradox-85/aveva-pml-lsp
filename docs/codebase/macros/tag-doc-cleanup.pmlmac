@@ -1,0 +1,5 @@
+--$m "C:\Users\ADZV\OneDrive - Ramboll\AVEVA_SERVER\Addons\PMLLIB\RAM\Engineering\jackdow\run-macro\tag-doc-cleanup.pmlmac"
+PML RELOAD OBJECT TAGMANAGEMENTTMP
+!tagMgmt = object TAGMANAGEMENTTMP()
+!tagMgmt.GetTagData()
+!tagMgmt.tagDocDublicatesCleaning()

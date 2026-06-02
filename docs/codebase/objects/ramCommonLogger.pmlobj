@@ -1,0 +1,346 @@
+------------------------------------------------------------------------
+--
+-- File:        RAMCOMMONLOGGER
+-- Description: Object to store and write log data for any tool
+--
+------------------------------------------------------------------------
+define object RAMCOMMONLOGGER
+
+  member .logDataList is ARRAY
+
+  member .headings is ARRAY
+
+  member .fileWriter is RAMFILEWRITERCLASS
+
+endobject
+
+------------------------------------------------------------------------
+--
+-- Method:     ramCommonLogger
+-- Description: constructor method
+--
+------------------------------------------------------------------------
+define method .ramCommonLogger()
+  !this.clearData()
+  !this.fileWriter  = object RAMFILEWRITERCLASS()
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     clearData
+-- Description: Clear the log data
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .clearData()
+  !this.logDataList = object ARRAY()
+  !this.headings = object ARRAY()
+  !this.headings.Append('Severity Level')
+  !this.headings.Append('Tool Detail')
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     addLogDetails
+-- Description: Store log data
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      STRING      Tool Name
+--   2    R      STRING      Log detail
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .addLogDetails(!toolName is STRING, !detail is STRING)
+  !this.addLogDetails(!toolName, !detail, 2)
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     addLogDetails
+-- Description: Store log data
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      STRING      Tool Name
+--   2    R      STRING      Log detail
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .addLogDetails(!toolName is STRING, !detail is STRING, !severityLevel is REAL)
+  
+  !details = object ARRAY()
+  !details.Append(!detail)
+  !this.addLogDetails(!toolName, !details, !severityLevel)
+  
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     addLogSplitDetails
+-- Description: Store log data after split the data
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      STRING      Tool Name
+--   2    R      STRING      Log detail
+--   3    R      STRING      Split character
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .addLogSplitDetails(!toolName is STRING, !detail is STRING, !splitChar is STRING)
+  !this.addLogSplitDetails(!toolName, !detail, !splitChar, 2)
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     addLogSplitDetails
+-- Description: Store log data after split the data
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      STRING      Tool Name
+--   2    R      STRING      Log detail
+--   3    R      STRING      Split character
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .addLogSplitDetails(!toolName is STRING, !detail is STRING, !splitChar is STRING, !severityLevel is REAL)
+  
+  !details = object ARRAY()
+  !details.AppendArray(!detail.split(!splitChar))
+  !this.addLogDetails(!toolName, !details, !severityLevel)
+  
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     addLogDetails
+-- Description: Store log data list
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      STRING      Tool Name
+--   2    R      ARRAY       Log details
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .addLogDetails(!toolName is STRING, !elementName is STRING, !attribute is STRING, !detail is STRING)
+  !this.addLogDetails(!toolName, !elementName, !attribute, !detail, 2)
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     addLogDetails
+-- Description: Store log data list
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      STRING      Tool Name
+--   2    R      ARRAY       Log details
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .addLogDetails(!toolName is STRING, !elementName is STRING, !attribute is STRING, !detail is STRING, !severityLevel is REAL)
+  !details = object ARRAY()
+  !details.Append(!elementName)
+  !details.Append(!attribute)
+  !details.Append(!detail)
+  !this.addLogDetails(!toolName, !details, !severityLevel)
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     addLogDetails
+-- Description: Store log data list
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      STRING      Tool Name
+--   2    R      ARRAY       Log details
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .addLogDetails(!toolName is STRING, !details is ARRAY)
+  !this.addLogDetails(!toolName, !details, 2)
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     addLogDetails
+-- Description: Store log data list
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      STRING      Tool Name
+--   2    R      ARRAY       Log details
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .addLogDetails(!toolName is STRING, !details is ARRAY, !severityLevel is REAL)
+  
+  if(defined(!!ramCommonLoggerForm)) then
+    !!ramCommonLoggerForm.buRefresh.background = 2
+  endif
+
+  !finalLog                                    = object ARRAY()
+  !finalLog.Append(!severityLevel)
+  !finalLog.Append(!toolName)
+  !finalLog.AppendArray(!details)
+  !this.logDataList.append(!finalLog)
+  
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     addHeading
+-- Description: Set heading details for the log
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      ARRAY       Heading details
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .addHeading(!headings is ARRAY)
+  !this.headings = object ARRAY()
+  !this.headings.Append('Severity Level')
+  !this.headings.Append('Tool Detail')
+  !this.headings.AppendArray(!headings)
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     getMaximumLogSize
+-- Description: Get Maximum log data size
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+--    REAL        Maximum Log Data Size
+------------------------------------------------------------------------
+define method .getMaximumLogSize() is REAL
+
+  !maxSize     = 0
+  !logList     = !this.logDataList
+  if(!logList.set()) then
+    !sizeList  = !logList.evaluate(object BLOCK(|!logList[!evalIndex].size()|))
+    !maxIndex  = !sizeList.SortUnique().MaxIndex()
+    !maxSize   = !sizeList[!maxIndex]
+  endif
+
+  !headingSize = !this.headings.size()
+  if(!headingSize.gt(!maxSize)) then
+    !maxSize   = !headingSize
+  endif
+
+  return !maxSize
+
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     getValidHeadingArrayFormat
+-- Description: Get Heading data based on maximum log data size
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+--    ARRAY       Formatted Heading Data
+------------------------------------------------------------------------
+define method .getValidHeadingArrayFormat() is ARRAY
+
+  !heading     = object ARRAY()
+
+  !headingData = !this.headings
+  !maxSize     = !this.getMaximumLogSize()
+  do !i from 1 to !maxSize
+    if(defined(!headingData[!i]) AND !headingData[!i].set()) then
+      !heading.append(!headingData[!i])
+    else
+      !heading.append('Heading $!i')
+    endif
+  enddo
+
+  return !heading
+
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     getValidLogArrayFormat
+-- Description: Get Log data based on maximum log data size
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+--    ARRAY       Formatted Log Data
+------------------------------------------------------------------------
+define method .getValidLogArrayFormat() is ARRAY
+
+  !finalList  = object ARRAY()
+
+  !logList    = !this.logDataList
+  !maxSize    = !this.getMaximumLogSize()
+  do !logData values !logList
+    !finalLog = object ARRAY()
+    do !i from 1 to !maxSize
+      if(defined(!logData[!i]) AND !logData[!i].set()) then
+        !finalLog.append(!logData[!i])
+      else
+        !finalLog.append('')
+      endif
+    enddo
+    !finalList.Append(!finalLog)
+  enddo
+
+  return !finalList
+
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     writeErrorDataToExcel
+-- Description: Write error data to excel file
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      STRING      Path Name
+--   2    R      BOOLEAN     File Display Needed
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .writeErrorDataToExcel(!pathName is STRING, !isDisplayFile is BOOLEAN)
+
+  !heading  = !this.getValidHeadingArrayFormat()
+  !finalLog = !this.getValidLogArrayFormat()
+  !this.fileWriter.writeDataToExcelFile(!pathName, !isDisplayFile, !heading, !finalLog)
+  
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     writeErrorDataToTextFile
+-- Description: Write error data to text file
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      STRING      Path Name
+--   2    R      BOOLEAN     File Display Needed
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .writeErrorDataToTextFile(!pathName is STRING, !isDisplayFile is BOOLEAN)
+
+  !details = object ARRAY()
+  !details.append(!this.getValidHeadingArrayFormat())
+  !details.AppendArray(!this.getValidLogArrayFormat())
+  !this.fileWriter.writeDataToTextFile(!pathName, !isDisplayFile, !details)
+  
+endmethod

@@ -1,0 +1,401 @@
+------------------------------------------------------------------------
+--
+-- File:        RAMIMPORTEXCELPROCESSOR
+-- Description: Form to import excel data using configuration file
+-- Author:      Karthik N
+-- Created:     09-01-2024
+--
+------------------------------------------------------------------------
+import 'GridControl'
+handle any
+endhandle
+
+Import 'pmlfilebrowser'
+handle any
+endhandle
+
+import 'RamAEPMLExcelReader'
+handle any
+endhandle
+
+using namespace 'Aveva.Core.Presentation'
+
+setup form !!ramImportExcelProcessor dialog resizable
+
+  !this.formTitle     = 'Excel Import Processor'
+
+  -- Top level menu
+  bar
+  exit
+
+  frame       .frExcelList                      anchor all                   at xmin+1           ymin+0.5           width 60 height 10
+    container .coExcelList NOBOX PMLNETControl 'Data List' dock fill
+  exit
+  
+  button .buAdd              |Add|              anchor r+t                   at xmax+1           ymin+3             WIDTH 6
+  button .buRemove           |Remove|           anchor r+t                   at xmin             ymax+0.5           WIDTH 6
+  text   .teConfigFile       |Config File|      anchor l+r+b  tagwidth 10    at xmin.frExcelList ymax.frExcelList+1 width 50 is STRING
+  button .buConfigBrowse     |...|              anchor r+b                   at xmax             ymin               WIDTH 2
+  button .buValidationForm   |Validation Form|  anchor l+b                   at xmin.frExcelList ymax+1             WIDTH 15
+  button .buReloadData       |Reload|           anchor l+b                   at xmax+0.5         ymin               WIDTH 10
+  button .buImport           |Import Data|      anchor r+b                   at xmax form-size   ymin               WIDTH 10
+   
+  member .meConfigDetails            is RAMIMPORTEXCELCONFIGLOADER
+  member .meExcelDataProcessor       is RAMIMPORTEXCELDATALOADER
+  member .meExcelElementLoader       is RAMIMPORTEXCELELEMENTLOADER
+  member .gridExcelList              is NETGRIDCONTROL
+  member .heading                    is ARRAY
+  member .isReloadNeeded             is BOOLEAN
+
+exit
+
+----------------------------------------------------------------------
+-- Method:      .ramImportExcelProcessor
+--
+-- Description: Constructor
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .ramImportExcelProcessor()
+  
+  !this.initCall                   = |!this.init()|
+  !this.buAdd.callback             = |!this.addToList()|
+  !this.buRemove.callback          = |!this.removeFromList()|
+  !this.buConfigBrowse.callback    = |!this.browseConfigFile()|
+  !this.buImport.callback          = |!this.importData()|
+  !this.buValidationForm.callback  = |!this.showValidationForm()|
+  !this.buReloadData.callback      = |!this.initiateLoader()|
+
+  -- Define Main Bar Menu
+  !bar      = !this.bar
+  !bar.add('Logger',     'logger')
+
+  !control     = !this.newMenu('logger')
+  !control.add('callback',  'Show Logger...',   'show !!RAMCOMMONLOGGERFORM')
+  !control.add('callback',  'Clear Log',        '!this.clearLog()')
+  
+  !this.clearData()
+  !this.teConfigFile.editable      = false
+  !this.isReloadNeeded             = true
+  
+  using namespace 'Aveva.Core.Presentation'
+  !this.gridExcelList              = object NETGRIDCONTROL()
+  !this.coExcelList.control        = !this.gridExcelList.handle()
+  !this.gridExcelList.columnExcelFilter(false)
+  !this.gridExcelList.outlookGroupStyle(false)
+  !this.gridExcelList.fixedRows(true)
+  !this.gridExcelList.columnSummaries(false)
+  !this.gridExcelList.singleRowSelection(false)
+  !this.gridExcelList.ROWADDDELETEGRID(true)
+  !this.gridExcelList.editableGrid(true)
+  
+  !data                            = object ARRAY()
+  !this.heading                    = object ARRAY()
+  !this.heading.append('Excel Name')
+  !this.heading.append('Is Transpose')
+  !this.heading.append('Excel Path')
+  
+  !nds                             = object NETDATASOURCE('Excel List', !this.heading, !data)
+  !this.gridExcelList.bindToDataSource(!nds)
+  !this.gridExcelList.SETEDITABLECOLUMN(1, false)
+  !this.gridExcelList.SETEDITABLECOLUMN(3, false)
+  !this.gridExcelList.ASSIGNBICHECKBOXTOCOLUMN(2)
+  !this.gridExcelList.autoFitColumns()
+  
+endmethod
+
+----------------------------------------------------------------------
+-- Method:      .init
+--
+-- Description: Constructor
+--
+-- Method Type: Function/Procedure
+------------------------------------------------------------------------
+define method .init()
+  !this.clearData()
+  !this.gridExcelList.clearGridData()
+  !this.gridExcelList.autoFitColumns()
+  !this.isReloadNeeded   = true
+  !this.teConfigFile.val = ''
+endmethod
+
+----------------------------------------------------------------------
+--
+-- Method:      .clearLog
+--
+-- Description: Method to reset the object details
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .clearLog()
+
+  if(defined(!!ramcommonloggerform)) then
+    !!ramcommonloggerform.clearData()
+  else
+    !!RAMCOMMONLOGGER = object RAMCOMMONLOGGER()
+  endif
+  
+endmethod
+
+----------------------------------------------------------------------
+--
+-- Method:      .clearData
+--
+-- Description: Method to reset the object details
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .clearData()
+  !this.meConfigDetails            = object RAMIMPORTEXCELCONFIGLOADER()
+  !this.meExcelDataProcessor       = object RAMIMPORTEXCELDATALOADER()
+  !this.meExcelElementLoader       = object RAMIMPORTEXCELELEMENTLOADER()
+endmethod
+
+----------------------------------------------------------------------
+-- Method:      addToList
+--
+-- Description: Browse and add excel to the list
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .addToList()
+  
+  !files                       = !this.browseExcel(true)
+  if(!files.set()) then
+    !excelNames                = !this.gridExcelList.getColumn(1)    
+    !rows                      = object ARRAY()
+    
+    do !file values !files
+      !fileObj                 = object FILE(!file)
+      !data                    = object ARRAY()
+      !fileName                = !fileObj.entry()      
+      !isExists                = !excelNames.findFirst(!fileName).set()
+      
+      if(!isExists.not()) then
+        !data.append(!fileName)
+        !data.append(false)
+        !data.append(!fileObj.fullname())
+        !rows.append(!data)
+        !this.gridExcelList.addRow(!data)
+        !this.isReloadNeeded   = true
+      endif
+    enddo
+    !this.gridExcelList.autoFitColumns()
+  endif
+  
+endmethod
+
+----------------------------------------------------------------------
+-- Method:      removeFromList
+--
+-- Description: remove files from list
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .removeFromList()
+  !this.gridExcelList.deleteSelectedRows()
+  !this.isReloadNeeded   = true
+endmethod
+
+----------------------------------------------------------------------
+-- Method:      browseConfigFile
+--
+-- Description: Browse configuration file
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .browseConfigFile()
+
+  !files                   = !this.browseExcel(false)
+  if(!files.set()) then
+    !this.teConfigFile.val = !files[1]
+    !this.isReloadNeeded   = true
+  else
+    !this.teConfigFile.val = ''
+  endif
+  
+endmethod
+
+----------------------------------------------------------------------
+-- Method:      browseExcel
+--
+-- Description: Browse excel file from explorer
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--    1     R           BOOLEAN   Excel selection mode
+-- Return:
+--   [Data Type] [Description]
+--    ARRAY       Browsed file path
+------------------------------------------------------------------------
+define method .browseExcel(!isMultiSelection is BOOLEAN) is ARRAY
+
+  using namespace 'Aveva.Core.Presentation'
+  
+  !filePaths                     = object ARRAY()
+  !fileBrowser                   = object PMLFILEBROWSER('OPEN')
+  !directory                     = ''
+  !seedFile                      = ''
+  !title                         = 'Choose Excel'
+  !extensionString               = 'xlsx files (*.xlsx)|*.xlsx'
+  !isRead                        = false
+  !fileBrowser.show(!directory, !seedFile, !title, true , !extensionString, 1, !isMultiSelection)
+  !filePaths                     = !fileBrowser.files()
+  
+  return !filePaths
+  
+endmethod
+
+----------------------------------------------------------------------
+-- Method:      getExcelPathList
+--
+-- Description: Collect all the excel path from the grid
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .getExcelPathList() is ARRAY
+  
+  !excelPaths              = object ARRAY()
+  !excelPaths              = !this.gridExcelList.getColumn(3)
+  handle any
+  endhandle
+  
+  return !excelPaths
+  
+endmethod
+
+----------------------------------------------------------------------
+-- Method:      getExcelTransposeList
+--
+-- Description: Collect all the excel type from the grid
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .getExcelTransposeList() is ARRAY
+  
+  !isTransposeList              = object ARRAY()
+  !isTransposeList              = !this.gridExcelList.getColumn(2)
+  handle any
+  endhandle
+  
+  return !isTransposeList
+  
+endmethod
+
+----------------------------------------------------------------------
+-- Method:      initiateLoader
+--
+-- Description: Initiate all the needed loaders
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .initiateLoader()
+  
+  !isInitiated                 = false
+  !configFilePath              = !this.teConfigFile.val
+  !isValidConfigPath           = !configFilePath.set() AND !configFilePath.neq('')
+  
+  if(!isValidConfigPath) then
+    !this.isReloadNeeded       = false
+    
+    -- Load configuration details
+    !this.meConfigDetails.loadConfigDetails(!configFilePath)
+    
+    -- Load Import excel data
+    !this.meExcelDataProcessor.clearMappings()
+    !this.meExcelDataProcessor.setConfigDetail(!this.meConfigDetails)
+    !this.meExcelDataProcessor.loadExcelData(!this.getExcelPathList(), !this.getExcelTransposeList())
+    !this.meExcelDataProcessor.initiateMappings()
+    !isInitiated                = true
+  endif
+  
+  return !isInitiated
+    
+endmethod
+
+----------------------------------------------------------------------
+-- Method:      importData
+--
+-- Description: Import excel data
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .importData()
+  
+  !isInitiated    = true
+  if(!this.isReloadNeeded) then
+    !this.initiateLoader()
+  endif
+    
+  if(!isInitiated) then
+    -- Import process
+    !this.meExcelElementLoader.setDataLoader(!this.meExcelDataProcessor)
+    !this.meExcelElementLoader.loadElement()
+  endif  
+
+endmethod
+
+----------------------------------------------------------------------
+-- Method:      showValidationForm
+--
+-- Description: Display the validation form
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .showValidationForm()
+
+  if(!this.isReloadNeeded) then
+    !this.initiateLoader()
+  endif
+  
+  show !!ramImportExcelValidationForm
+  !!ramImportExcelValidationForm.loadData(!this.meExcelDataProcessor)
+  
+endmethod
+
+

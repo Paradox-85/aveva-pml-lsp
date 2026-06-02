@@ -1,0 +1,10 @@
+-- script for export all 3D elements into EXCEL report
+-- $m "C:\Users\ADZV\OneDrive - Ramboll\AVEVA_SERVER\Addons\PMLLIB\RAM\Engineering\jackdow\JDE_3D_items_extractor.pmlmac"
+
+!data  = object array()
+var !sites collect all SITE
+do !siteName values !sites
+	!siteRef = !siteName.dbref()
+	var 
+enddo
+

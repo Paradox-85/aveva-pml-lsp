@@ -1,0 +1,84 @@
+-- Run path: $m "C:\Users\ADZV\OneDrive - Ramboll\AVEVA_SERVER\Addons\PMLLIB\RAM\Engineering\jackdow\JDE_tag2po_import.pmlmac"
+-- PML import data from xlsx to AVEVA
+--Author: Andrei Aitzhanov
+-- Company Ramboll Energies
+-- Date: 15-09-2023
+
+!startDateTime = OBJECT DATETIME()
+!year = !startDateTime.year()
+!month = !startDateTime.month().string('I2')
+!date = !startDateTime.date().string('I2')
+!hour = !startDateTime.hour().string('I2')
+!minute = !startDateTime.minute().string('I2')
+
+import 'GridControl'
+handle ANY
+endhandle
+using namespace |Aveva.Core.Presentation|
+!dataTable = object NETGRIDCONTROL()
+!dataTable.columnExcelFilter(true)
+!dataTable.setNameColumnImage()
+!dataTable.outlookGroupStyle(false)
+!dataTable.fixedHeaders(FALSE)
+!dataTable.fixedRows(false)
+!dataTable.columnSummaries(false)
+!dataTable.autoFitColumns()
+!dataTable.editableGrid(false)
+!dataTable.setEditableColumn(1,FALSE)
+!dataTable.clearGrid()
+!issueList = ARRAY()
+!issueList.append(|Name;Issue description|)
+
+!PathName = 'C:\Users\ADZV\OneDrive - Ramboll\Ramboll_Jackdaw - Admin Team\Aveva\AKSO data\from AKSO\08-09-2023\PO-tag.xlsx'
+!file = object File(!PathName)
+!fileName = !file.name()
+
+!IssueFileName = |C:\Users\ADZV\OneDrive - Ramboll\Ramboll_Jackdaw - Admin Team\Aveva\AKSO data\feedback\tag2po_issues_$!<year>-$!<month>-$!<date>-$!<minute>.csv|
+!IssueFile = object FILE(!IssueFileName)
+
+!dataSource = object NETDATASOURCE('Grid Table', !fileName)
+!dataTable.bindToDataSource(!dataSource)
+!data = !dataTable.getrows()
+do !row values !data
+	!Tag = !row[2].replace(|‐|, |-|).trim()
+	!Po = !row[1].replace(|‐|, |-|).trim()
+	
+	-- doc checking
+	!isPoValid = true
+	!poName = |/$!<Po>|
+	!poRef = !poName.dbref()
+	handle any
+		!issueMsg = |$!<poName> ; PO $!<poName> is not exis in AVEVA|
+		!issueList.append(!issueMsg)
+		$P $!issueMsg
+		!isPoValid = false
+	endhandle
+	
+	-- tag checking
+	!isTagValid = true
+	!tagName = |/$!<Tag>|
+	!tagref = !tagName.dbref()
+	handle any
+		!issueMsg = |$!<tagName> ; TAG $!<tagName> is not exis in AVEVA|
+		!issueList.append(!issueMsg)
+		$P $!issueMsg
+		!isTagValid = false
+	endhandle
+	
+	if (!isPoValid and !isTagValid) then
+		!currentPoName = STRING()
+		!currentPoRef = !tagref.:TagRefToPurchaseOrder
+		if (!currentPoRef.set()) then
+			!currentPoName = !currentPoRef.name
+		endif
+		
+		if (!currentPoName neq !poName) then
+			!tagref.:TagRefToPurchaseOrder = !poRef
+		else
+			!issueMsg = |$!<tagName> ; Current PO [$!<currentPoName>] is equals PO from file [$!<poName>]|
+			!issueList.append(!issueMsg)
+		endif
+	endif
+enddo
+
+!IssueFile.writeFile(|OVERWRITE|, !issueList) 

@@ -1,0 +1,240 @@
+------------------------------------------------------------------------
+--
+-- File:        RAMFILEWRITERCLASS
+-- Description: Object to write data into files
+--
+------------------------------------------------------------------------
+import 'GridControl'
+handle any
+endhandle
+
+Import 'pmlfilebrowser'
+handle any
+endhandle
+
+using namespace 'Aveva.Core.Presentation'
+define object RAMFILEWRITERCLASS
+
+  member .separator  is STRING
+
+endobject
+
+------------------------------------------------------------------------
+--
+-- Method:     ramFileWriterClass
+-- Description: constructor method
+--
+------------------------------------------------------------------------
+define method .ramFileWriterClass()
+
+  !this.separator = ';'
+
+endmethod
+
+--------------------------------------------------------------------
+-- Method:      browseExcel
+--
+-- Description: Browse file from explorer
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--    1   R      STRING      File extension type without dot
+-- Return:
+--   [Data Type] [Description]
+--    STRING      Selected file name
+------------------------------------------------------------------------
+define method .browseFile(!fileType is STRING) is STRING
+
+  using namespace 'Aveva.Core.Presentation'
+  !filename         = object STRING()
+  !fileBrowser      = object PMLFILEBROWSER('SAVE')
+  !directory        = ''
+  !seedFile         = ''
+  !title            = 'File Browser - Save Dialogue'
+  if(!fileType.eqNocase('ALL') OR !fileType.trim().eq('')) then
+    !dotExtension   = '.*'
+  else
+    !dotExtension   = '.' + !fileType
+  endif
+  !extensionString  = !fileType & ' files (*' & !dotExtension & ')|*' & !dotExtension
+  !fileBrowser.show(!directory, !seedFile, !title, false , !extensionString, 2)
+  !filename         = !fileBrowser.file()
+
+  return !filename
+
+endmethod
+
+--------------------------------------------------------------------
+-- Method:      getTextExportFormat
+--
+-- Description: Convert Array of Array into Array of string format for logging
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--    1   R      ARRAY      log data
+-- Return:
+--   [Data Type] [Description]
+--    ARRAY      log data modified format
+------------------------------------------------------------------------
+define method .getTextExportFormatRow(!dataList is ARRAY) is STRING
+
+  !rowConcat     = ''
+  do !i indices !dataList
+    if(!i.eq(1)) then
+      !rowConcat = !dataList[!i].string()
+    else
+      !rowConcat = !rowConcat + !this.separator + !dataList[!i].string()
+    endif
+  enddo
+
+  return !rowConcat
+
+endmethod
+
+--------------------------------------------------------------------
+-- Method:      getTextExportFormat
+--
+-- Description: Convert Array of Array into Array of string format for logging
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--    1   R      ARRAY      log data
+-- Return:
+--   [Data Type] [Description]
+--    ARRAY      log data modified format
+------------------------------------------------------------------------
+define method .getTextExportFormat(!dataList is ARRAY) is ARRAY
+
+  !result          = object ARRAY()
+  do !items values !dataList
+    !rowConcat = !this.getTextExportFormatRow(!items)
+    if(!rowConcat.trim().neq('')) then
+      !result.Append(!rowConcat)
+    endif
+  enddo
+
+  return !result
+
+endmethod
+
+--------------------------------------------------------------------
+-- Method:      writeDataToTextFile
+--
+-- Description: Write log data into text file
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--    1   R      STRING      Name/Path of the file
+--    2   R      BOOLEAN     Display of file needed
+--    3   R      ARRAY       log Data
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .writeDataToTextFile(!name is STRING, !isDisplayFile is BOOLEAN, !logData is ARRAY)
+
+  !this.writeDataToTextFile(!name, !isDisplayFile, object ARRAY(), !logData)
+  
+endmethod
+
+--------------------------------------------------------------------
+-- Method:      writeDataToTextFile
+--
+-- Description: Write log data into text file
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--    1   R      STRING      Name/Path of the file
+--    2   R      BOOLEAN     Display of file needed
+--    3   R      ARRAY       log Data
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .writeDataToTextFile(!name is STRING, !isDisplayFile is BOOLEAN, !heading is ARRAY, !logData is ARRAY)
+
+  if(!logData.set()) then
+    !isTable          = !logData.first().objectType().EQNoCase('ARRAY')
+    !isPath           = !name.Occurs('\').gt(0)
+    if(!isPath.not()) then
+      var !authUser AUTHUSER
+      if(!name.set() AND !name.trim().neq('')) then
+        !path         = |%AVEVA_DESIGN_USER%$!<name>.txt|
+      else
+        !path         = |%AVEVA_DESIGN_USER%$!<authUser>_FileWriterData.txt|
+      endif
+    else
+      !path           = !name
+    endif
+
+    !file             = object FILE(!path)
+
+    !textDataFormat = object ARRAY()
+    if(!heading.set()) then
+      !rowConcat = !this.getTextExportFormatRow(!heading)
+      if(!rowConcat.trim().neq('')) then
+        !textDataFormat.append(!rowConcat)
+      endif
+    endif
+    
+    if(!isTable) then
+      !textDataFormat.appendArray(!this.getTextExportFormat(!logData))
+    else
+      !textDataFormat.appendArray(!logData)
+    endif
+
+    !file.writeFile('OVERW', !textDataFormat)
+
+    !isErrorExists    = !textDataFormat.set()
+    if(!isErrorExists AND !isDisplayFile) then
+      syscom |START $!path|
+    endif
+  endif
+  
+endmethod
+
+--------------------------------------------------------------------
+-- Method:      writeDataToExcelFile
+--
+-- Description: Write log data into excel file
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--    1   R      STRING      Name/Path of the file
+--    2   R      BOOLEAN     Display of file needed
+--    3   R      ARRAY       Heading Data
+--    4   R      ARRAY       log Data
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .writeDataToExcelFile(!name is STRING, !isDisplayFile is BOOLEAN, !heading is ARRAY, !logData is ARRAY)
+
+  !isPath        = !name.Occurs('\').gt(0)
+  if(!isPath.not()) then
+    var !authUser AUTHUSER
+    !file        = object FILE(|%AVEVA_DESIGN_USER%|)
+    if(!name.set() AND !name.trim().neq('')) then
+      !path      = !file.fullName() + !name + |.xls|
+    else
+      !path      = !file.fullName() + |$!<authUser>_FileWriterData.xls|
+    endif
+  else
+    !path        = !name
+  endif
+  
+  using namespace 'Aveva.Core.Presentation'
+  !gridControl   = object NETGRIDCONTROL()
+  !nds           = object NETDATASOURCE('Logger', !heading, !logData)
+  !gridControl.bindToDataSource(!nds)
+  !gridControl.saveGridToExcel(!path)
+  
+  !isErrorExists = !logData.set()
+  if(!isErrorExists AND !isDisplayFile) then
+    syscom |START $!path|
+  endif
+  
+endmethod

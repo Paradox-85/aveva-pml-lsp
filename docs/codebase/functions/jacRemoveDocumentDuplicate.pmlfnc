@@ -1,0 +1,47 @@
+-----------------------------------------------------------------------
+--
+-- File:        JACREMOVEDOCUMENTDUPLICATE
+-- Description: Function to update Equipment name
+--
+------------------------------------------------------------------------
+define function !!jacRemoveDocumentDuplicate()
+
+  if(undefined(!!ramCommonLogger)) then
+    !!ramCommonLogger                       = object RAMCOMMONLOGGER()
+  endif
+  !!ramCommonLogger.addLogDetails('jacRemoveDocumentDuplicate', '--------------------Execution start--------------------', 0)
+
+  !tagManagement                            = object RAMTAGMANAGEMENT()
+  !collection                               = object COLLECTION()
+  !!displayProgress(1, 100)
+
+  !collection.type('ENGITE')
+  !expression                               = object EXPRESSION(|(:TagStatus neq 'VOID' and ISNAMED and NOT(EMPTY(:RAMTAGOWNER)) $
+                                        and NOT(EMPTY(:TagStatus)) and NOT(EMPTY(:RambollTagStatus)))|)
+  !collection.filter(!expression)
+  !tags                                     = !collection.results()
+  do !i indices !tags
+    !!displayProgress(!i, !tags.size())
+
+    !elementRefe                            = !tags[!i]
+    !attributeName                          = |:TagRefToDocument|
+
+    !valueList                              = !elementRefe.Attribute(!attributeName)
+    if (!valueList.size() gt 1) then
+      !valueUniqueList                      = !valueList
+      !valueUniqueList.unique()
+      if (!valueUniqueList neq !valueList) then
+        !elementRefe.$!attributeName        = object ARRAY()
+        do !j indices !valueUniqueList
+          !elementRefe.$!attributeName[$!j] = !valueUniqueList[!j]
+          handle ANY
+            !!ramCommonLogger.addLogDetails('jacRemoveDocumentDuplicate', !elementRefe.name, !attributeName, 'Duplicate removal failed. Value - ' + !valueUniqueList[!j].string())
+          endhandle
+        enddo
+      endif
+    endif
+
+  enddo
+  !!displayProgress(100, 100)
+
+endfunction

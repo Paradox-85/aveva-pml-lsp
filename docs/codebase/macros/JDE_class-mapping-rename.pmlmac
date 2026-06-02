@@ -1,0 +1,20 @@
+-- Run path: $m "C:\Users\ADZV\OneDrive - Ramboll\AVEVA_SERVER\Addons\PMLLIB\RAM\Engineering\jackdow\JDE_class-mapping-rename.pmlmac"
+-- PML rename group class - attribute mapping
+--Author: Andrei Aitzhanov
+-- Company Ramboll Energies
+-- Date: 23-01-2025
+
+var !classAttributeList collect all :ShellClassAttributeMapping with (not(badref(:MappingRefToClassGroup)) and not(badref(:MappingRefToAttributeMapping)) and not(ISNAMED))
+do !classAttributeItem values !classAttributeList
+	!classAttributeItemRef = !classAttributeItem.dbref()
+	!classGroupName = !classAttributeItemRef.:MappingRefToClassGroup.namn
+	!attributeName = !classAttributeItemRef.:MappingRefToAttributeMapping.namn
+	!name = |/$!<classGroupName>/$!<attributeName>|
+	!len = !name.length()
+	$P $!classAttributeItem NAME $!name
+	if (!len GT 50) then
+		!name = !name.Substring(1,50)
+	endif
+	
+	!classAttributeItemRef.name = !name
+enddo

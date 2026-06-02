@@ -1,0 +1,225 @@
+------------------------------------------------------------------------
+--
+-- File:        RAMIMPORTEXCELVALIDATIONFORM
+-- Description: Form to display the mapping details
+-- Author:      Karthik N
+-- Created:     09-01-2024
+--
+------------------------------------------------------------------------
+import 'GridControl'
+handle any
+endhandle
+
+using namespace 'Aveva.Core.Presentation'
+
+setup form !!ramImportExcelValidationForm resize
+  
+  option      .opExcelSheet    |Select Excel Sheet|  tagwidth 15 anchor T+L  at xmin ymin      width 30
+  
+  frame       .frExcelList                                       anchor all  at xmin ymax+0.5  width 150 height 20
+    container .coExcelList NOBOX PMLNETControl 'Data List'       dock fill
+  exit
+  
+  member .dataLoader                 is RAMIMPORTEXCELDATALOADER
+  member .gridExcelList              is NETGRIDCONTROL
+  member .headings                   is ARRAY
+  member .rows                       is ARRAY
+  
+exit
+
+----------------------------------------------------------------------
+-- Method:      .ramImportExcelValidationForm
+--
+-- Description: Constructor
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .ramImportExcelValidationForm()
+  
+  !this.opExcelSheet.callback      = |!this.loadSelectedClass()|
+  !this.initCall                   = |!this.init()|
+  !this.opExcelSheet.dText         = object ARRAY()
+  
+  using namespace 'Aveva.Core.Presentation'
+  
+  !this.gridExcelList              = object NETGRIDCONTROL()
+  !this.coExcelList.control        = !this.gridExcelList.handle()
+  !this.gridExcelList.columnExcelFilter(false)
+  !this.gridExcelList.outlookGroupStyle(false)
+  !this.gridExcelList.fixedRows(true)
+  !this.gridExcelList.columnSummaries(false)
+  !this.gridExcelList.singleRowSelection(false)
+  !this.gridExcelList.editableGrid(false)
+  !this.gridExcelList.headerSort(false)
+  
+endmethod
+
+----------------------------------------------------------------------
+-- Method:      .init
+--
+-- Description: Constructor
+--
+-- Method Type: Function/Procedure
+------------------------------------------------------------------------
+define method .init()
+  !this.clearData()
+endmethod
+
+----------------------------------------------------------------------
+--
+-- Method:      .clearData
+--
+-- Description: Method to clear details
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--    1   R      STRING      Excel Class Name
+-- Return:
+--   [Data Type] [Description]
+--    ARRAY        Import Data
+------------------------------------------------------------------------
+define method .clearData()
+  !this.gridExcelList.clearGrid()
+  !this.opExcelSheet.dText               = object ARRAY()
+  !this.frExcelList.tag                  = ''
+endmethod
+
+----------------------------------------------------------------------
+--
+-- Method:      .loadData
+--
+-- Description: Load the excel data into grid
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--    1   R      STRING      Excel Class Name
+-- Return:
+--   [Data Type] [Description]
+--    ARRAY        Import Data
+------------------------------------------------------------------------
+define method .loadData(!dataLoader is RAMIMPORTEXCELDATALOADER)
+  !this.dataLoader             = !dataLoader
+  !masterList                  = !dataLoader.getMasterList()
+  !dtext                       = object ARRAY()
+  !rtext                       = object ARRAY()
+  do !detail values !masterList
+    !excelSheetName            = !detail[4]
+    !className                 = !detail[1]
+    if(!excelSheetName.neq(!className)) then
+      !className               = !excelSheetName + ' - ' + !className
+    endif
+    !tableIndex                = !detail[5]
+    !dtext.append(!className)
+    !rtext.append(!tableIndex)
+  enddo
+  !this.opExcelSheet.dText     = !dtext
+  !this.opExcelSheet.rText     = !rtext
+  !this.loadSelectedClass()
+endmethod
+
+----------------------------------------------------------------------
+-- Method:      getClassList
+--
+-- Description: Get list of classes
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .loadSelectedClass() is ARRAY
+  
+  !selection              = !this.opExcelSheet.selection('rtext')
+  !details                = !this.getClassImportDetail(!selection)
+  if(!details.set()) then
+    !className            = !details[1]
+    !this.frExcelList.tag = !className
+    !rows                 = !details[3]
+    !heading              = !details[2]
+    !this.loadGridData(!heading, !rows)
+  endif
+endmethod
+
+----------------------------------------------------------------------
+--
+-- Method:      .getClassImportDetail
+--
+-- Description: Method to fetch import details to verify
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--    1   R      STRING      Excel Class Name
+-- Return:
+--   [Data Type] [Description]
+--    ARRAY        Import Data
+------------------------------------------------------------------------
+define method .getClassImportDetail(!tableIndex is STRING) is ARRAY
+
+  !result                      = object ARRAY()
+  !masterList                  = !this.dataLoader.getMasterList()
+  !classList                   = !this.dataLoader.getClassMapping()
+  !attributeList               = !this.dataLoader.getAttributeMapping()
+  !uomList                     = !this.dataLoader.getUOMMapping()
+  
+  !tableIndices                = !masterList.evaluate(object BLOCK(|!masterList[!evalIndex][5]|))
+  !index                       = !tableIndices.findFirst(!tableIndex)
+  if(!index.set()) then
+  
+    !listDetails               = !masterList[!index]
+    !excelClassName            = !listDetails[1]
+    !excelAttributeDetails     = !listDetails[2]
+    
+    -- details needed for data import
+    !attributeValueRows        = !listDetails[3]
+    !className                 = !classList[!index]
+    
+    if(!className.unset() OR !className.eq('')) then
+      !className               = 'Mapping Error'
+    endif
+    
+    !attributeDetails          = !attributeList[!index]
+    
+    !attributeValueRows.insert(1, !attributeDetails)
+    
+    !result.append(!className)
+    !result.append(!excelAttributeDetails)
+    !result.append(!attributeValueRows)
+  endif
+  
+  return !result
+  
+endmethod
+
+----------------------------------------------------------------------
+-- Method:      loadGridData
+--
+-- Description: Load data in the grid
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .loadGridData(!headings is ARRAY, !rows is ARRAY)
+  
+  using namespace 'Aveva.Core.Presentation'
+  !nds      = object NETDATASOURCE('Excel List', !headings, !rows)
+  !this.gridExcelList.bindToDataSource(!nds)
+  !this.gridExcelList.autoFitColumns()
+  
+  do !index indices !headings
+    !this.gridExcelList.SETCELLTEXTALIGNMENT('1', !index.string(), 'RIGHT')
+  enddo
+  
+endmethod
+
+

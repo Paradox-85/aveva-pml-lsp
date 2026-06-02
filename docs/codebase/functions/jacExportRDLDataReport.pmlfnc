@@ -1,0 +1,257 @@
+-----------------------------------------------------------------------
+--
+-- File:        jacExportRDLDataReport
+-- Description: Function to export report of complete data
+--
+------------------------------------------------------------------------
+import 'JacReportExtractor'
+handle ANY
+endhandle
+
+using namespace 'JacReportExtractor'
+
+define function !!jacExportRDLDataReport(!path is STRING, !rdlFilter is STRING, !tagFilter is STRING, !emptyPatternList is ARRAY, !replaceDataList is ARRAY, !isDisplayEmpty is BOOLEAN)
+
+  if(undefined(!!ramCommonLogger)) then
+    !!ramCommonLogger        = object RAMCOMMONLOGGER()
+  endif
+  !!ramCommonLogger.addLogDetails('jacExportRDLDataReport', '--------------------Execution start--------------------', 0)
+  !errorData                 = object ARRAY()
+
+  CLOCK INIT
+  !reportExtractor           = object RDLREPORTEXTRACTOR()
+  !tagManagement             = object RAMTAGMANAGEMENT()
+
+  !reportExtractor.loadIgnorePatterns(!emptyPatternList)
+  !reportExtractor.loadReplaceData(!replaceDataList)
+
+  clock read all
+
+  ------------------------------------------------------------------------------
+  -- Collect all tags
+  ------------------------------------------------------------------------------
+  !collection                = object COLLECTION()
+  !collection.type('ENGITE')
+  if(!tagFilter.set() AND !tagFilter.trim().neq('')) then
+    !expression              = object EXPRESSION(!tagFilter)
+    !collection.filter(!expression)
+  endif
+  !tagRefes                  = !collection.results()
+
+  !startSize                 = !tagRefes.size() * 0.01
+  !!displayProgress(!startSize, !tagRefes.size())
+
+  clock read all
+
+  ------------------------------------------------------------------------------
+  -- Process Filtering
+  ------------------------------------------------------------------------------
+  $P -------------- Group Filtering Process Begin -----------------------------
+  !classIDGroupDict    = object DICTIONARY()
+  !classDabaconGroupDict    = object DICTIONARY()
+  !rdlClassIDCollection           = object COLLECTION()
+  !rdlClassIDCollection.Type(|:ShellClass|)
+  !rdlFilterExp = |NOT(badref(:ClassRefToClassGroup))|
+  $(if(!rdlFilter.set() AND !rdlFilter.trim().neq('')) then
+    !rdlFilterExp = !rdlFilterExp + ' AND ' + !rdlFilter
+  endif$)
+  !expression            = object EXPRESSION(!rdlFilterExp)
+  !rdlClassIDCollection.filter(!expression)
+  !rdlClassIDRefes = !rdlClassIDCollection.Results()
+  !rdlClassGroupRefes = !rdlClassIDRefes.evaluate(object BLOCK(|!rdlClassIDRefes[!evalIndex].:ClassRefToClassGroup|))
+
+  !ClassID1Refes = object ARRAY()
+  !groupCollection = object ARRAY()
+  do !g indices !rdlClassGroupRefes
+    !!displayProgress(!g, !rdlClassGroupRefes.size())
+    !rdlClassGroupRefe = !rdlClassGroupRefes[!g]
+    if(!groupCollection.FindFirst(!rdlClassGroupRefe).unset()) then
+      !indices  = !rdlClassGroupRefes.find(!rdlClassGroupRefe)
+      !allowedClassIDRefes = !rdlClassIDRefes
+      !allowedClassIDRefes.reIndex(!indices)
+      !ClassID1Refes.AppendArray(!allowedClassIDRefes)
+      !groupCollection.Append(!rdlClassGroupRefe)
+      !classIDGroupDict.appendValue(!rdlClassGroupRefe, !allowedClassIDRefes)
+    endif
+  enddo
+
+  clock read all
+  $P -------------- Class ID Filtering Process Begin -----------------------------
+  !ClassID2Refes = object ARRAY()
+  !dabaconExpressions = object ARRAY()
+  !rdlClassMappingCollection           = object COLLECTION()
+  !rdlClassMappingCollection.Type(|:ShellClassMapping|)
+  !rdlFilterExp = |NOT(BADREF(:ClassMappingRefToClass))|
+  $(if(!rdlFilter.set() AND !rdlFilter.trim().neq('')) then
+    !rdlFilterExp = !rdlFilterExp + ' AND ' + !rdlFilter
+  endif$)
+  !expression            = object EXPRESSION(!rdlFilterExp)
+  !rdlClassMappingCollection.filter(!expression)
+  !rdlClassMappingRefes = !rdlClassMappingCollection.Results()
+
+  !rdlClassNameDetails = !rdlClassMappingRefes.evaluate(object BLOCK(|!rdlClassMappingRefes[!evalIndex].:ClassMappingRefToClass|))
+  !rdlClassDabaconDetails = !rdlClassMappingRefes.evaluate(object BLOCK(|!rdlClassMappingRefes[!evalIndex].:RDLDabaconExpression.upcase()|))
+
+  do !g indices !ClassID1Refes
+    !!displayProgress(!g, !ClassID1Refes.size())
+    !ClassID1Refe = !ClassID1Refes[!g]
+    !classIDIndices         = !rdlClassNameDetails.find(!ClassID1Refe)
+    !tempClassDabaconDetails = !rdlClassDabaconDetails
+    !tempDabaconMappingRefes = !rdlClassMappingRefes
+    !tempClassDabaconDetails.reIndex(!classIDIndices)
+    !tempDabaconMappingRefes.reIndex(!classIDIndices)
+    !dabaconExpDataList = object ARRAY()
+    do !t indices !tempDabaconMappingRefes
+      !dabaconExpression = !tempClassDabaconDetails[!t]
+      !dabaconRefe = !tempDabaconMappingRefes[!t]
+      !index = !dabaconExpressions.findFirst(!dabaconExpression)
+      if(!index.unset()) then
+
+        !dabaconExpData = object ARRAY()
+        !dabaconExpData.append(!dabaconRefe)
+        !dabaconExpData.append(!dabaconExpression)
+        !dabaconExpDataList.append(!dabaconExpData)
+
+        !ClassID2Refes.append(!ClassID1Refe)
+        !dabaconExpressions.append(!dabaconExpression)
+      else
+        !classMappedIDRefe = !ClassID2Refes[!index]
+        if(!classMappedIDRefe.neq(!ClassID1Refe)) then
+          !message = !dabaconExpression + ' Already mapped with class ID ' + !classMappedIDRefe.namn
+          !!ramCommonLogger.addLogDetails('jacExportRDLDataReport', !ClassID1Refe.namn, ':RDLDabaconExpression', !message)
+        endif
+      endif
+    enddo
+    !classDabaconGroupDict.appendValue(!ClassID1Refe, !dabaconExpDataList)
+  enddo
+
+  ------------------------------------------------------------------------------
+  -- Fetch mapping data
+  ------------------------------------------------------------------------------
+  clock read all
+  $P -------------- Mapping Begin -----------------------------
+  !mappingTable              = object ARRAY()
+  !rdlCollection           = object COLLECTION()
+  !rdlCollection.Type(|:ShellClassAttributeMapping|)
+  !rdlFilterExp = |NOT(badref(:MappingRefToAttributeMapping)) AND NOT(BADREF(:MappingRefToClassGroup))|
+  if(!rdlFilter.set() AND !rdlFilter.trim().neq('')) then
+    !rdlFilterExp = !rdlFilterExp + ' AND ' + !rdlFilter
+  endif
+  !expression            = object EXPRESSION(!rdlFilterExp)
+  !rdlCollection.filter(!expression)
+  !mappingRefes            = !rdlCollection.Results()
+
+  !size                    = !mappingRefes.size()
+  do !i indices !mappingRefes
+    !!displayProgress(!i, !size)
+    !mappingRefe             = !mappingRefes[!i]
+    !allowedClassIDRefes  = object ARRAY()
+    !classGroupRefe      = !mappingRefe.attribute(':MappingRefToClassGroup')
+    !value = object ARRAY()
+    !classIDGroupDict.findFirst(!classGroupRefe, !value)
+    !allowedClassIDRefes = !value
+    
+    if(!allowedClassIDRefes.set()) then
+
+      !attributeName           = !mappingRefe.attribute(':RDLDabaconExpression')
+      !attributeRDLType        = !mappingRefe.attribute(':RDLDataType')
+      !attributeConcept        = !mappingRefe.attribute(':RDLConcept')
+      !attributeRDLSource      = !mappingRefe.attribute(':RDLSource')
+      !RDLAttributeRefe      = !mappingRefe.attribute(':MappingRefToAttributeMapping')
+      !isValidDabaconDetail  = !RDLAttributeRefe.badref().not()
+      if(!isValidDabaconDetail) then
+        if(!attributeName.unset() OR !attributeName.trim().eq('')) then
+          !attributeName     = !RDLAttributeRefe.attribute(':RDLDabaconExpression')
+          !attributeRDLType  = !RDLAttributeRefe.attribute(':RDLDataType')
+        endif
+
+        if(!attributeConcept.unset() OR !attributeConcept.trim().eq('')) then
+          !attributeConcept  = !RDLAttributeRefe.attribute(':RDLConcept')
+        endif
+
+        if(!attributeRDLType.eq('')) then
+          !attributeRDLType  = 'TEXT'
+        endif
+
+        !attributeId         = !RDLAttributeRefe.attribute(':RDLId')
+        !attributeRDLName    = !RDLAttributeRefe.attribute(':RDLName')
+        !attributeGroup      = !RDLAttributeRefe.attribute(':RDLGroup')
+        do !allowedClassIDRefe values !allowedClassIDRefes
+
+          !classId             = !allowedClassIDRefe.attribute(':RDLId')
+          !value = object ARRAY()
+          !classDabaconGroupDict.findFirst(!allowedClassIDRefe, !value)
+          !tempClassDabaconDetails = !value
+          do !j indices !tempClassDabaconDetails
+            !className           = !tempClassDabaconDetails[!j][2]
+            !elementType         = object ELEMENTTYPE(!className)
+            !isValidType         = !elementType.name().neq('UNKNOWN')
+            if(!isValidType) then
+              !reportExtractor.storeElementTypeData(!className, '', !allowedClassIDRefe.string(), !classGroupRefe.string())
+              !isMapped          = !reportExtractor.storeMappingData(!className, !attributeName, !attributeId, !attributeRDLName, !attributeGroup, !attributeConcept, '', !attributeRDLType, !attributeRDLSource)
+              if(!isMapped) then
+                !mappingData             = object ARRAY()
+                !mappingData.append(!className)
+                !mappingData.append(!attributeName)
+                !mappingTable.append(!mappingData)
+              endif
+            else
+              !!ramCommonLogger.addLogDetails('jacExportRDLDataReport', !mappingRefe.namn, !className, 'RDL Dabacon expression Class not exist in database')
+            endif
+          enddo
+        enddo
+      else
+        !!ramCommonLogger.addLogDetails('jacExportRDLDataReport', !mappingRefe.namn, ':MappingRefToAttributeMapping', 'RDL mapping not valid')
+      endif
+    endif
+  enddo
+
+  clock read all
+
+  ------------------------------------------------------------------------------
+  -- Fetch attribute meta data
+  ------------------------------------------------------------------------------
+  $P -------------- Updating Attribute Meta Data -----------------------------
+  !engiteAttributes          = object ARRAY()
+  !engiteAttributes          = !mappingTable.Evaluate( object block( |!mappingTable[!evalIndex][2].upcase()| ))
+  !attributeNamesAsTable     = !engiteAttributes
+  !engiteAttributes.Unique()
+  do !engiteAttribute values !engiteAttributes
+    !attribute               = object ATTRIBUTE(!engiteAttribute)
+    !name                    = !attribute.name()
+    !category                = !attribute.category()
+    !type                    = !attribute.type()
+    var !reportTextData ATTDEF $!engiteAttribute RPTX
+    !reportText              = !reportTextData[1]
+    !reportExtractor.storeAttributeData(!name, !type, !category, !reportText)
+  enddo
+
+  clock read all
+
+  ------------------------------------------------------------------------------
+  -- Looping and extract data
+  ------------------------------------------------------------------------------
+  clock read all
+  $P -------------- Extraction Begin -----------------------------
+  !extraSize                 = !tagRefes.size() * 0.1
+  !progressSize              = !tagRefes.size() + !extraSize
+
+  -- !acttypes               = !mappingTable.Evaluate( object block( |!mappingTable[!evalIndex][1].upcase()| ))
+  -- !acttypes.SortUnique()
+  do !i indices !tagRefes
+    if(!i.gt(!startSize)) then
+      !!displayProgress(!i, !progressSize)
+    endif
+    !reportExtractor.extractElementReportFormat(!tagRefes[!i].string(), !isDisplayEmpty)
+  enddo
+
+  clock read all
+  $P -------------- Excel Export Begin -----------------------------
+
+  !reportExtractor.netGridExcelWriter(!path)
+  !!displayProgress(100, 100)
+
+  clock read all
+  $P -------------- Export Process Completed ---------------------------
+
+endfunction

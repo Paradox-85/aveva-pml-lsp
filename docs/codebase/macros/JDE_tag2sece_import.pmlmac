@@ -1,0 +1,72 @@
+-- Run path: $m "C:\Users\ADZV\OneDrive - Ramboll\AVEVA_SERVER\Addons\PMLLIB\RAM\Engineering\jackdow\JDE_tag2sece_import.pmlmac"
+-- PML import data from xlsx to AVEVA
+--Author: Andrei Aitzhanov
+-- Company Ramboll Energies
+-- Date: 15-09-2023
+
+!fileName = 'C:\Users\RJAY\OneDrive - Ramboll\General - Ramboll_Jackdaw - Admin Team\Aveva\_LEI data\From LEI\2024-04-23\routine\tagSECE 23.04.24.xlsx'
+
+!issueList = ARRAY()
+!issueList.append(|Name;Issue description|)
+!IssueFileName = !fileName.replace(|.xlsx|, |_RAMfeedback.csv|)
+!IssueFile = object FILE(!IssueFileName)
+
+import 'GridControl'
+handle ANY
+endhandle
+using namespace |Aveva.Core.Presentation|
+!dataTable = object NETGRIDCONTROL()
+!dataTable.clearGrid()
+!dataSource = object NETDATASOURCE('Grid Table', !fileName)
+!dataTable.bindToDataSource(!dataSource)
+!data = !dataTable.getrows()
+q var !data.size()
+do !row values !data
+	--show progress
+	!rowIdx = !data.findFirst(!row)
+	!!displayProgress(!rowIdx, !data.size())
+	
+	!Tag = !row[1].replace(|-|, |-|).replace(|‐|, |-|).trim()
+	!Sece = !row[2].trim()
+	
+	-- doc checking
+	!isSeceValid = true
+	!seceName = |/$!<Sece>|
+	!seceref = !seceName.dbref()
+	handle any
+		!issueMsg = |$!<Sece>;SECE $!<seceName> is not exists in AVEVA|
+		$p $!issueMsg
+		!issueList.append(!issueMsg)
+		!isSeceValid = false
+	endhandle
+	
+	-- tag checking
+	!isTagValid = true
+	!tagName = |/$!<Tag>|
+	!tagref = !tagName.dbref()
+	handle any
+		!issueMsg = |$!<Tag>;TAG $!<tagName> is not exists in AVEVA|
+		$p $!issueMsg
+		!issueList.append(!issueMsg)
+		!isTagValid = false
+	endhandle
+	
+	if (!isSeceValid and !isTagValid) then
+		!seces = !tagref.:TagRefToDNVSECECode
+		handle (2,759)
+			!issueMsg = |$!<Tag>;:TagRefToDNVSECECode is not valid for $!<tagName>|
+			$p $!issueMsg
+			!issueList.append(!issueMsg)
+			skip
+		endhandle
+		if (!seces.findfirst(!seceref).unset()) then
+			!seces.append(!seceref)
+			!tagref.:TagRefToDNVSECECode = !seces
+		endif
+	endif
+enddo
+
+!IssueFile.writeFile(|OVERWRITE|, !issueList) 
+
+SAVEWORK
+UNCLAIM ALL

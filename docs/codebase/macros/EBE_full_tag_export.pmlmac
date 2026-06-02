@@ -1,0 +1,45 @@
+-- Author: Andrei Aitzhanov
+-- Customer: Ramboll
+-- Rev: 01
+-- Purpose: auto-extract delta data for EBE project
+-- $m "C:\Users\ADZV\OneDrive - Ramboll\AVEVA_SERVER\Addons\PMLLIB\RAM\Engineering\ew1\EBE_full_tag_export.pmlmac"
+
+--TAGS
+
+!startDateTime = OBJECT DATETIME()
+!year = !startDateTime.year()
+!month = !startDateTime.month().string('I2')
+!date = !startDateTime.date().string('I2')
+!hour = !startDateTime.hour().string('I2')
+!minute = !startDateTime.minute().string('I2')
+
+import |Aveva.Engineering.Tags.Pml|
+handle any
+endhandle
+using namespace |Aveva.Engineering.Tags|
+!!tags = object PMLTAGS()
+
+import 'GridControl'
+handle ANY
+endhandle
+using namespace |Aveva.Core.Presentation|
+
+--get list of stamps
+var !grids collect all LSTDEF with (LstNam eq '100.01 All Tag Export Report')
+if (!grids.size() gt 0) then
+	do !exportGrid values !grids
+		!gridName = !exportGrid.dbref().lstnam
+		!gridDef = !!tags.GetListDefinition('100 ADMIN', !gridName)
+		!sourceDbView = !gridDef.DbViewName()
+
+		!publishPath = 'C:\Users\ADZV\OneDrive - Ramboll\Digital Deliveries\LCI\02_Vendor data\_AUEDB_export\'
+		!dataFileNameDated 	= |RAM_masterTagRegister_$!<year>-$!<month>-$!<date>_$!<hour>-$!<minute>.xlsx|
+		!dataFileName 		= |RAM_masterTagRegister.xlsx|
+		
+		using namespace |Aveva.Core.Presentation|
+		!!tags.exportasxls('100 ADMIN','$!gridName','$!publishPath$!dataFileNameDated')
+		!!tags.exportasxls('100 ADMIN','$!gridName','$!publishPath$!dataFileName')
+	enddo
+endif
+
+--FINISH

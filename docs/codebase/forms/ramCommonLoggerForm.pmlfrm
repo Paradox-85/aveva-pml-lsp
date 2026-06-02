@@ -1,0 +1,139 @@
+------------------------------------------------------------------------
+--
+-- File:        RAMCOMMONLOGGERFORM
+-- Description: Form to log tool issues and report
+--
+------------------------------------------------------------------------
+import 'GridControl'
+handle any
+endhandle
+
+Import 'pmlfilebrowser'
+handle any
+endhandle
+
+using namespace 'Aveva.Core.Presentation'
+
+setup form !!ramCommonLoggerForm dialog dock right
+
+  !this.formTitle     = 'Tool Logger'
+
+  button .buRefresh                          |Refresh Log|           anchor r+t      at xmin+50         ymin       WIDTH 10
+  frame .frLogList                                                   anchor all      at xmin form+1     ymax+0.5   width 60 height 10
+    container .coLogList NOBOX PMLNETControl 'Data List'             dock fill
+  exit
+  button .buExport                           |Export Data|           anchor l+b      at xmin form+1     ymax+0.5   WIDTH 10
+  button .buClear                            |Clear Log|             anchor r+b      at xmax form-size  ymin  
+  
+  member .gridLogList                is NETGRIDCONTROL
+  member .heading                    is ARRAY
+  member .fileWriter                 is RAMFILEWRITERCLASS
+
+exit
+
+----------------------------------------------------------------------
+-- Method:      .ramCommonLoggerForm
+--
+-- Description: Constructor
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .ramCommonLoggerForm()
+
+  !this.initCall            = |!this.init()|
+  !this.buExport.callback   = |!this.browseExcel()|
+  !this.buClear.callback    = |!this.clearData()|
+  !this.buRefresh.callback  = |!this.init()|
+
+  using namespace 'Aveva.Core.Presentation'
+  !this.gridLogList         = object NETGRIDCONTROL()
+  !this.coLogList.control   = !this.gridLogList.handle()
+  !this.gridLogList.columnExcelFilter(true)
+  !this.gridLogList.outlookGroupStyle(true)
+  !this.gridLogList.fixedRows(true)
+  !this.gridLogList.columnSummaries(false)
+  !this.gridLogList.singleRowSelection(false)
+  !this.gridLogList.ROWADDDELETEGRID(true)
+  !this.gridLogList.editableGrid(false)
+  !this.gridLogList.HEADERSORT(false)
+  
+  !this.heading             = object ARRAY()
+
+endmethod
+
+----------------------------------------------------------------------
+-- Method:      .init
+--
+-- Description: Constructor
+--
+-- Method Type: Function/Procedure
+------------------------------------------------------------------------
+define method .init()
+  !this.loadGrid()
+endmethod
+
+----------------------------------------------------------------------
+--
+-- Method:      .clearData
+--
+-- Description: Method to reset the object details
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .clearData()
+  !!ramCommonLogger = object RAMCOMMONLOGGER()
+  !this.loadGrid()
+endmethod
+
+--------------------------------------------------------------------
+-- Method:      browseExcel
+--
+-- Description: Browse excel file from explorer
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .browseExcel()
+
+  !filename = !this.fileWriter.browseFile('xlsx')
+  if(!filename.set() AND !filename.neq('')) then
+    !this.gridLogList.saveGridToExcel(!filename)
+  endif
+
+endmethod
+
+----------------------------------------------------------------------
+-- Method:      loadGrid
+--
+-- Description: Load data in the grid
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .loadGrid()
+  
+  using namespace 'Aveva.Core.Presentation'
+  !this.buRefresh.background = 5
+  if(defined(!!ramCommonLogger)) then
+    !headings                = !!ramCommonLogger.getValidHeadingArrayFormat()
+    !rows                    = !!ramCommonLogger.getValidLogArrayFormat()
+    !nds                     = object NETDATASOURCE('Collection List', !headings, !rows)
+    !this.gridLogList.bindToDataSource(!nds)
+    !this.gridLogList.autoFitColumns()
+  endif
+
+endmethod

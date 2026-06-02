@@ -1,0 +1,88 @@
+-- Run path: $m "C:\Users\ADZV\OneDrive - Ramboll\AVEVA_SERVER\Addons\PMLLIB\RAM\Engineering\jackdow\_publish\macro\JDE_vendorPackage-reports.pmlmac"
+-- Run comm package data to excel
+--Author: Andrei Aitzhanov
+-- Company Ramboll Energies
+-- Date: 01-07-2024
+
+TAGS
+
+import 'GridControl'
+handle any
+endhandle
+
+import 'Aveva.Engineering.Tags.Pml'
+handle any
+endhandle
+
+using namespace 'Aveva.Core.Presentation'
+using namespace 'Aveva.Engineering.Tags'
+
+--initiate variables
+!pathName = |C:\Users\ADZV\OneDrive - Ramboll\Ramboll_Jackdaw - Admin Team\JDE-Power-BI|
+!realUnset = ARRAY()
+!dt = OBJECT DATETIME()
+!year = !dt.year()
+!month = !dt.month().string('I2')
+!date = !dt.date().string('I2')
+!hour = !dt.hour().string('I2')
+!minute = !dt.minute().string('I2')
+!emptyPatternString = |Unset unset UNSET 0|
+!emptyPatternList = !emptyPatternString.split()
+!emptyPatternList.append(| |)
+!emptyPatternList.append(||)
+
+!commonAttribiutes = object ARRAY()
+!commonAttribiutes[1][1] = ':RAMTagOwner'
+!commonAttribiutes[1][2] = 'Tag Owner'
+!commonAttribiutes[2][1] = ':TagStatus'
+!commonAttribiutes[2][2] = 'Tag Status'
+!commonAttribiutes[3][1] = 'NAMN of :TagRefToPurchaseOrder'
+!commonAttribiutes[3][2] = 'PO Number'
+!commonAttribiutes[4][1] = ':RAMPackageNumber of :TagRefToPurchaseOrder'
+!commonAttribiutes[4][2] = 'Package'
+!commonAttribiutes[5][1] = ':TagClassName'
+!commonAttribiutes[5][2] = 'Shell Class'
+!commonAttribiutes[6][1] = 'NAMN of :TagRefToMCPackage'
+!commonAttribiutes[6][2] = 'MC Package'
+!commonAttribiutes[7][1] = 'NAMN of :MCPackageToCommissioningPackageRef of :TagRefToMCPackage'
+!commonAttribiutes[7][2] = 'Comm Package'
+!commonAttribiutes[8][1] = 'NAMN of :TagRefToArea'
+!commonAttribiutes[8][2] = 'Area'
+!commonAttribiutes[9][1] = ':RambollTagStatus'
+!commonAttribiutes[9][2] = 'Maturity'
+!commonAttribiutes[10][1] = 'NAMN of :TagRefToProcessUnit'
+!commonAttribiutes[10][2] = 'Process Unit'
+!commonAttribiutes[11][1] = ':RAMInstallationContractors'
+!commonAttribiutes[11][2] = 'Install By'
+!commonAttribiutes[12][1] = 'REPLACE(IFT(:TagName of :TagRefToParentTag neq NAMN of :TagRefToParentTag and (not(unset(:TagName of :TagRefToParentTag)) and not(empty(:TagName of :TagRefToParentTag))), :TagName of :TagRefToParentTag, NAMN of :TagRefToParentTag), |‐|, |-|)'
+!commonAttribiutes[12][2] = 'Parent Tag'
+
+--colleact comm packages
+var !packages eval (:RAMPackageNumber) for all :PurchaseOrder
+!packages.unique()
+do !pckgName values !packages
+	!tagFilter = ':tagStatus neq |VOID| and ISNAMED and NOT(EMPTY(:RAMTAGOWNER)) and matchwild(:RAMPackageNumber of :TagRefToPurchaseOrder, |*$!pckgName*|)'
+	var !tagList collect all (ENGITE) with ($!tagFilter)
+	!size = !tagList.size()
+	if (!size gt 0) then
+		!rdlFilter = |:RDLSource eq 'AKSO_Tag Properties Templates_Rev6'|
+		!filePathRam = |$!pathName\_master\data\vendor_data\vendorReport_$!<pckgName>.xlsx|
+		!!jacExportRDLDataReportMatrix(!filePathRam, !rdlFilter, !tagFilter, !emptyPatternList, !commonAttribiutes)
+	endif
+enddo
+
+LABEL /Error
+handle any
+	SAVEWORK
+	UNCLAIM ALL
+	!dt = OBJECT DATETIME()
+	!year = !dt.year()
+	!month = !dt.month().string('I2')
+	!date = !dt.date().string('I2')
+	!hour = !dt.hour().string('I2')
+	!minute = !dt.minute().string('I2')
+	!!ramCommonLogger.writeErrorDataToExcel(|C:\Users\ADZV\OneDrive - Ramboll\Ramboll_Jackdaw - Admin Team\Aveva\Logs\Night-macro\vendorReport-log_$!<year>-$!<month>-$!<date>-$!<hour>.xlsx|, false)
+	--FINISH
+endhandle
+
+FINISH

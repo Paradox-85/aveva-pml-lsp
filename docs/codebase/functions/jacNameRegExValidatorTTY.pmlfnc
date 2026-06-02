@@ -1,0 +1,89 @@
+------------------------------------------------------------------------
+--
+-- File:        JACNAMEREGEXVALIDATORTTY
+-- Description: Function to invoke and process the pattern validation
+-- Author:      Karthik N
+-- Created:     29-11-2023
+--
+------------------------------------------------------------------------
+import |RamAETagValidator|
+handle any
+endhandle
+
+using namespace |RamAETagValidator|
+
+define function !!jacNameRegExValidatorTTY(!isCategorySpecificMatch is BOOLEAN, !filter is STRING, !isForceUpdate is BOOLEAN)
+  
+  if(undefined(!!ramCommonLogger)) then
+    !!ramCommonLogger        = object RAMCOMMONLOGGER()
+  endif
+  !!ramCommonLogger.addLogDetails('jacNameRegExValidatorTTY', '--------------------Execution start--------------------', 0)
+
+  !!fmsys.SETPROGRESS(10)
+  !tagManagement             = object RAMTAGMANAGEMENT()
+  !regExValidator            = object RegExValidator()
+
+  !filterCondition           = ''
+  if(!filter.set() AND !filter.trim().neq('')) then
+    !filterCondition         = !filter + ' AND '
+  endif
+  !filterCondition           = !filterCondition + |:TagStatus inset('ACTIVE', 'VOID', 'Future', 'ASB', 'AFD', 'AFC') and ISNAMED|
+
+  VAR !tags COLL ALL ENGITE WITH $!filterCondition
+
+  !regExValidator.setValidationTags(!tags)
+  !regExValidator.LoadApplicationPattern()
+  !elementDetails            = !regExValidator.ValidateRegEx(!isCategorySpecificMatch)
+  !heading                   = |Name;Status|
+  !!fmsys.SETPROGRESS(20)
+  
+  !progress                  = 20
+  !progressValue             = 1
+  if(!elementDetails.size().gt(0)) then
+    !progressValue           = 70 / (!elementDetails.size())
+  endif
+  
+  -- Evaluate all the element type having the attribute
+  
+  !boolAttributeName         = |:RAMREGEXCORRECTNESS|
+  !patternAttributeName      = |:RAMREGEXMATCHINGPATTERN|
+  if(!isCategorySpecificMatch.not()) then
+    !boolAttributeName       = |:RAMREGEXCORRECTNESSANY|
+    !patternAttributeName    = |:RAMREGEXMATCHINGPATTERNANY|
+  endif
+
+  if(!tagManagement.isAttributeAvailable(!boolAttributeName)) then
+    do !i indices !elementDetails
+      !elementRefNo          = !elementDetails[!i].split(';')[1]
+      !matchingPattern       = !elementDetails[!i].split(';')[2]
+      !elementRefe           = object DBREF(!elementRefNo)
+      !isValidPattern        = false
+      !patternRefe           = object DBREF()
+      
+      !progress              = !progress + !progressValue
+      !!fmsys.SETPROGRESS(!progress)
+      
+      !isAttributeAvailable  = !tagManagement.isAttributeAvailable(!elementRefe, !boolAttributeName) $
+                                AND !tagManagement.isAttributeAvailable(!elementRefe, !patternAttributeName)
+      if(!isAttributeAvailable) then
+        if(!matchingPattern.neq('')) then
+          !patternRefe       = object DBREF(!matchingPattern)
+          !isValidPattern    = true
+        endif
+        !isUpdated = !!jacCheckForceUpdate('jacNameRegExValidatorTTY', !elementRefe, !patternAttributeName, !patternRefe, !isForceUpdate)
+        if(!isUpdated) then
+          !tagManagement.TryToSetValue(!elementRefe, !boolAttributeName, !isValidPattern)
+        endif
+      else
+        !message             = 'Attribute not available for the element'
+        !!ramCommonLogger.addLogDetails('jacNameRegExValidatorTTY', !elementRefe.namn, !boolAttributeName, !message)
+      endif
+    enddo
+  else
+    !message                 = 'Validation attribute not available in database'
+    !!ramCommonLogger.addLogDetails('jacNameRegExValidatorTTY', '', !boolAttributeName, !message)
+  endif
+  
+  !!fmsys.SETPROGRESS(0)
+  
+endfunction

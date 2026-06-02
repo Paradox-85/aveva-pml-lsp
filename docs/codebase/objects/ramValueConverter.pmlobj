@@ -1,0 +1,517 @@
+------------------------------------------------------------------------
+--
+-- File:        RAMVALUECONVERTER
+-- Description: Object to convert value to required format
+--
+------------------------------------------------------------------------
+define object RAMVALUECONVERTER
+
+  member .realFormat      is FORMAT
+
+  member .isFormatApplied is BOOLEAN
+  
+  member .isUnitRequired  is BOOLEAN
+
+  member .dateFormat      is DATEFORMAT
+
+  member .isNameWithoutSlah is BOOLEAN
+
+  member .isError         is BOOLEAN
+
+  member .logElement      is STRING
+  member .logAttribute    is STRING
+
+endobject
+
+------------------------------------------------------------------------
+--
+-- Method:     ramValueConverter
+-- Description: constructor method
+--
+------------------------------------------------------------------------
+define method .ramValueConverter()
+  !this.clearData()
+  !this.clearFormat()
+endmethod
+
+------------------------------------------------------------------------
+--
+-- Method:     clearData
+-- Description: Clear data
+--
+------------------------------------------------------------------------
+define method .clearData()
+  !this.isError = false
+  !this.logElement   = object STRING()
+  !this.logAttribute = object STRING()
+endmethod
+
+------------------------------------------------------------------------
+--
+-- Method:     clearData
+-- Description: Clear formatting data
+--
+------------------------------------------------------------------------
+define method .clearFormat()
+  !this.isFormatApplied = false
+  !this.isUnitRequired = false
+  !this.isNameWithoutSlah = false
+  !this.dateFormat = object DATEFORMAT('')
+  !this.realFormat = object FORMAT()
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     isError
+-- Description: Status of error in object
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+--    BOOLEAN     Error Status
+------------------------------------------------------------------------
+define method .isError() is BOOLEAN
+  return !this.isError
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     setLogInformation
+-- Description: Set Log information
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+--    BOOLEAN     Error Status
+------------------------------------------------------------------------
+define method .setLogInformation(!element is STRING, !attribute is STRING)
+  !this.clearData()
+  !this.logElement   = !element
+  !this.logAttribute = !attribute
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     convertStringToDbref
+-- Description: convert string to element
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      STRING      Element Name
+-- Return:
+--   [Data Type] [Description]
+--    DBREF       Element
+------------------------------------------------------------------------
+define method .convertStringToDbref(!elementName is STRING) is DBREF
+  
+  !elementRefe    = object DBREF()
+  !finalName      = !this.convertStringToValidDBString(!elementName)
+
+  if(!finalName.set()) then
+    !elementRefe  = !finalName.dbref()
+  endif
+
+  return !elementRefe
+
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     convertStringToValidDBString
+-- Description: convert string to valid old element string
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      STRING      Element Name
+-- Return:
+--   [Data Type] [Description]
+--    STRING      Element Name
+------------------------------------------------------------------------
+define method .convertStringToValidDBString(!elementName is STRING) is STRING
+  
+  !finalName      = object STRING()
+  !name           = !elementName.trim()
+  
+  !leadChar       = !name.subString(1,1)
+  !hasSpace       = !name.occurs(' ').gt(0)
+  if(!leadChar neq '/' AND !leadChar neq '=' AND !hasSpace.not()) then
+    !name         = '/' + !name
+  endif
+
+  !elementRefe    = object DBREF(!name)
+  handle ANY
+    !this.isError = true
+    !this.addErrorData('Unable to convert $!elementName to DBREF')
+  elsehandle None
+    !finalName    = !elementRefe.Name
+  endhandle
+
+  return !finalName
+
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     convertStringToValidNameString
+-- Description: convert string to valid name string
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      STRING      Element Name
+-- Return:
+--   [Data Type] [Description]
+--    STRING     Element
+------------------------------------------------------------------------
+define method .convertStringToValidNameString(!elementName is STRING) is STRING
+  
+  !finalName    = object STRING()
+  !name         = !elementName.trim()
+  
+  !leadChar     = !name.subString(1,1)
+  !hasSpace     = !name.occurs(' ').gt(0)
+  if(!leadChar neq '/' AND !hasSpace.not()) then
+    !finalName  = '/' + !name
+  elseif(!hasSpace.not()) then
+    !finalName  = !name
+  endif
+
+  return !finalName
+
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     convertStringToArray
+-- Description: convert string to Array
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      STRING      Data in string format
+-- Return:
+--   [Data Type] [Description]
+--    ARRAY       List of Data
+------------------------------------------------------------------------
+define method .convertStringToArray(!concatString is STRING, !subType is STRING) is ARRAY
+  
+  !result      = object ARRAY()
+  !splitValues = !concatString.split()
+  !result      = !this.convertArrayValue(!splitValues, !subType)
+
+  return !result
+
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     convertArrayValue
+-- Description: convert Array to Array based in subtype
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      ARRAY      List of Data in native format
+--   2    R      string     Sub Type for array conversion
+-- Return:
+--   [Data Type] [Description]
+--    ARRAY       List of Data in specific format
+------------------------------------------------------------------------
+define method .convertArrayValue(!splitValues is ARRAY, !subType is STRING) is ARRAY
+
+  !result               = object ARRAY()
+
+  if(!subType INSET('REAL', 'DBREF', 'STRING')) then
+    do !splitValue values !splitValues
+
+      !data             = object $!subType()
+      if(!subType.eq('STRING')) then
+        !data           = !this.convertToString(!splitValue)
+
+      elseif(!subType.eq('DBREF')) then
+        !data           = !this.convertStringToDbref(!splitValue.string())
+
+      elseif(!subType.eq('REAL')) then
+        !data           = !splitValue.real()
+        handle ANY
+          !this.isError = true
+          !this.addErrorData('Not able to convert string to real in converter')
+        endhandle
+      endif
+      !result.append(!data)
+    enddo
+  else
+    !this.isError       = true
+    !this.addErrorData('Unrecoginzed type convertion for converter')
+  endif
+
+  return !result
+
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     convertValue
+-- Description: convert any value to passed type
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      ANY        Data in native format
+--   2    R      STRING     Type to be converted
+-- Return:
+--   [Data Type] [Description]
+--    ANY         Data in specific format
+------------------------------------------------------------------------
+define method .convertValue(!value is ANY, !conversionType is STRING) is ANY
+
+  !result                = object $!conversionType()
+  if(!conversionType.EQNoCase('DBREF') AND !value.objecttype().EQNoCase('STRING')) then
+    !result              = !this.convertStringToDbref(!value)
+
+  elseif(!conversionType.EQNoCase('DATETIME') AND !value.objecttype().EQNoCase('STRING')) then
+    if(!value.occurs(':').eq(0)) then
+      !specialCharacters = SPLIT('.,-,/,\, ', ',')
+      !isValueSet        = false
+      do !char values !specialCharacters
+        skip if(!value.occurs(!char).neq(2))
+        !separationChar  = !char
+        !datetime        = object DATETIME(!value.split(!separationChar)[3].real(), $
+                                           !value.split(!separationChar)[2].real(), $
+                                           !value.split(!separationChar)[1].real())
+        handle ANY
+          !this.isError  = true
+          !this.addErrorData('Date convertion failed')
+        elsehandle None
+          !result        = !datetime
+          !isValueSet    = true
+        endhandle
+        break
+      enddo
+      if(!isValueSet.not()) then
+        !this.isError    = true
+        !this.addErrorData('Date format have problem in conversion')
+      endif
+    else
+      !this.isError      = true
+      !this.addErrorData('Date format contains time details - implementation not available')
+    endif
+
+  elseif(!conversionType.EQNoCase('STRING')) then
+    !result              = !this.convertToString(!value)
+
+  else
+    !result              = !value.$!conversionType()
+    handle ANY
+      !this.isError      = true
+      !this.addErrorData('Type convertion failed')
+    endhandle
+  endif
+
+  return !result
+
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     setRealFormat
+-- Description: Set format data for real to string conversion
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      FORMAT      Format object
+--   2    R      BOOLEAN     Format needed for conversion
+--   3    R      BOOLEAN     unit needed for conversion
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .setRealFormat(!value is FORMAT, !isApplyFormat is BOOLEAN, !isUnitRequired is BOOLEAN)
+  !this.realFormat      = !value
+  !this.isFormatApplied = !isApplyFormat
+  !this.isUnitRequired  = !isUnitRequired
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     setDateFormat
+-- Description: Set date format data for string conversion
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      DATEFORMAT  Format object
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .setDateFormat(!value is DATEFORMAT)
+  !this.dateFormat = !value
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     setReferenceFormat
+-- Description: Set Reference format for string conversion
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      DATEFORMAT  Format object
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .setReferenceFormat(!isName is BOOLEAN)
+  !this.isNameWithoutSlah = !isName
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     getUnitFromValue
+-- Description: Get unit from the passed value if it is real
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      ANY         Value to calculate unit
+-- Return:
+--   [Data Type] [Description]
+--    STRING      unit detail
+------------------------------------------------------------------------
+define method .getUnitFromValue(!value is ANY) is STRING
+  
+  !unit = ''
+  
+  !isReal = !value.objectType().EQNoCase('REAL')
+  if(!isReal) then
+    !unit = !value.unit().name()
+  endif
+
+  return !unit
+
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     convertToString
+-- Description: Convert Any value to string format
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      ANY         Value to convert
+-- Return:
+--   [Data Type] [Description]
+--    STRING      Converted value
+------------------------------------------------------------------------
+define method .convertToString(!value is ANY) is STRING
+
+  !result                    = object STRING()
+  !type                      = !value.objecttype()
+  if(!value.set()) then
+    if(!type.eq('REAL')) then
+      
+      !format                = !this.realFormat
+      !formatStr             = ''
+      !valueFormattingText   = ''
+      if(!this.isFormatApplied AND !this.isUnitRequired) then
+        !format.label        = !value.unit().shortname()
+        !formatStr           = '!format'
+      elseif(!this.isFormatApplied AND !this.isUnitRequired.not()) then
+        !formatStr           = '!format'
+      elseif(!this.isFormatApplied.not() AND !this.isUnitRequired.not()) then
+        !valueFormattingText = '.value()'
+      endif
+
+      !result                = !value$!<valueFormattingText>.string($!formatStr)
+      handle ANY
+        !this.isError        = true
+        !this.addErrorData('Unable to convert real to string')
+      endhandle
+
+    elseif(!type.eq('DBREF') AND !this.isNameWithoutSlah) then
+      !result                = !value.namn
+
+    elseif(!type.eq('ARRAY')) then
+      !result                = ''
+      do !item values !value
+        !itemConvertedValue  = !this.convertToString(!item)
+        if(!itemConvertedValue.set()) then
+          !result            = !result + ' ' + !itemConvertedValue
+          handle ANY
+            !this.isError        = true
+            !this.addErrorData(!!error.text)
+          endhandle
+          !result            = !result.trim()
+        endif
+      enddo
+      
+    elseif(!type.eq('DATETIME') AND !this.dateFormat.set()) then
+      !result                = !this.dateFormat.string(!value)
+      
+    else
+      !result                = !value.string()
+      handle ANY
+        !this.isError        = true
+        !this.addErrorData('Type convertion failed')
+      endhandle
+    endif
+  endif
+
+  return !result
+
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     convertDBTypeToType
+-- Description: Convert DBType to Generic type
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      STRING      DBType detail
+-- Return:
+--   [Data Type] [Description]
+--    STRING      Generic Type Detail
+------------------------------------------------------------------------
+define method .convertDBTypeToType(!dbType is STRING) is STRING
+
+  !type   = object STRING()
+
+  if(!dbType INSET('INTEGER', 'REAL')) then
+    !type = 'REAL'
+
+  elseif(!dbType INSET('WORD', 'TEXT')) then
+    !type = 'STRING'
+
+  elseif(!dbType INSET('LOGICAL')) then
+    !type = 'BOOLEAN'
+    
+  elseif(!dbType INSET('REFERENCE')) then
+    !type = 'DBREF'
+  endif
+
+  return !type
+
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     addErrorData
+-- Description: Add error data to common logger
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      STRING      Error detail
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .addErrorData(!errorData is STRING)
+
+  if(undefined(!!ramCommonLogger)) then
+    !!ramCommonLogger = object RAMCOMMONLOGGER()
+  endif
+
+  if(!this.logElement.unset() AND !this.logAttribute.unset()) then
+    !!ramCommonLogger.addLogDetails(!this.objecttype(), !errorData)
+  else
+    !errorList          = object ARRAY()
+    !errorList.append(!this.logElement)
+    !errorList.append(!this.logAttribute)
+    !errorList.append(!errorData)
+    !!ramCommonLogger.addLogDetails(!this.objecttype(), !errorList)
+  endif
+
+endmethod

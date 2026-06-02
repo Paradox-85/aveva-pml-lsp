@@ -1,0 +1,31 @@
+-- Run path: $m "C:\Users\ADZV\OneDrive - Ramboll\AVEVA_SERVER\Addons\PMLLIB\RAM\Engineering\jackdow\JDE_exData_import.pmlmac"
+-- PML import data from xlsx to AVEVA
+--Author: Andrei Aitzhanov
+-- Company Ramboll Energies
+-- Date: 15-09-2023
+
+import 'GridControl'
+handle ANY
+endhandle
+
+PML RELOAD OBJECT TAGMANAGEMENTTMP
+!tagMgmt = object TAGMANAGEMENTTMP()
+!fileName = |C:\Users\ADZV\OneDrive - Ramboll\Ramboll_Jackdaw - Admin Team\Aveva\_Templates\ex-data-extractor.xlsx|
+!columns = ARRAY()
+!columns.append(|AVEVA Attribute Name|)
+!columns.append(|Value|)
+!issueData = !!createObjectsFromExcelSheet(!fileName, |EX Register|, true, !columns, false, true, true)
+if (!issueData.size() gt 0) then
+	!msg = |Tag No;Attribute;Value;Issue Description|
+	!headerList = ARRAY()
+	!headerList.appendArray(!msg.split(|;|))
+	
+	using namespace |Aveva.Core.Presentation|
+	!IssueFileName = !fileName.replace(|.xlsx|, |_issues.xlsx|)
+	!dataTable = object NETGRIDCONTROL()
+	!dataTable.clearGrid()
+	!source = object NETDATASOURCE('data', !headerList, !issueData)
+	!dataTable.BindToDataSource(!source)
+	!dataTable.saveGridToExcel(|$!IssueFileName|)
+endif
+SAVEWORK

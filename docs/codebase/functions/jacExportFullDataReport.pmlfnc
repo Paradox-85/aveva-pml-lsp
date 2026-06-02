@@ -1,0 +1,76 @@
+-----------------------------------------------------------------------
+--
+-- File:        jacExportFullDataReport
+-- Description: Function to export report of complete data
+--
+------------------------------------------------------------------------
+import 'JacReportExtractor'
+handle ANY
+endhandle
+
+using namespace 'JacReportExtractor'
+
+define function !!jacExportFullDataReport(!path is STRING, !filter is STRING)
+
+  clock init
+
+  !reportExtractor   = object FULLREPORTEXTRACTOR()
+
+  -- Update system attribute details
+  !baseElement       = object elementType('ENGITE')
+  !systemAttributes  = !baseElement.SYSTEMATTRIBUTES()
+  !engiteAttributes  = !systemAttributes.evaluate(object BLOCK(|!systemAttributes[!evalIndex].name()|))
+  !engiteAttributes.appendArray(split('NAME TYPE ACTTYPE LOCK OWNER DESC', ' '))
+  !engiteAttributes.SortUnique()
+  do !engiteAttribute values !engiteAttributes
+    !attribute       = object ATTRIBUTE(!engiteAttribute)
+    !name            = !attribute.name()
+    !category        = !attribute.category()
+    !type            = !attribute.type()
+    var !reportTextData ATTDEF $!engiteAttribute RPTX
+    !reportText      = !reportTextData[1]
+    !reportExtractor.storeAttributeData(!name, !type, !category, !reportText)
+  enddo
+
+  -- Update user defined attribute details
+  !collection        = object COLLECTION()
+  !collection.type(|UDA|)
+  !udaElementRefes   = !collection.results()
+  do !udaElementRefe values !udaElementRefes
+    !name            = ':' + !udaElementRefe.udname
+    !repTxt          = !udaElementRefe.rptxt
+    !type            = !udaElementRefe.utype
+    !category        = !udaElementRefe.uCat
+    !reportExtractor.storeAttributeData(!name, !type, !category, !repTxt)
+  enddo
+  
+  clock read all
+  $P ------------- Data Collection Begin ------------------------
+
+  if(!filter.set() AND !filter.trim().neq('')) then
+    !filter          = 'WITH (' + !filter + ')'
+  else
+    !filter          = ''
+  endif
+
+  var !tags COLLECT ALL (ENGITEM) $!filter
+
+  !extraSize         = !tags.size() * 0.4
+  !progressSize      = !tags.size() + !extraSize
+
+  do !i indices !tags
+    !!displayProgress(!i, !progressSize)
+    !reportExtractor.extractElementReportFormat(!tags[!i])
+  enddo
+
+  clock read all
+  $P -------------- Excel Export Begin -----------------------------
+
+  !reportExtractor.netGridExcelWriter(!path)
+  !!displayProgress(100, 100)
+
+  clock read all
+  $P -------------- Export Process Completed ---------------------------
+  
+
+endfunction

@@ -1,0 +1,74 @@
+-- Run path: $m "C:\Users\ADZV\OneDrive - Ramboll\AVEVA_SERVER\Addons\PMLLIB\RAM\Engineering\jackdow\JDE_tag2doc_import.pmlmac"
+-- PML import data from xlsx to AVEVA
+--Author: Andrei Aitzhanov
+-- Company Ramboll Energies
+-- Date: 15-09-2023
+
+import 'GridControl'
+handle ANY
+endhandle
+using namespace |Aveva.Core.Presentation|
+!dataTable = object NETGRIDCONTROL()
+!dataTable.clearGrid()
+!issueData = ARRAY()
+!headerList = ARRAY()
+!msg = |Tag / Doc Name;Issue Description|
+!headerList.appendArray(!msg.split(|;|))
+
+!fileName = 'C:\Users\RJAY\OneDrive - Ramboll\General - Ramboll_Jackdaw - Admin Team\Aveva\_LEI data\From LEI\2024-04-23\routine\tagDoc 23.04.24.xlsx'
+!dataSource = object NETDATASOURCE('Grid Table', !fileName)
+!dataTable.bindToDataSource(!dataSource)
+!data = !dataTable.getrows()
+
+do !row values !data
+	--show progress
+	!rowIdx = !data.findFirst(!row)
+	!!displayProgress(!rowIdx, !data.size())
+	
+	!Tag = !row[2].replace(|-|, |-|).replace(|‐|, |-|).trim()
+	!Doc = !row[3].replace(|-|, |-|).replace(|‐|, |-|).trim()
+	
+	-- doc checking
+	!isDocValid = true
+	!docName = |/$!<Doc>|
+	!docref = !docName.dbref()
+	handle any
+		!msg = |$!<Doc>;DOC $!<docName> is not exists in AVEVA|
+		!issueData.append(!msg.split(|;|))
+		!isDocValid = false
+	endhandle
+	
+	-- tag checking
+	!isTagValid = true
+	!tagName = |/$!<Tag>|
+	!tagref = !tagName.dbref()
+	handle any
+		!msg = |$!<Tag>;TAG $!<tagName> is not exists in AVEVA|
+		!issueData.append(!msg.split(|;|))
+		!isTagValid = false
+	endhandle
+	
+	if (!isDocValid and !isTagValid) then
+		!docs = !tagref.:TagRefToDocument
+		handle (2,759) (2,204) 
+			!msg = |$!<Tag>;:TagRefToDocument is not valid for $!<tagName>|
+			!issueData.append(!msg.split(|;|))
+			skip
+		endhandle
+		if (!docs.findfirst(!docref).unset()) then
+			!docs.append(!docref)
+			!tagref.:TagRefToDocument = !docs
+			handle (2,614)
+				!msg = |$!<Tag>;TAG is CLAIMED|
+				!issueData.append(!msg.split(|;|))
+			endhandle
+		endif
+	endif
+enddo
+
+!IssueFileName = !fileName.replace(|.xlsx|, |_RAMfeedback.xlsx|)
+!dataTable = object NETGRIDCONTROL()
+!dataTable.clearGrid()
+!source = object NETDATASOURCE('data', !headerList, !issueData)
+!dataTable.BindToDataSource(!source)
+!dataTable.saveGridToExcel(|$!IssueFileName|, |data|)	

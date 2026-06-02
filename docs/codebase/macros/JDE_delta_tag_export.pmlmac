@@ -1,0 +1,145 @@
+-- Author: Andrei Aitzhanov
+-- Customer: Ramboll
+-- Rev: 01
+-- Purpose: auto-extract delta data for EBE project
+-- $m \\AVEV-GHYR43D.aaddsrambolldmz.com\Projects\PML\RDE-PML\pmllib\engineering\macros\EBE_delta_tag_export.pmlmac
+-- $m \\Dk-pf478xen\aveva_server\Addons\PMLLIB\Engineering\jackdow\JDE_delta_tag_export.pmlmac
+
+--TAGS
+
+!startDateTime = OBJECT DATETIME()
+!year = !startDateTime.year()
+!month = !startDateTime.month().string('I2')
+!date = !startDateTime.date().string('I2')
+!hour = !startDateTime.hour().string('I2')
+!minute = !startDateTime.minute().string('I2')
+
+!session  = current session
+!userName = !session.login.upcase()
+
+import |Aveva.Engineering.Tags.Pml|
+handle any
+endhandle
+using namespace |Aveva.Engineering.Tags|
+!!tags = object PMLTAGS()
+
+import 'GridControl'
+handle ANY
+endhandle
+using namespace |Aveva.Core.Presentation|
+!dataTable = object NETGRIDCONTROL()
+!dataTable.columnExcelFilter(true)
+!dataTable.setNameColumnImage()
+!dataTable.outlookGroupStyle(false)
+!dataTable.fixedHeaders(FALSE)
+!dataTable.fixedRows(false)
+!dataTable.columnSummaries(false)
+!dataTable.autoFitColumns()
+!dataTable.editableGrid(false)
+!dataTable.setEditableColumn(1,FALSE)
+
+!dbName =  |TMSCX/JDA_TMS|
+var !project PROJECT NUMBER
+--!date = |7 September 2023|
+!date = string()
+
+--get list of stamps
+var !stamps collect all STAMP
+var !grids collect all LSTDEF with (LstDsc eq '15.2.3 Tags to Leirvik Export')
+if (!stamps.size() gt 0 and !grids.size() gt 0) then
+	--set comparison data
+	!latestStamp = !stamps[2]
+	var !stampDate SetDate of $!latestStamp
+	if (!date.unset()) then
+		!date = !stampDate
+	endif
+	
+	--SETCOMPDATE FOR DB TMSCX/JDA_TMS TO SESSION 383
+	--SETCOMPDATE STAMP /04-Leirvik-Data-Transfer-01
+	SETCOMPDATE STAMP $!latestStamp
+	!exportGrid = !grids.first()
+	!gridName = !exportGrid.dbref().lstnam
+	!headerList = ARRAY()
+	!expressions = ARRAY()
+	!dataList = ARRAY()
+	!changedTags = ARRAY()
+
+	!listName = !exportGrid.dbref().lstnam
+	!gridDef = !!tags.GetListDefinition('15.2 Leirvik Data Export', !listName)
+	!sourceDbView = !gridDef.DbViewName()
+	var !fields collect all (ATTCOL EXPCOL) for $!sourceDbView
+	do !field values !fields
+		!udname = !field.dbref().udname
+		!expression = !field.dbref().DbAttribute
+		handle (2,201)
+			!expression = !field.dbref().expression
+		endhandle
+		!headerList.append(!udname)
+		!expressions.append(|$!<udname>;$!<expression>|)
+	enddo
+	!headerList.append(|ACTION|)
+
+	--get all changed elements
+	var !modifiedTags OLD collect all (ENGITEM) with ( MODIFIED() )
+	var !deletedTags OLD collect all (ENGITEM) with ( DELETED() )
+	var !createdTags collect all (ENGITEM) with ( CREATED() )
+
+	!changedTags = ARRAY()
+	!changedTags.appendArray(!modifiedTags)
+	!changedTags.appendArray(!deletedTags)
+	!changedTags.appendArray(!createdTags)
+	!changedTags = !changedTags.sortUnique()
+	do !tag values !changedTags
+		!rowDataList = ARRAY()
+		!action = |UPDATE|
+		if (!deletedTags.findfirst(!tag).set()) then
+			!action = |DELETE|
+		elseif (!createdTags.findfirst(!tag).set()) then
+			!action = |NEW|
+		endif
+		
+		do !expressionStr values !expressions
+			!idx = !expressions.findFirst(!expressionStr)
+			!val = ||
+			!expression = !expressionStr.split(|;|)[2]
+			!evaluate = |var !val $!expression of $!tag|
+			if (!action eq |DELETE|) then
+				!evaluate = |var !val OLD $!expression of $!tag|
+			endif
+			$!<evaluate>
+			handle any
+				!rowDataList.append(!!error.text)
+				--do something for log
+				--$p EXP [$!expressionStr] TAG [$!tag]
+			elsehandle none
+				!rowDataList.append(!val)
+			endhandle
+		enddo
+		!rowDataList.append(!action)
+		!dataList.append(!rowDataList)
+
+	enddo
+
+	--extract to file
+	--create a folder
+	if (!dataList.size() gt 0) then
+		!publishFolderPath = |C:\Users\ADZV\OneDrive - Ramboll\Ramboll_Jackdaw - Admin Team\Aveva\Leirvik data\TO LEIRVIK\_autoExport\|
+		!publishPath = '$!<publishFolderPath>$!year-$!month-$!date_$!hour-$!minute\'
+		Syscom |MKDIR "$!publishPath"|
+
+		using namespace 'Aveva.Core.Presentation'
+		!source = object NetDataSource('$!<gridName>', !headerList, !dataList)
+		!dataTable.clearGrid()
+		!dataTable.BindToDataSource(!source)
+		!dataTable.refreshAllFilters()
+		!dataTable.refreshVisibleRegion()
+		!dataTable.autoFitColumns()
+		!dataFileName = |DeltaDataExtract_$!<listName>.xlsx|
+		!dataTable.saveGridToExcel(|$!publishPath$!dataFileName|, |data|, |Export delta. Author: $!<userName> Date: $!<startDateTime> Comparison Date: $!<date>|)
+	endif
+endif
+
+
+
+
+--FINISH

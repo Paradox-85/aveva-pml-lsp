@@ -1,0 +1,10 @@
+define function !!ramGetBackRef(!element is STRING, !backAttribute is STRING, !attribute is STRING) is STRING
+	
+	!result = object STRING()
+	
+	var !backRefElement BACKREF(attname $!backAttribute) of $!element
+	var !result $!attribute of $!backRefElement 
+	
+	return !result
+	
+endfunction

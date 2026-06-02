@@ -1,0 +1,53 @@
+-- Run path: $m "C:\Users\ADZV\OneDrive - Ramboll\AVEVA_SERVER\Addons\PMLLIB\RAM\Engineering\jackdow\JDE_data-import.pmlmac"
+-- PML import data from xlsx to AVEVA
+--Author: Andrei Aitzhanov 
+-- Company Ramboll Energies
+-- Date: 15-09-2023
+
+import 'GridControl'
+handle ANY
+endhandle
+
+import 'RamPMLExcelReader'
+handle any
+endhandle
+
+PML RELOAD OBJECT TAGMANAGEMENTTMP
+!tagMgmt = object TAGMANAGEMENTTMP()
+!fileName = |C:\Users\ADZV\OneDrive - Ramboll\Ramboll_Jackdaw - Admin Team\Aveva\_AKSO data\from AKSO\2026-06-01\_avevaImport_01062026.xlsx|
+!sheetName = |Sheet1|
+!columns = ARRAY()
+!columns.append(|AVEVA Attribute Name|)
+!columns.append(|Value|)
+
+!dt = OBJECT DATETIME()
+!year = !dt.year()
+!month = !dt.month().string('I2')
+!date = !dt.date().string('I2')
+!hour = !dt.hour().string('I2')
+!minute = !dt.minute().string('I2')
+
+!isEXfile = matchwild(!fileName, |*ex_data_extractor.xlsx|)
+!exAttributes = ARRAY()
+!exAttributes = !tagMgmt.GetExAttributes()
+!ifTranspose = !tagMgmt.GetSheetType(!fileName, !sheetName, !columns)
+
+--!issueData = !!createObjectsFromExcelSheet(!fileName, !sheetName, !ifTranspose, !columns, true, false, true, !isEXfile, !exAttributes)
+!issueData = !!createObjectsFromExcelSheet(!fileName, !sheetName, !ifTranspose, !columns, true, true, true, !isEXfile, !exAttributes)
+!issueData.sortUnique()
+if (!issueData.size() gt 0) then
+	!issueSize = !issueData.size()
+	$P [$!issueSize] ISSUES WERE IDENTIFIED
+	!msg = |Tag No;Attribute;File Value;AVEVA Value;Issue Description|
+	!headerList = ARRAY()
+	!headerList.appendArray(!msg.split(|;|))
+	
+	using namespace |Aveva.Core.Presentation|
+	!IssueFileName = !fileName.replace(|.xlsx|, |_$!<year>-$!<month>-$!<date>_$!<hour>_issues.xlsx|)
+	!dataTable = object NETGRIDCONTROL()
+	!dataTable.clearGrid()
+	!source = object NETDATASOURCE('data', !headerList, !issueData)
+	!dataTable.BindToDataSource(!source)
+	!dataTable.saveGridToExcel(|$!IssueFileName|)
+endif
+--SAVEWORK

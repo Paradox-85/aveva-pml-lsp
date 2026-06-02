@@ -1,0 +1,7 @@
+--$m "C:\Users\ADZV\OneDrive - Ramboll\AVEVA_SERVER\Addons\PMLLIB\RAM\Engineering\jackdow\run-macro\loop-create.pmlmac"
+PML RELOAD OBJECT LOOPDATA
+!loop = object LOOPDATA()
+!loop.GetData()
+!loop.LoopCreate()
+!loop.pathName = |C:\Users\ADZV\OneDrive - Ramboll\Ramboll_Jackdaw - Admin Team\Aveva\AVEVA setup\E&I intelligent database\Log|
+!loop.SaveLog(|loop-create-log.xlsx|, false)

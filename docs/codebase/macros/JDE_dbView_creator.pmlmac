@@ -1,0 +1,111 @@
+-- Author: Andrei Aitzhanov
+-- Customer: Ramboll Energies
+-- Rev: 07
+-- Purpose: create DbView based on template
+-- $m "C:\Users\ADZV\OneDrive - Ramboll\AVEVA_SERVER\Addons\PMLLIB\RAM\Engineering\jackdow\JDE_dbView_creator.pmlmac"
+
+!eleList = ARRAY()
+!attList = ARRAY()
+!exprList = ARRAY()
+!filterList = ARRAY()
+!dbViewList = ARRAY()
+
+!attCommonList = ARRAY()
+!dbViewGroup = /RAM_IM_DBViewGroup
+!!ce = !dbViewGroup
+DELETE $!<dbViewGroup.type> MEM
+
+import 'GridControl'
+handle ANY
+endhandle
+using namespace |Aveva.Core.Presentation|
+!dataTable = object NETGRIDCONTROL()
+!dataTable.clearGrid()
+
+!fileName = 'C:\Users\ADZV\OneDrive - Ramboll\AVEVA_SERVER\Addons\PMLLIB\RAM\Engineering\jackdow\templates\JDE_dbViewExtract.xlsx'
+!dataSource = object NETDATASOURCE('Grid Table', !fileName)
+!dataTable.bindToDataSource(!dataSource)
+!data = !dataTable.getrows()
+do !row values !data
+	!dbViewName = !row[1]
+	!parameterType = !row[2]
+	!name = !row[3]
+	!value = !row[4]
+	!dataType = !row[5]
+	
+	--step 1: create dbView
+	!dbView = !dbViewName.dbref()
+	handle any
+		!dbViewDesc = !dbViewName.after(|/|)
+		NEW DBVW $!dbViewName
+		!dbViewUdname = !dbViewDesc.replace(|-|, | |)
+		DESC |$!dbViewUdname|
+		UDNA |$!dbViewUdname|
+		AUTCRE TRUE
+		ALWDEL TRUE
+		ELEL REM ALL
+		!dbView = !!ce
+	endhandle
+
+	--step 2: create element
+	if (!parameterType eq |1_ELEL| and !dbView.set()) then
+		$!<dbViewName> ELEL ADD $!<value>
+		handle (68,5)
+			$P ERROR ELE $!<value> IS EXIST IN ELELIST
+		elsehandle (99,532)
+			$P ERROR ELE $!<value> IS NOT EXIST
+		elsehandle (99,534)
+			$P ERROR ELE $!<value> IS LONG NAME
+		endhandle
+	endif
+	
+	--step 3: expression filters
+	if (!parameterType eq |2_EXPFIL| and !dbView.set()) then
+		NEW EXPFILTER
+		EXPRESSION |$!<value>|
+		EXPTYPE 'PML'
+	endif
+	
+	--step 4: expression column
+	if (!parameterType eq |3_EXPCOL| and !dbView.set()) then
+		NEW EXPCOLUMN
+		DESC |$!<name>|
+		UDNA |$!<name>|
+		if (!value.matchwild(|*!*|)) then
+			!value = $!<value>
+		endif
+		EXPRESSION |$!<value>|
+		EXPTYPE 'PML'
+		UTYP $!<dataType>
+	endif
+	
+	--step 5: attribute column
+	if (!parameterType eq |4_ATTCOL| and !dbView.set()) then
+		$P ATT $!<value>
+		NEW ATTCOLUMN
+		DESC |$!<name>|
+		UDNA |$!<name>|
+		if (!value.matchwild(|*!*|)) then
+			!value = $!<value>
+		endif
+		DBATTRIBUTE $!<value>
+		handle any
+			DELETE ATTCOLUMN
+			NEW EXPCOLUMN
+			DESC |$!<name>|
+			UDNA |$!<name>|
+			if (!value.matchwild(|*!*|)) then
+				!value = $!<value>
+			endif
+			EXPRESSION |$!<value>|
+			EXPTYPE 'PML'
+			UTYP $!<dataType>
+		elsehandle none
+			--UTYP $!<dataType>
+		endhandle
+	endif
+enddo
+
+
+
+

@@ -1,0 +1,41 @@
+-----------------------------------------------------------------------
+--
+-- File:        JACUPDATEPATTERNTOATTRIBUTE
+-- Description: Function to propagate data from parent to child(consideration - 1 level)
+--
+------------------------------------------------------------------------
+import 'RamAETagValidator'
+handle any
+endhandle
+
+using namespace 'RamAETagValidator'
+
+define function !!jacUpdatePatternToAttribute(!patternRefe is DBREF, !attributeName is STRING, !patternIndex is REAL, !filter is STRING, !isForceUpdate is BOOLEAN)
+
+  if(undefined(!!ramCommonLogger)) then
+    !!ramCommonLogger  = object RAMCOMMONLOGGER()
+  endif
+  !!ramCommonLogger.addLogDetails('jacUpdatePatternToAttribute', '--------------------Execution start--------------------', 0)
+  
+  !tagValidator        = object RegExValidator()
+  !!displayProgress(1, 100)
+
+  !collection          = object COLLECTION()
+  !collection.type('ENGITE')
+  if(!filter.set() AND !filter.trim().neq('')) then
+    !expression        = object EXPRESSION(!filter)
+    !collection.filter(!expression)
+  endif
+  !tags                = !collection.results()
+
+  do !i indices !tags
+    !!displayProgress(!i, !tags.size())
+    !elementRefe       = !tags[!i]
+    !name              = !elementRefe.namn
+    !patternRefNo      = !patternRefe.string()
+    !groupValue        = !tagValidator.getGroupValue(!name, !patternIndex, !patternRefNo)
+    !!jacCheckForceUpdate('jacUpdatePatternToAttribute', !elementRefe, !attributeName, !groupValue, !isForceUpdate)
+  enddo
+  !!displayProgress(100, 100)
+
+endfunction

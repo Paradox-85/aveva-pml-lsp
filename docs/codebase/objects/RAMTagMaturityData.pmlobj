@@ -1,0 +1,53 @@
+------------------------------------------------------------------------
+--
+-- Ramboll Energy
+--
+--   File:            RAMTagMaturityData.pmlobj
+--   Type:          Object Definition
+--   Group:         BI reports
+--   Keyword:      Summary data for maturity level
+--   Module:        Tags
+--   Replaces:
+--
+-- Author:          andrei.aitzhanov
+-- Created:         26/02/2024
+-- Path:C:\Users\ADZV\OneDrive - Ramboll\AVEVA_SERVER\Addons\PMLLIB\RAM\Engineering\jackdow\objects\RAMTagMaturityData.pmlobj
+------------------------------------------------------------------------
+
+--pml reload object RAMTagMaturityData
+define object RAMTagMaturityData
+
+	--
+	member .className         	is STRING
+	member .shellClassName      is STRING
+	member .L0        			is REAL
+	member .L1        			is REAL
+	member .L2        			is REAL
+	member .L3        			is REAL
+	member .L4        			is REAL
+	member .L5        			is REAL
+	member .L6        			is REAL
+	member .L7        			is REAL
+	member .L8        			is REAL
+	member .DateTime     		is STRING
+	
+endobject
+
+
+define method .RAMTagMaturityData()
+	!this.L0 = 0
+	!this.L1 = 0
+	!this.L2 = 0
+	!this.L3 = 0
+	!this.L4 = 0
+	!this.L5 = 0
+	!this.L6 = 0
+	!this.L7 = 0
+	!this.L8 = 0
+endmethod
+
+define method .GetTotal() is REAL
+	!result = REAL()
+	!result = !this.L0 + !this.L1 + !this.L2 + !this.L3 + !this.L4 + !this.L5 + !this.L6 + !this.L7 + !this.L8
+	return !result
+endmethod

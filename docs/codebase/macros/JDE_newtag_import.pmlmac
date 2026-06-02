@@ -1,0 +1,158 @@
+-- Run path: $m "C:\Users\ADZV\OneDrive - Ramboll\AVEVA_SERVER\Addons\PMLLIB\RAM\Engineering\jackdow\JDE_newtag_import.pmlmac"
+-- PML import data from xlsx to AVEVA
+--Author: Andrei Aitzhanov
+-- Company Ramboll Energies
+-- Date: 15-09-2023
+
+import |Aveva.Engineering.PMLElementManager|
+handle any
+endhandle
+
+import 'GridControl'
+handle ANY
+endhandle
+using namespace |Aveva.Core.Presentation|
+!dataTable = object NETGRIDCONTROL()
+!fileName = |C:\Users\RJAY\OneDrive - Ramboll\General - Ramboll_Jackdaw - Admin Team\Aveva\_LEI data\From LEI\2024-04-23\routine\24.04.2024 06.18eds-export_RAMupload.xlsx|
+!dataSource = object NETDATASOURCE('Grid Table', !fileName)
+!dataTable.bindToDataSource(!dataSource)
+!data = !dataTable.getrows()
+!heading = !dataTable.gettitles()
+
+!issueData = ARRAY()
+!msg = |Tag No;Attribute;Value;Issue Description|
+!headerList = ARRAY()
+!headerList.appendArray(!msg.split(|;|))
+
+!nameColumn = |NAME|
+!actionColumn = |:RAMACTION|
+!typeColumn = |ACTTYPE|
+!nameId = !heading.findfirst(!nameColumn)
+!actionId = !heading.findfirst(!actionColumn)
+!typeId = !heading.findfirst(!typeColumn)
+if (!nameId.set() and !actionId.set() and !typeId.set()) then
+	do !row values !data
+		--progress
+		!rowIdx = !data.findFirst(!row)
+		!!displayProgress(!rowIdx, !data.size())
+		
+		!Tag = !row[!nameId].replace(|-|, |-|).replace(|‐|, |-|).replace(| |, |_|).trim()
+		!Type = !row[!typeId]
+		
+		--clean Type
+		!symbol = |. , - ~ * : ; _ / \ ' " & ? ! # $ % ( )|
+		!symbols = !symbol.split()
+		!symbols.append(| |)
+		!symbols.append('|')
+		do !symb values !symbols
+			!Type = !Type.replace(!symb, '')
+		enddo
+		!Action = !row[!actionId].lowcase()
+		!tagName = |/$!<Tag>|
+		!tagref = !tagName.dbref()
+		handle any
+			using namespace |Aveva.Engineering.PMLElementManager|
+			!elementNet = object CREATEELEMENT()
+			!etype = object ELEMENTTYPE(|:$!<Type>|)
+			if (!etype.name() neq |UNKNOWN|) then
+				!elementNet.SetElementTypeByName(|:$!<Type>|)
+				handle any
+					!msg = |$!tag;NA;Class [:$!Type] is not valid in AVEVA. Tag will not be created|
+					!issueData.append(!msg.split(|;|))
+				elsehandle none
+					!elementNet.AddAttributeValue(|NAME|, !tagName)
+					!elementNet.Execute()
+					!errors = !elementNet.GetErrors()
+					do !error values !errors
+						!msg = |$!tag;NA;NA;$!error|
+						!issueData.append(!msg.split(|;|))
+					enddo
+				endhandle
+			else
+				!msg = |$!tag;NA;NA;Class [:$!Type] is not valid in AVEVA. Tag will not be created|
+				!issueData.append(!msg.split(|;|))
+			endif
+		elsehandle none
+		endhandle
+		
+		!tagref = !tagName.dbref()
+		handle none
+			do !col values !heading
+				var !value DELETE
+				var !currentValue DELETE
+				!col = !col.trim()
+				if (!col.upcase() neq |NAME| and !col.upcase() neq |ACTTYPE|) then
+					!idx = !heading.findfirst(!col)
+					!fileValue = !row[!idx]
+					!attribute = object ATTRIBUTE(|$!col|)
+					if (!attribute.hash() gt 0) then
+						if (!fileValue.empty().not()) then
+							!currentValue = !tagref.attribute(!attribute.name())
+							handle none
+								!isError = false
+								!valueType = !currentValue.objecttype()
+								
+								--case with EX Class
+								if (!col eq |:pcsEXCLASS| and (!fileValue.upcase() eq |NON-EX| or !fileValue.upcase() eq |NA|) or !fileValue.upcase() eq |NON EX|) then
+									!fileValue = |N/A|
+								endif
+								
+								if (!valueType eq 'REAL') then
+									!tagref.attribute(!attribute.name()) = !fileValue.real()
+									handle any
+										!isError = true
+										!msg = |$!tag;$!col;$!fileValue;$!!error.text|
+										!issueData.append(!msg.split(|;|))
+									endhandle
+								endif
+								if (!valueType eq 'DBREF') then
+									!fileValue = |/$!fileValue|
+									!tagref.attribute(!attribute.name()) = !fileValue.dbref()
+									handle any
+										!isError = true
+										!msg = |$!tag;$!col;$!fileValue;$!!error.text|
+										!issueData.append(!msg.split(|;|))
+									endhandle
+								endif
+								if (!valueType eq 'STRING') then
+									!tagref.attribute(!attribute.name()) = !fileValue.string()
+									handle any
+										!isError = true
+										!msg = |$!tag;$!col;$!fileValue;$!!error.text|
+										!issueData.append(!msg.split(|;|))
+									endhandle
+								endif
+								if (!valueType eq 'ARRAY') then
+									skip
+								endif
+								if !isError then
+									$p error: $!tagName type: $!valueType attribute: $!col value: $!fileValue
+								endif
+							elsehandle any
+								!msg = |$!tag;$!col;$!fileValue;$!!error.text|
+								!issueData.append(!msg.replace(|'|,||).split(|;|))
+							endhandle
+						else
+							--!msg = |$!tag;$!col;$!fileValue;Value for attribute [$!col] is empty|
+							--!IssueFile.WriteRecord(!msg)
+						endif
+					else
+						!msg = |$!tag;$!col;$!fileValue;Attribute [$!col] is not valid in AVEVA for this item. Attribute value will not be uploaded|
+						!issueData.append(!msg.split(|;|))
+					endif
+				endif
+			enddo
+		elsehandle any
+		endhandle
+	enddo
+endif
+
+!IssueFileName = !fileName.replace(|.xlsx|, |_RAMfeedback.xlsx|)
+!dataTable = object NETGRIDCONTROL()
+!dataTable.clearGrid()
+!source = object NETDATASOURCE('data', !headerList, !issueData)
+!dataTable.BindToDataSource(!source)
+!dataTable.saveGridToExcel(|$!IssueFileName|, |data|)
+
+SAVEWORK
+UNCLAIM ALL

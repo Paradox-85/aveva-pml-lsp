@@ -1,0 +1,879 @@
+------------------------------------------------------------------------
+--
+-- File:        RAMIMPORTEXCELDATALOADER
+-- Description: Object to import the excel data
+-- Author:      Karthik N
+-- Created:     09-01-2024
+--
+------------------------------------------------------------------------
+import 'RamAEPMLExcelReader'
+handle any
+endhandle
+
+using namespace 'RamAEPMLExcelReader'
+
+define object RAMIMPORTEXCELDATALOADER
+  
+  -- 1 = sheet Name = class Name
+  -- 2 = column Name = attribute Name
+  -- 3 = Import Data = attribute Value
+  member .masterList            is ARRAY
+  
+  member .classMapping          is ARRAY
+
+  
+  member .attributeMapping      is ARRAY
+  member .attributeParameter    is ARRAY
+  member .uomMapping            is ARRAY
+  
+  member .configDetail          is RAMIMPORTEXCELCONFIGLOADER
+  member .sheetCount            is REAL
+
+  -- using namespace 'RamAEPMLExcelReader'
+  -- member .excelReader           is PMLEXCELHELPER
+  
+endobject
+
+------------------------------------------------------------------------
+--
+-- Method:     ramImportExcelDataLoader
+-- Description: constructor method
+--
+------------------------------------------------------------------------
+define method .ramImportExcelDataLoader()
+  !this.clearMappings()
+endmethod
+
+----------------------------------------------------------------------
+-- Method:     loadExcelData
+--
+-- Description: Load the excel data in array
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .clearMappings()
+  !this.masterList           = object ARRAY()
+  !this.classMapping         = object ARRAY()
+  -- using namespace 'RamAEPMLExcelReader'
+  -- !this.excelReader          = object PMLExcelHelper()
+
+  !this.attributeMapping     = object ARRAY()
+  !this.attributeParameter   = object ARRAY()
+  !this.uomMapping           = object ARRAY()
+  !this.sheetCount           = 0
+endmethod
+
+----------------------------------------------------------------------
+-- Method:     loadExcelData
+--
+-- Description: Load the excel data in array
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .loadExcelData(!excelFilePaths is ARRAY, !isTransposeList is ARRAY)
+  
+  do !i indices !excelFilePaths
+    !this.loadExcelData(!excelFilePaths[!i], !isTransposeList[!i].boolean())
+  enddo
+endmethod
+
+----------------------------------------------------------------------
+-- Method:     loadExcelData
+--
+-- Description: Load the excel data in array
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .loadExcelData(!excelFilePath is STRING, !isTransposeExcel is BOOLEAN)
+  
+  using namespace 'RamAEPMLExcelReader'
+  !excelReader                = object PMLExcelHelper()
+  clock init
+  !excelReader.ReadExcel(!excelFilePath)
+  !sheetNames                 = !excelReader.GetSheetNamesFromLoadedExcel()
+  clock read all
+  !masterColumnName           = !this.getSettingValue('MasterClassColumn')
+  do !index indices !sheetNames
+    !isMasterTable            = false
+    !excelSheetName           = !sheetNames[!index].upcase()
+    
+    !sheetSize                = !excelReader.getSheetSize(!excelSheetName)
+    if(!sheetSize.gt(1)) then
+      !excelHeading           = !excelReader.getSheetHeadings(!excelSheetName)
+      !headings               = !excelHeading.evaluate(object BLOCK(|!excelHeading[!evalIndex].upcase()|))
+      if(!masterColumnName.set()) then
+        !masterColumnIndex    = !headings.findFirst(!masterColumnName.upcase())
+        !isMasterTable        = !masterColumnIndex.set()
+      endif
+      
+      !tableExtract           = object ARRAY()
+      if(!isTransposeExcel) then
+        !dataTables           = object ARRAY()
+        !nameColumn           = !this.getSettingValue('NameColumn')
+        !headingColumnName    = !this.getSettingValue('MasterAttributeColumn')
+        !valueColumnName      = !this.getSettingValue('MasterAttributeValueColumn')
+        !uomColumnName        = !this.getSettingValue('MasterUOMColumn')
+        !nameColumnIndex      = !headings.findFirst(!nameColumn.upcase())
+        !headingColumnIndex   = !headings.findFirst(!headingColumnName.upcase())
+        !valueColumnIndex     = !headings.findFirst(!valueColumnName.upcase())
+        !uomColumnIndex       = !headings.findFirst(!uomColumnName.upcase())
+        if(!nameColumnIndex.set() AND !headingColumnIndex.set() AND !valueColumnIndex.set() AND !uomColumnIndex.set()) then
+
+          -- For creation, update and reclassify option
+          if(!isMasterTable) then
+            !classNames       = !excelReader.getSheetColumn(!excelSheetName, !masterColumnIndex)
+            !classNames.unique()
+            do !className values !classNames
+              !tempNames      = !excelReader.getSheetColumn(!excelSheetName, !nameColumnIndex, !masterColumnIndex, !className)
+              !tempNames.unique()
+              !tempDataTables = !this.extractTablesFromTransposeFormat(!excelReader, !tempNames, !className, !excelSheetName, !nameColumn, $
+                                                                       !nameColumnIndex, !headingColumnIndex, !valueColumnIndex, !uomColumnIndex)
+              !dataTables.AppendArray(!tempDataTables)
+            enddo
+
+          -- Only for update attribute option
+          else
+            !tempNames        = !excelReader.getSheetColumn(!excelSheetName, !nameColumnIndex)
+            !tempNames.unique()
+            !tempDataTables   = !this.extractTablesFromTransposeFormat(!excelReader, !tempNames, !excelSheetName, !excelSheetName, !nameColumn, $
+                                                                       !nameColumnIndex, !headingColumnIndex, !valueColumnIndex, !uomColumnIndex)
+            !dataTables.AppendArray(!tempDataTables)
+          endif
+        endif
+        !tableExtract         = !dataTables
+
+      elseif(!isMasterTable) then
+        !dataTables           = object ARRAY()
+        !classNames           = !excelReader.getSheetColumn(!excelSheetName, !masterColumnIndex)
+        !classNames.unique()
+        do !className values !classNames
+          !tempTable          = !excelReader.getSheetRows(!excelSheetName, !masterColumnIndex, !className)
+          !data               = !this.createDataTable(!className, !headings, !tempTable, !excelSheetName)
+          !dataTables.append(!data)
+        enddo
+        !tableExtract         = !dataTables
+
+
+      else
+        !rowDetails           = !excelReader.getSheetRows(!excelSheetName)
+        !data                 = !this.createDataTable(!excelSheetName, !headings, !rowDetails, !excelSheetName)
+        !tableExtract.append(!data)
+      endif
+      !this.masterList.appendArray(!tableExtract)
+    endif
+  enddo
+  clock read all
+endmethod
+
+----------------------------------------------------------------------
+-- Method:     createDataTable
+--
+-- Description: Set config details for the object
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+using namespace 'RamAEPMLExcelReader'
+define method .extractTablesFromTransposeFormat(!excelReader is ANY, !tempNames is ARRAY, !className is STRING, !excelSheetName is STRING, $
+                                                !nameColumn is STRING, !nameColumnIndex is REAL, !headingColumnIndex is REAL, !valueColumnIndex is REAL, !uomColumnIndex is REAL) is ARRAY
+
+  !tempDataTables          = object ARRAY()
+  do !tempName values !tempNames
+    !tempNameTable         = !excelReader.getSheetRows(!excelSheetName, !nameColumnIndex, !tempName)
+    !tempHeadings          = !tempNameTable.evaluate(object BLOCK(|!tempNameTable[!evalIndex][!headingColumnIndex].upcase()|))
+    !sortedHeadingIndices  = !tempHeadings.SortedIndices()
+    !tempNameTable.reIndex(!sortedHeadingIndices)
+    !tempHeadings.reindex(!sortedHeadingIndices)
+    !tempValues            = !tempNameTable.evaluate(object BLOCK(|!tempNameTable[!evalIndex][!valueColumnIndex]|))
+    !tempUOMs              = !tempNameTable.evaluate(object BLOCK(|!tempNameTable[!evalIndex][!uomColumnIndex]|))
+    !tempValueUom          = object ARRAY()
+    do !i indices !tempValues
+      if(!tempValues[!i].set() AND !tempValues[!i].trim().neq('')) then
+        !tempValueUom.append(!tempValues[!i] + !tempUOMs[!i].trim())
+      else
+        !tempValueUom.append('')
+      endif
+    enddo
+
+    -- Add name details to the row(in case not available for transpose format)
+    !isAlreadyNameAvailable = !tempHeadings.FindFirst(!nameColumn.upcase()).set()
+    if(!isAlreadyNameAvailable.not()) then
+      !tempHeadings.Insert(1, !nameColumn)
+      !tempValueUom.Insert(1, !tempName)
+    endif
+
+    !isTableIdentified     = false
+    do !i indices !tempDataTables
+      !storedHeadings      = !tempDataTables[!i][2]
+      !difference1         = !tempHeadings.difference(!storedHeadings)
+      !difference2         = !storedHeadings.difference(!tempHeadings)
+      if(!difference1.unset() AND !difference2.unset()) then
+        !tempDataTables[!i][3].append(!tempValueUom)
+        !isTableIdentified = true
+        break
+      endif
+    enddo
+    if(!isTableIdentified.not()) then
+      !tempTable           = object ARRAY()
+      !tempTable.append(!tempValueUom)
+      !data                = !this.createDataTable(!className, !tempHeadings, !tempTable, !excelSheetName)
+      !tempDataTables.append(!data)
+    endif
+  enddo
+
+  return !tempDataTables
+
+endmethod
+
+----------------------------------------------------------------------
+-- Method:     createDataTable
+--
+-- Description: Set config details for the object
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .createDataTable(!className is STRING, !headings is ARRAY, !rowDetails is ARRAY, !excelSheetName is STRING) is ARRAY
+
+  !data             = object ARRAY()
+  !data.append(!className)
+  !data.append(!headings)
+  !data.append(!rowDetails)
+  !data.append(!excelSheetName)
+  !this.sheetCount  = !this.sheetCount + 1
+  !data.append(!this.sheetCount.string())
+  return !data
+
+endmethod
+
+----------------------------------------------------------------------
+-- Method:     setConfigDetail
+--
+-- Description: Set config details for the object
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .setConfigDetail(!config is RAMIMPORTEXCELCONFIGLOADER)
+  
+  !this.configDetail = !config
+  
+endmethod
+
+----------------------------------------------------------------------
+-- Method:     initiateMappings
+--
+-- Description: initiate mappings process based on priority
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .initiateMappings()
+  
+  !this.classMapping()
+  !this.attributeMapping()
+  !this.uomMapping()
+  
+endmethod
+
+----------------------------------------------------------------------
+-- Method:     validateElementType
+--
+-- Description: Return name if valid, otherwise unset
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .validateElementType(!name is STRING) is STRING
+
+  !className           = object STRING()
+  !elementType         = object ELEMENTTYPE(!name)
+  !isExists            = !elementType.name().neq('UNKNOWN')
+  if(!isExists) then
+    !className         = !elementType.name().upcase()
+  endif
+  
+  return !className
+  
+endmethod
+
+----------------------------------------------------------------------
+-- Method:     getClassDetails
+--
+-- Description: Get class name from excel classification name
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .getClassName(!excelClassName is STRING) is STRING
+
+  !classPriorities     = !this.configDetail.getPriorityOrder('Class processing')
+  !className           = object STRING()
+  
+  !priorityOrders      = !classPriorities[1]
+  !parameterOrders     = !classPriorities[2]
+
+  do !i indices !priorityOrders
+  
+    !classPriority     = !priorityOrders[!i]
+    !parameter         = !parameterOrders[!i]
+    if(!className.unset()) then
+      !isDelegate      = !classPriority.eq('Calculation')
+      !isMapping       = !classPriority.eq('Mapping')
+      !isAutoMap       = !classPriority.eq('Auto-definition')
+
+      if(!isMapping) then
+        !className     = !this.configDetail.getClassName(!excelClassName, 'attribute')
+        
+      elseif(!isAutoMap) then
+        !className     = !this.getClassWithAutoMapping(!excelClassName)
+        
+      elseif(!isDelegate) then
+        !className     = !this.getProcessedValue(!excelClassName, !parameter, true)
+        handle any
+        endhandle
+      endif
+      
+      if(!className.set()) then
+        !className     = !this.validateElementType(!className)
+      endif
+    endif
+  enddo
+  
+  return !className
+  
+endmethod
+
+----------------------------------------------------------------------
+-- Method:     classMapping
+--
+-- Description: Map the class in master list
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .classMapping()
+  
+  !this.classMapping   = object ARRAY()
+  
+  do !listData values !this.masterList
+    !className         = object STRING()
+    !excelClassName    = !listData[1]
+    !className         = !this.getClassName(!excelClassName)
+    !this.classMapping.append(!className)
+    if(!className.unset()) then
+      !this.addErrorToList(!excelClassName, 'Class Mapping', 'Not able to derive class name based on configuration')
+    endif
+  enddo
+  
+endmethod
+
+----------------------------------------------------------------------
+-- Method:     getClassWithAutoMapping
+--
+-- Description: Get the possible class match
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .getClassWithAutoMapping(!excelClassName is STRING) is STRING
+  
+  !className           = object STRING()
+  !tempName            = !excelClassName.replace(' ', '')
+  if(!tempName.matchwild(':*').not()) then
+    !tempName          = ':' + !tempName
+  endif
+  
+  !elementType         = object ELEMENTTYPE(!tempName)
+  !isExists            = !elementType.name().neq('UNKNOWN')
+  if(!isExists) then
+    !className         = !elementType.name()
+  else
+    if(!tempName.occurs('_').gt(0) or !tempName.occurs('-').gt(0)) then
+      !tempName        = !tempName.replace('_', '').replace('-', '')
+      !className       = !this.getClassWithAutoMapping(!tempName)
+    endif
+  endif
+  
+  return !className
+  
+endmethod
+
+----------------------------------------------------------------------
+-- Method:     validateAttribute
+--
+-- Description: Return name if valid, otherwise unset
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .validateAttribute(!attName is STRING) is STRING
+
+  !attributeName           = object STRING()
+  !tempName                = !attName.replace(' ', '')
+  !attribute               = object ATTRIBUTE(!tempName)
+  !isExists                = !attribute.name().neq('')
+  if(!isExists) then
+    !attributeName         = !attribute.querytext().upcase()
+  endif
+  
+  return !attributeName
+  
+endmethod
+
+----------------------------------------------------------------------
+-- Method:     validateAttribute
+--
+-- Description: Return name if valid, otherwise unset
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .validateAttribute(!elementRefe is DBREF, !attName is STRING) is STRING
+
+  !attributeName           = object STRING()
+  !attribute               = object ATTRIBUTE(!name)
+  !isExists                = !attribute.name().neq('')
+  if(!isExists) then
+    !attributeName         = !attribute.name().upcase()
+  endif
+  
+  return !attributeName
+  
+endmethod
+
+----------------------------------------------------------------------
+-- Method:     attributeMapping
+--
+-- Description: Map the attribute in master list
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .attributeMapping()
+  
+  !this.attributeMapping      = object ARRAY()
+  !this.attributeParameter    = object ARRAY()
+  !this.uomMapping            = object ARRAY()
+  
+  do !listData values !this.masterList
+    !attPriorities            = !this.configDetail.getPriorityOrder('Attribute processing')
+    !priorityOrders           = !attPriorities[1]
+    !parameterOrders          = !attPriorities[2]
+    !excelClassName           = !listData[1]
+    !excelHeadings            = !listData[2]
+    !attributeList            = object ARRAY()
+    !parameterList            = object ARRAY()
+    !uomList                  = object ARRAY()
+    
+    do !excelHeading values !excelHeadings
+      !attributeName          = object STRING()
+      !parameter              = object STRING()
+      !excelAttName           = !excelHeading.before('[').trim()
+      !uomName                = !excelHeading.after('[').before(']').trim()
+      
+      do !i indices !priorityOrders
+        !attPriority          = !priorityOrders[!i]
+        !calculateParameter   = !parameterOrders[!i]
+      
+        if(!attributeName.unset()) then
+          !isDelegate         = !attPriority.eq('Calculation')
+          !isMapping          = !attPriority.eq('Mapping')
+          !isAutoMap          = !attPriority.eq('Auto-definition')
+          
+          if(!isMapping) then
+            !parameter        = !this.configDetail.getAttributeName(!excelAttName, 'parameter')
+            !attributeName    = !this.configDetail.getAttributeName(!excelAttName, 'attribute')
+            
+          elseif(!isAutoMap) then
+            !attributeName    = !this.getAttributeWithAutoMapping(!excelAttName)
+            
+          elseif(!isDelegate) then
+            !attributeName    = !this.getProcessedValue(!excelAttName, !calculateParameter, true)
+            handle any
+            endhandle
+          endif
+          
+          if(!attributeName.set()) then
+            !attributeName    = !this.validateAttribute(!attributeName)
+          endif
+        endif
+      enddo
+
+      if(!attributeName.unset()) then
+        !this.addErrorToList(!excelAttName, 'Attribute Mapping', 'Not able to derive attribute for class - ' + !excelClassName)
+      endif
+      
+      !attributeList.append(!attributeName)
+      !parameterList.append(!parameter)
+      !uomList.append(!uomName)
+    enddo
+    !this.attributeMapping.append(!attributeList)
+    !this.attributeParameter.append(!parameterList)
+    !this.uomMapping.append(!uomList)
+  enddo
+  
+endmethod
+
+----------------------------------------------------------------------
+-- Method:     getAttributeWithAutoMapping
+--
+-- Description: Get the possible attribute match
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .getAttributeWithAutoMapping(!excelAttributeName is STRING) is STRING
+  
+  !attributeName           = object STRING()
+  !tempName                = !excelAttributeName.replace(' ', '')
+  !attributeName           = !this.validateAttribute(!tempName)
+  if(!attributeName.unset()) then
+    if(!tempName.matchwild(':*').not()) then
+      !tempName            = ':' + !tempName
+      !attributeName       = !this.validateAttribute(!tempName)
+    endif
+    if(!attributeName.unset()) then
+      if(!tempName.occurs('_').gt(0) or !tempName.occurs('-').gt(0) or !tempName.occurs('(').gt(0) or !tempName.occurs(')').gt(0)) then
+        !tempName          = !tempName.replace('_', '').replace('-', '').replace('(', '').replace(')', '')
+        !attributeName     = !this.validateAttribute(!tempName)
+      endif
+    endif
+  endif
+  
+  return !attributeName
+  
+endmethod
+
+----------------------------------------------------------------------
+-- Method:     uomMapping
+--
+-- Description: Map the uom in master list
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .uomMapping()
+  
+  -- !this.uomMapping   = object ARRAY()
+  
+  -- TBD
+  -- Store similar to attribute column to match the unit while assigning
+  
+  -- do !listData values !this.masterList
+    -- !this.uomMapping.append(object STRING())
+  -- enddo
+  
+endmethod
+
+----------------------------------------------------------------------
+-- Method:     getMasterList
+--
+-- Description: Get master list
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+--    ARRAY        Master List
+------------------------------------------------------------------------
+define method .getMasterList() is ARRAY
+  return !this.masterList
+endmethod
+
+----------------------------------------------------------------------
+-- Method:     getClassMapping
+--
+-- Description: Get class mapping
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+--    ARRAY        class mapping
+------------------------------------------------------------------------
+define method .getClassMapping() is ARRAY
+  return !this.classMapping
+endmethod
+
+----------------------------------------------------------------------
+-- Method:     getAttributeMapping
+--
+-- Description: Get attribute mapping
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+--    ARRAY        attribute mapping
+------------------------------------------------------------------------
+define method .getAttributeMapping() is ARRAY
+  return !this.attributeMapping
+endmethod
+
+----------------------------------------------------------------------
+-- Method:     getAttributeParameter
+--
+-- Description: Get attribute parameter details
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+--    ARRAY        attribute mapping
+------------------------------------------------------------------------
+define method .getAttributeParameter() is ARRAY
+  return !this.attributeParameter
+endmethod
+
+----------------------------------------------------------------------
+-- Method:     getUOMMapping
+--
+-- Description: Get uom mapping
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+--    ARRAY        uom mapping
+------------------------------------------------------------------------
+define method .getUOMMapping() is ARRAY
+  return !this.uomMapping
+endmethod
+
+----------------------------------------------------------------------
+--
+-- Method:      .getUOMName
+--
+-- Description: Get uom value from excel uom
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--    1   R      STRING      Excel uom name
+-- Return:
+--   [Data Type] [Description]
+--    DBREF        AVEVA uom name
+------------------------------------------------------------------------
+define method .getUOMName(!uomExcelName is STRING) is STRING
+  
+  !defaultValue    = object STRING()
+  !value           = !this.configDetail.getUOMName(!uomExcelName)
+  !isValueSet      = !value.set() AND !value.trim().neq('')
+  if(!isValueSet) then
+    !defaultValue  = !value
+  endif
+  
+  return !defaultValue
+  
+endmethod
+
+----------------------------------------------------------------------
+--
+-- Method:      .getSettingValue
+--
+-- Description: Get value based on paramter if any
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--    1   R      STRING      Element Name
+-- Return:
+--   [Data Type] [Description]
+--    DBREF        Element
+------------------------------------------------------------------------
+define method .getSettingValue(!settingKey is STRING) is STRING
+  
+  !defaultValue    = object STRING()
+  !value           = !this.configDetail.getSettingDetail(!settingKey)
+  !isValueSet      = !value.set() AND !value.trim().neq('')
+  if(!isValueSet) then
+    !defaultValue  = !value
+  endif
+  
+  return !defaultValue
+  
+endmethod
+
+----------------------------------------------------------------------
+--
+-- Method:      .getProcessedValue
+--
+-- Description: Get value based on paramter if any
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--    1   R      STRING      Element Name
+-- Return:
+--   [Data Type] [Description]
+--    DBREF        Element
+------------------------------------------------------------------------
+define method .getProcessedValue(!value is STRING, !parameter is STRING) is STRING
+
+  return !this.getProcessedValue(!value, !parameter, false)
+  
+endmethod
+
+----------------------------------------------------------------------
+--
+-- Method:      .getProcessedValue
+--
+-- Description: Get value based on paramter if any
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--    1   R      STRING      Element Name
+-- Return:
+--   [Data Type] [Description]
+--    DBREF        Element
+------------------------------------------------------------------------
+define method .getProcessedValue(!value is STRING, !parameter is STRING, !isSpecialCharRemove is BOOLEAN) is STRING
+  
+  !result          = !value
+  if(!parameter.set() AND !parameter.trim().neq('')) then
+    !isFunction    = !parameter.occurs('#PML').gt(0)
+    !isText        = !parameter.occurs('#TEXT').gt(0)
+    !isPrefix      = !parameter.occurs('#PREFIX').gt(0)
+    !isSuffix      = !parameter.occurs('#SUFFIX').gt(0)
+    if(!isFunction) then
+      !function    = !parameter.after('#PML(').substring(-2)
+      !result      = $!function
+      
+    elseif(!isText) then
+      !result      = !parameter.after('#TEXT(').substring(-2)
+      
+    elseif(!isPrefix) then
+      !result      = !parameter.after('#PREFIX(').substring(-2) + !result
+      if(!isSpecialCharRemove) then
+        !result    = !result.replace(' ', '').replace('_', '').replace('-', '')
+      endif
+      
+    elseif(!isSuffix) then
+      !result      = !result + !parameter.after('#SUFFIX(').substring(-2)
+      if(!isSpecialCharRemove) then
+        !result    = !result.replace(' ', '').replace('_', '').replace('-', '')
+      endif
+    endif
+  endif
+  
+  return !result
+  
+endmethod
+
+----------------------------------------------------------------------
+--
+-- Method:      .processClassStorageAttribute
+--
+-- Description: get the attribute which stores the class information, if set in config file
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--    1   R      STRING      Element Name
+-- Return:
+--   [Data Type] [Description]
+--    DBREF        Element
+------------------------------------------------------------------------
+define method .processClassStorageAttribute() is ARRAY
+  
+  !attributeData           = object ARRAY()
+  
+  !classAttributeData      = !this.getSettingValue('ClassStorageAttribute')
+  if(!classAttributeData.set()) then
+    !attName               = !classAttributeData.before('[').trim()
+    !attParam              = !classAttributeData.after('[').before(']').trim()
+    !attributeName         = !this.validateAttribute(!attName)
+    if(!attributeName.set()) then
+      !attributeData.append(!attName)
+      !attributeData.append(!attParam)
+    endif
+  endif
+  
+  return !attributeData
+  
+endmethod
+
+------------------------------------------------------------------------
+--
+-- Method:     addErrorToList
+-- Description: Method to add errors to common logger
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--     1    R          DBREF          Element
+--     2    R          STRING       Attribute Name
+--     3    R          STRING       Error Details
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .addErrorToList(!element is STRING, !detail is STRING, !error is STRING)
+
+  if(undefined(!!ramCommonLogger)) then
+    !!ramCommonLogger = object RAMCOMMONLOGGER()
+  endif
+
+  !errorList          = object ARRAY()
+  !errorList.append(!element)
+  !errorList.append(!detail)
+  !errorList.append(!error)
+  !!ramCommonLogger.addLogDetails(!this.objecttype(), !errorList)
+  
+endmethod
+

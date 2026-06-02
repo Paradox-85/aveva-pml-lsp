@@ -1,0 +1,72 @@
+------------------------------------------------------------------------
+--
+-- File:        JACUPDATECLASSDETAILS
+-- Description: Function to reclassify tag based on excel data
+--
+------------------------------------------------------------------------
+define function !!jacUpdateClassDetails(!excelFullPath is STRING, !sheetName is STRING, !defaultValue is STRING, !filter is STRING, !rdlFilter is STRING, !isForceUpdate is BOOLEAN)
+
+  if(undefined(!!ramCommonLogger)) then
+    !!ramCommonLogger      = object RAMCOMMONLOGGER()
+  endif
+  !!ramCommonLogger.addLogDetails('jacUpdateClassDetails', '--------------------Execution start--------------------', 0)
+
+  !excelReader             = object RAMEXCELREADERCLASS()
+  !!displayProgress(1, 100)
+  
+  !excelReader.loadExcelData(!excelFullPath, !sheetName)
+
+  !shellClassCollection    = object COLLECTION()
+  !shellClassCollection.Type(':ShellClassMapping')
+  if(!rdlFilter.set() AND !rdlFilter.trim().neq('')) then
+    !expression            = object EXPRESSION(!rdlFilter)
+    !shellClassCollection.filter(!expression)
+  endif
+  !shellClassRefes         = !shellClassCollection.results()
+  !shellClassTypes         = !shellClassRefes.evaluate(object BLOCK(|!shellClassRefes[!evalIndex].attribute(':RDLDabaconExpression').upcase()|))
+
+  !collection              = object COLLECTION()
+  !collection.type('ENGITE')
+  if(!filter.set() AND !filter.trim().neq('')) then
+    !expression            = object EXPRESSION(!filter)
+    !collection.filter(!expression)
+  endif
+  !tags                    = !collection.results()
+  do !i indices !tags
+    !!displayProgress(!i, !tags.size())
+    !elementRefe           = !tags[!i]
+    !acttype               = !elementRefe.acttype
+    !detail                = !excelReader.getSheetRow(!sheetName, 'ACTTYPE', !acttype)
+    if(!detail.unset() AND !defaultValue.set() AND !defaultValue.trim().neq('')) then
+      !detail.append(!acttype)
+      !detail.append(!defaultValue)
+      !detail.append(!defaultValue)
+    endif
+
+    -- Shell class reference link
+    !shellClassIndex       = !shellClassTypes.FindFirst(!acttype.upcase())
+    if(!shellClassIndex.set()) then
+      !shellClassRefe      = !shellClassRefes[!shellClassIndex]
+      !!jacCheckForceUpdate('jacUpdateClassDetails', !elementRefe, ':TagRefToClass', !shellClassRefe, !isForceUpdate)
+    else
+      !msg                 = '$!<elementRefe.name>;:TagRefToClass;Shell Class not available for ACTTYPE $!acttype'
+      !!ramCommonLogger.addLogSplitDetails('jacUpdateClassDetails', !msg, ';')
+    endif
+
+    -- RDL Master excel sheet details update
+    if(!detail.set()) then
+      !className           = !detail[2]
+      skip if(!className eq |Skip|)
+      !classType           = !detail[3]
+      !!jacCheckForceUpdate('jacUpdateClassDetails', !elementRefe, ':TagClassName', !className, !isForceUpdate)
+      !!jacCheckForceUpdate('jacUpdateClassDetails', !elementRefe, ':TagOrEquipmentClassName', !classType, !isForceUpdate)
+
+    else
+      !msg                 = '$!<elementRefe.name>;NA;Mapped class has not defined for ACTTYPE $!acttype'
+      !!ramCommonLogger.addLogSplitDetails('jacUpdateClassDetails', !msg, ';')
+    endif
+
+  enddo
+  !!displayProgress(100, 100)
+
+endfunction

@@ -1,0 +1,266 @@
+------------------------------------------------------------------------
+--
+-- File:        	createObjectsFromExcelSheet.pmlfnc
+-- Description: 	fUNCTION to create objects in AVEVA Dabacon by dataTable from Excel
+-- Author:      	Andrei Aitzhanov
+-- Created:     	22-02-2024
+--
+------------------------------------------------------------------------
+--import dlls & objects
+import |Aveva.Engineering.PMLElementManager|
+handle any
+endhandle
+
+import 'RamPMLExcelReader'
+handle any
+endhandle
+
+import 'GridControl'
+handle ANY
+endhandle
+
+PML RELOAD OBJECT TAGMANAGEMENTTMP
+!tagMgmt = object TAGMANAGEMENTTMP()
+
+define function !!createObjectsFromExcelSheet(!excelFullPath is STRING, !sheetName is STRING, !isTranspose is BOOLEAN, !columns is ARRAY, !isCreate is BOOLEAN, !forceUpdate is BOOLEAN, !arrayAppend is BOOLEAN, !isEXfile is BOOLEAN, !exAttributesData is ARRAY) is ARRAY
+
+	!issueData = ARRAY()
+	!elementForDeleting = ARRAY()
+	!msg = |Tag No;Attribute;File Value;AVEVA Value;Issue Description|
+	!headerList = ARRAY()
+	!headerList.appendArray(!msg.split(|;|))
+	!exAttributes = !exAttributesData[1]
+	!exExpressions = !exAttributesData[2]
+	!newLineSymb = |
+|
+	
+	!exelFile = object FILE(!excelFullPath)
+	if (!exelFile.exists().not()) then
+		$P File $!excelFullPath is not existing!
+		!msg = |NA;NA;NA;NA;File [$!excelFullPath] is not existing!|
+		!issueData.append(!msg.split(|;|))
+		return !issueData
+	endif
+	
+	--get data from excel
+	using namespace 'RamPMLExcelReader'
+	!excelReader           = object RamPMLExcelReaderClass()
+	!excelRowObjects       = !excelReader.ReadExcel(!excelFullPath, !sheetName)
+	handle any
+			!!alert.warning('Problem in reading the Excel file')
+			!!fmsys.SETPROGRESS(0)
+			!msg = |NA;NA;NA;NA;Problem in reading the Excel file [$!excelFullPath]|
+			!issueData.append(!msg.split(|;|))
+			return !issueData
+	endhandle
+	
+	!heading 	= !excelRowObjects[1]
+	handle (2,752)
+		$P Sheet $!sheetName is not existing in file
+		!msg = |NA;NA;NA;NA;Sheet [$!sheetName] is not existing in file [$!excelFullPath]|
+		!issueData.append(!msg.split(|;|))
+		return !issueData
+	endhandle
+	!data 		= !excelRowObjects
+	!nameColumn = |NAME|
+	!typeColumn = |ACTTYPE|
+	!actionColumn = |ACTION|
+	!typeId = !heading.findfirst(!typeColumn)
+	!nameId = !heading.findfirst(!nameColumn)
+	!actionId = !heading.findfirst(!actionColumn)
+	if (!nameId.set()) then
+		!size = !data.size()
+		!typeOfFile = IFT(!isTranspose, |Transponse Format|, |Matrix Format|)
+		$P COUNT OF ITEMS: $!size _ TYPE OF FILE: $!typeOfFile
+		
+		do !idx from 2 to !size
+			!row = !data[!idx]
+			
+			--progress
+			!rowIdx = !data.findFirst(!row)
+			!!displayProgress(!idx, !data.size())
+			
+			--skip if there is ACTION and no value there
+			!actionValue = ||
+			if (!actionId.set()) then
+				if (!row[!actionId].upcase() eq |SKIP|) then
+					skip
+				elseif ((!row[!actionId].upcase() eq |UPDATE|) or (!row[!actionId].unset() or !row[!actionId].empty())) then
+					!actionValue = |UPDATE|
+				elseif (!row[!actionId].upcase() eq |DELETE|) then
+					!actionValue = |DELETE|
+				elseif (!row[!actionId].upcase() eq |NEW|) then
+					!actionValue = |NEW|
+				endif
+			endif
+			
+			!Tag = !row[!nameId].replace(|-|, |-|).replace(|‐|, |-|).trim()
+			!tagName = |/$!<Tag>|
+			!tagref = !tagName.dbref()
+			handle any
+				if (!isCreate and !typeId.set() and (!actionValue eq || or !actionValue eq |NEW|)) then
+					!Type = !row[!typeId]
+					using namespace |Aveva.Engineering.PMLElementManager|
+					!createNet = object CREATEELEMENT()
+					!etype = object ELEMENTTYPE(!Type)
+					if (!etype.name() neq |UNKNOWN|) then
+						!createNet.SetElementTypeByName(!Type)
+						handle any
+							$P Class [$!Type] for tag [$!<Tag>] is not exists in Lexicon
+							!msg = |$!tag;NA;NA;Class [:$!Type] is not valid in AVEVA. Tag will not be created|
+							!issueData.append(!msg.split(|;|))
+						elsehandle none
+							if (!tagName.length() le 50) then
+								!createNet.AddAttributeValue(|NAME|, !tagName)
+								!createNet.Execute()
+								handle any
+									$P Class [$!Type] for tag [$!<Tag>] is too common and can not be used
+									!msg = |$!tag;NA;NA;Class [$!Type] is common level class and associated tag can't be created|
+									!issueData.append(!msg.split(|;|))
+								endhandle
+								!errors = !createNet.GetErrors()
+								do !errorInfo values !errors
+									!errorText = !errorInfo.getError()
+									!errorAttribute = !errorInfo.GetAttribute()
+									!msg = |$!tag;$!errorAttribute;NA;NA;Tag can't be created du to: $!<errorText>|
+									!issueData.append(!msg.split(|;|))
+								enddo
+							else
+								!msg = |$!tag;NAME;NA;NA;Name of element is more than 50 letters|
+								!issueData.append(!msg.split(|;|))
+							endif
+						endhandle
+					endif
+				endif
+			elsehandle any
+				if (!row[!actionId].upcase() eq |SKIP_IF_EXISTS|) then
+					skip
+				endif
+			endhandle
+			
+			!tagref = !tagName.dbref()
+			handle none
+				!dbValue = |unset|
+				!isEXtag = !tagRef.attributes().findFirst(|:PcsEXCLASS|).set() and not(!tagref.:pcsexclass.lowcase().trim() inset (|na|, |n/a|, |non-ex|, |n.a|, |n.a.|))
+				if (!isTranspose and !columns.size() eq 2) then
+					!attributeCol = !columns[1]
+					!valueCol = !columns[2]
+					!attributeIdx = !heading.findfirst(!attributeCol)
+					!valueIdx = !heading.findfirst(!valueCol)
+					if (!attributeIdx.set() and !valueIdx.set()) then
+						!attributeName = !row[!attributeIdx]
+						!fileValue = !row[!valueIdx].replace(!newLineSymb, | |).replace(|  |, | |).replace(|   |, | |).trim()
+						if (!attributeName.upcase() neq |NAME| and !attributeName.upcase() neq |ACTTYPE| and !actionValue inset(||, |NEW|, |UPDATE|)) then
+							!exAttIndex = !exAttributes.findFirst(!attributeName.lowcase())
+							if (!isEXfile.not() and !exAttIndex.set() and !isEXtag) then
+								!exExpression = !exExpressions[!exAttIndex].replace(|<TAG_NAME>|, |$!tagref|)
+								var !dbValues $!exExpression
+								handle any
+									!msg = |$!<Tag>;$!attributeName;$!fileValue;$!exExpression;WARNING: the TAG [EX class=$!<tagref.:pcsexclass>] is part of the EX master register. The EXPRESSION [$!exExpression] is not valid for the TAG.|
+									!issueData.append(!msg.split(|;|))
+								elsehandle none
+									!dbValue = !dbValues[1]
+									!fileValueClean = !tagMgmt.GetCleanString(!fileValue)
+									!dbValueClean = !tagMgmt.GetCleanString(!dbValue)
+									if (!fileValueClean neq !dbValueClean and (!dbValueClean.set() and !dbValueClean.empty().not() and not(!dbValueClean.lowcase() inset (|unset|, |na|, |n/a|))) and !attributeName.lowcase() neq |:pcsexclass|) then
+										--if (not(!dbValue.lowcase() inset(|unset|, |=0/0|, ||))) then
+										!msg = |$!Tag;$!attributeName;$!fileValue;$!dbValue;WARNING: the TAG [EX class=$!<tagref.:pcsexclass>] is part of the EX master register. AVEVA value [$!dbValue] <> FILE value [$!fileValue]|
+										!issueData.append(!msg.split(|;|))
+									elseif (!fileValueClean neq !dbValueClean and ((!dbValueClean.lowcase() inset (|unset|, |na|, |n/a|, |-|, |tba|)) or !dbValueClean.unset() or !dbValueClean.empty()) and !attributeName.lowcase() neq |:pcsexclass|) then
+										!msg = |$!Tag;$!attributeName;$!fileValue;$!dbValue;INFO: the TAG [EX class=$!<tagref.:pcsexclass>] is part of the EX master register. VALUE will be updated from value [$!dbValue] to [$!fileValue]|
+										!issueData.append(!msg.split(|;|))
+										GOLABEL /IMPORTDATA
+									endif
+								endhandle
+								skip
+							endif
+							LABEL /IMPORTDATA
+							!issues = !tagMgmt.TryToSetValue(!tagref, !fileValue, !attributeName, !forceUpdate, !arrayAppend, !actionValue, !isEXfile)
+							if (!issues.set()) then
+								!issueData.appendArray(!issues)
+							endif
+						endif
+					endif
+				else
+					do !col values !heading
+						!attributeName = !col.trim()
+						if (not(!attributeName.upcase() inset (|NAME|, |ACTTYPE|, |ACTION|)) and !actionValue inset(||, |NEW|, |UPDATE|, |DELETE|)) then
+							!attributeIdx = !heading.findfirst(!attributeName)
+							!fileValue = !row[!attributeIdx].replace(!newLineSymb, | |).replace(|  |, | |).replace(|   |, | |).trim()
+							!exAttIndex = !exAttributes.findFirst(!attributeName.lowcase())
+							if (!isEXfile.not() and !exAttributes.findFirst(!attributeName.lowcase()).set() and !isEXtag) then
+								!exExpression = !exExpressions[!exAttIndex].replace(|<TAG_NAME>|, |$!tagref|)
+								var !dbValues $!exExpression
+								handle any
+									!msg = |$!<Tag>;$!attributeName;$!fileValue;$!exExpression;WARNING: The attribute [$!attributeName] is part of the EX master register but not valid for the element [$!<tagName>] and cannot be imported (controlled by Aker Solutions)|
+									!issueData.append(!msg.split(|;|))
+								elsehandle none
+									!dbValue = !dbValues[1]
+									!fileValueClean = !tagMgmt.GetCleanString(!fileValue)
+									!dbValueClean = !tagMgmt.GetCleanString(!dbValue)
+									if (!fileValueClean neq !dbValueClean and (!dbValueClean.set() and !dbValueClean.empty().not() and not(!dbValueClean.lowcase() inset (|unset|, |na|, |n/a|))) and !attributeName.lowcase() neq |:pcsexclass|) then
+										--if (not(!dbValue.lowcase() inset(|unset|, |=0/0|, ||))) then
+										!msg = |$!Tag;$!attributeName;$!fileValue;$!dbValue;WARNING: the TAG [EX class=$!<tagref.:pcsexclass>] is part of the EX master register. AVEVA value [$!dbValue] <> FILE value [$!fileValue]|
+										!issueData.append(!msg.split(|;|))
+									elseif (!fileValueClean neq !dbValueClean and ((!dbValueClean.lowcase() inset (|unset|, |na|, |n/a|, |-|, |tba|)) or !dbValueClean.unset() or !dbValueClean.empty()) and !attributeName.lowcase() neq |:pcsexclass|) then
+										!msg = |$!Tag;$!attributeName;$!fileValue;$!dbValue;INFO: the TAG [EX class=$!<tagref.:pcsexclass>] is part of the EX master register. VALUE will be updated from value [$!dbValue] to [$!fileValue]|
+										!issueData.append(!msg.split(|;|))
+										GOLABEL /IMPORTDATA-2
+									endif
+								endhandle
+								skip
+							endif
+							
+							LABEL /IMPORTDATA-2
+							!issues = !tagMgmt.TryToSetValue(!tagref, !fileValue, !attributeName, !forceUpdate, !arrayAppend, !actionValue, !isEXfile)
+							if (!issues.set()) then
+								!issueData.appendArray(!issues)
+							endif
+						endif
+						--change type
+						if (!attributeName.upcase() eq |ACTTYPE|) then
+							!colIdx = !heading.findfirst(!attributeName)
+							!fileValue = !row[!colIdx]
+							skip if (!fileValue.unset() or !fileValue.empty())
+							
+							!currentType = !tagref.attribute(!attributeName)
+							!acttype = object elementtype(!fileValue)
+							if (!currentType neq !fileValue and !acttype.name() neq |UNKNOWN|) then
+								$!tagref CHANGETYPE TO $!fileValue
+								handle any
+									!msg = |$!tag;ACTTYPE;$!fileValue;$!currentType;Change type error, type of element can't be changed: $!!<error.Text>|
+									!issueData.append(!msg.split(|;|))
+								endhandle
+							endif
+						endif
+						--remove by ACTION
+						$(if (!actionValue eq |DELETE|) then
+							--$!tagref DELETE $!tagref.acttype
+							--!elementForDeleting.append(!tagref.ref.string())
+							break
+						endif$)
+					enddo
+				endif
+			elsehandle any
+				!msg = |$!tag;NA;NA;NA;Tag [$!tag] is not existing in AVEVA|
+				!issueData.append(!msg.split(|;|))
+			endhandle
+		enddo
+	endif
+	
+	--delete ITEMS
+	$( using namespace |Aveva.Engineering.PMLElementManager|
+	!deleteNet = object DELETEELEMENTS()
+	!deleteNet.AddElements(!elementForDeleting)
+	!deleteNet.Execute()
+	!errors = !deleteNet.GetErrors()
+	do !errorInfo values !errors
+		!errorText = !errorInfo.getError()
+		!errorAttribute = !errorInfo.GetAttribute()
+		!msg = |$!tag;$!errorAttribute;$!tagName;$!errorText|
+		!issueData.append(!msg.split(|;|))
+	enddo $)
+	
+	return !issueData
+	
+endfunction

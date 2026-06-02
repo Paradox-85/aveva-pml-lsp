@@ -1,0 +1,6 @@
+define function !!mlpGetDescLabel(!element is STRING) is STRING
+
+	var !elementDesc DESC of $!element
+	return !elementDesc
+	
+endfunction

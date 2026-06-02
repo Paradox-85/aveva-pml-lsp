@@ -1,0 +1,1030 @@
+------------------------------------------------------------------------
+--
+-- File:        RAMIMPORTEXCELRECLASSIFICATIONFORM
+-- Description: Form to display the mapping details
+-- Author:      Karthik N
+-- Created:     09-01-2024
+--
+------------------------------------------------------------------------
+import 'GridControl'
+handle any
+endhandle
+
+import |RamAETagValidator|
+handle any
+endhandle
+
+using namespace |RamAETagValidator|
+
+using namespace 'Aveva.Core.Presentation'
+
+setup form !!ramimportExcelReclassificationForm resize
+  
+  option .opClassList         |Select Class|                 tagwidth 10    anchor T+L   at xmin             ymin     width 30
+  toggle .toSelectTags        |Select/Unselect Valid Tags|   tagwidth 17    anchor r+t   at xmax + 45        ymin
+  toggle .toSelectAll         |All Tags(Force Reclassify)|   tagwidth 17    anchor r+t   at xmax + 0.5       ymin
+  
+  frame .frTagList                                                          anchor all   at xmin.opClassList ymax+0.5 width 130 height 15
+    container .coTagList NOBOX PMLNETControl 'Data List' dock fill
+  exit
+  
+   button .buRefresh          |Refresh|                                     anchor l+b   at xmin             ymax     WIDTH 10
+   toggle .toPreserveExName   |Preserve Excel Name|          tagwidth 15    anchor r+b   at xmax + 15        ymin
+   button .buUpdate           |Update Attributes|                           anchor r+b   at xmax + 0.5       ymin     WIDTH 15
+   button .buRename           |Assign Temporary Rename|                                 anchor r+b   at xmax + 0.5       ymin     WIDTH 18
+   button .buReclassify       |Reclassify|                                  anchor r+b   at xmax form-size   ymin     WIDTH 10
+  
+  member .gridTagList                is NETGRIDCONTROL
+  member .reclassificationList       is ARRAY
+  member .elementLoader              is RAMIMPORTEXCELELEMENTLOADER
+  member .nameProcesser              is NAMERULEPROCESSER
+  member .namingRuleDetails          is ARRAY
+  member .selectedClassInfo          is ARRAY
+  member .tagForNameAttributeUpdate  is ARRAY
+  
+exit
+
+----------------------------------------------------------------------
+-- Method:      .ramimportExcelReclassificationForm
+--
+-- Description: Constructor
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .ramimportExcelReclassificationForm()
+  
+  using namespace |RamAETagValidator|
+  
+  !this.toSelectTags.callback      = |!this.selectTags('VALID')|
+  !this.toSelectAll.callback       = |!this.selectTags('ALL')|
+  !this.opClassList.callback       = |!this.loadSelectedClass()|
+  !this.buReclassify.callback      = |!this.reclassifytags()|
+  !this.buUpdate.callback          = |!this.updateAttributes()|
+  !this.buRename.callback          = |!this.assignTempName()|
+  !this.buRefresh.callback         = |!this.refreshForm()|
+  !this.initCall                   = |!this.init()|
+  !this.opClassList.dText          = object ARRAY()
+  !this.namingRuleDetails          = object ARRAY()
+  !this.selectedClassInfo          = object ARRAY()
+  !this.tagForNameAttributeUpdate  = object ARRAY()
+  !this.nameProcesser              = object NAMERULEPROCESSER()
+  
+  using namespace 'Aveva.Core.Presentation'
+  
+  !this.gridTagList                = object NETGRIDCONTROL()
+  !this.coTagList.control          = !this.gridTagList.handle()
+  !this.gridTagList.columnExcelFilter(true)
+  !this.gridTagList.outlookGroupStyle(false)
+  !this.gridTagList.fixedRows(true)
+  !this.gridTagList.columnSummaries(false)
+  !this.gridTagList.singleRowSelection(false)
+  !this.gridTagList.editableGrid(true)
+  !this.gridTagList.headerSort(false)
+  -- !this.gridTagList.BULKEDITABLEGRID(false)
+  
+  !this.gridTagList.addEventHandler('AfterCellUpdate', !this, 'updateFormDetails')
+  !this.gridTagList.addEventHandler('onPopup', !this, 'popupRightClick')
+  
+  !menu                            = !this.newMenu('menu')
+  !menu.add( 'CALLBACK', 'Update Excel Data in Grid(For All)', '!this.updateExcelNamingDataInGrid()' )
+  !menu.add( 'CALLBACK', 'Update Excel Data in Database(Only for selected)','!this.updateExcelNamingDataInDatabase()' )
+  !this.coTagList.popup            = !menu
+  
+  !this.toSelectAll.active         = false
+  
+endmethod
+
+----------------------------------------------------------------------
+-- Method:      .init
+--
+-- Description: Constructor
+--
+-- Method Type: Function/Procedure
+------------------------------------------------------------------------
+define method .init()
+  !this.clearData()
+endmethod
+
+----------------------------------------------------------------------
+--
+-- Method:      .clearData
+--
+-- Description: Method to clear details
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .clearData()
+  !this.gridTagList.clearGrid()
+  !this.opClassList.dText               = object ARRAY()
+  !this.reclassificationList            = object ARRAY()
+  !this.namingRuleDetails               = object ARRAY()
+  !this.selectedClassInfo               = object ARRAY()
+  !this.tagForNameAttributeUpdate       = object ARRAY()
+  !this.elementLoader                   = object RAMIMPORTEXCELELEMENTLOADER()
+  !this.toSelectTags.val                = true
+  !this.toSelectAll.val                 = false
+endmethod
+
+----------------------------------------------------------------------
+--
+-- Method:      .getClassImportDetail
+--
+-- Description: Method to fetch import details to verify
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type]                                                 [Description]
+--    1   R             RAMIMPORTEXCELELEMENTLOADER      Element loader object
+-- Return:
+--   [Data Type] [Description]
+----------------------------------------------------------------------
+define method .loadData(!elementLoader is RAMIMPORTEXCELELEMENTLOADER)
+
+  !this.elementLoader              = !elementLoader
+  !this.reclassificationList       = !elementLoader.getReclassificationList()
+  !this.getClassNamingDetails()
+  !masterList                      = !this.reclassificationList
+  !dtext                           = !masterList.evaluate(object BLOCK(|!masterList[!evalIndex][2]|))
+  !dtext.unique()
+  !this.opClassList.dText          = !dtext
+  !this.loadSelectedClass()
+  
+endmethod
+
+----------------------------------------------------------------------
+--
+-- Method:      .loadSelectedClass
+--
+-- Description: Method to fetch import details to verify
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .loadSelectedClass()
+  
+  !headings                             = object ARRAY()
+  !rows                                 = object ARRAY()
+  !errorCells                           = object ARRAY()
+  !this.tagForNameAttributeUpdate       = object ARRAY()
+  !this.selectedClassInfo               = object ARRAY()
+  
+  !isIncludeExcelData                   = true
+  !selection                            = !this.opClassList.selection('dtext')
+  !masterList                           = !this.reclassificationList
+  !classList                            = !masterList.evaluate(object BLOCK(|!masterList[!evalIndex][2]|))
+  !selectedIndices                      = !classList.find(!selection)
+  if(!selectedIndices.set()) then
+    !selectedList                       = !masterList.reIndex(!selectedIndices)
+  endif
+  
+  !finalRefes                           = object ARRAY()
+  !finalList                            = object ARRAY()
+  
+  -- Handling duplicates (If same tag available in two sheets)
+  do !ind indices !selectedList
+    !firstIndex                         = !finalRefes.findFirst(!selectedList[!ind][1])
+    if(!firstIndex.set()) then
+      !currentData                      = !selectedList[!ind]
+      !finalData                        = !finalList[!firstIndex]
+      !finalData[3].appendArray(!currentData[3])
+      !finalData[4].appendArray(!currentData[4])
+      !finalData[5].appendArray(!currentData[5])
+      !finalData[6].appendArray(!currentData[6])
+      !finalData[7].appendArray(!currentData[7])
+      !finalList[!firstIndex]           = !finalData
+    else
+      !finalRefes.append(!selectedList[!ind][1])
+      !finalList.append(!selectedList[!ind])
+    endif
+  enddo
+  
+  !selectedList                         = !finalList
+  !propertyDetails                      = !this.getClassNamingDetails(!selection, 'PROPERTY')
+  !attributeDetails                     = !this.getClassNamingDetails(!selection, 'ATTRIBUTE')
+  !this.selectedClassInfo               = !selectedList
+  
+  -------------------------------------------------------------------
+  -- Headings
+  -------------------------------------------------------------------
+  !headings.append('RefNo')
+  !headings.append('Select')
+  !headings.append('Excel Name')
+  !headings.append('Database Name')
+  !headings.append('Old Class')
+  !headings.append('New Class')
+  
+  -- Fetch the heading details
+  do !attributeDetail values !attributeDetails
+    !headingString                      = ''
+    !lastIndex                          = !attributeDetail.size()
+    !indexCount                         = 0
+    do !attributeName values !attributeDetail
+      !headingString                    = !headingString + !attributeName
+      !indexCount                       = !indexCount + 1
+      if(!lastIndex.neq(!indexCount)) then
+        !headingString                  = !headingString + ' / '
+      endif
+    enddo
+    !headings.append(!headingString)
+  enddo
+
+  -------------------------------------------------------------------
+  -- Grid Rows
+  -------------------------------------------------------------------
+  do !selectIndex indices !selectedList
+    !rowData                            = object ARRAY()
+    !rowData.append(!selectedList[!selectIndex][1].string())
+    !rowData.append(true)
+    !rowData.append(!selectedList[!selectIndex].last())
+    !rowData.append(!selectedList[!selectIndex][1].flnm)
+    !rowData.append(!selectedList[!selectIndex][1].acttype)
+    !rowData.append(!selectedList[!selectIndex][2])
+    
+    !attributeListForUpdate             = !selectedList[!selectIndex][4]
+    
+    do !attIndex indices !attributeDetails
+      !result                           = !this.getAttributeValueByPath(!selectedList[!selectIndex][1], !attributeDetails[!attIndex])
+      if(!result[1].eq(true)) then
+        !errorCells.append(!selectedList[!selectIndex] & ';' & !attIndex)
+        !rowData.append('')
+      else
+        !rowData.append(!result[2])
+      endif
+    enddo
+    !rows.append(!rowData)
+  enddo
+  
+  !this.loadGridData(!headings, !rows, !errorCells)
+  !this.selectTags('VALID')
+    
+endmethod
+
+----------------------------------------------------------------------
+-- Method:      updateExcelNamingDataInDatabase
+--
+-- Description: method to update the database with excel naming attribute values
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .updateExcelNamingDataInDatabase() is ARRAY
+  
+  !updateData                    = !this.tagForNameAttributeUpdate
+  !excelNames                    = !this.gridTagList.getColumn(3)
+  !databaseName                  = !this.gridTagList.getColumn(4)
+  !allowedList                   = !this.gridTagList.getColumn(2)
+  !elementNames                  = !updateData.evaluate(object BLOCK(|!updateData[!evalIndex][1].name|))
+  !isUpdateList                  = !updateData.evaluate(object BLOCK(|!updateData[!evalIndex][8]|))
+  !isTagNamePreserved            = !this.toPreserveExName.val
+  
+  do !i indices !excelNames
+    if(!allowedList[!i].eqNocase('TRUE')) then
+      !index          = !elementNames.findFirst(!excelNames[!i])
+      if(!index.set() AND !isUpdateList[!index]) then
+        !elementRefe             = !updateData[!index][1]
+        !paramterDetails         = !updateData[!index][2]
+        !attributeDetails        = !updateData[!index][3]
+        !excelAttributeDetails   = !updateData[!index][4]
+        !attributeValueRow       = !updateData[!index][5]
+        !uomDetails              = !updateData[!index][6]
+        !classStorageAttribute   = !updateData[!index][7]
+        !this.elementLoader.modifyElement(!elementRefe, !paramterDetails, !attributeDetails, !excelAttributeDetails, !attributeValueRow, !uomDetails, !classStorageAttribute, true, true)
+      endif
+    endif
+  enddo
+
+endmethod
+
+----------------------------------------------------------------------
+-- Method:      updateExcelNamingDataInGrid
+--
+-- Description: method to update the grid with excel naming attribute values
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .updateExcelNamingDataInGrid() is ARRAY
+  
+  !this.tagForNameAttributeUpdate     = object ARRAY()
+  !rootNameAttribute                  = !this.getRootAttributes()
+  !rootNameAttribute                  = !rootNameAttribute.evaluate(object BLOCK(|!rootNameAttribute[!evalIndex].upcase()|))
+  !selection                          = !this.opClassList.selection('dtext')
+  !ruleAttDetails                     = !this.getClassNamingDetails(!selection, 'ATTRIBUTE')
+  !taginfo                            = !this.selectedClassInfo
+  !elementList                        = !this.gridTagList.getColumn(1)
+  
+  if(!taginfo.set()) then
+    !elementRefe                      = !taginfo[1][1]
+    !rootAttributeValidation          = !this.validateRootAttribute(!rootNameAttribute, !elementRefe)
+  endif
+  
+  do !tagIndex indices !taginfo
+    
+    -- Excel attribute list to update in database
+    !elementRefe                      = !taginfo[!tagIndex][1]
+    !className                        = !taginfo[!tagIndex][2]
+    !paramterDetails                  = !taginfo[!tagIndex][3]
+    !attributeDetails                 = !taginfo[!tagIndex][4]
+    !excelAttributeDetails            = !taginfo[!tagIndex][5]
+    !attributeValueRow                = !taginfo[!tagIndex][6]
+    !uomDetails                       = !taginfo[!tagIndex][7]
+    !classStorageAttribute            = !taginfo[!tagIndex][8]
+    !rowIndex                         = !elementList.findFirst(!elementRefe.string())
+    
+    if(!rowIndex.set()) then
+      !nameParamterDetails            = object ARRAY()
+      !nameAttributeDetails           = object ARRAY()
+      !nameExcelAttributeDetails      = object ARRAY()
+      !nameAttributeValueRow          = object ARRAY()
+      !nameUomDetails                 = object ARRAY()
+      !isUpdate                       = false
+      
+      do !attIndex indices !attributeDetails
+        !rootIndex                    = !rootNameAttribute.findFirst(!attributeDetails[!attIndex])
+        
+        if(!rootIndex.set() AND !rootNameAttribute[!rootIndex].neq('')) then
+        
+          if(!rootAttributeValidation[!rootIndex]) then
+            !attributeValue           = !this.elementLoader.getProcessedValue(!attributeValueRow[!attIndex].trim(), !paramterDetails[!attIndex])
+            !attributeData            = !this.elementLoader.getValidStringData(!elementRefe, !attributeDetails[!attIndex], !attributeValue, !uomDetails[!attIndex])
+            !dbAttribute              = object ATTRIBUTE(!attributeDetails[!attIndex])
+            !isReference              = !dbAttribute.type().eq('REFERENCE')
+            !finalData                = !attributeData
+            !isUpdate                 = true
+            !this.gridTagList.SETCELLCOLOR(!rowIndex, !rootIndex + 6, 'YELLOW')
+            
+            if(!isReference AND !attributeData.set() AND !attributeData.neq('')) then
+              !attributePath          = !ruleAttDetails[!rootIndex]
+              !attributePath.remove(1)
+              !assoRefe               = !attributeData.dbref()
+              handle any
+                !assoRefe             = object DBREF()
+              endhandle
+              !result                 = !this.getAttributeValueByPath(!assoRefe, !attributePath)
+              
+              if(!result[1].eq(true)) then
+                !finalData            = ''
+              else
+                !finalData            = !result[2]
+              endif
+            endif
+            !nameParamterDetails.append(!paramterDetails[!attIndex])
+            !nameAttributeDetails.append(!attributeDetails[!attIndex])
+            !nameExcelAttributeDetails.append(!excelAttributeDetails[!attIndex])
+            !nameAttributeValueRow.append(!attributeValueRow[!attIndex])
+            !nameUomDetails.append(!uomDetails[!attIndex])
+            !this.gridTagList.SETCELLVALUE(!rowIndex, !rootIndex + 6, !finalData)
+          endif
+        endif
+      enddo
+      !nameAttributeUpdate            = object ARRAY()
+      !nameAttributeUpdate.append(!elementRefe)
+      !nameAttributeUpdate.append(!nameParamterDetails)
+      !nameAttributeUpdate.append(!nameAttributeDetails)
+      !nameAttributeUpdate.append(!nameExcelAttributeDetails)
+      !nameAttributeUpdate.append(!nameAttributeValueRow)
+      !nameAttributeUpdate.append(!nameUomDetails)
+      !nameAttributeUpdate.append(!classStorageAttribute)
+      !nameAttributeUpdate.append(!isUpdate)
+      !this.tagForNameAttributeUpdate.append(!nameAttributeUpdate)
+    endif
+  enddo
+  
+endmethod
+
+----------------------------------------------------------------------
+-- Method:      getRootAttributes
+--
+-- Description: Get root attribute details for the selected class
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .getRootAttributes() is ARRAY
+  
+  !selection            = !this.opClassList.selection('dtext')
+  !attributeDetails     = !this.getClassNamingDetails(!selection, 'ATTRIBUTE')
+  !rootNameAttribute    = object ARRAY()
+  !rootName             = object STRING()
+  
+  do !attributeDetail values !attributeDetails
+    !rootName           = ''
+    
+    if(!attributeDetail.set()) then
+      !rootName         = !attributeDetail.first()
+    endif
+    !rootNameAttribute.append(!rootName)
+  enddo
+  return !rootNameAttribute
+    
+endmethod
+
+----------------------------------------------------------------------
+-- Method:      validateRootAttribute
+--
+-- Description: Check if the root attribute is available in the current class
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .validateRootAttribute(!rootNameAttribute is ARRAY, !elementRefe is DBREF) is ARRAY
+  
+  !attributeValidationDetails  = object ARRAY()
+  do !index indices !rootNameAttribute
+    !dbAttribute               = object ATTRIBUTE(!rootNameAttribute[!index])
+    !isValidAttribute          = false
+    
+    if(!elementRefe.set() AND !dbAttribute.name().neq('')) then
+      !sampleTagRefe           = !elementRefe
+      !disciplineList          = !sampleTagRefe.dList
+      !elemList                = !dbAttribute.elementTypes()
+      !elemNames               = !elemList.evaluate(object BLOCK(|!elemList[!evalIndex].name().upcase()|))
+      !isValidAttribute        = !elemNames.findFirst(!sampleTagRefe.acttype).set()
+      
+      if(!isValidAttribute.not()) then
+      
+        do !discipline values !disciplineList
+          !isValidAttribute    = !elemNames.findFirst(!discipline).set()
+          break if(!isValidAttribute)
+        enddo
+      endif
+    endif
+    !attributeValidationDetails.append(!isValidAttribute)
+  enddo
+  
+  return !attributeValidationDetails
+    
+endmethod
+
+----------------------------------------------------------------------
+-- Method:      loadGridData
+--
+-- Description: Load data in the grid
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .loadGridData(!headings is ARRAY, !rows is ARRAY, !errorCells is ARRAY)
+  
+  using namespace 'Aveva.Core.Presentation'
+  !nds                        = object NETDATASOURCE('Excel List', !headings, !rows)
+  !this.gridTagList.bindToDataSource(!nds)
+  !this.gridTagList.autoFitColumns()
+  !this.gridTagList.ASSIGNBICHECKBOXTOCOLUMN(2)
+  
+  -- Fetch the root attribute
+  !rootNameAttribute          = !this.getRootAttributes()
+  
+  -- Checking if the root attribute is available in both the class
+  !rootAttributeValidation    = object ARRAY()
+  !elementRefe                = !rows.first()[1].dbref()
+  handle any
+  elsehandle None
+    !rootAttributeValidation  = !this.validateRootAttribute(!rootNameAttribute, !elementRefe)
+  endhandle
+  
+  do !i from 1 to !headings.size()
+    !this.gridTagList.SETEDITABLECOLUMN(!i, false)
+    
+    -- From column 6 actual naming attribute starts in the grid
+    if(!i.gt(6) AND !rootAttributeValidation.set() AND !rootAttributeValidation[!i - 6].eq(false)) then
+      !this.gridTagList.SETCOLUMNCOLOR(!i, 'SALMON')
+    endif
+  enddo
+  !this.gridTagList.SETEDITABLECOLUMN(2, true)
+  !this.gridTagList.SETCOLUMNVISIBILITY(1, false)
+  !this.gridTagList.WRAPCOLUMNHEADERS(true)
+  
+endmethod
+
+----------------------------------------------------------------------
+-- Method:      getClassNamingDetails
+--
+-- Description: Get class TMR name/property details based on the key
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1     R           STRING     Class name
+--   2     R           STRING     (PROPERTY/ATTRIBUTE)
+-- Return:
+--   [Data Type] [Description]
+-- ARRAY          Details
+------------------------------------------------------------------------
+define method .getClassNamingDetails(!className is STRING, !key is STRING) is ARRAY
+  
+  !details        = object ARRAY()
+  !classNames     = !this.namingRuleDetails.evaluate(object BLOCK(|!this.namingRuleDetails[!evalIndex][1]|))
+  !index          = !classNames.findFirst(!className)
+  if(!key.eq('PROPERTY')) then
+    !details      = !this.namingRuleDetails[!index][3]
+  else
+    !details      = !this.namingRuleDetails[!index][2]
+  endif
+  return !details
+  
+endmethod
+
+----------------------------------------------------------------------
+-- Method:      getClassNamingDetails
+--
+-- Description: Load TMR class name details in the member
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .getClassPropertyDetails(!className is STRING, !attributePath is ARRAY, !propertyName is STRING) is STRING
+  
+  !detail                 = object STRING()
+  !classNames             = !this.namingRuleDetails.evaluate(object BLOCK(|!this.namingRuleDetails[!evalIndex][1]|))
+  !index                  = !classNames.FindFirst(!className)
+  if(!index.set()) then
+    !data                 = !this.namingRuleDetails[!index]
+    !attributeindex       = !data[2].findFirst(!attributePath)
+    if(!attributeindex.set()) then
+      !propertyDataList   = !data[3][!attributeIndex]
+      do !propertyData values !propertyDataList
+        !splitDetail      = !propertyData.split(';')
+        !isPropertyNeeded = !splitDetail[1].eqNocase(!propertyName)
+        if(!isPropertyNeeded) then
+          !detail         = !splitDetail[2]
+          break
+        endif
+      enddo
+    endif
+  endif
+ 
+  return !detail
+
+endmethod
+
+----------------------------------------------------------------------
+-- Method:      getClassNamingDetails
+--
+-- Description: Load TMR class name details in the member
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .getClassNamingDetails()
+  
+  using namespace |RamAETagValidator|
+  
+  !this.namingRuleDetails  = object ARRAY()
+  
+  do !listDetail values !this.reclassificationList
+  
+    !classNames            = !this.namingRuleDetails.evaluate(object BLOCK(|!this.namingRuleDetails[!evalIndex][1]|))
+    !className             = !listDetail[2]
+    
+    !index                 = !classNames.findFirst(!className)
+    skip if(!index.set())
+    
+    !this.nameProcesser.processNameRuleDetails(!className)
+    !attributeDetails      = !this.nameProcesser.getAttributeDetails()
+    !propertyDetails       = !this.nameProcesser.getPropertyDetails()
+    
+    !namingRuleDetail      = object ARRAY()
+    !namingRuleDetail.append(!className)
+    !namingRuleDetail.append(!attributeDetails)
+    !namingRuleDetail.append(!propertyDetails)
+    
+    !this.namingRuleDetails.append(!namingRuleDetail)
+  enddo
+  
+endmethod
+
+----------------------------------------------------------------------
+-- Method:      getAttributeValueByPath
+--
+-- Description: Get attribute value by using TMR attribute path
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1      R           DBREF        Element
+--   2      R           ARRAY       Attribute path details
+-- Return:
+--   [Data Type] [Description]
+--   ARRAY         Attribute value with error flag
+------------------------------------------------------------------------
+define method .getAttributeValueByPath(!elementRefe is DBREF, !attributeDetail is ARRAY) is ARRAY
+  
+  !isError             = object BOOLEAN()
+  !attributeResult     = object ARRAY()
+  !attributeValue      = object STRING()
+  !value               = object STRING()
+  !isError             = false
+  !attributeValue      = ''
+  
+  !tempElementRefe     = !elementRefe
+  do !detail values !attributeDetail
+    !value.delete()
+    if(!detail.eq('NAME')) then
+      !detail          = 'NAMN'
+    endif
+    
+    !value             = !tempElementRefe.attribute(!detail)
+    handle any
+      !isError         = true
+      break
+    endhandle
+    
+    !isElement         = !value.objectType().eq('DBREF')
+    if(!isElement.not()) then
+      break
+    else
+      !tempElementRefe = !value
+    endif
+  enddo
+  
+  if(defined(!value) AND !value.set()) then
+    if(!value.objectType().eq('DBREF')) then
+      !attributeValue  = !value.namn
+    else
+      !attributeValue  = !value.string()
+    endif
+  endif
+  
+  !attributeResult.append(!isError)
+  !attributeResult.append(!attributeValue)
+  
+  return !attributeResult
+  
+endmethod
+
+----------------------------------------------------------------------
+-- Method:      reclassifytags
+--
+-- Description: Reclassification method
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .reclassifytags()
+  
+  !elementNames     = !this.gridTagList.getColumn(1)
+  !allowedList      = !this.gridTagList.getColumn(2)
+  !classTypes       = !this.gridTagList.getColumn(6)
+  !elementRefes     = object ARRAY()
+  
+  do !i indices !elementNames
+    if(!allowedList[!i].eqNocase('TRUE')) then
+      !elementRefes.append(!elementNames[!i].dbref())
+    endif
+  enddo
+  
+  !asyncFunction    = |!!ramimportExcelReclassificationForm.afterReclassifyEvent()|
+  !this.elementLoader.reclassifyElement(!elementRefes, !classTypes[!i], !asyncFunction)
+  
+endmethod
+
+----------------------------------------------------------------------
+-- Method:      refreshForm
+--
+-- Description: Refresh the grid without change selection
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .refreshForm()
+  !allowedList      = !this.gridTagList.getColumn(2)
+  !this.loadSelectedClass()
+  !this.updateCheckBox(!allowedList)
+endmethod
+
+----------------------------------------------------------------------
+-- Method:      updateAttributes
+--
+-- Description: Update attribute values in the database
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .updateAttributes()
+  
+  !isUpdatedAllowed                = !this.enableUpdateAttribute()
+  if(!isUpdatedAllowed) then
+    !excelNames                    = !this.gridTagList.getColumn(3)
+    !databaseName                  = !this.gridTagList.getColumn(4)
+    !allowedList                   = !this.gridTagList.getColumn(2)
+    !masterList                    = !this.reclassificationList
+    !elementNames                  = !masterList.evaluate(object BLOCK(|!masterList[!evalIndex].last()|))
+    !isTagNamePreserved            = !this.toPreserveExName.val
+    
+    do !i indices !excelNames
+      if(!allowedList[!i].eqNocase('TRUE')) then
+        !index                     = !elementNames.findFirst(!excelNames[!i])
+        if(!index.set()) then
+          !elementRefe             = !masterList[!index][1]
+          !className               = !masterList[!index][2]
+          !paramterDetails         = !masterList[!index][3]
+          !attributeDetails        = !masterList[!index][4]
+          !excelAttributeDetails   = !masterList[!index][5]
+          !attributeValueRow       = !masterList[!index][6]
+          !uomDetails              = !masterList[!index][7]
+          !classStorageAttribute   = !masterList[!index][8]
+          if(!elementRefe.acttype.eqNocase(!className)) then
+            !this.elementLoader.modifyElement(!elementRefe, !paramterDetails, !attributeDetails, !excelAttributeDetails, !attributeValueRow, !uomDetails, !classStorageAttribute, !isTagNamePreserved, true)
+          endif
+        endif
+      endif
+    enddo
+  endif
+  
+endmethod
+----------------------------------------------------------------------
+-- Method:      assignTempName
+--
+-- Description: Update tag name to temp name in the database
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .assignTempName()
+  
+  !isConfirmed = !!alert.confirm('This operation will rename the tags to temporary name. $
+                                  Kindly use only if you recieve name already exist error during reclassification. $
+                                  Do you want to proceed?')
+  if(!isConfirmed.eqNocase('YES')) then
+    !excelNames                    = !this.gridTagList.getColumn(3)
+    !databaseName                  = !this.gridTagList.getColumn(4)
+    !allowedList                   = !this.gridTagList.getColumn(2)
+    !masterList                    = !this.reclassificationList
+    !elementNames                  = !masterList.evaluate(object BLOCK(|!masterList[!evalIndex].last()|))
+    !isTagNamePreserved            = !this.toPreserveExName.val
+    
+    !updateDetails           = object ARRAY()
+
+    do !i indices !excelNames
+      if(!allowedList[!i].eqNocase('TRUE')) then
+        !index                     = !elementNames.findFirst(!excelNames[!i])
+        if(!index.set()) then
+          !elementRefe = !masterList[!index][1]
+          if(!elementRefe.IsNamed) then
+            !updateDetail          = object ARRAY()
+            !updateDetail.append(!elementRefe)
+            !updateDetail.append('NAME')
+            !updateDetail.append('/&' + !elementRefe.namn)
+            !updateDetails.append(!updateDetail)
+          endif
+        endif
+      endif
+    enddo
+    !this.elementLoader.modifyElementDetails(!updateDetails)
+  endif
+
+endmethod
+
+----------------------------------------------------------------------
+-- Method:      selectTags
+--
+-- Description: Select tags in the grid for reclassify/update
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--    1      R         STRING      (VALID/ALL)
+--                                           VALID - will select tags with all naming attribute filled
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .selectTags(!mode is STRING)
+  
+  !columnSize             = !this.gridTagList.getTitles().size()
+  !rowSize                = !this.gridTagList.getRows().size()
+  !attributeStartIndex    = 6
+
+  !mandatoryAttributeData = object ARRAY()
+  !selection              = !this.opClassList.selection('dtext')
+  !attributeDetails       = !this.getClassNamingDetails(!selection, 'ATTRIBUTE')
+  do !i indices !attributeDetails
+    !propRequired         = !this.getClassPropertyDetails(!selection, !attributeDetails[!i], 'REQUIRED')
+    if(!propRequired.set() AND !propRequired.eqNocase('TRUE')) then
+      !mandatoryAttributeData.append(!i + !attributeStartIndex)
+    endif
+  enddo
+
+  
+  if(!columnSize.gt(5) AND !mode.eq('VALID') AND !this.toSelectTags.val.eq(true)) then
+  
+    do !i from 1 to !rowSize
+      !value              = !this.toSelectTags.val.string().upcase()
+      
+      do !j from !attributeStartIndex to !columnSize
+        !cellValue        = !this.gridTagList.getCell(!i, !j)
+        !isRequired       = !mandatoryAttributeData.FindFirst(!j).set()
+        if(!isRequired AND (!cellValue.unset() OR !cellValue.trim().eq(''))) then
+          !value          = 'FALSE'
+          break
+        endif
+      enddo
+      !this.gridTagList.SETCELLVALUE(!i, 2, !value)
+    enddo
+    
+  elseif(!mode.eq('VALID')) then
+    !this.updateCheckBox(!this.toSelectTags.val)
+    
+  elseif(!mode.eq('ALL')) then
+    !this.updateCheckBox(!this.toSelectAll.val)
+  endif
+  
+  !this.enableUpdateAttribute()
+  
+endmethod
+
+----------------------------------------------------------------------
+-- Method:      updateCheckBox
+--
+-- Description: Update the selection in the grid
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--    1      R         BOOLEAN   enable flag
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .updateCheckBox(!enable is BOOLEAN)
+
+  !value      = !enable.string().upcase()
+  !rowSize    = !this.gridTagList.getRows().size()
+  do !i from 1 to !rowSize
+    !this.gridTagList.SETCELLVALUE(!i, 2, !value)
+  enddo
+  
+endmethod
+
+----------------------------------------------------------------------
+-- Method:      updateCheckBox
+--
+-- Description: Update the selection in the grid
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--    1      R         ARRAY       enable flag list
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .updateCheckBox(!enableList is ARRAY)
+
+  !rowSize      = !this.gridTagList.getRows().size()
+  do !i from 1 to !rowSize
+    !value      = !enableList[!i].string().upcase()
+    !this.gridTagList.SETCELLVALUE(!i, 2, !value)
+  enddo
+  
+endmethod
+
+----------------------------------------------------------------------
+-- Method:      enableUpdateAttribute
+--
+-- Description: Enable update attribute button based on class match
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+--    BOOLEAN   Result flag
+------------------------------------------------------------------------
+define method .enableUpdateAttribute() is BOOLEAN
+  
+  !allowedList             = !this.gridTagList.getColumn(2)
+  !newClassTypes           = !this.gridTagList.getColumn(6)
+  !oldClassTypes           = !this.gridTagList.getColumn(5)
+  !isUpdateAllowed         = true
+  !elementRefes            = object ARRAY()
+  
+  do !i indices !newClassTypes
+    if(!allowedList[!i].eqNocase('TRUE')) then
+      !isSameClass = !newClassTypes[!i].eqNocase(!oldClassTypes[!i])
+      if(!isSameClass.not()) then
+        !isUpdateAllowed   = false
+        break
+      endif
+    endif
+  enddo
+  
+  !this.buUpdate.active    = !isUpdateAllowed
+  return !isUpdateAllowed
+  
+endmethod
+
+----------------------------------------------------------------------
+-- Method:      updateFormDetails
+--
+-- Description: Enable update attribute button based on class match
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .updateFormDetails(!args is ARRAY)
+  !this.enableUpdateAttribute()
+endmethod
+
+------------------------------------------------------------------------
+--
+-- Method:      popupRightClick
+--
+-- Description: Right click options
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--    1   R      ARRAY       Popup position and selected element references
+-- Return:
+--   [Data Type] [Description]
+--
+------------------------------------------------------------------------
+define method .popupRightClick(!data is ARRAY)
+
+  !this.coTagList.showPopup(!data[0], !data[1])
+
+endmethod
+
+------------------------------------------------------------------------
+--
+-- Method:      undoEvent
+-- Description: undo Event Handler
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+--
+------------------------------------------------------------------------
+define method .undoEvent()
+  if( !this.shown() ) then
+    !this.refreshForm()
+  endif
+endmethod
+
+------------------------------------------------------------------------
+--
+-- Method:      afterReclassifyEvent
+-- Description: After reclassify Event Handler
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+-- Return:
+--   [Data Type] [Description]
+--
+------------------------------------------------------------------------
+define method .afterReclassifyEvent()
+  !this.undoEvent()
+  !!alert.message('Reclassification completed!!! $
+Please check error log form and Aveva message window for any errors $
+If no errors, please proceed with "Update Attribute", $
+otherwise try to assign temperory name and reclassify')
+endmethod
