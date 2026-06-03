@@ -1,0 +1,118 @@
+# KB v3 Extraction Report
+
+- Claude entries parsed: 87
+- Final entries generated: 118
+- Categories: 18
+- Required p2 present: 18/18
+- Placeholder/generic markers after generation: 0
+
+## Claude IDs
+
+- dt_string_declaration -> datatypes
+- dt_real_declaration -> datatypes
+- dt_array_declaration -> datatypes
+- dt_boolean_values -> datatypes
+- dt_dbref_usage -> datatypes
+- dt_unset_handling -> datatypes
+- dt_type_coercion -> datatypes
+- dt_string_substitution -> datatypes
+- cf_if_elseif_structure -> controlflow
+- cf_do_enddo_loop -> controlflow
+- cf_break_skip -> controlflow
+- cf_return_from_function -> controlflow
+- cf_guard_clause -> controlflow
+- cf_nested_loops -> controlflow
+- eh_handle_endhandle -> errorhandling
+- eh_handle_any -> errorhandling
+- eh_error_variable -> errorhandling
+- eh_import_protection -> errorhandling
+- eh_nested_handle -> errorhandling
+- eh_logging_pattern -> errorhandling
+- obj_definition_structure -> objects
+- obj_constructor_pattern -> objects
+- obj_member_declaration -> objects
+- obj_method_declaration -> objects
+- obj_delegation_pattern -> objects
+- obj_overloading_delegation -> objects
+- obj_factory_pattern -> objects
+- obj_namespace_loading -> objects
+- frm_file_structure -> forms
+- frm_initialise_method -> forms
+- frm_callback_syntax -> forms
+- frm_widget_common_params -> forms
+- frm_button_callback -> forms
+- frm_list_population -> forms
+- frm_textinput_read -> forms
+- frm_sensitivity_control -> forms
+- frm_form_as_class -> forms
+- frm_loader_chain -> forms
+- frm_show_dismiss -> forms
+- mac_file_structure -> macros
+- mac_arguments -> macros
+- mac_calling_other_macros -> macros
+- mac_output_control -> macros
+- mac_file_path_pattern -> macros
+- mac_pipeline_pattern -> macros
+- mac_global_variables -> macros
+- fnc_definition_syntax -> functions
+- fnc_return_value -> functions
+- fnc_argument_scope -> functions
+- fnc_pdms_navigation -> functions
+- fnc_array_accumulator -> functions
+- dn_import_statement -> dotnetinterop
+- dn_import_guard -> dotnetinterop
+- dn_object_instantiation -> dotnetinterop
+- dn_method_call -> dotnetinterop
+- dn_type_mapping -> dotnetinterop
+- dn_excel_read_pattern -> dotnetinterop
+- dn_file_write_pattern -> dotnetinterop
+- pdms_current_element -> pdmsinteraction
+- pdms_navigation_commands -> pdmsinteraction
+- pdms_attribute_query -> pdmsinteraction
+- pdms_attribute_update -> pdmsinteraction
+- pdms_element_create -> pdmsinteraction
+- pdms_element_existence -> pdmsinteraction
+- pdms_dbref_resolve -> pdmsinteraction
+- pdms_transaction -> pdmsinteraction
+- nc_variable_naming -> namingconventions
+- nc_object_naming -> namingconventions
+- nc_method_naming -> namingconventions
+- nc_file_naming -> namingconventions
+- nc_prefix_conventions -> namingconventions
+- tc_db_to_pml_mapping -> typeconversion
+- tc_string_to_real -> typeconversion
+- tc_real_to_string -> typeconversion
+- tc_date_parsing -> typeconversion
+- tc_boolean_from_string -> typeconversion
+- log_severity_levels -> logging
+- log_common_logger_api -> logging
+- log_form_integration -> logging
+- log_output_targets -> logging
+- log_contextual_info -> logging
+- ap_loader_chain -> architecturepatterns
+- ap_form_controller -> architecturepatterns
+- ap_separation_of_concerns -> architecturepatterns
+- ap_pipeline_macro -> architecturepatterns
+- ap_data_object -> architecturepatterns
+- ap_utility_function -> architecturepatterns
+
+## Required p2 IDs
+
+- ✅ p2_pmlfilebrowser
+- ✅ p2_displayprogress
+- ✅ p2_syscom
+- ✅ p2_pmltags
+- ✅ p2_measure_unit
+- ✅ p2_array_evaluate_block
+- ✅ p2_array_reindex
+- ✅ p2_evaluate_pml1
+- ✅ p2_collect_pml1
+- ✅ p2_datetime_api
+- ✅ p2_dateformat
+- ✅ p2_form_7callbacks
+- ✅ p2_netgrid_full
+- ✅ p2_attribute_dynamic
+- ✅ p2_widget_prefix
+- ✅ p2_backref
+- ✅ p2_na_replacement
+- ✅ p2_null_scope

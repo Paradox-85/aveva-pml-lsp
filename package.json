@@ -8,6 +8,7 @@
     "build": "tsc --noEmit false",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "validate:kb": "npm run build -- --pretty false && node dist/knowledge/validation/validate-kb.js",
     "start": "node dist/server.js",
     "start:http": "node dist/server.js --http-stream"
   },

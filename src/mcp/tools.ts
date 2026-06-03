@@ -2,6 +2,7 @@ import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { z } from 'zod';
 import { lintPmlCode } from '../core/diagnostics/engine.js';
+import { pmlKbTools } from './pml-kb-tools.js';
 
 export const lintPmlCodeTool = {
   name: 'lint_pml_code',
@@ -61,4 +62,4 @@ export const searchPmlKbTool = {
   },
 };
 
-export const tools = [lintPmlCodeTool, validatePmlFileTool, searchPmlKbTool];
+export const tools = [lintPmlCodeTool, validatePmlFileTool, searchPmlKbTool, ...pmlKbTools];
