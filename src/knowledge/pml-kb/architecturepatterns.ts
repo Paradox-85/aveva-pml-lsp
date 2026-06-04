@@ -168,5 +168,77 @@ export const architecturepatternsEntries: KBEntry[] = [
     ],
     "sourcedoc": "TM-1401 FMSYS/progress docs; Perplexity PML KB §7.3",
     "sourcecodebase": "JDE_pipeData_export.pmlmac"
+  },
+  {
+    "id": "custom-file-writer-dependency-ramfilewriterclass",
+    "category": "architecturepatterns",
+    "subcategory": "custom-objects",
+    "title": "RAMFILEWRITERCLASS export methods used by common logger objects",
+    "principle": "Custom writer object dependencies should document method names and argument order because they are external API contracts.",
+    "rule": "Custom writer object dependencies should document method names and argument order because they are external API contracts.",
+    "syntax": "!this.fileWriter.writeDataToExcelFile(!pathName, !isDisplayFile, !heading, !finalLog)",
+    "exampleCanonical": "-- CB ramCommonLogger.pmlobj\n-- Pattern: RAMFILEWRITERCLASS export methods used by common logger objects",
+    "exampleAntipattern": "-- WRONG: omit validated pattern for RAMFILEWRITERCLASS export methods used by common logger objects\n-- Review source ramCommonLogger.pmlobj before reuse",
+    "pitfalls": [
+      "Validate RAMFILEWRITERCLASS export methods used by common logger objects against ramCommonLogger.pmlobj before reuse."
+    ],
+    "relatedIds": [],
+    "sourcedoc": "AVEVA PML Reference",
+    "sourcecodebase": "ramCommonLogger.pmlobj"
+  },
+  {
+    "id": "engineering-tags-rdl-export-wrapper",
+    "category": "architecturepatterns",
+    "subcategory": "engineering-tags-export",
+    "title": "RDL-driven Engineering Tags export wrapper",
+    "principle": "Engineering tag export macros may delegate domain-specific extraction to custom global routines that accept output path, RDL filter, tag filter, empty patterns, replacement rules, and display flags.",
+    "rule": "Document the wrapper signature and preserve filter/list arguments when generating benchmark macros; do not replace the wrapper with generic COLLECTION/XLS logic unless the wrapper is unavailable by task scope.",
+    "syntax": "!!jacExportRDLDataReport(!filePath, !rdlFilter, !tagFilter, !emptyPatternList, !replaceData, !isDisplayEmpty)",
+    "exampleCanonical": "-- CB EIS_data_export.pmlmac\n!rdlFilter = |(:RDLSource eq 'SOURCE_A' or :RDLSource eq 'SOURCE_B')|\n!tagFilter = ':TagStatus inset (|ACTIVE|, |ASB|, |AFC|, |AFD|) and ISNAMED'\n!isDisplayEmpty = true\n!!jacExportRDLDataReport(!filePath, !rdlFilter, !tagFilter, !emptyPatternList, !replaceData, !isDisplayEmpty)",
+    "exampleAntipattern": "-- WRONG: omit validated pattern for RDL-driven Engineering Tags export wrapper\n-- Review source EIS_data_export.pmlmac before reuse",
+    "pitfalls": [
+      "Dropping emptyPatternList or replaceData changes exported data semantics",
+      "Replacing custom RDL wrappers with generic COLLECTION queries loses RDL template behavior"
+    ],
+    "relatedIds": [
+      "ap_pipeline_macro"
+    ],
+    "sourcedoc": "AVEVA PML Reference",
+    "sourcecodebase": "EIS_data_export.pmlmac"
+  },
+  {
+    "id": "patterns-reader-caching",
+    "category": "architecturepatterns",
+    "subcategory": "lazy-initialization",
+    "title": "Object reader caching with lazy initialization",
+    "principle": "Validated PML pattern for Object reader caching with lazy initialization.",
+    "rule": "Validated PML pattern for Object reader caching with lazy initialization.",
+    "syntax": "if (!this.reader eq | |) THEN\\n  !this.reader = object RamAEPMLExcelReader()\\nendif",
+    "exampleCanonical": "-- CB ramExcelReaderClass.pmlobj\n-- Pattern: Object reader caching with lazy initialization",
+    "exampleAntipattern": "-- WRONG: omit validated pattern for Object reader caching with lazy initialization\n-- Review source ramExcelReaderClass.pmlobj before reuse",
+    "pitfalls": [
+      "Validate Object reader caching with lazy initialization against ramExcelReaderClass.pmlobj before reuse."
+    ],
+    "relatedIds": [],
+    "sourcedoc": "AVEVA PML Reference",
+    "sourcecodebase": "ramExcelReaderClass.pmlobj"
+  },
+  {
+    "id": "d6-user-defined-object-method",
+    "category": "architecturepatterns",
+    "subcategory": "user-defined-types",
+    "title": "Custom methods on user-defined object types",
+    "principle": "User-defined objects (e.g., TAGMANAGEMENTTMP) may have project-specific methods not covered by system KB. Method signatures must be verified from source.",
+    "rule": "When calling methods on user-defined objects, ensure the method exists in the object definition. Document custom methods in KB.",
+    "syntax": "!var = object <UserDefinedType>()\n!var.<customMethod>()",
+    "exampleCanonical": "-- CB cable-area-update.pmlmac\n!tagMgmt = object TAGMANAGEMENTTMP()\n!tagMgmt.defineAreasForCables()",
+    "exampleAntipattern": "!tagMgmt = object TAGMANAGEMENTTMP()\n!tagMgmt.nonExistentMethod()  -- method not defined on type",
+    "pitfalls": [
+      "User-defined object methods are not discoverable through system KB; they must be verified against the `.pmlobj` source.",
+      "Method names on user-defined types are case-insensitive in PML but should follow project conventions."
+    ],
+    "relatedIds": [],
+    "sourcedoc": "Methods on User-Defined Object Types KB",
+    "sourcecodebase": "cable-area-update.pmlmac"
   }
 ];

@@ -46,5 +46,65 @@ export const syscomEntries: KBEntry[] = [
     ],
     "sourcedoc": "Perplexity PML KB §9.6; codebase file writer patterns",
     "sourcecodebase": "ramFileWriterClass.pmlobj"
+  },
+  {
+    "id": "cmd_pml_reload_object",
+    "category": "syscom",
+    "subcategory": "library_management",
+    "title": "PML RELOAD OBJECT command",
+    "principle": "Use PML RELOAD OBJECT to reload a PML object definition from the library before creating instances, ensuring the latest version is loaded.",
+    "rule": "Place PML RELOAD OBJECT <ObjectName> before object <ObjectName>() in macros that depend on custom object definitions. This is necessary when the object may have been updated in the library without a server restart.",
+    "syntax": "PML RELOAD OBJECT <objectName>",
+    "exampleCanonical": "-- CB manual-valve-description.pmlmac\nPML RELOAD OBJECT TAGMANAGEMENTTMP\n!tagMgmt = object TAGMANAGEMENTTMP()\n!tagMgmt.manualValveDescriptionUpdate(':RAMTAGOWNER INSET(|RAM|, |AKSO|)')",
+    "exampleAntipattern": "!tagMgmt = object TAGMANAGEMENTTMP()  -- may use stale object definition",
+    "pitfalls": [
+      "PML RELOAD OBJECT is a command, not a PML statement — it does not use = assignment.",
+      "The object must exist in the PMLLIB library path; otherwise the reload silently succeeds but object() may fail.",
+      "In production macros, wrap object() and method calls in HANDLE/ENDHANDLE for safety."
+    ],
+    "relatedIds": [],
+    "sourcedoc": "AVEVA E3D PML Customization Guide — Macro Programming",
+    "sourcecodebase": "manual-valve-description.pmlmac"
+  },
+  {
+    "id": "d1-pml-reload-object-command",
+    "category": "syscom",
+    "subcategory": "object-lifecycle",
+    "title": "PML RELOAD OBJECT command",
+    "principle": "Reload a previously-defined PML object before creating instances to ensure the latest code is loaded.",
+    "rule": "Use `PML RELOAD OBJECT <name>` before `!var = object <name>()` when the object may have been updated since the session started.",
+    "syntax": "PML RELOAD OBJECT <objectName>",
+    "exampleCanonical": "-- CB alarm_refresh.pmlmac\nPML RELOAD OBJECT TAGMANAGEMENTTMP\n!tagMgmt = object TAGMANAGEMENTTMP()\n!tagMgmt.alarmsDataUpdate()",
+    "exampleAntipattern": "!tagMgmt = object TAGMANAGEMENTTMP()\n!tagMgmt.alarmsDataUpdate()",
+    "pitfalls": [
+      "RELOAD only works for objects previously defined in the current session (via .pmlobj file loaded earlier).",
+      "RELOAD does not work for system objects.",
+      "If the object has been modified externally, RELOAD is necessary to pick up changes without restarting AVEVA."
+    ],
+    "relatedIds": [
+      "d3-macro-file-header"
+    ],
+    "sourcedoc": "AVEVA PML Customization Guide",
+    "sourcecodebase": "alarm_refresh.pmlmac"
+  },
+  {
+    "id": "macro_savework_unclaim_all",
+    "category": "syscom",
+    "subcategory": "PDMS commands",
+    "title": "SAVEWORK and UNCLAIM ALL PDMS commands in PML macros",
+    "principle": "SAVEWORK saves current database state; UNCLAIM ALL releases all element claims. Used in error recovery to prevent database lock.",
+    "rule": "Call SAVEWORK before UNCLAIM ALL in error handlers. UNCLAIM ALL should be called to release any element claims that may have been acquired during processing.",
+    "syntax": "SAVEWORK\nUNCLAIM ALL",
+    "exampleCanonical": "-- CB JDE_commPackage-reports.pmlmac\n-- CB mac_18_benchmark.pmlmac\nLABEL /Error\nhandle any\n  SAVEWORK\n  UNCLAIM ALL\n  !!ramCommonLogger.writeErrorDataToExcel(...)\nendhandle",
+    "exampleAntipattern": "-- ❌ UNCLAIM ALL without SAVEWORK — data loss risk\nLABEL /Error\nhandle any\n  UNCLAIM ALL\n  -- SAVEWORK missing: unsaved changes lost\nendhandle",
+    "pitfalls": [
+      "SAVEWORK is slow on large databases — consider conditional save.",
+      "UNCLAIM ALL releases ALL claims; use UNCLAIM !ref for selective release."
+    ],
+    "relatedIds": [
+      "macro_onerror_golabel_error_trap"
+    ],
+    "sourcedoc": "AVEVA PDMS Command Reference",
+    "sourcecodebase": "JDE_commPackage-reports.pmlmac"
   }
 ];

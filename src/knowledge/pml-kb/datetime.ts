@@ -68,5 +68,64 @@ export const datetimeEntries: KBEntry[] = [
     ],
     "sourcedoc": "Perplexity PML KB §5.4; codebase EIS export",
     "sourcecodebase": "EIS_data_export.pmlmac"
+  },
+  {
+    "id": "pml-object-datetime-dateformat",
+    "category": "datetime",
+    "subcategory": "datetime",
+    "title": "DATETIME and DATEFORMAT objects — Timestamp generation",
+    "principle": "DATETIME provides current date/time components. DATEFORMAT formats them into strings with configurable patterns.",
+    "rule": "!time = object DATETIME()\n!dateFormat = object DATEFORMAT('Y_M_D')\n!dateStr = !dateFormat.string(!time)\n!fileName = !dateFormat.string(!time) + '_' + !time.hour().string() + ...",
+    "syntax": "!time = object DATETIME()\n!dateFormat = object DATEFORMAT('Y_M_D')\n!dateStr = !dateFormat.string(!time)\n!fileName = !dateFormat.string(!time) + '_' + !time.hour().string() + !time.minute().string() + !time.second().string()",
+    "exampleCanonical": "-- CB ramImportExcelElementLoader.pmlobj\n-- CB obj_06: timestamp-based filename\n!time = object DATETIME()\n!dateFormat = object DATEFORMAT('Y_M_D')\n!dateStr = !dateFormat.string(!time)\n!fileName = !dateFormat.string(!time) + '_' + !time.hour().string() + !time.minute().string() + !time.second().string()",
+    "exampleAntipattern": "!fileName = !time.string() -- less control over format",
+    "pitfalls": [
+      "DATEFORMAT pattern uses Y_M_D not YYYY-MM-DD",
+      "hour()/minute()/second() return numeric values requiring .string()"
+    ],
+    "relatedIds": [
+      "pml-object-measure-format"
+    ],
+    "sourcedoc": "obj_06 (ramImportExcelElementLoader.pmlobj)",
+    "sourcecodebase": "ramImportExcelElementLoader.pmlobj"
+  },
+  {
+    "id": "macro_setdate_stamp",
+    "category": "datetime",
+    "subcategory": "SetDate",
+    "title": "SetDate of dbref — extract date from STAMP",
+    "principle": "Use SetDate of dbref to extract a date value from a STAMP element.",
+    "rule": "VAR !date SetDate of $!stampVar",
+    "syntax": "VAR !resultVar SetDate of $!dbref",
+    "exampleCanonical": "-- CB EBE_delta_tag_export.pmlmac\n-- CB mac_03\n!latestStamp = !stamps.first()\nvar !stampDate SetDate of $!latestStamp",
+    "exampleAntipattern": "-- WRONG: omit validated pattern for SetDate of dbref — extract date from STAMP\n-- Review source EBE_delta_tag_export.pmlmac before reuse",
+    "pitfalls": [
+      "STAMP must be a valid dbref; otherwise SetDate returns UNSET"
+    ],
+    "relatedIds": [
+      "p2_datetime_api"
+    ],
+    "sourcedoc": "AVEVA Engineering PML Reference",
+    "sourcecodebase": "EBE_delta_tag_export.pmlmac"
+  },
+  {
+    "id": "datetime_object_constructor",
+    "category": "datetime",
+    "subcategory": "datetime",
+    "title": "OBJECT DATETIME() constructor and accessor methods",
+    "principle": "OBJECT DATETIME() creates a datetime object. Access year, month, date, hour, minute via accessor methods.",
+    "rule": "Use !dt = OBJECT DATETIME() then !dt.year(), !dt.month(), etc. Convert to formatted string with .string('format').",
+    "syntax": "!dt = OBJECT DATETIME()\n!year = !dt.year()\n!month = !dt.month().string('I2')",
+    "exampleCanonical": "-- CB JDE_tagProperties_export_with_RDL.pmlmac\n-- mac_36\n!dt = OBJECT DATETIME()\n!year = !dt.year()\n!month = !dt.month().string('I2')\n!date = !dt.date().string('I2')",
+    "exampleAntipattern": "!year = !!datetime.year()  -- incorrect global reference",
+    "pitfalls": [
+      ".string('I2') pads with leading zero for single-digit months/days/hours",
+      "Available as PML2 object; verify PML1 equivalent if needed"
+    ],
+    "relatedIds": [
+      "p2_datetime_api"
+    ],
+    "sourcedoc": "AVEVA PML Customization — Object Methods",
+    "sourcecodebase": "JDE_tagProperties_export_with_RDL.pmlmac"
   }
 ];

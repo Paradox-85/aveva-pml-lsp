@@ -117,5 +117,25 @@ export const functionsEntries: KBEntry[] = [
     ],
     "sourcedoc": "TM-1401 Macros and Functions Rev 2.0, §3.8 (Arrays); §4.5.1 (.size(), array methods); §5.2 (EVALUATE → ARRAY)",
     "sourcecodebase": "JDE_tagProperties_export.pmlmac"
+  },
+  {
+    "id": "pml_cmd_matchwild_query",
+    "category": "functions",
+    "subcategory": "PML1 query functions",
+    "title": "matchwild function in PML1 query expressions",
+    "principle": "The `matchwild` function in PML1 query expressions performs wildcard pattern matching on attribute values or names.",
+    "rule": "Use `matchwild(attribute, |pattern|)` inside PML1 query expression strings. Supports `*` (any chars) and `?` (single char).",
+    "syntax": "matchwild(name, |*GB.*|)\nmatchwild(namn of :Ref, |*$!pckgName*|)",
+    "exampleCanonical": "-- CB manual-data-export.pmlmac\n-- Find tags matching a pattern\n!tagFilter = 'ISNAMED and matchwild(name, |*GB.*|)'",
+    "exampleAntipattern": "-- Don't use matchwild as a STRING method in query strings\nmatchwild(!name, |*|) -- incorrect, use PML1 infix form",
+    "pitfalls": [
+      "matchwild in query strings is PML1-style; the STRING.MatchWild() method is PML2-style. They are not interchangeable in query expression strings.",
+      "Variable interpolation in matchwild patterns requires `$!var` syntax inside pipe strings."
+    ],
+    "relatedIds": [
+      "pml_op_inset"
+    ],
+    "sourcedoc": "AVEVA PDMS/E3D Query Reference",
+    "sourcecodebase": "manual-data-export.pmlmac"
   }
 ];

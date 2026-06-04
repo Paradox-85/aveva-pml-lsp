@@ -3,6 +3,7 @@ import type { KBEntry } from '../schemas/kb-entry.js';
 export const collectionsEntries: KBEntry[] = [
   {
     "id": "p2_collect_pml1",
+    "aliases": ["COLLECT"],
     "category": "collections",
     "subcategory": "pml1-collect",
     "title": "PML1 `var !x COLLECT ...` database collection",
@@ -91,5 +92,65 @@ export const collectionsEntries: KBEntry[] = [
     ],
     "sourcedoc": "Perplexity PML KB §10.3; TM-1401 Arrays",
     "sourcecodebase": "ramCommonLogger.pmlobj"
+  },
+  {
+    "id": "arrays_findfirst_set_membership",
+    "category": "collections",
+    "subcategory": "FindFirst",
+    "title": "ARRAY.findFirst().set() pattern for membership testing",
+    "principle": "Use findFirst() combined with .set() to test whether a value exists in an array.",
+    "rule": "if (!array.findFirst(!value).set()) then ... endif",
+    "syntax": "if (!<array>.findFirst(<value>).set()) then",
+    "exampleCanonical": "-- CB EBE_delta_tag_export.pmlmac\n-- CB mac_03\nif (!deletedTags.findfirst(!tag).set()) then\n  !action = |DELETE|\nelsif (!createdTags.findfirst(!tag).set()) then\n  !action = |NEW|\nendif",
+    "exampleAntipattern": "if (!deletedTags.findFirst(!tag) neq UNSET) then  -- less idiomatic",
+    "pitfalls": [
+      "findFirst returns UNSET if not found; .set() checks for valid result",
+      "Must use lowercase findfirst in some PML versions; check case sensitivity"
+    ],
+    "relatedIds": [
+      "p2_collect_pml1"
+    ],
+    "sourcedoc": "AVEVA PML Array Reference",
+    "sourcecodebase": "EBE_delta_tag_export.pmlmac"
+  },
+  {
+    "id": "kb_block_avevalindex",
+    "category": "collections",
+    "subcategory": "block_evaluation",
+    "title": "BLOCK evaluate with !evalIndex special variable",
+    "principle": "When evaluating a BLOCK on an ARRAY, !evalIndex is a special variable available inside the block that holds the current index.",
+    "rule": "!columns.evaluate(object BLOCK(|!columns[!evalIndex].string()|)) iterates over !columns, with !evalIndex set to each index.",
+    "syntax": "!array.evaluate(object BLOCK(|!array[!evalIndex].method()|))",
+    "exampleCanonical": "-- CB jacEISDeliveryManager.pmlobj\n-- CB obj_09_columnCollection\n!columnRefNos = !columns.evaluate(object BLOCK(|!columns[!evalIndex].string()|))\n-- CB obj_09_loadReport\n!headings = !headings.evaluate(object BLOCK(|!headings[!evalIndex][1]|))",
+    "exampleAntipattern": "-- Using a regular loop instead of evaluate\nDO !i FROM 1 TO !columns.Size()\n  !result.Append(!columns[!i].string())\nENDDO",
+    "pitfalls": [
+      "!evalIndex is only available inside the BLOCK expression, not outside",
+      "BLOCK evaluates each element; the result is an ARRAY of the evaluated values"
+    ],
+    "relatedIds": [
+      "p2_collect_pml1"
+    ],
+    "sourcedoc": "AVEVA PML Customization Guide",
+    "sourcecodebase": "jacEISDeliveryManager.pmlobj"
+  },
+  {
+    "id": "pml_attribute_query_of",
+    "category": "collections",
+    "subcategory": "query",
+    "title": "Attribute query with of operator",
+    "principle": "The of operator queries an attribute on a dbref in expressions",
+    "rule": "Use :AttributeName of :dbref to access an attribute value in expressions",
+    "syntax": ":AttrName of :dbref",
+    "exampleCanonical": "-- CB EIS_data_update.pmlmac\n|:RDLSource of :ClassMappingRefToClass eq 'AKSO_Tag Properties Templates_Rev6'|",
+    "exampleAntipattern": "-- WRONG: omit validated pattern for Attribute query with of operator\n-- Review source EIS_data_update.pmlmac before reuse",
+    "pitfalls": [
+      "Attribute must exist on the dbref type",
+      "Use unset()/badref() guards before query"
+    ],
+    "relatedIds": [
+      "pml_unset_badref_check"
+    ],
+    "sourcedoc": "AVEVA PDMS PML Reference",
+    "sourcecodebase": "EIS_data_update.pmlmac"
   }
 ];

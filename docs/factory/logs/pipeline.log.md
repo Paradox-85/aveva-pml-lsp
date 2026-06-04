@@ -90,3 +90,115 @@ Summary: 84/84 files completed; 74 patch-ready; 6 manual-review; 0 missing core 
 | 2026-06-03T23:33:27.214Z | fnc_17 | docs/codebase/functions/RAMBiReportExport.pmlfnc | 0.93 | patch_kb | patch_ready | 8 |
 | 2026-06-03T23:33:27.214Z | fnc_18 | docs/codebase/functions/ramGetBackRef.pmlfnc | 0.61 | patch_kb | patch_ready | 2 |
 | 2026-06-03T23:33:27.214Z | obj_12 | docs/codebase/objects/RAMTagMaturityData.pmlobj | 0.6 | manual_review | manual_review | 0 |
+
+
+## KB v4 inventory — 2026-06-04T22:08:41.424Z
+
+- Wrote `docs/factory/reports/kb-v4-source-inventory.json`
+- Wrote `docs/factory/reports/kb-v4-source-inventory.md`
+
+
+## KB v4 gap aggregate — 2026-06-04T22:08:41.620Z
+
+- Candidate mentions: 880
+- Unique candidate IDs: 546
+- Wrote `docs/factory/reports/kb-v4-gap-aggregate.json`
+- Wrote `docs/factory/reports/kb-v4-gap-aggregate.md`
+
+
+## KB v4 gap analysis — 2026-06-04T22:08:57.226Z
+
+- Unique candidates: 580
+- Decisions: manual_review=71, category_decision_required=470, import_new_candidate_ready=39
+- Wrote `docs/factory/reports/kb-v4-gap-analysis.json`
+- Wrote `docs/factory/reports/kb-v4-gap-analysis.md`
+
+
+## KB v4 gap aggregate — 2026-06-04T22:10:35.753Z
+
+- Candidate mentions: 880
+- Unique candidate IDs: 424
+- Wrote `docs/factory/reports/kb-v4-gap-aggregate.json`
+- Wrote `docs/factory/reports/kb-v4-gap-aggregate.md`
+
+
+## KB v4 gap analysis — 2026-06-04T22:10:35.947Z
+
+- Unique candidates: 458
+- Decisions: manual_review=111, category_decision_required=328, import_new_candidate_ready=19
+- Wrote `docs/factory/reports/kb-v4-gap-analysis.json`
+- Wrote `docs/factory/reports/kb-v4-gap-analysis.md`
+
+## KB v4 pre-import gates complete — 2026-06-04T22:12:30.000Z
+
+- Baseline recorded in `docs/factory/reports/kb-v4-baseline-smoke.*`
+- Baseline validation: typecheck passed, tests passed, validate:kb passed
+- pml-worker/MCP smoke: passed
+- Source inventory: complete
+- Gap aggregation: complete
+- Decision matrix: complete
+- KB import status: not started
+- Production KB files modified: no
+
+## KB v4 batch-1 import — 2026-06-04T22:30:00.000Z
+
+- Imported IDs: `d7_attribute_hash_validation`, `d7_attribute_type_gated_assignment`, `d7_element_creation_api`, `d7_netgridcontrol_excel_io`, `d7_special_char_stripping`
+- Changed KB files: `objects.ts`, `typeconversion.ts`, `dotnetinterop.ts`, `datatypes.ts`
+- New categories added: no
+- Auto-imported patch drafts: no
+- Validation: `npm run validate:kb` passed (123 entries, 18 categories, 0 issues)
+- Typecheck: `npm run typecheck` passed
+- Report: `docs/factory/reports/kb-v4-batch-1-import.md`
+
+## KB v4 remaining-ready import — 2026-06-04T23:50:00.000Z
+
+- Imported 14 remaining `import_new_candidate_ready` entries after repair.
+- Changed KB files: `ui.ts`, `macros.ts`, `typeconversion.ts`, `objects.ts`, `dotnetinterop.ts`, `pdmsinteraction.ts`, `controlflow.ts`
+- New categories added: no
+- Auto-imported patch drafts: no
+- Repairs: normalized `relatedIds`, mapped draft categories to allowed categories, filled/repaired antipattern examples.
+- Validation: `npm run validate:kb` passed (137 entries, 18 categories, 0 issues)
+- Typecheck: `npm run typecheck` passed
+- Tests: `npm test` passed (5 files, 65 tests)
+- Report: `docs/factory/reports/kb-v4-remaining-ready-import.md`
+
+
+## KB v4 manual validation workbook — 2026-06-04T23:06:39.232677Z
+
+- Rows: 439
+- Wrote `docs/factory/reports/kb-v4-manual-validation.xlsx`
+- Wrote `docs/factory/reports/kb-v4-manual-validation.json`
+- Wrote `docs/factory/reports/kb-v4-manual-validation.csv`
+- Rule: import only rows with `userDecision=IMPORT` after human validation.
+
+
+## KB v4 validated workbook import — 2026-06-04T23:32:16.136669+00:00
+
+- Authorized IMPORT rows: 371
+- Authorized REJECT rows: 68
+- Imported new entries: 371
+- Report: `docs/factory/reports/kb-v4-validated-import.md`
+
+
+## KB v4 validated workbook import validation — 2026-06-04T23:33:23.876871+00:00
+
+- `npm run validate:kb` passed (508 entries, 18 categories, 0 issues)
+- `npm run typecheck` passed
+- `npm test` passed (5 files, 65 tests)
+- Search smoke repair: added alias `COLLECT` to `p2_collect_pml1`
+
+
+## KB v4 fallback cleanup Variant B — 2026-06-04T23:51:40.089078+00:00
+
+- Removed entries: 180
+- Repaired entries: 29
+- Remaining fallback-like entries: 4
+- Reports: `docs/factory/reports/kb-v4-fallback-cleanup.md`, `.json`
+
+
+## KB v4 fallback cleanup Variant B validation — 2026-06-04T23:53:24.311897+00:00
+
+- `npm run validate:kb` passed (328 entries, 18 categories, 0 issues)
+- `npm run typecheck` passed
+- `npm test` passed (5 files, 65 tests)
+- Cleanup: removed 180, repaired 29, remaining fallback-like KEEP entries 4

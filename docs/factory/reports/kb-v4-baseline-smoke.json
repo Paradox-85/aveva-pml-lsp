@@ -1,0 +1,24 @@
+{
+  "generatedAt": "2026-06-04T22:12:00.000Z",
+  "cwd": "/c/Work/Development/projects/bami/bami-tech/aveva-automation/clients/bami/rnd/pml-lsp",
+  "gitBaseline": {
+    "branch": "main...origin/main",
+    "preExistingDirtyState": ["M context.md", "?? nul"]
+  },
+  "baselineCommands": [
+    { "command": "npm run typecheck", "status": "passed" },
+    { "command": "npm test", "status": "passed", "summary": "5 files passed, 65 tests passed" },
+    { "command": "npm run validate:kb", "status": "passed", "summary": "Total entries 118, categories 18, issues 0" }
+  ],
+  "pmlWorkerSmoke": {
+    "status": "passed",
+    "checks": [
+      { "tool": "aveva_pml_search_pml_kb", "args": { "query": "HANDLE ANY", "limit": 3 }, "status": "passed" },
+      { "tool": "aveva_pml_lint_pml_code", "code": "HANDLE ANY\nENDHANDLE", "status": "passed", "parseErrorCount": 0, "diagnostics": [] },
+      { "tool": "aveva_pml_lint_pml_code", "code": "!a = ARRAY()\n!a.Append(|test|)", "status": "passed", "parseErrorCount": 0, "diagnostics": [] },
+      { "tool": "aveva_pml_get_pml_syntax_reference", "status": "passed" }
+    ]
+  },
+  "importStatus": "not_started",
+  "kbProductionFilesModified": false
+}

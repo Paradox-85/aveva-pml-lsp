@@ -299,5 +299,144 @@ export const formsEntries: KBEntry[] = [
     ],
     "sourcedoc": "Perplexity PML KB §3.3/§9.3; codebase NETGRID usage",
     "sourcecodebase": "ramImportExcelProcessor.pmlfrm"
+  },
+  {
+    "id": "logger-form-refresh-side-effect",
+    "category": "forms",
+    "subcategory": "global-form-integration",
+    "title": "Logger updates can mark a global form refresh button by changing gadget background",
+    "principle": "Logger-side UI refresh flags can be communicated through gadget state such as background color.",
+    "rule": "Logger-side UI refresh flags can be communicated through gadget state such as background color.",
+    "syntax": "------------------------------------------------------------------------\ndefine method .addLogDetails(!toolName is STRING, !details is ARRAY, !severityLevel is REAL)",
+    "exampleCanonical": "-- CB ramCommonLogger.pmlobj\n------------------------------------------------------------------------\ndefine method .addLogDetails(!toolName is STRING, !details is ARRAY, !severityLevel is REAL)\n  if(defined(!!ramCommonLoggerForm)) then\n    !!ramCommonLoggerForm.buRefresh.background = 2\n  endif\n  !finalLog                                    = object ARRAY()\n  !finalLog.Append(!severityLevel)\n  !finalLog.Append(!toolName)\n  !finalLog.AppendArray(!details)\n  !this.logDataList.append(!finalLog)\nendmethod",
+    "exampleAntipattern": "-- WRONG: use Logger updates can mark a global form refresh button by changing gadget background without validating the source context in ramCommonLogger.pmlobj",
+    "pitfalls": [
+          "Validate against ramCommonLogger.pmlobj before reusing the pattern.",
+          "Keep source-specific names and database context explicit when adapting this snippet."
+    ],
+    "relatedIds": [
+      "frm_callback_syntax"
+    ],
+    "sourcedoc": "AVEVA PML Reference",
+    "sourcecodebase": "ramCommonLogger.pmlobj"
+  },
+  {
+    "id": "pml-statement-show",
+    "category": "forms",
+    "subcategory": "form-display",
+    "title": "SHOW — Display a form by global reference",
+    "principle": "SHOW statement displays a form identified by a global variable reference. Used to present user-facing dialogs from PML code.",
+    "rule": "SHOW !!formGlobalVar — displays the form referenced by the global variable",
+    "syntax": "SHOW !!ramimportExcelReclassificationForm\n!!ramimportExcelReclassificationForm.loadData(!this)",
+    "exampleCanonical": "-- CB ramImportExcelElementLoader.pmlobj\n-- CB obj_06: show reclassification form\nSHOW !!ramimportExcelReclassificationForm\n!!ramimportExcelReclassificationForm.loadData(!this)",
+    "exampleAntipattern": "show !localForm -- SHOW requires global variable reference",
+    "pitfalls": [
+      "SHOW requires a global (!!) form reference, not a local variable",
+      "Form must be previously loaded/imported"
+    ],
+    "relatedIds": [
+      "frm_callback_syntax"
+    ],
+    "sourcedoc": "obj_06 (ramImportExcelElementLoader.pmlobj)",
+    "sourcecodebase": "ramImportExcelElementLoader.pmlobj"
+  },
+  {
+    "id": "pml_fmt_datetime_string",
+    "category": "forms",
+    "subcategory": "datetime formatting",
+    "title": "DATETIME object with .string() format codes",
+    "principle": "The OBJECT DATETIME() construct returns a datetime object with methods for year, month, date, hour, minute, second. Each can be formatted via .string(formatCode).",
+    "rule": "Use `.string('I2')` for zero-padded 2-digit integers, `.string('I4')` for 4-digit years. Format codes follow PDMS/E3D FORMAT conventions.",
+    "syntax": "!dt = OBJECT DATETIME()\n!year = !dt.year()\n!month = !dt.month().string('I2')",
+    "exampleCanonical": "-- CB manual-data-export.pmlmac\n-- Build a timestamped filename\n!dt = OBJECT DATETIME()\n!ts = !dt.year().string() & '-' & !dt.month().string('I2') & '-' & !dt.date().string('I2')",
+    "exampleAntipattern": "-- Don't use .string() without format code for zero-padding\n!month = !dt.month().string() -- may produce single-digit '3' instead of '03'",
+    "pitfalls": [
+      "Format codes like 'I2' are PDMS/E3D FORMAT codes; their exact behavior may vary by product version.",
+      ".year() returns a REAL; .string() on a bare REAL may not zero-pad."
+    ],
+    "relatedIds": [
+      "frm_callback_syntax"
+    ],
+    "sourcedoc": "AVEVA E3D PML Customization",
+    "sourcecodebase": "manual-data-export.pmlmac"
+  },
+  {
+    "id": "macro_finish_directive",
+    "category": "forms",
+    "subcategory": "lifecycle",
+    "title": "FINISH directive — macro termination",
+    "principle": "The FINISH directive explicitly terminates a PML macro execution and returns control to the calling context.",
+    "rule": "Place FINISH at the end of a macro to signal clean completion. Equivalent to implicit end-of-file termination but makes intent explicit.",
+    "syntax": "FINISH",
+    "exampleCanonical": "-- CB EBA_full_tag_export.pmlmac\n!dataTable.saveGridToExcel(|$!<publishPath>$!<dataFileName>|)\n\nFINISH",
+    "exampleAntipattern": "-- WRONG: omit validated pattern for FINISH directive — macro termination\n-- Review source EBA_full_tag_export.pmlmac before reuse",
+    "pitfalls": [
+      "FINISH in a macro is optional — the macro ends at EOF. Use it to clarify intent."
+    ],
+    "relatedIds": [],
+    "sourcedoc": "AVEVA E3D PML Macros Reference",
+    "sourcecodebase": "EBA_full_tag_export.pmlmac"
+  },
+  {
+    "id": "form_anchor_form_size_keyword",
+    "category": "forms",
+    "subcategory": "form_layout",
+    "title": "form-size anchor positioning keyword",
+    "principle": "The 'form-size' keyword in anchor positioning references the full form dimensions, equivalent to the form's client area bounds.",
+    "rule": "Use 'form-size' instead of ad-hoc expressions like 'form+1' for reliable form-relative positioning.",
+    "syntax": "anchor all at xmin form-size ymax+0.5",
+    "exampleCanonical": "-- CB ramCommonLoggerForm.pmlfrm\nframe .frLogList anchor all at xmin form-size ymax+0.5 width 60 height 10\nbutton .buExport anchor l+b at xmin form-size ymax+0.5 WIDTH 10",
+    "exampleAntipattern": "anchor all at xmin form+1 ymax+0.5\n-- 'form+1' is non-standard and may behave unpredictably across PML versions.",
+    "pitfalls": [
+      "form-size represents the form's client area, not the full window including title bar.",
+      "Do not mix form-size with numeric offsets without testing — form-size already accounts for form dimensions."
+    ],
+    "relatedIds": [
+      "frm_callback_syntax"
+    ],
+    "sourcedoc": "AVEVA E3D Design Customization Guide - Form Gadgets",
+    "sourcecodebase": "ramCommonLoggerForm.pmlfrm"
+  },
+  {
+    "id": "forms_layout_gadget_method_access",
+    "category": "forms",
+    "subcategory": "layout",
+    "title": "Accessing layout gadgets from form methods via !this.gadgetName",
+    "principle": "Gadgets defined in layout sections are accessible in form methods via !this.<gadgetName> without explicit member declaration.",
+    "rule": "A list/button/container gadget defined in layout can be referenced as !this.gadgetName in methods. No member declaration needed for gadget access.",
+    "syntax": "layout form !!FormName\n  list .myList 'Items' exit\ndefine method .method()\n  !this.myList.dText = !array\nendmethod",
+    "exampleCanonical": "-- CB jackimform.pmlfrm\nlayout form !!JACKIMFORM\n\tpath DOWN\n\tframe .overallFrame panel anchor all width 20 height 17\n\t\tlist .reports 'Templates' CALL || anchor b + l + t width 20 height 31\n\texit\nmember .reports is ARRAY\ndefine method .init()\n\t!reports = array()\n\t!reports.append('Item 1')\n\t!this.reports.dText = !reports\nendmethod",
+    "exampleAntipattern": "Declaring list gadget members as ARRAY when they should remain as gadget references:\nmember .reports is ARRAY  -- .reports is a list gadget, not an ARRAY member",
+    "pitfalls": [
+      "Gadget attributes (dText, val, tag) differ from PML member types",
+      "Linter may report unknown-form-member for gadget references — these are valid PML",
+      "Do not mix gadget references with declared members of same name"
+    ],
+    "relatedIds": [
+      "frm_callback_syntax"
+    ],
+    "sourcedoc": "AVEVA PML Customization — Form Gadget Reference",
+    "sourcecodebase": "jackimform.pmlfrm"
+  },
+  {
+    "id": "ui_form_menu_dynamic",
+    "category": "forms",
+    "subcategory": "menu",
+    "title": "Dynamic Menu Creation in PML Forms",
+    "principle": "PML forms support dynamic menu creation via !this.newMenu() and bar.add() methods, enabling runtime popup and bar menus.",
+    "rule": "Use !this.newMenu('menuName') to create a menu object, then .add('callback', 'label', 'command') to add entries. Use !this.bar.add('category', 'name') for bar menu entries.",
+    "syntax": "!menu = !this.newMenu('menuName')\n!menu.add('callback', 'Label Text', '!this.methodName()')\n!this.bar.add('Category', 'name')",
+    "exampleCanonical": "-- CB jacEISDeliveryForm.pmlfrm\n-- Dynamic menu in form constructor\n!this.bar.add('Tools', 'toolsMenu')\n!toolsMenu = !this.newMenu('toolsMenu')\n!toolsMenu.add('callback', 'Option 1', '!this.doOption1()')\n!toolsMenu.add('callback', 'Option 2', '!this.doOption2()')",
+    "exampleAntipattern": "-- Static menu defined at form setup (less flexible)\n!menu = menu\n!menu.add('Static', '.staticMethod')",
+    "pitfalls": [
+      "Menu names must be unique within the form scope",
+      "Callback commands are strings, not method references",
+      "Bar menu categories appear as submenus"
+    ],
+    "relatedIds": [
+      "frm_callback_syntax"
+    ],
+    "sourcedoc": "AVEVA PML Customization Guide - Forms and Menus",
+    "sourcecodebase": "jacEISDeliveryForm.pmlfrm"
   }
 ];

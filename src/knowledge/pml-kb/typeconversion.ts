@@ -141,5 +141,131 @@ export const typeconversionEntries: KBEntry[] = [
     ],
     "sourcedoc": "Perplexity PML KB EIS pattern; codebase EIS_data_export",
     "sourcecodebase": "EIS_data_export.pmlmac"
+  },
+
+  {
+    id: 'd7_attribute_type_gated_assignment',
+    category: 'typeconversion',
+    subcategory: 'attribute_assignment',
+    title: 'Type-gated attribute value assignment',
+    principle: 'Before assigning an attribute value, check the attribute type (objecttype) and use the appropriate conversion method (real(), string(), dbref()).',
+    rule: 'Obtain attribute value via !tagRef.attribute(!attr.name()), check objecttype(), then assign using the matching conversion method within a handle any block.',
+    syntax: `!currentValue = !tagRef.attribute(!attr.name())
+!valType = !currentValue.objecttype()
+if (!valType eq 'REAL') then
+  !tagRef.attribute(!attr.name()) = !fileVal.real()
+endif
+if (!valType eq 'STRING') then
+  !tagRef.attribute(!attr.name()) = !fileVal.string()
+endif
+if (!valType eq 'DBREF') then
+  !tagRef.attribute(!attr.name()) = (!fileVal).dbref()
+endif`,
+    exampleCanonical: `-- CB JDE_newtag_import.pmlmac
+!currentValue = !tagRef.attribute(!attr.name())
+!valType = !currentValue.objecttype()
+if (!valType eq 'REAL') then
+  !tagRef.attribute(!attr.name()) = !fileVal.real()
+  handle any
+    !err = |$!tag;$!col;$!fileVal;$!!error.text|
+    !issueData.append(!err.split(|;|))
+  endhandle
+endif`,
+    exampleAntipattern: `-- Assigning without type check
+!tagRef.attribute(!attr.name()) = !fileVal  -- may fail if types mismatch`,
+    pitfalls: [
+      'Always check objecttype() before assigning — different types need different conversion methods',
+      'Wrap each type-gated assignment in handle any to catch conversion failures',
+      'ARRAY type attributes should be skipped (not assigned via simple assignment)',
+      'DBREF values need / prefix prepended before .dbref() conversion'
+    ],
+    relatedIds: ['d7_attribute_hash_validation', 'tc_string_to_real', 'dt_dbref_usage', 'dt_string_substitution'],
+    sourcedoc: 'AVEVA Engineering PML Customization',
+    sourcecodebase: 'JDE_newtag_import.pmlmac'
+  },
+  {
+    id: 'd7_string_dbref_conversion',
+    category: 'typeconversion',
+    subcategory: 'dbref',
+    title: 'STRING to DBREF conversion via .dbref() method',
+    principle: 'Convert a STRING variable to a DBREF using the .dbref() method for database element references.',
+    rule: 'Use !tagName.dbref() where !tagName is a STRING in the format /$<element_path> to obtain a DBREF.',
+    syntax: `!tagName = |/path/to/element|
+!tagRef = !tagName.dbref()`,
+    exampleCanonical: `-- CB JDE_newtag_import.pmlmac
+!tag = |/$!<Tag>|
+!tagRef = !tag.dbref()`,
+    exampleAntipattern: `-- Using dbref command instead of method
+DBREF !tagRef /path/to/element  -- PML1 style, not PML2 method`,
+    pitfalls: [
+      'The string must be in valid element path format (e.g., /$<Type>/<Name>)',
+      'The referenced element must exist or be creatable in the current session scope',
+      'DBREF conversion does not validate element existence — handle errors after use'
+    ],
+    relatedIds: ['dt_dbref_usage', 'pdms_dbref_resolve'],
+    sourcedoc: 'AVEVA Engineering PML Customization — PML Expressions',
+    sourcecodebase: 'JDE_newtag_import.pmlmac'
+  },
+  {
+    id: 'string_interpolation_dollar_var',
+    category: 'typeconversion',
+    subcategory: 'dollar',
+    title: 'Dollar-string interpolation $! and $< for tag references',
+    principle:
+      "Use $! for variable substitution and $< for tag/element reference construction within pipe-delimited strings.",
+    rule:
+      '|$!<variable>| expands variable value into a tag reference; $!!error.text accesses error object text.',
+    syntax: `!tagName = |$!<Tag>|
+!errorText = $!!error.text`,
+    exampleCanonical: `-- CB JDE_tagProperties_upload.pmlmac
+!tagName = |$!<Tag>|
+!tagref = !tagName.dbref()
+!issueMsg = |$!<Tag>;$!!error.text|`,
+    exampleAntipattern: `-- WRONG: missing dollar interpolation delimiters
+!tagName = |<Tag>|`,
+    pitfalls: [
+      '$! and $< only work inside pipe-delimited strings.',
+      '$!!error.text must be accessed within a handle/elsehandle block.',
+    ],
+    relatedIds: ['dt_string_declaration', 'dt_string_substitution', 'eh_handle_any'],
+    sourcedoc: 'best-practices.md, commands-reference.md',
+    sourcecodebase: 'JDE_tagProperties_upload.pmlmac',
+  },
+  {
+    "id": "KB-EXPR-DOLLAR-DYNAMIC-CONSTRUCT",
+    "category": "typeconversion",
+    "subcategory": "dollar-substitution",
+    "title": "Dynamic object construction via $! variable substitution",
+    "principle": "The `$!varName` syntax substitutes a variable's value into command or expression text. When used as `object $!typeName()`, it dynamically creates an object of the type named by the variable's value. This is a PML1 legacy feature that coexists with PML2.",
+    "rule": "Use `$!typeName` only when the type name is determined at runtime. Prefer direct `object TYPE()` when the type is known at compile time.",
+    "syntax": "object $!typeName()\n$!attributeName DEFAULT",
+    "exampleCanonical": "-- CB ramTagManagement.pmlobj\n-- Dynamic object creation\n!type = !currentValue.objecttype()\n!output = object $!type()\n\n-- Legacy PML1 dollar substitution in command context\n$!attributeName DEFAULT",
+    "exampleAntipattern": "-- DANGEROUS: typeName not validated\n!output = object $!typeName()",
+    "pitfalls": [
+      "If the variable is UNSET or BADREF, the substitution produces empty string and the construct fails silently.",
+      "The substituted value is treated as a command/expression, not a type identifier, so type safety is not enforced."
+    ],
+    "relatedIds": [],
+    "sourcedoc": "AVEVA PML Customization Guide",
+    "sourcecodebase": "ramTagManagement.pmlobj"
+  },
+  {
+    "id": "pml_eqnocase_method",
+    "category": "typeconversion",
+    "subcategory": "string",
+    "title": "Case-Insensitive String Comparison with eqnocase()",
+    "principle": "Use .eqnocase() method for case-insensitive string comparison. This is equivalent to .eq() but ignores letter case differences.",
+    "rule": "Call .eqnocase(|value|) on a STRING object to compare against another string ignoring case. Returns TRUE if strings match regardless of case.",
+    "syntax": "!isMatch = !str1.eqnocase(|value|)",
+    "exampleCanonical": "-- CB TB terminal correction macro.pmlmac\n-- CB mac_46\n!isIncomConn = !outConn[1].:RefConnectionsOut.acttype.eqnocase(|:IncomingConnection|)",
+    "exampleAntipattern": "-- BAD: Using .eq() for case-insensitive comparison\n!isMatch = !str1.eq(|:incomingconnection|)  -- fails if case differs",
+    "pitfalls": [
+      "eqnocase() is a STRING method; ensure the receiver is a STRING",
+      "Not available on non-string PML types",
+      "Use .eq() for case-sensitive comparison when needed"
+    ],
+    "relatedIds": [],
+    "sourcedoc": "AVEVA PML Reference — String Methods",
+    "sourcecodebase": "TB terminal correction macro.pmlmac"
   }
 ];

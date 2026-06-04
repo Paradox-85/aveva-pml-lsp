@@ -237,5 +237,663 @@ export const pdmsinteractionEntries: KBEntry[] = [
     ],
     "sourcedoc": "AVEVA navigation pseudo attributes; Perplexity PML KB; codebase ramGetBackRef",
     "sourcecodebase": "ramGetBackRef.pmlfnc"
+  },
+  {
+    id: 'pdms_collect_all_multi_class',
+    category: 'pdmsinteraction',
+    subcategory: 'pdmsinteraction',
+    title: 'collect all with multiple PDMS class names and filters',
+    principle: 'The "collect all" query can target multiple PDMS class names in one expression, optionally with a filter clause.',
+    rule: 'Use "var !items collect all (CLASS1 CLASS2 CLASS3) with (FILTER)" to collect objects across multiple types in a single query.',
+    syntax: 'var !items collect all (CLASS_A CLASS_B) with (EXPRESSION)',
+    exampleCanonical: `-- CB EBA_full_tag_export.pmlmac
+var !items collect all (EQUI SUBE STRUC FRMW SBFR PIPE HVAC CWAY SUPPO BRAN MEM) with (ISNAMED)`,
+    exampleAntipattern: `-- WRONG: collect without ISNAMED filter
+var !items collect all (EQUI PIPE)`,
+    pitfalls: [
+      'ISNAMED filter excludes unnamed objects.',
+      'Large class sets can be slow; consider restricting scope with site/zone filters.',
+    ],
+    relatedIds: ['pdms_attribute_query', 'pdms_current_element'],
+    sourcedoc: 'AVEVA E3D/PDMS Query Reference',
+    sourcecodebase: 'EBA_full_tag_export.pmlmac',
+  },
+  {
+    id: 'pdms_dtxr_attribute',
+    category: 'pdmsinteraction',
+    subcategory: 'pdmsinteraction',
+    title: 'dtxr — PDMS description-text pseudo-attribute',
+    principle: 'The "dtxr" pseudo-attribute returns the description text of a PDMS object. Used as a fallback when "desc" is unavailable.',
+    rule: 'Use "var !desc dtxr of $!ref" to retrieve the description text. Typically used as a fallback after "desc of $!ref" fails.',
+    syntax: 'var !desc dtxr of $!objectRef',
+    exampleCanonical: `-- CB EBA_full_tag_export.pmlmac
+var !desc desc of $!item
+handle any
+    var !desc dtxr of $!item
+endhandle`,
+    exampleAntipattern: `-- WRONG: use desc only without fallback
+var !desc desc of $!item`,
+    pitfalls: [
+      '"dtxr" may be empty if no description is set. Always check UNSET before using.',
+    ],
+    relatedIds: ['pdms_attribute_query', 'pdms_current_element'],
+    sourcedoc: 'AVEVA E3D/PDMS Attribute Reference',
+    sourcecodebase: 'EBA_full_tag_export.pmlmac',
+  },
+  {
+    id: 'pdms_namn_attribute',
+    category: 'pdmsinteraction',
+    subcategory: 'pdmsinteraction',
+    title: 'namn — PDMS object name pseudo-attribute',
+    principle: 'The "namn" pseudo-attribute returns the PDMS name of an object. It is accessed as "namn of $!ref" or via substitute expression "$!ref.namn".',
+    rule: 'Use "var !name namn of $!ref" or "$!ref.namn" in pipe strings. Alias for "name" in some PDMS versions.',
+    syntax: 'var !name namn of $!objectRef',
+    exampleCanonical: `-- CB EBA_full_tag_export.pmlmac
+var !itemRef = !item.dbref()
+!name = $!<itemRef.namn>`,
+    exampleAntipattern: `-- WRONG: use full name when short name is required
+!name = !itemRef.name`,
+    pitfalls: [
+      '"namn" is a PDMS-specific spelling; E3D may use "name" instead. Use "$!ref.namn" for maximum compatibility.',
+    ],
+    relatedIds: ['pdms_attribute_query', 'pdms_current_element'],
+    sourcedoc: 'AVEVA E3D/PDMS Attribute Reference',
+    sourcecodebase: 'EBA_full_tag_export.pmlmac',
+  },
+  {
+    "id": "KB-QUERY-COLLECTALLFOR-WORL",
+    "category": "pdmsinteraction",
+    "subcategory": "collectAllFor",
+    "title": "collectAllFor with WORL scope for universal search",
+    "principle": "The `!!collectAllFor(type, expression, scope)` function searches the AVEVA database for elements matching criteria. The WORL scope searches universally across all disciplines.",
+    "rule": "Always check `.set()` on the result before accessing `.first()` or iterating.",
+    "syntax": "!results = !!collectAllFor(|ElementType|, |EXPRESSION|, WORL)\nif(!results.set()) then\n  !target = !results.first()\nendif",
+    "exampleCanonical": "-- CB ramTagManagement.pmlobj\n-- Find UDA by name universally\n!udaList = !!collectAllFor(|UDA|, |UPCASE(UDNAME) EQ UPCASE('MyUDA')|, WORL)\nif(!udaList.set()) then\n  !attributeRefe = !udaList.first()\nendif",
+    "exampleAntipattern": "-- No set() check\n!udaList = !!collectAllFor(|UDA|, |EXPRESSION|, WORL)\n!target = !udaList.first() -- may fail if empty",
+    "pitfalls": [
+      "WORL scope can be slow on large projects.",
+      "Expression syntax depends on AVEVA product version.",
+      "Result may be empty if no matching elements exist."
+    ],
+    "relatedIds": [
+      "pdms_attribute_query"
+    ],
+    "sourcedoc": "AVEVA PDMS Query Reference",
+    "sourcecodebase": "ramTagManagement.pmlobj"
+  },
+  {
+    "id": "objects_pmltags",
+    "category": "pdmsinteraction",
+    "subcategory": "PMLTAGS",
+    "title": "PMLTAGS object and GetListDefinition method",
+    "principle": "PMLTAGS is a system object providing access to tag list definitions and database views.",
+    "rule": "!!tags = object PMLTAGS()\n!gridDef = !!tags.GetListDefinition(!catName, !listName)\n!viewName = !gridDef.DbViewName()",
+    "syntax": "PMLTAGS.GetListDefinition(category, listName) → DBREF",
+    "exampleCanonical": "-- CB EBE_delta_tag_export.pmlmac\n-- CB mac_03\n!!tags = object PMLTAGS()\n!gridDef = !!tags.GetListDefinition('EQUINOR_TR3111_V7', !listName)\n!sourceDbView = !gridDef.DbViewName()",
+    "exampleAntipattern": "-- WRONG: omit validated pattern for PMLTAGS object and GetListDefinition method\n-- Review source EBE_delta_tag_export.pmlmac before reuse",
+    "pitfalls": [
+      "Category name must match exactly; case-sensitive",
+      "List name must exist in the specified category"
+    ],
+    "relatedIds": [
+      "pdms_attribute_query"
+    ],
+    "sourcedoc": "AVEVA Engineering Tags API",
+    "sourcecodebase": "EBE_delta_tag_export.pmlmac"
+  },
+  {
+    "id": "pdms_old_qualifier",
+    "category": "pdmsinteraction",
+    "subcategory": "OLD",
+    "title": "OLD attribute qualifier for deleted element values",
+    "principle": "Use OLD qualifier to retrieve the value of an attribute before an element was deleted.",
+    "rule": "VAR !val OLD $!attribute of $!dbref",
+    "syntax": "OLD <attribute_expression> of <dbref>",
+    "exampleCanonical": "-- CB EBE_delta_tag_export.pmlmac\n-- CB mac_03\nif (!action eq |DELETE|) then\n  !evaluate = |var !val OLD $!expression of $!tag|\nendif\n$!<evaluate>",
+    "exampleAntipattern": "-- WRONG: omit validated pattern for OLD attribute qualifier for deleted element values\n-- Review source EBE_delta_tag_export.pmlmac before reuse",
+    "pitfalls": [
+      "OLD qualifier only works for deleted elements; using it on existing elements may fail",
+      "Must use dynamic $! evaluation to pass attribute name at runtime"
+    ],
+    "relatedIds": [
+      "pdms_attribute_query"
+    ],
+    "sourcedoc": "AVEVA Engineering Database Interface",
+    "sourcecodebase": "EBE_delta_tag_export.pmlmac"
+  },
+  {
+    "id": "d7_dual_attribute_fallback",
+    "category": "pdmsinteraction",
+    "subcategory": "fallback-assignment",
+    "title": "Dual-attribute fallback pattern for mapping table lookups",
+    "principle": "When a mapping table provides two possible attribute names for a source column, attempt assignment to the primary attribute first, then fall back to the alternative attribute if the primary is invalid or the alternative name is non-empty.",
+    "rule": "From mapping table, extract attributeName1 (primary) and attributeName2 (alternative). Create ATTRIBUTE objects for both. Check !attribute1.hash() gt 0 for validity. If primary fails or attributeName2 is non-empty, repeat the type-gated assignment for attribute2.",
+    "syntax": "!attributeName1 = !mappingData[!mappedIdx][2]\\n!attributeName2 = !mappingData[!mappedIdx][3]\\n!attribute1 = object ATTRIBUTE(!attributeName1)\\n!attribute2 = object ATTRIBUTE(!attributeName2)\\n-- Primary assignment with error handling\\nif (!attribute1.hash() gt 0) then\\n  !currentValue = !tagref.attribute(!attribute1.name())\\n  -- type-gated assignment ...\\nendif\\n-- Fallback to alternative\\nif (!attributeName2.trim() neq ||) then\\n  if (!attribute2.hash() gt 0) then\\n    -- type-gated assignment ...\\n  endif\\nendif",
+    "exampleCanonical": "-- CB JDE_vendortag_import.pmlmac\n!attributeName1 = !mappingData[!mappedIdx][2]\\n!attributeName2 = !mappingData[!mappedIdx][3]\\n!attribute1 = object ATTRIBUTE(!attributeName1)\\n!attribute2 = object ATTRIBUTE(!attributeName2)\\nif (!attribute1.hash() gt 0) then\\n  !currentValue = !tagref.attribute(!attribute1.name())\\n  -- type-gated assignment ...\\nendif\\nif (!attributeName2.trim() neq ||) then\\n  if (!attribute2.hash() gt 0) then\\n    !currentValue = !tagref.attribute(!attribute2.name())\\n    -- type-gated assignment ...\\n  endif\\nendif",
+    "exampleAntipattern": "-- Skipping fallback means some columns may never get assigned\\n-- when primary attribute name is invalid",
+    "pitfalls": [
+      "Both attributes must be checked for hash() > 0 before assignment",
+      "Trim alternative attribute name before checking emptiness",
+      "Error messages should include both attribute names for debugging",
+      "Consider logging which attribute was successfully assigned"
+    ],
+    "relatedIds": [
+      "d7_attribute_type_gated_assignment"
+    ],
+    "sourcedoc": "AVEVA Engineering PML Objects",
+    "sourcecodebase": "JDE_vendortag_import.pmlmac"
+  },
+  {
+    "id": "mac_08:unknown:73",
+    "category": "pdmsinteraction",
+    "subcategory": "type-gated-assignment",
+    "title": "Type-gated attribute value assignment with objecttype() detection",
+    "principle": "Attribute assignment can be gated by objecttype() so different element classes receive the correct attribute values.",
+    "rule": "Attribute assignment can be gated by objecttype() so different element classes receive the correct attribute values.",
+    "syntax": "--issue data\n!issueData = ARRAY()",
+    "exampleCanonical": "-- CB JDE_vendortag_import.pmlmac\n--issue data\n!issueData = ARRAY()\n!headerList = ARRAY()\n!msg = |Tag No;Tag Type;Attribute;Value;Issue Description|\n!headerList.appendArray(!msg.split(|;|))\n--benchmarking\n!cleanHeading = ARRAY()\ndo !col values !heading\n	!cleanHeading.append(!col.LowCase().trim())\nenddo\n--mapping table retrieving\n!mappedColumns = ARRAY()",
+    "exampleAntipattern": "-- WRONG: use Type-gated attribute value assignment with objecttype() detection without validating the source context in JDE_vendortag_import.pmlmac",
+    "pitfalls": [
+          "Validate against JDE_vendortag_import.pmlmac before reusing the pattern.",
+          "Keep source-specific names and database context explicit when adapting this snippet."
+    ],
+    "relatedIds": [
+          "pdms_attribute_update",
+          "p2_attribute_dynamic"
+    ],
+    "sourcedoc": "AVEVA PML Reference",
+    "sourcecodebase": "JDE_vendortag_import.pmlmac"
+  },
+  {
+    "id": "mac_08:unknown:74",
+    "category": "pdmsinteraction",
+    "subcategory": "fallback-assignment",
+    "title": "Dual-attribute fallback pattern for mapping table lookups",
+    "principle": "Mapping-table lookups often need a primary attribute and a fallback attribute when the preferred value is absent.",
+    "rule": "Mapping-table lookups often need a primary attribute and a fallback attribute when the preferred value is absent.",
+    "syntax": "					--get mapped attribute\n					!mappedIdx = !mappedColumns.findFirst(!col.lowCase())",
+    "exampleCanonical": "-- CB JDE_vendortag_import.pmlmac\n					--get mapped attribute\n					!mappedIdx = !mappedColumns.findFirst(!col.lowCase())\n					if (!mappedIdx.set()) then\n						!attributeName1 = !mappingData[!mappedIdx][2]\n						!attributeName2 = !mappingData[!mappedIdx][3]\n						!attribute1 = object ATTRIBUTE(!attributeName1)\n						!attribute2 = object ATTRIBUTE(!attributeName2)\n						if (!fileValue.empty().not() and !fileValue.lowcase() neq |na| and !fileValue.lowcase() neq |n/a| and !fileValue.lowcase() neq |unset| and !fileValue neq |0|) then\n							--set value for attribute 1 (shell attribute)\n							if (!attribute1.hash() gt 0) then\n								!currentValue = !tagref.attribute(!attribute1.name())\n								handle none\n									!isError = false",
+    "exampleAntipattern": "-- WRONG: use Dual-attribute fallback pattern for mapping table lookups without validating the source context in JDE_vendortag_import.pmlmac",
+    "pitfalls": [
+          "Validate against JDE_vendortag_import.pmlmac before reusing the pattern.",
+          "Keep source-specific names and database context explicit when adapting this snippet."
+    ],
+    "relatedIds": [],
+    "sourcedoc": "AVEVA PML Reference",
+    "sourcecodebase": "JDE_vendortag_import.pmlmac"
+  },
+  {
+    "id": "cb_mac_23_reload_object",
+    "category": "pdmsinteraction",
+    "subcategory": "pml-reload",
+    "title": "PML RELOAD OBJECT — перезагрузка PML-объекта",
+    "principle": "PML RELOAD OBJECT <name> перезагружает уже загруженный PML-объект, обновляя его определение из исходного файла.",
+    "rule": "Используйте PML RELOAD OBJECT когда объект был изменён и требуется обновление без перезапуска сессии.",
+    "syntax": "PML RELOAD OBJECT <ObjectName>",
+    "exampleCanonical": "-- CB JDE_exData_import.pmlmac\n-- Перезагрузка объекта TAGMANAGEMENTTMP\\nPML RELOAD OBJECT TAGMANAGEMENTTMP\\n-- Аналогично для любого другого PML-объекта\\nPML RELOAD OBJECT MyFormObject",
+    "exampleAntipattern": "-- НЕ: PML RELOAD OBJECT с несуществующим именем\\nPML RELOAD OBJECT NonExistentObject\\n-- Это вызовет ошибку времени выполнения",
+    "pitfalls": [
+      "Объект должен быть предварительно загружен (через import или ранее определённый).",
+      "Перезагрузка уничтожает текущие экземпляры объекта.",
+      "Не путать с PML REHASH ALL (перезагружает все)."
+    ],
+    "relatedIds": [],
+    "sourcedoc": "AVEVA PML Customization — Control Logic section",
+    "sourcecodebase": "JDE_exData_import.pmlmac"
+  },
+  {
+    "id": "dbview_creation_commands",
+    "category": "pdmsinteraction",
+    "subcategory": "dbview_lifecycle",
+    "title": "DbView (DBVW) creation and configuration commands",
+    "principle": "DbView objects are created with NEW DBVW, configured with DESC/UDNA/AUTCRE/ALWDEL/ELEL commands",
+    "rule": "NEW DBVW → DESC → UDNA → AUTCRE → ALWDEL → ELEL REM ALL → configure sub-objects (EXPFIL/EXPCOL/ATTCOL)",
+    "syntax": "!dbView = !name.dbref()\nNEW DBVW $!name\nDESC |description|\nUDNA |udname|\nAUTCRE TRUE\nALWDEL TRUE\nELEL REM ALL",
+    "exampleCanonical": "-- CB JDE_dbView_creator.pmlmac\n-- CB mac_20\n!dbView = !dbViewName.dbref()\nhandle any\n  NEW DBVW $!dbViewName\n  !dbViewUdname = !dbViewDesc.replace(|-|, | |)\n  DESC |$!dbViewUdname|\n  UDNA |$!dbViewUdname|\n  AUTCRE TRUE\n  ALWDEL TRUE\n  ELEL REM ALL\n  !dbView = !!ce\nendhandle",
+    "exampleAntipattern": "NEW DBVW !name  -- missing $ prefix for variable",
+    "pitfalls": [
+      "Must use $! for variable substitution in command context",
+      "AUTCRE/ALWDEL require TRUE/FALSE values",
+      "ELEL REM ALL clears existing element list"
+    ],
+    "relatedIds": [
+      "dbview_sub_objects",
+      "string_replace_method"
+    ],
+    "sourcedoc": "AVEVA E3D PML Documentation",
+    "sourcecodebase": "JDE_dbView_creator.pmlmac"
+  },
+  {
+    "id": "dbview_elel_property",
+    "category": "pdmsinteraction",
+    "subcategory": "dbview_sub_objects",
+    "title": "DbView .elel property for element iteration",
+    "principle": "DbView objects expose a .elel property that returns the list of elements included in the view.",
+    "rule": "Access !dbView.elel to iterate through elements of a DbView. Each element is a DBREF.",
+    "syntax": "do !ele values !dbView.elel\n  !eleName = !ele.Udname\nenddo",
+    "exampleCanonical": "-- CB JDE_dbView_extractor.pmlmac\ndo !ele values !dbView.elel\n  !string = !dbViewName & |;1_ELEL;;| & !ele & |;;|\n  !data.append(!string.split(|;|))\nenddo",
+    "exampleAntipattern": "-- WRONG: omit validated pattern for DbView .elel property for element iteration\n-- Review source JDE_dbView_extractor.pmlmac before reuse",
+    "pitfalls": [
+      "!ele is a DBREF, not a string — concatenate with string for CSV output"
+    ],
+    "relatedIds": [
+      "dbview_sub_object_types"
+    ],
+    "sourcedoc": "JDE_dbView_extractor.pmlmac",
+    "sourcecodebase": "JDE_dbView_extractor.pmlmac"
+  },
+  {
+    "id": "dbview_sub_object_types",
+    "category": "pdmsinteraction",
+    "subcategory": "dbview_sub_objects",
+    "title": "DbView sub-object types: ELEL, EXPFIL, ATTFIL, EXPCOL, ATTCOL",
+    "principle": "DbView objects expose sub-objects (elements, expression filters, attribute filters, expression columns, attribute columns) that can be queried via !!CollectAllFor with type filter and $!dbView scope.",
+    "rule": "Use !!CollectAllFor('EXPFIL'|'ATTFIL'|'EXPCOL'|'ATTCOL', ||, $!dbView) to collect DbView sub-objects scoped to a specific DbView instance.",
+    "syntax": "!subList = !!CollectAllFor('<TYPE>', ||, $!<dbViewRef>)\ndo !item values !subList\n  !prop = !item.Property\nenddo",
+    "exampleCanonical": "-- CB JDE_dbView_extractor.pmlmac\n-- Collect all EXPFIL under a DbView\n!expList = !!CollectAllFor('EXPFIL', ||, $!dbView)\ndo !exp values !expList\n  !expr = !exp.Expression\n  !type = !exp.ExpType\nenddo",
+    "exampleAntipattern": "-- WRONG: Collecting EXPFIL without DbView scope\n!badList = !!CollectAllFor('EXPFIL', ||, world) -- returns ALL EXPFIL in world, not scoped",
+    "pitfalls": [
+      "Scope must use $!dbView reference, not just the DbView name",
+      "Each sub-object type has different attributes — check type-specific properties"
+    ],
+    "relatedIds": [
+      "dbview_creation_commands"
+    ],
+    "sourcedoc": "JDE_dbView_extractor.pmlmac",
+    "sourcecodebase": "JDE_dbView_extractor.pmlmac"
+  },
+  {
+    "id": "dbview_sub_objects",
+    "category": "pdmsinteraction",
+    "subcategory": "dbview_lifecycle",
+    "title": "DbView sub-objects: EXPFILTER, EXPCOLUMN, ATTCOLUMN",
+    "principle": "DbViews contain sub-objects for expressions, columns, and filters created with NEW commands",
+    "rule": "NEW EXPFILTER → EXPRESSION → EXPTYPE; NEW EXPCOLUMN → DESC → UDNA → EXPRESSION → EXPTYPE → UTYP; NEW ATTCOLUMN → DESC → UDNA → DBATTRIBUTE",
+    "syntax": "NEW EXPFILTER\nEXPRESSION |expr|\nEXPTYPE 'PML'\n\nNEW EXPCOLUMN\nDESC |name|\nUDNA |udname|\nEXPRESSION |expr|\nEXPTYPE 'PML'\nUTYP $!<dataType>\n\nNEW ATTCOLUMN\nDESC |name|\nUDNA |udname|\nDBATTRIBUTE $!<attr>",
+    "exampleCanonical": "-- CB JDE_dbView_creator.pmlmac\n-- CB mac_20\nNEW EXPCOLUMN\nDESC |$!<name>|\nUDNA |$!<name>|\nif (!value.matchwild(|*!*|)) then\n  !value = $!<value>\nendif\nEXPRESSION |$!<value>|\nEXPTYPE 'PML'\nUTYP $!<dataType>",
+    "exampleAntipattern": "EXPRESSION !value  -- missing $ prefix and | delimiters",
+    "pitfalls": [
+      "EXPTYPE requires quoted string 'PML'",
+      "UTYP requires $! substitution for data type variable",
+      "DESC and UDNA require | pipe delimiters for strings"
+    ],
+    "relatedIds": [
+      "dbview_creation_commands"
+    ],
+    "sourcedoc": "AVEVA E3D PML Documentation",
+    "sourcecodebase": "JDE_dbView_creator.pmlmac"
+  },
+  {
+    "id": "delete_member_mem_command",
+    "category": "pdmsinteraction",
+    "subcategory": "element_manipulation",
+    "title": "DELETE member MEM command with dollar substitution",
+    "principle": "DELETE $!<member>.type MEM removes all members of a specified type",
+    "rule": "DELETE $!<obj>.type MEM deletes all elements/members of the type specified by the dollar-substituted member",
+    "syntax": "DELETE $!<objectVar>.memberType MEM",
+    "exampleCanonical": "-- CB JDE_dbView_creator.pmlmac\n-- CB mac_20\n!dbViewGroup = /RAM_IM_DBViewGroup\nDELETE $!<dbViewGroup.type> MEM",
+    "exampleAntipattern": "DELETE !dbViewGroup.type MEM  -- missing $ prefix for substitution",
+    "pitfalls": [
+      "$! required for variable substitution in command context",
+      "MEM keyword required"
+    ],
+    "relatedIds": [],
+    "sourcedoc": "AVEVA E3D PML Documentation",
+    "sourcecodebase": "JDE_dbView_creator.pmlmac"
+  },
+  {
+    "id": "elel_add_commands",
+    "category": "pdmsinteraction",
+    "subcategory": "element_manipulation",
+    "title": "ELEL ADD and ELEL REM commands for DbView element lists",
+    "principle": "ELEL commands manipulate element lists within DbView objects",
+    "rule": "$!<viewName> ELEL ADD $!<element> adds an element; ELEL REM ALL removes all elements",
+    "syntax": "$!<viewName> ELEL ADD $!<element>\nELEL REM ALL",
+    "exampleCanonical": "-- CB JDE_dbView_creator.pmlmac\n-- CB mac_20\n$!<dbViewName> ELEL ADD $!<value>\nhandle (68,5)\n  $P ERROR ELE $!<value> IS EXIST IN ELELIST\nelsehandle (99,532)\n  $P ERROR ELE $!<value> IS NOT EXIST\nendhandle",
+    "exampleAntipattern": "ELEL ADD !value  -- missing $ prefix and view context",
+    "pitfalls": [
+      "Requires $!<viewName> prefix for context",
+      "Error codes (68,5), (99,532), (99,534) are specific to ELEL operations"
+    ],
+    "relatedIds": [
+      "handle_tuple_error_codes",
+      "dbview_creation_commands"
+    ],
+    "sourcedoc": "AVEVA E3D PML Documentation",
+    "sourcecodebase": "JDE_dbView_creator.pmlmac"
+  },
+  {
+    "id": "mac_20:unknown:168",
+    "category": "pdmsinteraction",
+    "subcategory": "element_manipulation",
+    "title": "DELETE member MEM command with dollar substitution",
+    "principle": "PDMS DELETE MEM commands can remove members using dollar-substituted element references.",
+    "rule": "PDMS DELETE MEM commands can remove members using dollar-substituted element references.",
+    "syntax": "!attCommonList = ARRAY()\n!dbViewGroup = /RAM_IM_DBViewGroup",
+    "exampleCanonical": "-- CB JDE_dbView_creator.pmlmac\n!attCommonList = ARRAY()\n!dbViewGroup = /RAM_IM_DBViewGroup\n!!ce = !dbViewGroup\nDELETE $!<dbViewGroup.type> MEM\nimport 'GridControl'\nhandle ANY\nendhandle\nusing namespace |Aveva.Core.Presentation|\n!dataTable = object NETGRIDCONTROL()\n!dataTable.clearGrid()\n!fileName = 'C:\Users\ADZV\OneDrive - Ramboll\AVEVA_SERVER\Addons\PMLLIB\RAM\Engineering\jackdow\templates\JDE_dbViewExtract.xlsx'\n!dataSource = object NETDATASOURCE('Grid Table', !fileName)",
+    "exampleAntipattern": "-- WRONG: use DELETE member MEM command with dollar substitution without validating the source context in JDE_dbView_creator.pmlmac",
+    "pitfalls": [
+          "Validate against JDE_dbView_creator.pmlmac before reusing the pattern.",
+          "Keep source-specific names and database context explicit when adapting this snippet."
+    ],
+    "relatedIds": [
+          "delete_member_mem_command",
+          "pdms_dbref_resolve"
+    ],
+    "sourcedoc": "AVEVA PML Reference",
+    "sourcecodebase": "JDE_dbView_creator.pmlmac"
+  },
+  {
+    "id": "mac_20:unknown:173",
+    "category": "pdmsinteraction",
+    "subcategory": "dbview_lifecycle",
+    "title": "DbView (DBVW) creation and configuration commands",
+    "principle": "DbView creation is a multi-command lifecycle that creates DBVW and then configures filters/columns/lists.",
+    "rule": "DbView creation is a multi-command lifecycle that creates DBVW and then configures filters/columns/lists.",
+    "syntax": "	--step 1: create dbView\n	!dbView = !dbViewName.dbref()",
+    "exampleCanonical": "-- CB JDE_dbView_creator.pmlmac\n	--step 1: create dbView\n	!dbView = !dbViewName.dbref()\n	handle any\n		!dbViewDesc = !dbViewName.after(|/|)\n		NEW DBVW $!dbViewName\n		!dbViewUdname = !dbViewDesc.replace(|-|, | |)\n		DESC |$!dbViewUdname|\n		UDNA |$!dbViewUdname|\n		AUTCRE TRUE\n		ALWDEL TRUE\n		ELEL REM ALL\n		!dbView = !!ce\n	endhandle\n	--step 2: create element",
+    "exampleAntipattern": "-- WRONG: use DbView (DBVW) creation and configuration commands without validating the source context in JDE_dbView_creator.pmlmac",
+    "pitfalls": [
+          "Validate against JDE_dbView_creator.pmlmac before reusing the pattern.",
+          "Keep source-specific names and database context explicit when adapting this snippet."
+    ],
+    "relatedIds": [
+          "dbview_creation_commands",
+          "dbview_sub_objects"
+    ],
+    "sourcedoc": "AVEVA PML Reference",
+    "sourcecodebase": "JDE_dbView_creator.pmlmac"
+  },
+  {
+    "id": "mac_20:unknown:174",
+    "category": "pdmsinteraction",
+    "subcategory": "dbview_lifecycle",
+    "title": "DbView sub-objects: EXPFILTER, EXPCOLUMN, ATTCOLUMN",
+    "principle": "DbView sub-objects such as EXPFILTER, EXPCOLUMN and ATTCOLUMN define filtering and extraction columns.",
+    "rule": "DbView sub-objects such as EXPFILTER, EXPCOLUMN and ATTCOLUMN define filtering and extraction columns.",
+    "syntax": "	endif\n	--step 3: expression filters",
+    "exampleCanonical": "-- CB JDE_dbView_creator.pmlmac\n	endif\n	--step 3: expression filters\n	if (!parameterType eq |2_EXPFIL| and !dbView.set()) then\n		NEW EXPFILTER\n		EXPRESSION |$!<value>|\n		EXPTYPE 'PML'\n	endif\n	--step 4: expression column\n	if (!parameterType eq |3_EXPCOL| and !dbView.set()) then\n		NEW EXPCOLUMN\n		DESC |$!<name>|\n		UDNA |$!<name>|\n		if (!value.matchwild(|*!*|)) then",
+    "exampleAntipattern": "-- WRONG: use DbView sub-objects: EXPFILTER, EXPCOLUMN, ATTCOLUMN without validating the source context in JDE_dbView_creator.pmlmac",
+    "pitfalls": [
+          "Validate against JDE_dbView_creator.pmlmac before reusing the pattern.",
+          "Keep source-specific names and database context explicit when adapting this snippet."
+    ],
+    "relatedIds": [],
+    "sourcedoc": "AVEVA PML Reference",
+    "sourcecodebase": "JDE_dbView_creator.pmlmac"
+  },
+  {
+    "id": "mac_20:unknown:175",
+    "category": "pdmsinteraction",
+    "subcategory": "element_manipulation",
+    "title": "ELEL ADD and ELEL REM commands for DbView element lists",
+    "principle": "ELEL ADD and ELEL REM manage element-list membership for DbView extraction scopes.",
+    "rule": "ELEL ADD and ELEL REM manage element-list membership for DbView extraction scopes.",
+    "syntax": "		DESC |$!dbViewUdname|\n		UDNA |$!dbViewUdname|",
+    "exampleCanonical": "-- CB JDE_dbView_creator.pmlmac\n		DESC |$!dbViewUdname|\n		UDNA |$!dbViewUdname|\n		AUTCRE TRUE\n		ALWDEL TRUE\n		ELEL REM ALL\n		!dbView = !!ce\n	endhandle\n	--step 2: create element\n	if (!parameterType eq |1_ELEL| and !dbView.set()) then\n		$!<dbViewName> ELEL ADD $!<value>\n		handle (68,5)\n			$P ERROR ELE $!<value> IS EXIST IN ELELIST\n		elsehandle (99,532)\n			$P ERROR ELE $!<value> IS NOT EXIST",
+    "exampleAntipattern": "-- WRONG: use ELEL ADD and ELEL REM commands for DbView element lists without validating the source context in JDE_dbView_creator.pmlmac",
+    "pitfalls": [
+          "Validate against JDE_dbView_creator.pmlmac before reusing the pattern.",
+          "Keep source-specific names and database context explicit when adapting this snippet."
+    ],
+    "relatedIds": [],
+    "sourcedoc": "AVEVA PML Reference",
+    "sourcecodebase": "JDE_dbView_creator.pmlmac"
+  },
+  {
+    "id": "mac_20:unknown:177",
+    "category": "pdmsinteraction",
+    "subcategory": "dbview_lifecycle",
+    "title": "UTYP command for setting data type in DbView columns",
+    "principle": "UTYP sets the expected value type for DbView columns and must match the exported attribute/expression.",
+    "rule": "UTYP sets the expected value type for DbView columns and must match the exported attribute/expression.",
+    "syntax": "			!value = $!<value>\n		endif",
+    "exampleCanonical": "-- CB JDE_dbView_creator.pmlmac\n			!value = $!<value>\n		endif\n		EXPRESSION |$!<value>|\n		EXPTYPE 'PML'\n		UTYP $!<dataType>\n	endif\n	--step 5: attribute column\n	if (!parameterType eq |4_ATTCOL| and !dbView.set()) then\n		$P ATT $!<value>\n		NEW ATTCOLUMN\n		DESC |$!<name>|\n		UDNA |$!<name>|\n		if (!value.matchwild(|*!*|)) then\n			!value = $!<value>",
+    "exampleAntipattern": "-- WRONG: use UTYP command for setting data type in DbView columns without validating the source context in JDE_dbView_creator.pmlmac",
+    "pitfalls": [
+          "Validate against JDE_dbView_creator.pmlmac before reusing the pattern.",
+          "Keep source-specific names and database context explicit when adapting this snippet."
+    ],
+    "relatedIds": [],
+    "sourcedoc": "AVEVA PML Reference",
+    "sourcecodebase": "JDE_dbView_creator.pmlmac"
+  },
+  {
+    "id": "mac_22:unknown:195",
+    "category": "pdmsinteraction",
+    "subcategory": "pmltags",
+    "title": "PMLTAGS object and GetListDefinition",
+    "principle": "PMLTAGS and GetListDefinition provide a tag-list API used before delta/export processing.",
+    "rule": "PMLTAGS and GetListDefinition provide a tag-list API used before delta/export processing.",
+    "syntax": "import |Aveva.Engineering.Tags.Pml|\nhandle any",
+    "exampleCanonical": "-- CB JDE_delta_tag_export.pmlmac\nimport |Aveva.Engineering.Tags.Pml|\nhandle any\nendhandle\nusing namespace |Aveva.Engineering.Tags|\n!!tags = object PMLTAGS()\nimport 'GridControl'\nhandle ANY\nendhandle\nusing namespace |Aveva.Core.Presentation|\n!dataTable = object NETGRIDCONTROL()\n!dataTable.columnExcelFilter(true)\n!dataTable.setNameColumnImage()\n!dataTable.outlookGroupStyle(false)\n!dataTable.fixedHeaders(FALSE)",
+    "exampleAntipattern": "-- WRONG: use PMLTAGS object and GetListDefinition without validating the source context in JDE_delta_tag_export.pmlmac",
+    "pitfalls": [
+          "Validate against JDE_delta_tag_export.pmlmac before reusing the pattern.",
+          "Keep source-specific names and database context explicit when adapting this snippet."
+    ],
+    "relatedIds": [
+          "p2_pmltags",
+          "pmltags_object"
+    ],
+    "sourcedoc": "AVEVA PML Reference",
+    "sourcecodebase": "JDE_delta_tag_export.pmlmac"
+  },
+  {
+    "id": "mac_22:unknown:197",
+    "category": "pdmsinteraction",
+    "subcategory": "delta",
+    "title": "OLD prefix for delta queries on ENGITEM",
+    "principle": "OLD-prefixed delta queries read historical values for comparison against current ENGITEM data.",
+    "rule": "OLD-prefixed delta queries read historical values for comparison against current ENGITEM data.",
+    "syntax": "	enddo\n	!headerList.append(|ACTION|)",
+    "exampleCanonical": "-- CB JDE_delta_tag_export.pmlmac\n	enddo\n	!headerList.append(|ACTION|)\n	--get all changed elements\n	var !modifiedTags OLD collect all (ENGITEM) with ( MODIFIED() )\n	var !deletedTags OLD collect all (ENGITEM) with ( DELETED() )\n	var !createdTags collect all (ENGITEM) with ( CREATED() )\n	!changedTags = ARRAY()\n	!changedTags.appendArray(!modifiedTags)\n	!changedTags.appendArray(!deletedTags)\n	!changedTags.appendArray(!createdTags)\n	!changedTags = !changedTags.sortUnique()\n	do !tag values !changedTags\n		!rowDataList = ARRAY()",
+    "exampleAntipattern": "-- WRONG: use OLD prefix for delta queries on ENGITEM without validating the source context in JDE_delta_tag_export.pmlmac",
+    "pitfalls": [
+          "Validate against JDE_delta_tag_export.pmlmac before reusing the pattern.",
+          "Keep source-specific names and database context explicit when adapting this snippet."
+    ],
+    "relatedIds": [],
+    "sourcedoc": "AVEVA PML Reference",
+    "sourcecodebase": "JDE_delta_tag_export.pmlmac"
+  },
+  {
+    "id": "mac_22:unknown:198",
+    "category": "pdmsinteraction",
+    "subcategory": "comparison",
+    "title": "SETCOMPDATE STAMP for tag comparison context",
+    "principle": "SETCOMPDATE STAMP establishes the comparison timestamp used by delta tag queries.",
+    "rule": "SETCOMPDATE STAMP establishes the comparison timestamp used by delta tag queries.",
+    "syntax": "	if (!date.unset()) then\n		!date = !stampDate",
+    "exampleCanonical": "-- CB JDE_delta_tag_export.pmlmac\n	if (!date.unset()) then\n		!date = !stampDate\n	endif\n	--SETCOMPDATE FOR DB TMSCX/JDA_TMS TO SESSION 383\n	--SETCOMPDATE STAMP /04-Leirvik-Data-Transfer-01\n	SETCOMPDATE STAMP $!latestStamp\n	!exportGrid = !grids.first()\n	!gridName = !exportGrid.dbref().lstnam\n	!headerList = ARRAY()\n	!expressions = ARRAY()\n	!dataList = ARRAY()\n	!changedTags = ARRAY()\n	!listName = !exportGrid.dbref().lstnam",
+    "exampleAntipattern": "-- WRONG: use SETCOMPDATE STAMP for tag comparison context without validating the source context in JDE_delta_tag_export.pmlmac",
+    "pitfalls": [
+          "Validate against JDE_delta_tag_export.pmlmac before reusing the pattern.",
+          "Keep source-specific names and database context explicit when adapting this snippet."
+    ],
+    "relatedIds": [],
+    "sourcedoc": "AVEVA PML Reference",
+    "sourcecodebase": "JDE_delta_tag_export.pmlmac"
+  },
+  {
+    "id": "mac_27:unknown:210",
+    "category": "pdmsinteraction",
+    "subcategory": "collect-all-with-tree-filter",
+    "title": "COLLECT ALL with tree filter (for /tree)",
+    "principle": "COLLECT ALL with a tree filter restricts collection to elements under a specific tree/root expression.",
+    "rule": "COLLECT ALL with a tree filter restricts collection to elements under a specific tree/root expression.",
+    "syntax": "--$m \"C:\Users\ADZV\OneDrive - Ramboll\AVEVA_SERVER\Addons\PMLLIB\RAM\Engineering\jackdow\JDE_outputMacro.pmlmac\"\nvar !enggrps collect all (ENGGRP) with (mcount gt 0) for /TMS_ENG",
+    "exampleCanonical": "-- CB JDE_outputMacro.pmlmac\n--$m \"C:\Users\ADZV\OneDrive - Ramboll\AVEVA_SERVER\Addons\PMLLIB\RAM\Engineering\jackdow\JDE_outputMacro.pmlmac\"\nvar !enggrps collect all (ENGGRP) with (mcount gt 0) for /TMS_ENG\ndo !enggrp values !enggrps\n	!engrpRef = !enggrp.dbref()\n	ALPHA FILE \"C:\Temp\output_$!<engrpRef.seq>.txt\" OVERWRITE\n	OUTPUT TABULATE 2 $!enggrp CHANGES SINCE 00:00 01 March 2024\n	ALPHA FILE END\nenddo",
+    "exampleAntipattern": "-- WRONG: use COLLECT ALL with tree filter (for /tree) without validating the source context in JDE_outputMacro.pmlmac",
+    "pitfalls": [
+          "Validate against JDE_outputMacro.pmlmac before reusing the pattern.",
+          "Keep source-specific names and database context explicit when adapting this snippet."
+    ],
+    "relatedIds": [
+      "pdms_attribute_query"
+    ],
+    "sourcedoc": "AVEVA PML Reference",
+    "sourcecodebase": "JDE_outputMacro.pmlmac"
+  },
+  {
+    "id": "old_collect_delta_query",
+    "category": "pdmsinteraction",
+    "subcategory": "delta",
+    "title": "OLD prefix for delta queries on ENGITEM",
+    "principle": "The OLD keyword before 'collect all' queries the delta (deleted/modified) state of ENGITEM objects. Combined with MODIFIED(), DELETED(), CREATED() predicates.",
+    "rule": "var !deletedTags OLD collect all (ENGITEM) with ( DELETED() ) to get deleted tags.",
+    "syntax": "var !modifiedTags OLD collect all (ENGITEM) with ( MODIFIED() )\nvar !deletedTags OLD collect all (ENGITEM) with ( DELETED() )\nvar !createdTags collect all (ENGITEM) with ( CREATED() )",
+    "exampleCanonical": "-- CB JDE_delta_tag_export.pmlmac\n-- CB mac_22\nvar !modifiedTags OLD collect all (ENGITEM) with ( MODIFIED() )\nvar !deletedTags OLD collect all (ENGITEM) with ( DELETED() )\nvar !createdTags collect all (ENGITEM) with ( CREATED() )",
+    "exampleAntipattern": "Using OLD without predicate — returns all items, not just delta",
+    "pitfalls": [
+      "MODIFIED() and DELETED() require OLD prefix; CREATED() does not",
+      "OLD queries the comparison state set by SETCOMPDATE"
+    ],
+    "relatedIds": [
+      "pdms_attribute_query"
+    ],
+    "sourcedoc": "AVEVA Engineering Tags PML API",
+    "sourcecodebase": "JDE_delta_tag_export.pmlmac"
+  },
+  {
+    "id": "pmltags_object",
+    "category": "pdmsinteraction",
+    "subcategory": "pmltags",
+    "title": "PMLTAGS object and GetListDefinition",
+    "principle": "PMLTAGS is the entry point for AVEVA Engineering Tags API. GetListDefinition retrieves a list definition by name and grid reference.",
+    "rule": "Use !!tags = object PMLTAGS() then !!tags.GetListDefinition(listName, gridName) to access list metadata.",
+    "syntax": "!!tags = object PMLTAGS()\n!gridDef = !!tags.GetListDefinition('|listName|', !gridName)",
+    "exampleCanonical": "-- CB JDE_delta_tag_export.pmlmac\n-- CB mac_22\n!!tags = object PMLTAGS()\n!gridDef = !!tags.GetListDefinition('15.2 Leirvik Data Export', !listName)\n!sourceDbView = !gridDef.DbViewName()",
+    "exampleAntipattern": "!!tags.GetListDefinition without creating object first",
+    "pitfalls": [
+      "GetListDefinition requires valid list name and grid reference",
+      "DbViewName() returns the DbView reference, not a string"
+    ],
+    "relatedIds": [],
+    "sourcedoc": "AVEVA Engineering Tags PML API",
+    "sourcecodebase": "JDE_delta_tag_export.pmlmac"
+  },
+  {
+    "id": "setcompdate_stamp_command",
+    "category": "pdmsinteraction",
+    "subcategory": "comparison",
+    "title": "SETCOMPDATE STAMP for tag comparison context",
+    "principle": "SETCOMPDATE STAMP sets the comparison date context so that OLD collect queries return delta data relative to a specific stamp.",
+    "rule": "SETCOMPDATE STAMP $!latestStamp where !latestStamp is a STAMP object reference.",
+    "syntax": "var !stamps collect all STAMP\n!latestStamp = !stamps[2]\nSETCOMPDATE STAMP $!latestStamp",
+    "exampleCanonical": "-- CB JDE_delta_tag_export.pmlmac\n-- CB mac_22\nvar !stamps collect all STAMP\n!latestStamp = !stamps[2]\nSETCOMPDATE STAMP $!latestStamp",
+    "exampleAntipattern": "Using SETCOMPDATE without prior STAMP collection",
+    "pitfalls": [
+      "Index 2 skips the most recent stamp (index 1)",
+      "SETCOMPDATE affects all subsequent OLD collect queries"
+    ],
+    "relatedIds": [
+      "old_collect_delta_query"
+    ],
+    "sourcedoc": "AVEVA Engineering Tags PML API",
+    "sourcecodebase": "JDE_delta_tag_export.pmlmac"
+  },
+  {
+    "id": "utyp_command",
+    "category": "pdmsinteraction",
+    "subcategory": "dbview_lifecycle",
+    "title": "UTYP command for setting data type in DbView columns",
+    "principle": "UTYP command sets the data type for expression and attribute columns in DbView",
+    "rule": "UTYP $!<dataType> assigns the data type variable to the current column context",
+    "syntax": "UTYP $!<dataTypeVar>",
+    "exampleCanonical": "-- CB JDE_dbView_creator.pmlmac\n-- CB mac_20\nNEW EXPCOLUMN\nDESC |$!<name>|\nUDNA |$!<name>|\nEXPRESSION |$!<value>|\nEXPTYPE 'PML'\nUTYP $!<dataType>",
+    "exampleAntipattern": "UTYP !dataType  -- missing $ prefix for substitution",
+    "pitfalls": [
+      "Requires $! variable substitution",
+      "Must be used within EXPCOLUMN or ATTCOLUMN context"
+    ],
+    "relatedIds": [
+      "dbview_sub_objects"
+    ],
+    "sourcedoc": "AVEVA E3D PML Documentation",
+    "sourcecodebase": "JDE_dbView_creator.pmlmac"
+  },
+  {
+    "id": "pdl_dbref_attr_access",
+    "category": "pdmsinteraction",
+    "subcategory": "dbref",
+    "title": "DBREF-to-PDMS-Object Attribute Access via .:  Syntax",
+    "principle": "Use .:  (dot-colon) notation to access PDMS object attributes from a PML DBREF variable. Unlike .query() which returns attribute values as strings, .:  provides direct object reference access for nested attribute chains.",
+    "rule": "After assigning a DBREF to a PML variable, use !dbref.:AttributeName to access any PDMS object attribute. Nested attributes chain with additional .: , e.g., !obj.:HavePartOutGoingConnections.[1].:RefConnectionsOut.",
+    "syntax": "!dbref = !name.dbref()\n!attr = !dbref.:AttributeName\n!nested = !dbref.:Parent.:Child",
+    "exampleCanonical": "-- CB TB terminal correction macro.pmlmac\n-- CB mac_46\n!ces = !!collectallfor(|CE|, ||, world)\ndo !ce values !ces\n  !!ce = !ce\n  !terminals = !!ce.:HavePartTerminals\n  !outConn   = !terminal.:HavePartOutGoingConnections\nenddo",
+    "exampleAntipattern": "-- BAD: Using .query() for nested attributes\n!attr = !ce.query(|HavePartOutGoingConnections|)\n-- .query() returns a string, not a collection reference",
+    "pitfalls": [
+      ".:  requires a valid PDMS object reference; a BADREF will throw an error",
+      "Unlike .query(), .:  returns the actual object/collection, not a string value",
+      "Attribute names are case-insensitive in PML but should follow AVEVA canonical casing"
+    ],
+    "relatedIds": [
+      "pdms_attribute_query"
+    ],
+    "sourcedoc": "AVEVA PDMS Customization Guide — Object Attribute Access",
+    "sourcecodebase": "TB terminal correction macro.pmlmac"
+  },
+  {
+    "id": "pdms_terminal_attribute_names",
+    "category": "pdmsinteraction",
+    "subcategory": "terminals",
+    "title": "Canonical AVEVA PDMS Terminal and Connection Attribute Names",
+    "principle": "PDMS objects use specific PascalCased attribute names for terminal and connection management. These attributes are case-insensitive in PML but should be referenced with canonical casing for consistency.",
+    "rule": "Use the canonical attribute names listed below when accessing terminal and connection data on PDMS objects. Do not mix casing within a single codebase.",
+    "syntax": "!terminals = !ce.:HavePartTerminals\n!channels  = !ce.:HavePartChannels\n!outConn   = !terminal.:HavePartOutGoingConnections\n!inConn    = !terminal.:HavePartIncomingConnections\n!chanTerms = !channel.:HavePartChannelTerminals\n!refOut    = !conn.:RefConnectionsOut\n!refIn     = !conn.:RefConnectionsIn\n!actType   = !conn.:acttype",
+    "exampleCanonical": "-- CB TB terminal correction macro.pmlmac\n-- CB mac_46\n!terminals = !!ce.:HavePartTerminals\n!channels  = !!ce.:HavePartChannels\ndo !idx indices !terminals\n  !terminal = !terminals[!idx]\n  !channel  = !channels[!idx]\n  !signals  = !terminal.:refPropagatedSignals\n  !outConn  = !terminal.:HavePartOutGoingConnections\nenddo",
+    "exampleAntipattern": "-- BAD: Inconsistent casing in same file\n!terminals = !!ce.:HavePartTerminals\n!chanTerms = !channel.:havepartchannelTerminals  -- should be HavePartChannelTerminals\n!outConn   = !terminal.:Havepartoutgoingconnections  -- should be HavePartOutGoingConnections",
+    "pitfalls": [
+      "Attribute names are case-insensitive in PML but inconsistent casing causes maintenance issues",
+      "Some attributes return collections (ARRAY/COLLECTION), others return single values",
+      "refPropagatedSignals may be unset() for terminals with no propagated signals"
+    ],
+    "relatedIds": [
+      "pdl_dbref_attr_access"
+    ],
+    "sourcedoc": "AVEVA PDMS Object Reference — Terminal and Connection Attributes",
+    "sourcecodebase": "TB terminal correction macro.pmlmac"
+  },
+  {
+    "id": "pml_element_createelement",
+    "category": "pdmsinteraction",
+    "subcategory": "elementmanager",
+    "title": "CREATEELEMENT and ELEMENTTYPE for programmatic element creation",
+    "principle": "Use CREATEELEMENT to create new PDMS/E3D elements programmatically. Set the element type via ELEMENTTYPE or SetElementTypeByName before adding attributes and executing.",
+    "rule": "Always validate ELEMENTTYPE before calling SetElementTypeByName. Check GetErrors() after Execute().",
+    "syntax": "!elem = object CREATEELEMENT()\n!etype = object ELEMENTTYPE('|<typeName>|')\nif (!etype.valid()) then\n  !elem.SetElementTypeByName('|<typeName>|')\n  !elem.AddAttributeValue('|NAME|', !name)\n  !elem.Execute()\n  !errors = !elem.GetErrors()\nendif",
+    "exampleCanonical": "-- CB EBE_assetRegister_import.pmlmac\n!elementNet = object CREATEELEMENT()\n!etype = object ELEMENTTYPE('|$!<class>|)\nif (!etype.valid()) then\n  !elementNet.SetElementTypeByName('|$!<class>|)\n  !elementNet.AddAttributeValue(|NAME|, !tagName)\n  !elementNet.Execute()\n  !errors = !elementNet.GetErrors()\n  do !error values !errors\n    !msg = |$!tag;$!error|\n  enddo\nendif",
+    "exampleAntipattern": "!elem = object CREATEELEMENT()\n!elem.AddAttributeValue('|NAME|', !name)\n!elem.Execute()  -- No element type set",
+    "pitfalls": [
+      "ELEMENTTYPE must match a valid AVEVA class name",
+      "SetElementTypeByName by string name is more forgiving than ELEMENTTYPE constructor",
+      "GetErrors() returns an array that must be iterated"
+    ],
+    "relatedIds": [],
+    "sourcedoc": "Aveva.Engineering.PMLElementManager namespace",
+    "sourcecodebase": "EBE_assetRegister_import.pmlmac"
+  },
+  {
+    "id": "forms_element_manager_create_tag",
+    "category": "pdmsinteraction",
+    "subcategory": "engineering",
+    "title": "Creating AVEVA tags via CREATEELEMENT and PMLElementManager",
+    "principle": "AVEVA.Engineering.PMLElementManager CREATEELEMENT object can create tags with type and attributes.",
+    "rule": "Use object CREATEELEMENT(), SetElementTypeByName(), AddAttributeValue(), Execute(), GetErrors() for tag creation with error handling via handle any/endhandle.",
+    "syntax": "using namespace |Aveva.Engineering.PMLElementManager|\n!elem = object CREATEELEMENT()\n!elem.SetElementTypeByName('|:$!typeName|')\n!elem.AddAttributeValue('|NAME|', !tagName)\n!elem.Execute()\n!errors = !elem.GetErrors()\ndo !err values !errors\n  !msg = !err.GetError()\nenddo",
+    "exampleCanonical": "-- CB jackimform.pmlfrm\nusing namespace |Aveva.Engineering.PMLElementManager|\n!elementNet = object CREATEELEMENT()\n!elementNet.SetElementTypeByName('|:$!<cleanType>|')\nhandle any\n  !this.logActions.append('|$!tag;Class [:$!cleanType] is not valid|')\n  skip\nendhandle\n!elementNet.AddAttributeValue('|NAME|', !tag)\n!elementNet.Execute()\n!errors = !elementNet.GetErrors()\ndo !error values !errors\n  !errorMsg = !error.GetError()\n  !this.logActions.append('|$!tag;$!errorMsg|')\nenddo",
+    "exampleAntipattern": "Skipping error handling after Execute():\n!elem.Execute()\n!elem.AddAttributeValue('|NAME|', !tag)  -- wrong order",
+    "pitfalls": [
+      "SetElementTypeByName() must be called before AddAttributeValue()",
+      "GetErrors() returns array — iterate with DO/ENDDO",
+      "Element name format must include leading colon for type: |:$!typeName|",
+      "handle any/endhandle around SetElementTypeByName catches invalid type names"
+    ],
+    "relatedIds": [
+      "forms_net_grid_bind_datasource"
+    ],
+    "sourcedoc": "AVEVA Engineering API — PMLElementManager",
+    "sourcecodebase": "jackimform.pmlfrm"
   }
 ];

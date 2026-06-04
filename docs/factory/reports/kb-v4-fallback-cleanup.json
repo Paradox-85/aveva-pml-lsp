@@ -1,0 +1,992 @@
+{
+  "generatedAt": "2026-06-04T23:51:40.089078+00:00",
+  "variant": "B",
+  "removedCount": 180,
+  "repairedCount": 29,
+  "remainingFallbackLikeCount": 4,
+  "totalEntriesAfterCleanup": 328,
+  "removedByFile": {
+    "src/knowledge/pml-kb/arrays.ts": 9,
+    "src/knowledge/pml-kb/collections.ts": 23,
+    "src/knowledge/pml-kb/datatypes.ts": 4,
+    "src/knowledge/pml-kb/dotnetinterop.ts": 30,
+    "src/knowledge/pml-kb/errorhandling.ts": 43,
+    "src/knowledge/pml-kb/logging.ts": 14,
+    "src/knowledge/pml-kb/macros.ts": 1,
+    "src/knowledge/pml-kb/objects.ts": 14,
+    "src/knowledge/pml-kb/pdmsinteraction.ts": 39,
+    "src/knowledge/pml-kb/syscom.ts": 3
+  },
+  "repairedByFile": {
+    "src/knowledge/pml-kb/arrays.ts": 1,
+    "src/knowledge/pml-kb/controlflow.ts": 2,
+    "src/knowledge/pml-kb/datatypes.ts": 4,
+    "src/knowledge/pml-kb/dotnetinterop.ts": 2,
+    "src/knowledge/pml-kb/forms.ts": 1,
+    "src/knowledge/pml-kb/macros.ts": 4,
+    "src/knowledge/pml-kb/objects.ts": 4,
+    "src/knowledge/pml-kb/pdmsinteraction.ts": 11
+  },
+  "remainingFallbackLike": [
+    {
+      "id": "custom-file-writer-dependency-ramfilewriterclass",
+      "file": "src/knowledge/pml-kb/architecturepatterns.ts"
+    },
+    {
+      "id": "patterns-reader-caching",
+      "file": "src/knowledge/pml-kb/architecturepatterns.ts"
+    },
+    {
+      "id": "export-data-sentinel-replacement-list",
+      "file": "src/knowledge/pml-kb/dotnetinterop.ts"
+    },
+    {
+      "id": "object-logger-overload-default-severity",
+      "file": "src/knowledge/pml-kb/objects.ts"
+    }
+  ],
+  "removed": [
+    {
+      "id": "cb_fnc_05_array",
+      "file": "src/knowledge/pml-kb/arrays.ts"
+    },
+    {
+      "id": "cb_fnc_09_array",
+      "file": "src/knowledge/pml-kb/arrays.ts"
+    },
+    {
+      "id": "cb_fnc_10_array",
+      "file": "src/knowledge/pml-kb/arrays.ts"
+    },
+    {
+      "id": "cb_fnc_14_array",
+      "file": "src/knowledge/pml-kb/arrays.ts"
+    },
+    {
+      "id": "cb_mac_28_array",
+      "file": "src/knowledge/pml-kb/arrays.ts"
+    },
+    {
+      "id": "cb_mac_30_array",
+      "file": "src/knowledge/pml-kb/arrays.ts"
+    },
+    {
+      "id": "cb_mac_32_array",
+      "file": "src/knowledge/pml-kb/arrays.ts"
+    },
+    {
+      "id": "cb_mac_33_array",
+      "file": "src/knowledge/pml-kb/arrays.ts"
+    },
+    {
+      "id": "cb_mac_34_array",
+      "file": "src/knowledge/pml-kb/arrays.ts"
+    },
+    {
+      "id": "cb_fnc_04_block",
+      "file": "src/knowledge/pml-kb/collections.ts"
+    },
+    {
+      "id": "cb_fnc_04_collect_all",
+      "file": "src/knowledge/pml-kb/collections.ts"
+    },
+    {
+      "id": "cb_fnc_04_evaluate",
+      "file": "src/knowledge/pml-kb/collections.ts"
+    },
+    {
+      "id": "cb_fnc_05_collect_all",
+      "file": "src/knowledge/pml-kb/collections.ts"
+    },
+    {
+      "id": "cb_fnc_06_block",
+      "file": "src/knowledge/pml-kb/collections.ts"
+    },
+    {
+      "id": "cb_fnc_06_collect_all",
+      "file": "src/knowledge/pml-kb/collections.ts"
+    },
+    {
+      "id": "cb_fnc_07_block",
+      "file": "src/knowledge/pml-kb/collections.ts"
+    },
+    {
+      "id": "cb_fnc_07_collect_all",
+      "file": "src/knowledge/pml-kb/collections.ts"
+    },
+    {
+      "id": "cb_fnc_08_coll_all",
+      "file": "src/knowledge/pml-kb/collections.ts"
+    },
+    {
+      "id": "cb_fnc_08_evaluate",
+      "file": "src/knowledge/pml-kb/collections.ts"
+    },
+    {
+      "id": "cb_fnc_11_block",
+      "file": "src/knowledge/pml-kb/collections.ts"
+    },
+    {
+      "id": "cb_fnc_11_evaluate",
+      "file": "src/knowledge/pml-kb/collections.ts"
+    },
+    {
+      "id": "cb_fnc_17_collect_all",
+      "file": "src/knowledge/pml-kb/collections.ts"
+    },
+    {
+      "id": "cb_frm_04_collect_all",
+      "file": "src/knowledge/pml-kb/collections.ts"
+    },
+    {
+      "id": "cb_frm_06_block",
+      "file": "src/knowledge/pml-kb/collections.ts"
+    },
+    {
+      "id": "cb_frm_06_evaluate",
+      "file": "src/knowledge/pml-kb/collections.ts"
+    },
+    {
+      "id": "cb_frm_07_coll_all",
+      "file": "src/knowledge/pml-kb/collections.ts"
+    },
+    {
+      "id": "cb_frm_07_collect_all",
+      "file": "src/knowledge/pml-kb/collections.ts"
+    },
+    {
+      "id": "cb_mac_29_coll_all",
+      "file": "src/knowledge/pml-kb/collections.ts"
+    },
+    {
+      "id": "cb_mac_35_coll_all",
+      "file": "src/knowledge/pml-kb/collections.ts"
+    },
+    {
+      "id": "cb_obj_10_collect_all",
+      "file": "src/knowledge/pml-kb/collections.ts"
+    },
+    {
+      "id": "cb_obj_11_coll_all",
+      "file": "src/knowledge/pml-kb/collections.ts"
+    },
+    {
+      "id": "cb_obj_11_collect_all",
+      "file": "src/knowledge/pml-kb/collections.ts"
+    },
+    {
+      "id": "cb_mac_30_matchwild",
+      "file": "src/knowledge/pml-kb/datatypes.ts"
+    },
+    {
+      "id": "cb_mac_31_matchwild",
+      "file": "src/knowledge/pml-kb/datatypes.ts"
+    },
+    {
+      "id": "mac_20:unknown:176",
+      "file": "src/knowledge/pml-kb/datatypes.ts"
+    },
+    {
+      "id": "mac_21:unknown:188",
+      "file": "src/knowledge/pml-kb/datatypes.ts"
+    },
+    {
+      "id": "cb_fnc_17_netdatasource",
+      "file": "src/knowledge/pml-kb/dotnetinterop.ts"
+    },
+    {
+      "id": "cb_fnc_17_netgridcontrol",
+      "file": "src/knowledge/pml-kb/dotnetinterop.ts"
+    },
+    {
+      "id": "cb_frm_04_netdatasource",
+      "file": "src/knowledge/pml-kb/dotnetinterop.ts"
+    },
+    {
+      "id": "cb_frm_04_netgridcontrol",
+      "file": "src/knowledge/pml-kb/dotnetinterop.ts"
+    },
+    {
+      "id": "cb_frm_04_pmlfilebrowser",
+      "file": "src/knowledge/pml-kb/dotnetinterop.ts"
+    },
+    {
+      "id": "cb_frm_05_netdatasource",
+      "file": "src/knowledge/pml-kb/dotnetinterop.ts"
+    },
+    {
+      "id": "cb_frm_05_netgridcontrol",
+      "file": "src/knowledge/pml-kb/dotnetinterop.ts"
+    },
+    {
+      "id": "cb_frm_06_netdatasource",
+      "file": "src/knowledge/pml-kb/dotnetinterop.ts"
+    },
+    {
+      "id": "cb_frm_06_netgridcontrol",
+      "file": "src/knowledge/pml-kb/dotnetinterop.ts"
+    },
+    {
+      "id": "cb_frm_07_pmlfilebrowser",
+      "file": "src/knowledge/pml-kb/dotnetinterop.ts"
+    },
+    {
+      "id": "cb_mac_28_gridcontrol",
+      "file": "src/knowledge/pml-kb/dotnetinterop.ts"
+    },
+    {
+      "id": "cb_mac_28_netdatasource",
+      "file": "src/knowledge/pml-kb/dotnetinterop.ts"
+    },
+    {
+      "id": "cb_mac_28_netgridcontrol",
+      "file": "src/knowledge/pml-kb/dotnetinterop.ts"
+    },
+    {
+      "id": "cb_mac_29_netdatasource",
+      "file": "src/knowledge/pml-kb/dotnetinterop.ts"
+    },
+    {
+      "id": "cb_mac_29_netgridcontrol",
+      "file": "src/knowledge/pml-kb/dotnetinterop.ts"
+    },
+    {
+      "id": "cb_mac_32_netdatasource",
+      "file": "src/knowledge/pml-kb/dotnetinterop.ts"
+    },
+    {
+      "id": "cb_mac_32_netgridcontrol",
+      "file": "src/knowledge/pml-kb/dotnetinterop.ts"
+    },
+    {
+      "id": "cb_mac_33_netdatasource",
+      "file": "src/knowledge/pml-kb/dotnetinterop.ts"
+    },
+    {
+      "id": "cb_mac_33_netgridcontrol",
+      "file": "src/knowledge/pml-kb/dotnetinterop.ts"
+    },
+    {
+      "id": "cb_mac_34_netdatasource",
+      "file": "src/knowledge/pml-kb/dotnetinterop.ts"
+    },
+    {
+      "id": "cb_mac_34_netgridcontrol",
+      "file": "src/knowledge/pml-kb/dotnetinterop.ts"
+    },
+    {
+      "id": "cb_mac_35_netdatasource",
+      "file": "src/knowledge/pml-kb/dotnetinterop.ts"
+    },
+    {
+      "id": "cb_mac_35_netgridcontrol",
+      "file": "src/knowledge/pml-kb/dotnetinterop.ts"
+    },
+    {
+      "id": "cb_obj_10_netdatasource",
+      "file": "src/knowledge/pml-kb/dotnetinterop.ts"
+    },
+    {
+      "id": "cb_obj_10_netgridcontrol",
+      "file": "src/knowledge/pml-kb/dotnetinterop.ts"
+    },
+    {
+      "id": "cb_obj_11_netgridcontrol",
+      "file": "src/knowledge/pml-kb/dotnetinterop.ts"
+    },
+    {
+      "id": "mac_20:unknown:171",
+      "file": "src/knowledge/pml-kb/dotnetinterop.ts"
+    },
+    {
+      "id": "mac_20:unknown:172",
+      "file": "src/knowledge/pml-kb/dotnetinterop.ts"
+    },
+    {
+      "id": "mac_21:unknown:187",
+      "file": "src/knowledge/pml-kb/dotnetinterop.ts"
+    },
+    {
+      "id": "mac_22:unknown:199",
+      "file": "src/knowledge/pml-kb/dotnetinterop.ts"
+    },
+    {
+      "id": "cb_fnc_01_elsehandle",
+      "file": "src/knowledge/pml-kb/errorhandling.ts"
+    },
+    {
+      "id": "cb_fnc_01_handle",
+      "file": "src/knowledge/pml-kb/errorhandling.ts"
+    },
+    {
+      "id": "cb_fnc_03_undefined",
+      "file": "src/knowledge/pml-kb/errorhandling.ts"
+    },
+    {
+      "id": "cb_fnc_04_handle",
+      "file": "src/knowledge/pml-kb/errorhandling.ts"
+    },
+    {
+      "id": "cb_fnc_05_elsehandle",
+      "file": "src/knowledge/pml-kb/errorhandling.ts"
+    },
+    {
+      "id": "cb_fnc_05_handle",
+      "file": "src/knowledge/pml-kb/errorhandling.ts"
+    },
+    {
+      "id": "cb_fnc_06_handle",
+      "file": "src/knowledge/pml-kb/errorhandling.ts"
+    },
+    {
+      "id": "cb_fnc_07_handle",
+      "file": "src/knowledge/pml-kb/errorhandling.ts"
+    },
+    {
+      "id": "cb_fnc_08_handle",
+      "file": "src/knowledge/pml-kb/errorhandling.ts"
+    },
+    {
+      "id": "cb_fnc_08_undefined",
+      "file": "src/knowledge/pml-kb/errorhandling.ts"
+    },
+    {
+      "id": "cb_fnc_09_undefined",
+      "file": "src/knowledge/pml-kb/errorhandling.ts"
+    },
+    {
+      "id": "cb_fnc_10_handle",
+      "file": "src/knowledge/pml-kb/errorhandling.ts"
+    },
+    {
+      "id": "cb_fnc_10_undefined",
+      "file": "src/knowledge/pml-kb/errorhandling.ts"
+    },
+    {
+      "id": "cb_fnc_11_undefined",
+      "file": "src/knowledge/pml-kb/errorhandling.ts"
+    },
+    {
+      "id": "cb_fnc_12_undefined",
+      "file": "src/knowledge/pml-kb/errorhandling.ts"
+    },
+    {
+      "id": "cb_fnc_13_handle",
+      "file": "src/knowledge/pml-kb/errorhandling.ts"
+    },
+    {
+      "id": "cb_fnc_13_undefined",
+      "file": "src/knowledge/pml-kb/errorhandling.ts"
+    },
+    {
+      "id": "cb_fnc_14_undefined",
+      "file": "src/knowledge/pml-kb/errorhandling.ts"
+    },
+    {
+      "id": "cb_fnc_15_undefined",
+      "file": "src/knowledge/pml-kb/errorhandling.ts"
+    },
+    {
+      "id": "cb_fnc_17_elsehandle",
+      "file": "src/knowledge/pml-kb/errorhandling.ts"
+    },
+    {
+      "id": "cb_fnc_17_handle",
+      "file": "src/knowledge/pml-kb/errorhandling.ts"
+    },
+    {
+      "id": "cb_frm_04_handle",
+      "file": "src/knowledge/pml-kb/errorhandling.ts"
+    },
+    {
+      "id": "cb_frm_05_elsehandle",
+      "file": "src/knowledge/pml-kb/errorhandling.ts"
+    },
+    {
+      "id": "cb_frm_05_handle",
+      "file": "src/knowledge/pml-kb/errorhandling.ts"
+    },
+    {
+      "id": "cb_frm_06_handle",
+      "file": "src/knowledge/pml-kb/errorhandling.ts"
+    },
+    {
+      "id": "cb_frm_07_elsehandle",
+      "file": "src/knowledge/pml-kb/errorhandling.ts"
+    },
+    {
+      "id": "cb_frm_07_handle",
+      "file": "src/knowledge/pml-kb/errorhandling.ts"
+    },
+    {
+      "id": "cb_mac_29_handle",
+      "file": "src/knowledge/pml-kb/errorhandling.ts"
+    },
+    {
+      "id": "cb_mac_30_handle",
+      "file": "src/knowledge/pml-kb/errorhandling.ts"
+    },
+    {
+      "id": "cb_mac_31_elsehandle",
+      "file": "src/knowledge/pml-kb/errorhandling.ts"
+    },
+    {
+      "id": "cb_mac_31_handle",
+      "file": "src/knowledge/pml-kb/errorhandling.ts"
+    },
+    {
+      "id": "cb_mac_32_handle",
+      "file": "src/knowledge/pml-kb/errorhandling.ts"
+    },
+    {
+      "id": "cb_mac_33_handle",
+      "file": "src/knowledge/pml-kb/errorhandling.ts"
+    },
+    {
+      "id": "cb_mac_34_handle",
+      "file": "src/knowledge/pml-kb/errorhandling.ts"
+    },
+    {
+      "id": "cb_mac_35_handle",
+      "file": "src/knowledge/pml-kb/errorhandling.ts"
+    },
+    {
+      "id": "cb_obj_10_elsehandle",
+      "file": "src/knowledge/pml-kb/errorhandling.ts"
+    },
+    {
+      "id": "cb_obj_10_handle",
+      "file": "src/knowledge/pml-kb/errorhandling.ts"
+    },
+    {
+      "id": "cb_obj_11_elsehandle",
+      "file": "src/knowledge/pml-kb/errorhandling.ts"
+    },
+    {
+      "id": "cb_obj_11_handle",
+      "file": "src/knowledge/pml-kb/errorhandling.ts"
+    },
+    {
+      "id": "mac_20:unknown:169",
+      "file": "src/knowledge/pml-kb/errorhandling.ts"
+    },
+    {
+      "id": "mac_20:unknown:170",
+      "file": "src/knowledge/pml-kb/errorhandling.ts"
+    },
+    {
+      "id": "mac_21:unknown:186",
+      "file": "src/knowledge/pml-kb/errorhandling.ts"
+    },
+    {
+      "id": "macro-error-label-savework-unclaim",
+      "file": "src/knowledge/pml-kb/errorhandling.ts"
+    },
+    {
+      "id": "cb_fnc_02_ramcommonlogger",
+      "file": "src/knowledge/pml-kb/logging.ts"
+    },
+    {
+      "id": "cb_fnc_03_ramcommonlogger",
+      "file": "src/knowledge/pml-kb/logging.ts"
+    },
+    {
+      "id": "cb_fnc_06_ramcommonlogger",
+      "file": "src/knowledge/pml-kb/logging.ts"
+    },
+    {
+      "id": "cb_fnc_07_ramcommonlogger",
+      "file": "src/knowledge/pml-kb/logging.ts"
+    },
+    {
+      "id": "cb_fnc_08_ramcommonlogger",
+      "file": "src/knowledge/pml-kb/logging.ts"
+    },
+    {
+      "id": "cb_fnc_09_ramcommonlogger",
+      "file": "src/knowledge/pml-kb/logging.ts"
+    },
+    {
+      "id": "cb_fnc_10_ramcommonlogger",
+      "file": "src/knowledge/pml-kb/logging.ts"
+    },
+    {
+      "id": "cb_fnc_11_ramcommonlogger",
+      "file": "src/knowledge/pml-kb/logging.ts"
+    },
+    {
+      "id": "cb_fnc_12_ramcommonlogger",
+      "file": "src/knowledge/pml-kb/logging.ts"
+    },
+    {
+      "id": "cb_fnc_13_ramcommonlogger",
+      "file": "src/knowledge/pml-kb/logging.ts"
+    },
+    {
+      "id": "cb_fnc_14_ramcommonlogger",
+      "file": "src/knowledge/pml-kb/logging.ts"
+    },
+    {
+      "id": "cb_fnc_15_ramcommonlogger",
+      "file": "src/knowledge/pml-kb/logging.ts"
+    },
+    {
+      "id": "cb_frm_04_ramcommonlogger",
+      "file": "src/knowledge/pml-kb/logging.ts"
+    },
+    {
+      "id": "cb_mac_30_ramcommonlogger",
+      "file": "src/knowledge/pml-kb/logging.ts"
+    },
+    {
+      "id": "mac_08:unknown:71",
+      "file": "src/knowledge/pml-kb/macros.ts"
+    },
+    {
+      "id": "cb_fnc_02_file",
+      "file": "src/knowledge/pml-kb/objects.ts"
+    },
+    {
+      "id": "cb_fnc_03_file",
+      "file": "src/knowledge/pml-kb/objects.ts"
+    },
+    {
+      "id": "cb_fnc_09_file",
+      "file": "src/knowledge/pml-kb/objects.ts"
+    },
+    {
+      "id": "cb_fnc_12_file",
+      "file": "src/knowledge/pml-kb/objects.ts"
+    },
+    {
+      "id": "cb_fnc_14_file",
+      "file": "src/knowledge/pml-kb/objects.ts"
+    },
+    {
+      "id": "cb_fnc_15_file",
+      "file": "src/knowledge/pml-kb/objects.ts"
+    },
+    {
+      "id": "cb_mac_28_file",
+      "file": "src/knowledge/pml-kb/objects.ts"
+    },
+    {
+      "id": "cb_mac_30_file",
+      "file": "src/knowledge/pml-kb/objects.ts"
+    },
+    {
+      "id": "cb_mac_33_file",
+      "file": "src/knowledge/pml-kb/objects.ts"
+    },
+    {
+      "id": "mac_22:unknown:201",
+      "file": "src/knowledge/pml-kb/objects.ts"
+    },
+    {
+      "id": "objects-array-block-evaluate",
+      "file": "src/knowledge/pml-kb/objects.ts"
+    },
+    {
+      "id": "objects-pmlfilebrowser-showopen",
+      "file": "src/knowledge/pml-kb/objects.ts"
+    },
+    {
+      "id": "objects-ramcommonlogger",
+      "file": "src/knowledge/pml-kb/objects.ts"
+    },
+    {
+      "id": "objects-string-set-neq-methods",
+      "file": "src/knowledge/pml-kb/objects.ts"
+    },
+    {
+      "id": "cb_fnc_01_attribute",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts"
+    },
+    {
+      "id": "cb_fnc_01_dbref",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts"
+    },
+    {
+      "id": "cb_fnc_01_elementtype",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts"
+    },
+    {
+      "id": "cb_fnc_02_attribute",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts"
+    },
+    {
+      "id": "cb_fnc_02_dbref",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts"
+    },
+    {
+      "id": "cb_fnc_04_attribute",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts"
+    },
+    {
+      "id": "cb_fnc_04_elementtype",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts"
+    },
+    {
+      "id": "cb_fnc_05_attribute",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts"
+    },
+    {
+      "id": "cb_fnc_06_attribute",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts"
+    },
+    {
+      "id": "cb_fnc_06_elementtype",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts"
+    },
+    {
+      "id": "cb_fnc_07_attribute",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts"
+    },
+    {
+      "id": "cb_fnc_07_elementtype",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts"
+    },
+    {
+      "id": "cb_fnc_08_attribute",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts"
+    },
+    {
+      "id": "cb_fnc_09_attribute",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts"
+    },
+    {
+      "id": "cb_fnc_10_attribute",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts"
+    },
+    {
+      "id": "cb_fnc_11_attribute",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts"
+    },
+    {
+      "id": "cb_fnc_12_attribute",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts"
+    },
+    {
+      "id": "cb_fnc_13_attribute",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts"
+    },
+    {
+      "id": "cb_fnc_13_dbref",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts"
+    },
+    {
+      "id": "cb_fnc_14_attribute",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts"
+    },
+    {
+      "id": "cb_fnc_15_attribute",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts"
+    },
+    {
+      "id": "cb_fnc_18_attribute",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts"
+    },
+    {
+      "id": "cb_frm_05_attribute",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts"
+    },
+    {
+      "id": "cb_frm_05_elementtype",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts"
+    },
+    {
+      "id": "cb_frm_06_attribute",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts"
+    },
+    {
+      "id": "cb_frm_07_attribute",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts"
+    },
+    {
+      "id": "cb_mac_28_attribute",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts"
+    },
+    {
+      "id": "cb_mac_29_attribute",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts"
+    },
+    {
+      "id": "cb_mac_30_attribute",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts"
+    },
+    {
+      "id": "cb_mac_31_dbref",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts"
+    },
+    {
+      "id": "cb_mac_32_dbref",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts"
+    },
+    {
+      "id": "cb_mac_33_dbref",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts"
+    },
+    {
+      "id": "cb_mac_34_dbref",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts"
+    },
+    {
+      "id": "cb_mac_35_attribute",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts"
+    },
+    {
+      "id": "mac_08:unknown:72",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts"
+    },
+    {
+      "id": "mac_08:unknown:76",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts"
+    },
+    {
+      "id": "mac_21:unknown:184",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts"
+    },
+    {
+      "id": "mac_21:unknown:185",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts"
+    },
+    {
+      "id": "mac_22:unknown:196",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts"
+    },
+    {
+      "id": "cb_fnc_17_syscom",
+      "file": "src/knowledge/pml-kb/syscom.ts"
+    },
+    {
+      "id": "cb_obj_10_syscom",
+      "file": "src/knowledge/pml-kb/syscom.ts"
+    },
+    {
+      "id": "cb_obj_11_syscom",
+      "file": "src/knowledge/pml-kb/syscom.ts"
+    }
+  ],
+  "repaired": [
+    {
+      "id": "mac_22:unknown:200",
+      "file": "src/knowledge/pml-kb/arrays.ts",
+      "source": "JDE_delta_tag_export.pmlmac",
+      "sourcePath": "docs/codebase/macros/JDE_delta_tag_export.pmlmac",
+      "snippetLines": 14
+    },
+    {
+      "id": "cb_deslnk_attribute_fallback",
+      "file": "src/knowledge/pml-kb/controlflow.ts",
+      "source": "JDE_pipeData_export.pmlmac",
+      "sourcePath": "docs/codebase/macros/JDE_pipeData_export.pmlmac",
+      "snippetLines": 14
+    },
+    {
+      "id": "cb_pml1_collect_values_dbref",
+      "file": "src/knowledge/pml-kb/controlflow.ts",
+      "source": "JDE_pipeData_export.pmlmac",
+      "sourcePath": "docs/codebase/macros/JDE_pipeData_export.pmlmac",
+      "snippetLines": 12
+    },
+    {
+      "id": "mac_08:unknown:75",
+      "file": "src/knowledge/pml-kb/datatypes.ts",
+      "source": "JDE_vendortag_import.pmlmac",
+      "sourcePath": "docs/codebase/macros/JDE_vendortag_import.pmlmac",
+      "snippetLines": 14
+    },
+    {
+      "id": "mac_08:unknown:77",
+      "file": "src/knowledge/pml-kb/datatypes.ts",
+      "source": "JDE_vendortag_import.pmlmac",
+      "sourcePath": "docs/codebase/macros/JDE_vendortag_import.pmlmac",
+      "snippetLines": 12
+    },
+    {
+      "id": "mac_20:unknown:167",
+      "file": "src/knowledge/pml-kb/datatypes.ts",
+      "source": "JDE_dbView_creator.pmlmac",
+      "sourcePath": "docs/codebase/macros/JDE_dbView_creator.pmlmac",
+      "snippetLines": 13
+    },
+    {
+      "id": "measure-unit-setunits-defaults",
+      "file": "src/knowledge/pml-kb/datatypes.ts",
+      "source": "EIS_data_export.pmlmac",
+      "sourcePath": "docs/codebase/macros/EIS_data_export.pmlmac",
+      "snippetLines": 13
+    },
+    {
+      "id": "cb_netgrid_excel_export_macro",
+      "file": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "source": "JDE_pipeData_export.pmlmac",
+      "sourcePath": "docs/codebase/macros/JDE_pipeData_export.pmlmac",
+      "snippetLines": 8
+    },
+    {
+      "id": "engineering-tags-common-attribute-map",
+      "file": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "source": "EIS_data_export.pmlmac",
+      "sourcePath": "docs/codebase/macros/EIS_data_export.pmlmac",
+      "snippetLines": 9
+    },
+    {
+      "id": "logger-form-refresh-side-effect",
+      "file": "src/knowledge/pml-kb/forms.ts",
+      "source": "ramCommonLogger.pmlobj",
+      "sourcePath": "docs/codebase/objects/ramCommonLogger.pmlobj",
+      "snippetLines": 11
+    },
+    {
+      "id": "cb_macro_dual_source_pipe_attribute_export",
+      "file": "src/knowledge/pml-kb/macros.ts",
+      "source": "JDE_pipeData_export.pmlmac",
+      "sourcePath": "docs/codebase/macros/JDE_pipeData_export.pmlmac",
+      "snippetLines": 11
+    },
+    {
+      "id": "mac_20:unknown:178",
+      "file": "src/knowledge/pml-kb/macros.ts",
+      "source": "JDE_dbView_creator.pmlmac",
+      "sourcePath": "docs/codebase/macros/JDE_dbView_creator.pmlmac",
+      "snippetLines": 14
+    },
+    {
+      "id": "mac_25:unknown:207",
+      "file": "src/knowledge/pml-kb/macros.ts",
+      "source": "JDE_getTagInfo.pmlmac",
+      "sourcePath": "docs/codebase/macros/JDE_getTagInfo.pmlmac",
+      "snippetLines": 4
+    },
+    {
+      "id": "mac_27:unknown:211",
+      "file": "src/knowledge/pml-kb/macros.ts",
+      "source": "JDE_outputMacro.pmlmac",
+      "sourcePath": "docs/codebase/macros/JDE_outputMacro.pmlmac",
+      "snippetLines": 7
+    },
+    {
+      "id": "array-tabular-normalisation-defined-set",
+      "file": "src/knowledge/pml-kb/objects.ts",
+      "source": "ramCommonLogger.pmlobj",
+      "sourcePath": "docs/codebase/objects/ramCommonLogger.pmlobj",
+      "snippetLines": 11
+    },
+    {
+      "id": "objects-error-global",
+      "file": "src/knowledge/pml-kb/objects.ts",
+      "source": "ramExcelReaderClass.pmlobj",
+      "sourcePath": "docs/codebase/objects/ramExcelReaderClass.pmlobj",
+      "snippetLines": 10
+    },
+    {
+      "id": "objects-ram-aepml-excel-reader",
+      "file": "src/knowledge/pml-kb/objects.ts",
+      "source": "ramExcelReaderClass.pmlobj",
+      "sourcePath": "docs/codebase/objects/ramExcelReaderClass.pmlobj",
+      "snippetLines": 13
+    },
+    {
+      "id": "objects-string-join-method",
+      "file": "src/knowledge/pml-kb/objects.ts",
+      "source": "ramExcelReaderClass.pmlobj",
+      "sourcePath": "docs/codebase/objects/ramExcelReaderClass.pmlobj",
+      "snippetLines": 10
+    },
+    {
+      "id": "mac_08:unknown:73",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "source": "JDE_vendortag_import.pmlmac",
+      "sourcePath": "docs/codebase/macros/JDE_vendortag_import.pmlmac",
+      "snippetLines": 12
+    },
+    {
+      "id": "mac_08:unknown:74",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "source": "JDE_vendortag_import.pmlmac",
+      "sourcePath": "docs/codebase/macros/JDE_vendortag_import.pmlmac",
+      "snippetLines": 13
+    },
+    {
+      "id": "mac_20:unknown:168",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "source": "JDE_dbView_creator.pmlmac",
+      "sourcePath": "docs/codebase/macros/JDE_dbView_creator.pmlmac",
+      "snippetLines": 12
+    },
+    {
+      "id": "mac_20:unknown:173",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "source": "JDE_dbView_creator.pmlmac",
+      "sourcePath": "docs/codebase/macros/JDE_dbView_creator.pmlmac",
+      "snippetLines": 14
+    },
+    {
+      "id": "mac_20:unknown:174",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "source": "JDE_dbView_creator.pmlmac",
+      "sourcePath": "docs/codebase/macros/JDE_dbView_creator.pmlmac",
+      "snippetLines": 13
+    },
+    {
+      "id": "mac_20:unknown:175",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "source": "JDE_dbView_creator.pmlmac",
+      "sourcePath": "docs/codebase/macros/JDE_dbView_creator.pmlmac",
+      "snippetLines": 14
+    },
+    {
+      "id": "mac_20:unknown:177",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "source": "JDE_dbView_creator.pmlmac",
+      "sourcePath": "docs/codebase/macros/JDE_dbView_creator.pmlmac",
+      "snippetLines": 14
+    },
+    {
+      "id": "mac_22:unknown:195",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "source": "JDE_delta_tag_export.pmlmac",
+      "sourcePath": "docs/codebase/macros/JDE_delta_tag_export.pmlmac",
+      "snippetLines": 14
+    },
+    {
+      "id": "mac_22:unknown:197",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "source": "JDE_delta_tag_export.pmlmac",
+      "sourcePath": "docs/codebase/macros/JDE_delta_tag_export.pmlmac",
+      "snippetLines": 13
+    },
+    {
+      "id": "mac_22:unknown:198",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "source": "JDE_delta_tag_export.pmlmac",
+      "sourcePath": "docs/codebase/macros/JDE_delta_tag_export.pmlmac",
+      "snippetLines": 13
+    },
+    {
+      "id": "mac_27:unknown:210",
+      "file": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "source": "JDE_outputMacro.pmlmac",
+      "sourcePath": "docs/codebase/macros/JDE_outputMacro.pmlmac",
+      "snippetLines": 8
+    }
+  ],
+  "validation": [
+    {
+      "command": "npm run validate:kb",
+      "status": "passed",
+      "summary": "328 entries, 18 categories, 0 issues"
+    },
+    {
+      "command": "npm run typecheck",
+      "status": "passed"
+    },
+    {
+      "command": "npm test",
+      "status": "passed",
+      "summary": "5 files passed, 65 tests passed"
+    }
+  ],
+  "updatedAt": "2026-06-04T23:53:24.311897+00:00"
+}

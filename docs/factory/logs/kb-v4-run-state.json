@@ -1,0 +1,119 @@
+{
+  "generatedAt": "2026-06-04T23:53:24.311897+00:00",
+  "step": "fallback-cleanup-variant-b-validated",
+  "gitHead": null,
+  "baseline": {
+    "kbEntriesBeforeV4Imports": 118,
+    "kbEntriesAfterBatch1": 123,
+    "kbEntriesAfterRemainingReady": 137,
+    "kbCategories": 18,
+    "preExistingDirtyState": [
+      "M context.md",
+      "?? nul"
+    ]
+  },
+  "pmlWorkerSmoke": "passed",
+  "imports": [
+    {
+      "batchId": "batch-1",
+      "acceptedIds": [
+        "d7_attribute_hash_validation",
+        "d7_attribute_type_gated_assignment",
+        "d7_element_creation_api",
+        "d7_netgridcontrol_excel_io",
+        "d7_special_char_stripping"
+      ],
+      "validationStatus": "passed"
+    },
+    {
+      "batchId": "remaining-ready",
+      "acceptedIds": [
+        "d7_display_progress",
+        "d7_savework_unclaim",
+        "d7_string_dbref_conversion",
+        "dbref_attribute_access_assignment",
+        "loopdata_object",
+        "net_grid_data_source_workflow",
+        "obj_measure_unit",
+        "obj_ptmltags_export",
+        "obj_ramcommonlogger",
+        "pdms_collect_all_multi_class",
+        "pdms_dtxr_attribute",
+        "pdms_namn_attribute",
+        "pml1_lstdef_query",
+        "string_interpolation_dollar_var"
+      ],
+      "validationStatus": "passed"
+    }
+  ],
+  "validationCommands": [
+    {
+      "command": "npm run validate:kb",
+      "status": "passed",
+      "summary": "328 entries, 18 categories, 0 issues"
+    },
+    {
+      "command": "npm run typecheck",
+      "status": "passed"
+    },
+    {
+      "command": "npm test",
+      "status": "passed",
+      "summary": "5 files passed, 65 tests passed"
+    }
+  ],
+  "validationStatus": "passed",
+  "reports": [
+    "docs/factory/reports/kb-v4-batch-1-import.json",
+    "docs/factory/reports/kb-v4-batch-1-import.md",
+    "docs/factory/reports/kb-v4-remaining-ready-import.json",
+    "docs/factory/reports/kb-v4-remaining-ready-import.md"
+  ],
+  "nextAction": "review final diff hygiene before commit",
+  "stopCondition": null,
+  "manualValidationWorkbook": {
+    "rows": 439,
+    "xlsx": "docs/factory/reports/kb-v4-manual-validation.xlsx",
+    "json": "docs/factory/reports/kb-v4-manual-validation.json",
+    "csv": "docs/factory/reports/kb-v4-manual-validation.csv",
+    "md": "docs/factory/reports/kb-v4-manual-validation.md",
+    "byDecision": {
+      "category_decision_required": 328,
+      "manual_review": 111
+    },
+    "byRecommendedAction": {
+      "DEFER_SOURCE_NEEDED": 26,
+      "CATEGORY_DECISION": 302,
+      "REPAIR_CB": 80,
+      "REPAIR_RELATEDIDS": 1,
+      "REVIEW": 30
+    }
+  },
+  "validatedWorkbookImport": {
+    "authorizedImportRows": 371,
+    "authorizedRejectRows": 68,
+    "importedNewEntries": 371,
+    "skippedExisting": [],
+    "reports": [
+      "docs/factory/reports/kb-v4-validated-import.json",
+      "docs/factory/reports/kb-v4-validated-import.md"
+    ]
+  },
+  "finalKbEntries": 328,
+  "finalKbCategories": 18,
+  "searchSmokeRepair": {
+    "entry": "p2_collect_pml1",
+    "change": "added alias COLLECT to preserve required top-8 smoke result after mass import"
+  },
+  "fallbackCleanup": {
+    "variant": "B",
+    "removedCount": 180,
+    "repairedCount": 29,
+    "remainingFallbackLikeCount": 4,
+    "totalEntriesAfterCleanup": 328,
+    "reports": [
+      "docs/factory/reports/kb-v4-fallback-cleanup.json",
+      "docs/factory/reports/kb-v4-fallback-cleanup.md"
+    ]
+  }
+}

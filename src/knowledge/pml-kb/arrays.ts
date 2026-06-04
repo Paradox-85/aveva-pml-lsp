@@ -203,5 +203,65 @@ export const arraysEntries: KBEntry[] = [
     ],
     "sourcedoc": "Perplexity PML KB §6.4; codebase fallback uses evaluate/sortUnique",
     "sourcecodebase": "ramCommonLogger.pmlobj"
+  },
+  {
+    "id": "findfirst_set_membership",
+    "category": "arrays",
+    "subcategory": "search",
+    "title": "findfirst().set() pattern for array membership testing",
+    "principle": "Array.findfirst(item) returns the first matching element; .set() checks if a value was assigned, confirming membership.",
+    "rule": "Use (!deletedTags.findfirst(!tag).set()) to test if a tag exists in the deleted array.",
+    "syntax": "if (!deletedTags.findfirst(!tag).set()) then\n  !action = |DELETE|\nendif",
+    "exampleCanonical": "-- CB JDE_delta_tag_export.pmlmac\n-- CB mac_22\nif (!deletedTags.findfirst(!tag).set()) then\n  !action = |DELETE|\nelseif (!createdTags.findfirst(!tag).set()) then\n  !action = |NEW|\nendif",
+    "exampleAntipattern": "Using findfirst() without .set() — always truthy even if no match",
+    "pitfalls": [
+      "findfirst returns the matched element or UNSET; .set() distinguishes these"
+    ],
+    "relatedIds": [
+      "dt_array_declaration"
+    ],
+    "sourcedoc": "AVEVA PML ARRAY object",
+    "sourcecodebase": "JDE_delta_tag_export.pmlmac"
+  },
+  {
+    "id": "mac_22:unknown:200",
+    "category": "arrays",
+    "subcategory": "search",
+    "title": "findfirst().set() pattern for array membership testing",
+    "principle": "ARRAY.findFirst().set() is a compact membership guard before appending or processing duplicates.",
+    "rule": "ARRAY.findFirst().set() is a compact membership guard before appending or processing duplicates.",
+    "syntax": "	!changedTags = !changedTags.sortUnique()\n	do !tag values !changedTags",
+    "exampleCanonical": "-- CB JDE_delta_tag_export.pmlmac\n	!changedTags = !changedTags.sortUnique()\n	do !tag values !changedTags\n		!rowDataList = ARRAY()\n		!action = |UPDATE|\n		if (!deletedTags.findfirst(!tag).set()) then\n			!action = |DELETE|\n		elseif (!createdTags.findfirst(!tag).set()) then\n			!action = |NEW|\n		endif\n		do !expressionStr values !expressions\n			!idx = !expressions.findFirst(!expressionStr)\n			!val = ||\n			!expression = !expressionStr.split(|;|)[2]\n			!evaluate = |var !val $!expression of $!tag|",
+    "exampleAntipattern": "-- WRONG: use findfirst().set() pattern for array membership testing without validating the source context in JDE_delta_tag_export.pmlmac",
+    "pitfalls": [
+          "Validate against JDE_delta_tag_export.pmlmac before reusing the pattern.",
+          "Keep source-specific names and database context explicit when adapting this snippet."
+    ],
+    "relatedIds": [
+      "dt_array_declaration"
+    ],
+    "sourcedoc": "AVEVA PML Reference",
+    "sourcecodebase": "JDE_delta_tag_export.pmlmac"
+  },
+  {
+    "id": "array_2d_initialization",
+    "category": "arrays",
+    "subcategory": "multi-dimensional",
+    "title": "2D array initialization in PML",
+    "principle": "PML arrays can be indexed with multiple subscripts: array[i][j] for 2D data. Initialize by assigning individual cells.",
+    "rule": "Create the array with ARRAY(), then assign cells using !arr[i][j] = value. There is no native 2D array literal — each cell must be assigned individually.",
+    "syntax": "!arr = object ARRAY()\n!arr[1][1] = 'header1'\n!arr[1][2] = 'header2'\n!arr[2][1] = 'value1'\n!arr[2][2] = 'value2'",
+    "exampleCanonical": "-- CB JDE_commPackage-reports.pmlmac\n-- CB mac_18_benchmark.pmlmac\n!commonAttributes = object ARRAY()\n!commonAttributes[1][1] = ':RAMTagOwner'\n!commonAttributes[1][2] = 'Tag Owner'\n!commonAttributes[2][1] = ':TagStatus'\n!commonAttributes[2][2] = 'Tag Status'",
+    "exampleAntipattern": "-- ❌ JavaScript-style 2D literal (not valid PML)\n!arr = [['a','b'], ['c','d']]",
+    "pitfalls": [
+      "PML ARRAY does not support multi-dimensional literals — each cell must be assigned.",
+      "Subscript indices start at 1, not 0.",
+      "Appending to a 2D array requires careful management of the outer array size."
+    ],
+    "relatedIds": [
+      "dt_array_declaration"
+    ],
+    "sourcedoc": "AVEVA PML Customization — Arrays",
+    "sourcecodebase": "JDE_commPackage-reports.pmlmac"
   }
 ];

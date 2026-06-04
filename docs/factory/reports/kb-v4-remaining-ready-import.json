@@ -1,0 +1,47 @@
+{
+  "generatedAt": "2026-06-04T23:50:00.000Z",
+  "status": "imported_and_validated",
+  "importedIds": [
+    "d7_display_progress",
+    "d7_savework_unclaim",
+    "d7_string_dbref_conversion",
+    "dbref_attribute_access_assignment",
+    "loopdata_object",
+    "net_grid_data_source_workflow",
+    "obj_measure_unit",
+    "obj_ptmltags_export",
+    "obj_ramcommonlogger",
+    "pdms_collect_all_multi_class",
+    "pdms_dtxr_attribute",
+    "pdms_namn_attribute",
+    "pml1_lstdef_query",
+    "string_interpolation_dollar_var"
+  ],
+  "changedKbFiles": [
+    "src/knowledge/pml-kb/ui.ts",
+    "src/knowledge/pml-kb/macros.ts",
+    "src/knowledge/pml-kb/typeconversion.ts",
+    "src/knowledge/pml-kb/objects.ts",
+    "src/knowledge/pml-kb/dotnetinterop.ts",
+    "src/knowledge/pml-kb/pdmsinteraction.ts",
+    "src/knowledge/pml-kb/controlflow.ts"
+  ],
+  "repairsApplied": [
+    "Normalized relatedIds to existing/imported KB IDs",
+    "Mapped draft categories to allowed categories",
+    "Removed draft-only normalizeCategory expressions",
+    "Filled empty exampleAntipattern values",
+    "Repaired parse-invalid antipattern snippets"
+  ],
+  "validation": [
+    { "command": "npm run validate:kb", "status": "passed", "summary": "Total entries 137, categories 18, issues 0" },
+    { "command": "npm run typecheck", "status": "passed" },
+    { "command": "npm test", "status": "passed", "summary": "5 files passed, 65 tests passed" }
+  ],
+  "newCategoriesAdded": false,
+  "autoImportedPatchDrafts": false,
+  "residualRisks": [
+    "Most remaining candidates outside import_new_candidate_ready still require manual review or category decisions.",
+    "Further imports should continue using batch gates and validation after each batch."
+  ]
+}

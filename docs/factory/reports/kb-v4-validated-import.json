@@ -1,0 +1,3462 @@
+{
+  "generatedAt": "2026-06-04T23:32:16.136669+00:00",
+  "workbook": "C:/Work/Development/projects/bami/bami-tech/aveva-automation/clients/bami/rnd/pml-lsp/docs/factory/reports/kb-v4-manual-validation.xlsx",
+  "authorizedImportRows": 371,
+  "authorizedRejectRows": 68,
+  "importedNewEntries": 371,
+  "skippedExisting": [],
+  "byCategory": {
+    "controlflow": 18,
+    "macros": 23,
+    "dotnetinterop": 50,
+    "typeconversion": 2,
+    "objects": 41,
+    "pdmsinteraction": 69,
+    "architecturepatterns": 4,
+    "forms": 7,
+    "errorhandling": 57,
+    "datatypes": 30,
+    "ui": 6,
+    "datetime": 3,
+    "collections": 26,
+    "syscom": 6,
+    "logging": 16,
+    "functions": 1,
+    "arrays": 12
+  },
+  "byTarget": {
+    "src/knowledge/pml-kb/controlflow.ts": 18,
+    "src/knowledge/pml-kb/macros.ts": 23,
+    "src/knowledge/pml-kb/dotnetinterop.ts": 50,
+    "src/knowledge/pml-kb/typeconversion.ts": 2,
+    "src/knowledge/pml-kb/objects.ts": 41,
+    "src/knowledge/pml-kb/pdmsinteraction.ts": 69,
+    "src/knowledge/pml-kb/architecturepatterns.ts": 4,
+    "src/knowledge/pml-kb/forms.ts": 7,
+    "src/knowledge/pml-kb/errorhandling.ts": 57,
+    "src/knowledge/pml-kb/datatypes.ts": 30,
+    "src/knowledge/pml-kb/ui.ts": 6,
+    "src/knowledge/pml-kb/datetime.ts": 3,
+    "src/knowledge/pml-kb/collections.ts": 26,
+    "src/knowledge/pml-kb/syscom.ts": 6,
+    "src/knowledge/pml-kb/logging.ts": 16,
+    "src/knowledge/pml-kb/functions.ts": 1,
+    "src/knowledge/pml-kb/arrays.ts": 12
+  },
+  "imported": [
+    {
+      "id": "cb_deslnk_attribute_fallback",
+      "category": "controlflow",
+      "target": "src/knowledge/pml-kb/controlflow.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to controlflow; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_macro_dual_source_pipe_attribute_export",
+      "category": "macros",
+      "target": "src/knowledge/pml-kb/macros.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to macros; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_netgrid_excel_export_macro",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to dotnetinterop; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_pml1_collect_values_dbref",
+      "category": "controlflow",
+      "target": "src/knowledge/pml-kb/controlflow.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to controlflow; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "KB-DEP-NAMESPACE-RAMAEUPDATEELEMENT",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "KB-EXPR-DOLLAR-DYNAMIC-CONSTRUCT",
+      "category": "typeconversion",
+      "target": "src/knowledge/pml-kb/typeconversion.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "KB-OBJ-ATTRIBUTE-ISPSUEDO-BYPASS",
+      "category": "objects",
+      "target": "src/knowledge/pml-kb/objects.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "KB-OBJ-VAR-BACKREF-QUERY",
+      "category": "objects",
+      "target": "src/knowledge/pml-kb/objects.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "KB-QUERY-COLLECTALLFOR-WORL",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "array-tabular-normalisation-defined-set",
+      "category": "objects",
+      "target": "src/knowledge/pml-kb/objects.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "custom-file-writer-dependency-ramfilewriterclass",
+      "category": "architecturepatterns",
+      "target": "src/knowledge/pml-kb/architecturepatterns.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "engineering-tags-common-attribute-map",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "engineering-tags-rdl-export-wrapper",
+      "category": "architecturepatterns",
+      "target": "src/knowledge/pml-kb/architecturepatterns.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "relatedIds easily repaired during import"
+    },
+    {
+      "id": "export-data-sentinel-replacement-list",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "logger-form-refresh-side-effect",
+      "category": "forms",
+      "target": "src/knowledge/pml-kb/forms.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "macro-error-label-savework-unclaim",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "measure-unit-setunits-defaults",
+      "category": "datatypes",
+      "target": "src/knowledge/pml-kb/datatypes.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "object-logger-overload-default-severity",
+      "category": "objects",
+      "target": "src/knowledge/pml-kb/objects.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "objects-array-block-evaluate",
+      "category": "objects",
+      "target": "src/knowledge/pml-kb/objects.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "objects-error-global",
+      "category": "objects",
+      "target": "src/knowledge/pml-kb/objects.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "objects-pmlfilebrowser-showopen",
+      "category": "objects",
+      "target": "src/knowledge/pml-kb/objects.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "objects-ram-aepml-excel-reader",
+      "category": "objects",
+      "target": "src/knowledge/pml-kb/objects.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "objects-ramcommonlogger",
+      "category": "objects",
+      "target": "src/knowledge/pml-kb/objects.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "objects-string-join-method",
+      "category": "objects",
+      "target": "src/knowledge/pml-kb/objects.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "objects-string-set-neq-methods",
+      "category": "objects",
+      "target": "src/knowledge/pml-kb/objects.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "patterns-reader-caching",
+      "category": "architecturepatterns",
+      "target": "src/knowledge/pml-kb/architecturepatterns.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "pml-builtin-display-progress",
+      "category": "ui",
+      "target": "src/knowledge/pml-kb/ui.ts",
+      "hasPatchBlock": false,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to ui; conf=0.97"
+    },
+    {
+      "id": "pml-builtin-error-text",
+      "category": "ui",
+      "target": "src/knowledge/pml-kb/ui.ts",
+      "hasPatchBlock": false,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to ui; conf=0.97"
+    },
+    {
+      "id": "pml-builtin-undefined",
+      "category": "ui",
+      "target": "src/knowledge/pml-kb/ui.ts",
+      "hasPatchBlock": false,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to ui; conf=0.97"
+    },
+    {
+      "id": "pml-control-skip-if",
+      "category": "controlflow",
+      "target": "src/knowledge/pml-kb/controlflow.ts",
+      "hasPatchBlock": false,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to controlflow; conf=0.97"
+    },
+    {
+      "id": "pml-object-datetime-dateformat",
+      "category": "datetime",
+      "target": "src/knowledge/pml-kb/datetime.ts",
+      "hasPatchBlock": false,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to datetime; conf=0.97"
+    },
+    {
+      "id": "pml-object-measure-format",
+      "category": "objects",
+      "target": "src/knowledge/pml-kb/objects.ts",
+      "hasPatchBlock": false,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to objects; conf=0.97"
+    },
+    {
+      "id": "pml-statement-show",
+      "category": "forms",
+      "target": "src/knowledge/pml-kb/forms.ts",
+      "hasPatchBlock": false,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to forms; conf=0.97"
+    },
+    {
+      "id": "array-evaluate-block-evalIndex",
+      "category": "objects",
+      "target": "src/knowledge/pml-kb/objects.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "1",
+      "userNotes": "Category resolved to objects; conf=0.64"
+    },
+    {
+      "id": "array-reindex-sortedindices-pattern",
+      "category": "objects",
+      "target": "src/knowledge/pml-kb/objects.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "1",
+      "userNotes": "Category resolved to objects; conf=0.64"
+    },
+    {
+      "id": "arrays_findfirst_set_membership",
+      "category": "collections",
+      "target": "src/knowledge/pml-kb/collections.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to collections; conf=0.79"
+    },
+    {
+      "id": "cb_obj_10_collect_all",
+      "category": "collections",
+      "target": "src/knowledge/pml-kb/collections.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to collections; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_obj_10_elsehandle",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to errorhandling; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_obj_10_handle",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to errorhandling; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_obj_10_netdatasource",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to dotnetinterop; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_obj_10_netgridcontrol",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to dotnetinterop; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_obj_10_syscom",
+      "category": "syscom",
+      "target": "src/knowledge/pml-kb/syscom.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to syscom; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "customer-ram-aepml-excel-reader-namespace",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "1",
+      "userNotes": "Category resolved to dotnetinterop; conf=0.64"
+    },
+    {
+      "id": "customer-ram-common-logger-addlogdetails",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "1",
+      "userNotes": "Category resolved to dotnetinterop; conf=0.64"
+    },
+    {
+      "id": "customer-ram-common-logger-global",
+      "category": "logging",
+      "target": "src/knowledge/pml-kb/logging.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "1",
+      "userNotes": "Category resolved to logging; conf=0.64"
+    },
+    {
+      "id": "customer-ram-pml-excel-reader-class",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "1",
+      "userNotes": "Category resolved to dotnetinterop; conf=0.64"
+    },
+    {
+      "id": "dotnet_netdatasource",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to dotnetinterop; conf=0.79"
+    },
+    {
+      "id": "errorhandling_elsehandle_none",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to errorhandling; conf=0.79"
+    },
+    {
+      "id": "kb_block_avevalindex",
+      "category": "collections",
+      "target": "src/knowledge/pml-kb/collections.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to collections; conf=0.79"
+    },
+    {
+      "id": "kb_builtin_undefined",
+      "category": "datatypes",
+      "target": "src/knowledge/pml-kb/datatypes.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to datatypes; conf=0.79"
+    },
+    {
+      "id": "kb_pml1_project_code_evar",
+      "category": "datatypes",
+      "target": "src/knowledge/pml-kb/datatypes.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to datatypes; conf=0.79"
+    },
+    {
+      "id": "lazy-global-initialization-pattern",
+      "category": "macros",
+      "target": "src/knowledge/pml-kb/macros.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "1",
+      "userNotes": "Category resolved to macros; conf=0.64"
+    },
+    {
+      "id": "mac_08:unknown:71",
+      "category": "macros",
+      "target": "src/knowledge/pml-kb/macros.ts",
+      "hasPatchBlock": false,
+      "hasGapObject": false,
+      "importBatch": "1",
+      "userNotes": "Category resolved to macros; conf=0.64"
+    },
+    {
+      "id": "mac_08:unknown:72",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": false,
+      "hasGapObject": false,
+      "importBatch": "1",
+      "userNotes": "Category resolved to pdmsinteraction; conf=0.64"
+    },
+    {
+      "id": "macro_setdate_stamp",
+      "category": "datetime",
+      "target": "src/knowledge/pml-kb/datetime.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to datetime; conf=0.79"
+    },
+    {
+      "id": "objects_pmltags",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to pdmsinteraction; conf=0.79"
+    },
+    {
+      "id": "pdms_old_qualifier",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to pdmsinteraction; conf=0.79"
+    },
+    {
+      "id": "pdms_setcompdate",
+      "category": "controlflow",
+      "target": "src/knowledge/pml-kb/controlflow.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to controlflow; conf=0.79"
+    },
+    {
+      "id": "pml_attribute_query_of",
+      "category": "collections",
+      "target": "src/knowledge/pml-kb/collections.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to collections; conf=0.64"
+    },
+    {
+      "id": "pml_inset_operator",
+      "category": "controlflow",
+      "target": "src/knowledge/pml-kb/controlflow.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to controlflow; conf=0.64"
+    },
+    {
+      "id": "pml_isnamed_keyword",
+      "category": "controlflow",
+      "target": "src/knowledge/pml-kb/controlflow.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to controlflow; conf=0.64"
+    },
+    {
+      "id": "pml_op_inset",
+      "category": "controlflow",
+      "target": "src/knowledge/pml-kb/controlflow.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to controlflow; conf=0.64"
+    },
+    {
+      "id": "pml_string_format_i2",
+      "category": "datatypes",
+      "target": "src/knowledge/pml-kb/datatypes.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to datatypes; conf=0.64"
+    },
+    {
+      "id": "string-neq-method",
+      "category": "objects",
+      "target": "src/knowledge/pml-kb/objects.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "1",
+      "userNotes": "Category resolved to objects; conf=0.64"
+    },
+    {
+      "id": "ui_netgridcontrol_export",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to dotnetinterop; conf=0.79"
+    },
+    {
+      "id": "d7_dual_attribute_fallback",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "d7_empty_na_value_filtering",
+      "category": "datatypes",
+      "target": "src/knowledge/pml-kb/datatypes.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "kb_object_objecttype",
+      "category": "objects",
+      "target": "src/knowledge/pml-kb/objects.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to objects; conf=1.00"
+    },
+    {
+      "id": "kb_string_unset",
+      "category": "objects",
+      "target": "src/knowledge/pml-kb/objects.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to objects; conf=1.00"
+    },
+    {
+      "id": "mac_08:unknown:73",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": false,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "mac_08:unknown:74",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": false,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "mac_08:unknown:75",
+      "category": "datatypes",
+      "target": "src/knowledge/pml-kb/datatypes.ts",
+      "hasPatchBlock": false,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "mac_08:unknown:76",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": false,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "mac_08:unknown:77",
+      "category": "datatypes",
+      "target": "src/knowledge/pml-kb/datatypes.ts",
+      "hasPatchBlock": false,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "obj_08_dateformat_constructor",
+      "category": "datatypes",
+      "target": "src/knowledge/pml-kb/datatypes.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "1",
+      "userNotes": "Category resolved to datatypes; conf=1.00"
+    },
+    {
+      "id": "obj_08_datetime_constructor",
+      "category": "datatypes",
+      "target": "src/knowledge/pml-kb/datatypes.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "1",
+      "userNotes": "Category resolved to datatypes; conf=1.00"
+    },
+    {
+      "id": "obj_08_dbref_namn",
+      "category": "datatypes",
+      "target": "src/knowledge/pml-kb/datatypes.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "1",
+      "userNotes": "Category resolved to datatypes; conf=1.00"
+    },
+    {
+      "id": "obj_08_dynamic_constructor",
+      "category": "datatypes",
+      "target": "src/knowledge/pml-kb/datatypes.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "1",
+      "userNotes": "Category resolved to datatypes; conf=1.00"
+    },
+    {
+      "id": "obj_08_dynamic_method_call",
+      "category": "datatypes",
+      "target": "src/knowledge/pml-kb/datatypes.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "1",
+      "userNotes": "Category resolved to datatypes; conf=1.00"
+    },
+    {
+      "id": "obj_08_format_label",
+      "category": "datatypes",
+      "target": "src/knowledge/pml-kb/datatypes.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "1",
+      "userNotes": "Category resolved to datatypes; conf=1.00"
+    },
+    {
+      "id": "obj_08_ramcommonlogger",
+      "category": "logging",
+      "target": "src/knowledge/pml-kb/logging.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "1",
+      "userNotes": "Category resolved to logging; conf=1.00"
+    },
+    {
+      "id": "obj_08_real_unit",
+      "category": "datatypes",
+      "target": "src/knowledge/pml-kb/datatypes.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "1",
+      "userNotes": "Category resolved to datatypes; conf=1.00"
+    },
+    {
+      "id": "obj_08_skip_conditional",
+      "category": "controlflow",
+      "target": "src/knowledge/pml-kb/controlflow.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "1",
+      "userNotes": "Category resolved to controlflow; conf=1.00"
+    },
+    {
+      "id": "obj_08_unset_method",
+      "category": "datatypes",
+      "target": "src/knowledge/pml-kb/datatypes.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "1",
+      "userNotes": "Category resolved to datatypes; conf=1.00"
+    },
+    {
+      "id": "pml_cmd_matchwild_query",
+      "category": "functions",
+      "target": "src/knowledge/pml-kb/functions.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "pml_fmt_datetime_string",
+      "category": "forms",
+      "target": "src/knowledge/pml-kb/forms.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "pml_macro_error_handler_pattern",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "pml_obj_lstgrp_lstdef",
+      "category": "objects",
+      "target": "src/knowledge/pml-kb/objects.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "pml_obj_pmltags",
+      "category": "objects",
+      "target": "src/knowledge/pml-kb/objects.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "pml_onerror_golabel",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "pml_unclaim_all",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "pml_unset_badref_check",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "cb_mac_23_reload_object",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "1",
+      "userNotes": "Category resolved to pdmsinteraction; conf=0.56"
+    },
+    {
+      "id": "cb_mac_28_array",
+      "category": "arrays",
+      "target": "src/knowledge/pml-kb/arrays.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to arrays; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_mac_28_attribute",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to pdmsinteraction; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_mac_28_file",
+      "category": "objects",
+      "target": "src/knowledge/pml-kb/objects.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to objects; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_mac_28_gridcontrol",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to dotnetinterop; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_mac_28_netdatasource",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to dotnetinterop; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_mac_28_netgridcontrol",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to dotnetinterop; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_mac_29_attribute",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to pdmsinteraction; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_mac_29_coll_all",
+      "category": "collections",
+      "target": "src/knowledge/pml-kb/collections.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to collections; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_mac_29_handle",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to errorhandling; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_mac_29_netdatasource",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to dotnetinterop; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_mac_29_netgridcontrol",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to dotnetinterop; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_mac_30_array",
+      "category": "arrays",
+      "target": "src/knowledge/pml-kb/arrays.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to arrays; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_mac_30_attribute",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to pdmsinteraction; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_mac_30_file",
+      "category": "objects",
+      "target": "src/knowledge/pml-kb/objects.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to objects; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_mac_30_handle",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to errorhandling; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_mac_30_matchwild",
+      "category": "datatypes",
+      "target": "src/knowledge/pml-kb/datatypes.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to datatypes; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_mac_30_ramcommonlogger",
+      "category": "logging",
+      "target": "src/knowledge/pml-kb/logging.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to logging; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_mac_31_dbref",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to pdmsinteraction; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_mac_31_elsehandle",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to errorhandling; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_mac_31_handle",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to errorhandling; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_mac_31_matchwild",
+      "category": "datatypes",
+      "target": "src/knowledge/pml-kb/datatypes.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to datatypes; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_mac_32_array",
+      "category": "arrays",
+      "target": "src/knowledge/pml-kb/arrays.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to arrays; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_mac_32_dbref",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to pdmsinteraction; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_mac_32_handle",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to errorhandling; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_mac_32_netdatasource",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to dotnetinterop; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_mac_32_netgridcontrol",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to dotnetinterop; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_mac_33_array",
+      "category": "arrays",
+      "target": "src/knowledge/pml-kb/arrays.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to arrays; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_mac_33_dbref",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to pdmsinteraction; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_mac_33_file",
+      "category": "objects",
+      "target": "src/knowledge/pml-kb/objects.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to objects; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_mac_33_handle",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to errorhandling; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_mac_33_netdatasource",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to dotnetinterop; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_mac_33_netgridcontrol",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to dotnetinterop; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_mac_34_array",
+      "category": "arrays",
+      "target": "src/knowledge/pml-kb/arrays.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to arrays; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_mac_34_dbref",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to pdmsinteraction; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_mac_34_handle",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to errorhandling; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_mac_34_netdatasource",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to dotnetinterop; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_mac_34_netgridcontrol",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to dotnetinterop; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_mac_35_attribute",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to pdmsinteraction; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_mac_35_coll_all",
+      "category": "collections",
+      "target": "src/knowledge/pml-kb/collections.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to collections; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_mac_35_handle",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to errorhandling; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_mac_35_netdatasource",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to dotnetinterop; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_mac_35_netgridcontrol",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to dotnetinterop; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_obj_11_coll_all",
+      "category": "collections",
+      "target": "src/knowledge/pml-kb/collections.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to collections; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_obj_11_collect_all",
+      "category": "collections",
+      "target": "src/knowledge/pml-kb/collections.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to collections; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_obj_11_elsehandle",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to errorhandling; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_obj_11_handle",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to errorhandling; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_obj_11_netgridcontrol",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to dotnetinterop; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_obj_11_syscom",
+      "category": "syscom",
+      "target": "src/knowledge/pml-kb/syscom.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to syscom; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cmd_pml_reload_object",
+      "category": "syscom",
+      "target": "src/knowledge/pml-kb/syscom.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to syscom; conf=0.82"
+    },
+    {
+      "id": "dbview_creation_commands",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to pdmsinteraction; conf=0.79"
+    },
+    {
+      "id": "dbview_elel_property",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to pdmsinteraction; conf=0.56"
+    },
+    {
+      "id": "dbview_sub_object_types",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to pdmsinteraction; conf=0.64"
+    },
+    {
+      "id": "dbview_sub_objects",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to pdmsinteraction; conf=0.79"
+    },
+    {
+      "id": "delete_member_mem_command",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to pdmsinteraction; conf=0.79"
+    },
+    {
+      "id": "dotnet_gridcontrol_export",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to dotnetinterop; conf=0.82"
+    },
+    {
+      "id": "elel_add_commands",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to pdmsinteraction; conf=0.79"
+    },
+    {
+      "id": "elsehandle_none_pattern",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to errorhandling; conf=0.79"
+    },
+    {
+      "id": "err_macro_no_error_handling",
+      "category": "macros",
+      "target": "src/knowledge/pml-kb/macros.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to macros; conf=0.64"
+    },
+    {
+      "id": "findfirst_set_membership",
+      "category": "arrays",
+      "target": "src/knowledge/pml-kb/arrays.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to arrays; conf=0.79"
+    },
+    {
+      "id": "handle_none_recovery_pattern",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to errorhandling; conf=0.64"
+    },
+    {
+      "id": "handle_tuple_error_codes",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to errorhandling; conf=0.79"
+    },
+    {
+      "id": "kb-pml-reload-object-directive",
+      "category": "macros",
+      "target": "src/knowledge/pml-kb/macros.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "Category resolved to macros"
+    },
+    {
+      "id": "kb-tagmanagementtmp-object",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "Category resolved to dotnetinterop"
+    },
+    {
+      "id": "mac_20:unknown:167",
+      "category": "datatypes",
+      "target": "src/knowledge/pml-kb/datatypes.ts",
+      "hasPatchBlock": false,
+      "hasGapObject": false,
+      "importBatch": "1",
+      "userNotes": "Category resolved to datatypes; conf=0.79"
+    },
+    {
+      "id": "mac_20:unknown:168",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": false,
+      "hasGapObject": false,
+      "importBatch": "1",
+      "userNotes": "Category resolved to pdmsinteraction; conf=0.79"
+    },
+    {
+      "id": "mac_20:unknown:169",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": false,
+      "hasGapObject": false,
+      "importBatch": "1",
+      "userNotes": "Category resolved to errorhandling; conf=0.79"
+    },
+    {
+      "id": "mac_20:unknown:170",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": false,
+      "hasGapObject": false,
+      "importBatch": "1",
+      "userNotes": "Category resolved to errorhandling; conf=0.79"
+    },
+    {
+      "id": "mac_20:unknown:171",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": false,
+      "hasGapObject": false,
+      "importBatch": "1",
+      "userNotes": "Category resolved to dotnetinterop; conf=0.79"
+    },
+    {
+      "id": "mac_20:unknown:172",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": false,
+      "hasGapObject": false,
+      "importBatch": "1",
+      "userNotes": "Category resolved to dotnetinterop; conf=0.79"
+    },
+    {
+      "id": "mac_20:unknown:173",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": false,
+      "hasGapObject": false,
+      "importBatch": "1",
+      "userNotes": "Category resolved to pdmsinteraction; conf=0.79"
+    },
+    {
+      "id": "mac_20:unknown:174",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": false,
+      "hasGapObject": false,
+      "importBatch": "1",
+      "userNotes": "Category resolved to pdmsinteraction; conf=0.79"
+    },
+    {
+      "id": "mac_20:unknown:175",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": false,
+      "hasGapObject": false,
+      "importBatch": "1",
+      "userNotes": "Category resolved to pdmsinteraction; conf=0.79"
+    },
+    {
+      "id": "mac_20:unknown:176",
+      "category": "datatypes",
+      "target": "src/knowledge/pml-kb/datatypes.ts",
+      "hasPatchBlock": false,
+      "hasGapObject": false,
+      "importBatch": "1",
+      "userNotes": "Category resolved to datatypes; conf=0.79"
+    },
+    {
+      "id": "mac_20:unknown:177",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": false,
+      "hasGapObject": false,
+      "importBatch": "1",
+      "userNotes": "Category resolved to pdmsinteraction; conf=0.79"
+    },
+    {
+      "id": "mac_20:unknown:178",
+      "category": "macros",
+      "target": "src/knowledge/pml-kb/macros.ts",
+      "hasPatchBlock": false,
+      "hasGapObject": false,
+      "importBatch": "1",
+      "userNotes": "Category resolved to macros; conf=0.79"
+    },
+    {
+      "id": "mac_21:unknown:184",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": false,
+      "hasGapObject": false,
+      "importBatch": "1",
+      "userNotes": "Category resolved to pdmsinteraction; conf=0.64"
+    },
+    {
+      "id": "mac_21:unknown:185",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": false,
+      "hasGapObject": false,
+      "importBatch": "1",
+      "userNotes": "Category resolved to pdmsinteraction; conf=0.64"
+    },
+    {
+      "id": "mac_21:unknown:186",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": false,
+      "hasGapObject": false,
+      "importBatch": "1",
+      "userNotes": "Category resolved to errorhandling; conf=0.64"
+    },
+    {
+      "id": "mac_21:unknown:187",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": false,
+      "hasGapObject": false,
+      "importBatch": "1",
+      "userNotes": "Category resolved to dotnetinterop; conf=0.64"
+    },
+    {
+      "id": "mac_21:unknown:188",
+      "category": "datatypes",
+      "target": "src/knowledge/pml-kb/datatypes.ts",
+      "hasPatchBlock": false,
+      "hasGapObject": false,
+      "importBatch": "1",
+      "userNotes": "Category resolved to datatypes; conf=0.64"
+    },
+    {
+      "id": "mac_22:unknown:195",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": false,
+      "hasGapObject": false,
+      "importBatch": "1",
+      "userNotes": "Category resolved to pdmsinteraction; conf=0.79"
+    },
+    {
+      "id": "mac_22:unknown:196",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": false,
+      "hasGapObject": false,
+      "importBatch": "1",
+      "userNotes": "Category resolved to pdmsinteraction; conf=0.79"
+    },
+    {
+      "id": "mac_22:unknown:197",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": false,
+      "hasGapObject": false,
+      "importBatch": "1",
+      "userNotes": "Category resolved to pdmsinteraction; conf=0.79"
+    },
+    {
+      "id": "mac_22:unknown:198",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": false,
+      "hasGapObject": false,
+      "importBatch": "1",
+      "userNotes": "Category resolved to pdmsinteraction; conf=0.79"
+    },
+    {
+      "id": "mac_22:unknown:199",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": false,
+      "hasGapObject": false,
+      "importBatch": "1",
+      "userNotes": "Category resolved to dotnetinterop; conf=0.79"
+    },
+    {
+      "id": "mac_22:unknown:200",
+      "category": "arrays",
+      "target": "src/knowledge/pml-kb/arrays.ts",
+      "hasPatchBlock": false,
+      "hasGapObject": false,
+      "importBatch": "1",
+      "userNotes": "Category resolved to arrays; conf=0.79"
+    },
+    {
+      "id": "mac_22:unknown:201",
+      "category": "objects",
+      "target": "src/knowledge/pml-kb/objects.ts",
+      "hasPatchBlock": false,
+      "hasGapObject": false,
+      "importBatch": "1",
+      "userNotes": "Category resolved to objects; conf=0.79"
+    },
+    {
+      "id": "mac_25:unknown:207",
+      "category": "macros",
+      "target": "src/knowledge/pml-kb/macros.ts",
+      "hasPatchBlock": false,
+      "hasGapObject": false,
+      "importBatch": "1",
+      "userNotes": "Category resolved to macros; conf=0.64"
+    },
+    {
+      "id": "mac_27:unknown:210",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": false,
+      "hasGapObject": false,
+      "importBatch": "1",
+      "userNotes": "Category resolved to pdmsinteraction; conf=0.79"
+    },
+    {
+      "id": "mac_27:unknown:211",
+      "category": "macros",
+      "target": "src/knowledge/pml-kb/macros.ts",
+      "hasPatchBlock": false,
+      "hasGapObject": false,
+      "importBatch": "1",
+      "userNotes": "Category resolved to macros; conf=0.79"
+    },
+    {
+      "id": "mac_dollar_m_metadata",
+      "category": "macros",
+      "target": "src/knowledge/pml-kb/macros.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to macros; conf=0.64"
+    },
+    {
+      "id": "macro-ce-property-extract",
+      "category": "macros",
+      "target": "src/knowledge/pml-kb/macros.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to macros; conf=0.64"
+    },
+    {
+      "id": "macro_data_driven_template_pattern",
+      "category": "macros",
+      "target": "src/knowledge/pml-kb/macros.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to macros; conf=0.79"
+    },
+    {
+      "id": "macro_finish_directive",
+      "category": "forms",
+      "target": "src/knowledge/pml-kb/forms.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to forms; conf=0.82"
+    },
+    {
+      "id": "macro_metadata_comment_dollar_m",
+      "category": "macros",
+      "target": "src/knowledge/pml-kb/macros.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to macros; conf=0.82"
+    },
+    {
+      "id": "netdatasource_3arg_constructor",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to dotnetinterop; conf=0.79"
+    },
+    {
+      "id": "netdatasource_gridcontrol_export",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to dotnetinterop; conf=0.56"
+    },
+    {
+      "id": "netdatasource_object",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to dotnetinterop; conf=0.79"
+    },
+    {
+      "id": "obj_tagmanagementtmp_equipmentnamupdate",
+      "category": "objects",
+      "target": "src/knowledge/pml-kb/objects.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to objects; conf=0.64"
+    },
+    {
+      "id": "old_collect_delta_query",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to pdmsinteraction; conf=0.79"
+    },
+    {
+      "id": "pml_handle_nested_scoping",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to errorhandling; conf=0.64"
+    },
+    {
+      "id": "pml_string_chained_methods",
+      "category": "datatypes",
+      "target": "src/knowledge/pml-kb/datatypes.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to datatypes; conf=0.64"
+    },
+    {
+      "id": "pmltags_object",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to pdmsinteraction; conf=0.79"
+    },
+    {
+      "id": "setcompdate_stamp_command",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to pdmsinteraction; conf=0.79"
+    },
+    {
+      "id": "string_after_method",
+      "category": "datatypes",
+      "target": "src/knowledge/pml-kb/datatypes.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to datatypes; conf=0.79"
+    },
+    {
+      "id": "string_replace_method",
+      "category": "datatypes",
+      "target": "src/knowledge/pml-kb/datatypes.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to datatypes; conf=0.79"
+    },
+    {
+      "id": "string_unset_empty_methods",
+      "category": "datatypes",
+      "target": "src/knowledge/pml-kb/datatypes.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to datatypes; conf=0.56"
+    },
+    {
+      "id": "syscom_mkdir_command",
+      "category": "objects",
+      "target": "src/knowledge/pml-kb/objects.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to objects; conf=0.79"
+    },
+    {
+      "id": "utyp_command",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to pdmsinteraction; conf=0.79"
+    },
+    {
+      "id": "variable_interpolation_dollar",
+      "category": "datatypes",
+      "target": "src/knowledge/pml-kb/datatypes.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to datatypes; conf=0.82"
+    },
+    {
+      "id": "array_2d_initialization",
+      "category": "arrays",
+      "target": "src/knowledge/pml-kb/arrays.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to arrays; conf=1.00"
+    },
+    {
+      "id": "block_evaluate_expression",
+      "category": "objects",
+      "target": "src/knowledge/pml-kb/objects.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "cb_mac_23_createObjectsFromExcelSheet",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "collect_all_variable_substitution",
+      "category": "controlflow",
+      "target": "src/knowledge/pml-kb/controlflow.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to controlflow; conf=1.00"
+    },
+    {
+      "id": "d1-pml-reload-object",
+      "category": "controlflow",
+      "target": "src/knowledge/pml-kb/controlflow.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "d1-pml-reload-object-command",
+      "category": "syscom",
+      "target": "src/knowledge/pml-kb/syscom.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "d3-macro-file-header",
+      "category": "macros",
+      "target": "src/knowledge/pml-kb/macros.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "d6-user-defined-object-method",
+      "category": "architecturepatterns",
+      "target": "src/knowledge/pml-kb/architecturepatterns.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "datetime_object_constructor",
+      "category": "datetime",
+      "target": "src/knowledge/pml-kb/datetime.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "datetime_object_methods",
+      "category": "objects",
+      "target": "src/knowledge/pml-kb/objects.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "displayprogress_two_arg",
+      "category": "ui",
+      "target": "src/knowledge/pml-kb/ui.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "do_values_loop_pattern",
+      "category": "controlflow",
+      "target": "src/knowledge/pml-kb/controlflow.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "eh_export_error_handling",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "fn_path_exists_check",
+      "category": "macros",
+      "target": "src/knowledge/pml-kb/macros.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "import_module_handle_any_pattern",
+      "category": "macros",
+      "target": "src/knowledge/pml-kb/macros.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "mac_dollar_m_metadata_comment",
+      "category": "macros",
+      "target": "src/knowledge/pml-kb/macros.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "mac_loopdata_object_usage",
+      "category": "macros",
+      "target": "src/knowledge/pml-kb/macros.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "mac_minimal_pattern",
+      "category": "macros",
+      "target": "src/knowledge/pml-kb/macros.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "macro_finish_error_handler_placement",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "macro_finish_keyword",
+      "category": "macros",
+      "target": "src/knowledge/pml-kb/macros.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to macros; conf=1.00"
+    },
+    {
+      "id": "macro_onerror_golabel_error_trap",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to errorhandling; conf=1.00"
+    },
+    {
+      "id": "macro_reload_object_command",
+      "category": "macros",
+      "target": "src/knowledge/pml-kb/macros.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "macro_savework_keyword",
+      "category": "macros",
+      "target": "src/knowledge/pml-kb/macros.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "macro_savework_unclaim_all",
+      "category": "syscom",
+      "target": "src/knowledge/pml-kb/syscom.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to syscom; conf=1.00"
+    },
+    {
+      "id": "macro_string_delimiter_error_handler",
+      "category": "datatypes",
+      "target": "src/knowledge/pml-kb/datatypes.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "matchwild_function_call",
+      "category": "controlflow",
+      "target": "src/knowledge/pml-kb/controlflow.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "nested_handle_any_in_loop",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "netdatasource_constructor",
+      "category": "objects",
+      "target": "src/knowledge/pml-kb/objects.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "netgridcontrol_core_presentation",
+      "category": "objects",
+      "target": "src/knowledge/pml-kb/objects.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "netgridcontrol_methods",
+      "category": "objects",
+      "target": "src/knowledge/pml-kb/objects.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "obj_tagmanagementtmp",
+      "category": "objects",
+      "target": "src/knowledge/pml-kb/objects.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "pdl_dbref_attr_access",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to pdmsinteraction; conf=1.00"
+    },
+    {
+      "id": "pdms_terminal_attribute_names",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to pdmsinteraction; conf=1.00"
+    },
+    {
+      "id": "pml1_coll_all_query_syntax",
+      "category": "controlflow",
+      "target": "src/knowledge/pml-kb/controlflow.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "pml1_eval_for_all_query",
+      "category": "controlflow",
+      "target": "src/knowledge/pml-kb/controlflow.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "pml1_inset_matchwild_operators",
+      "category": "controlflow",
+      "target": "src/knowledge/pml-kb/controlflow.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to controlflow; conf=1.00"
+    },
+    {
+      "id": "pml_block_constructor",
+      "category": "datatypes",
+      "target": "src/knowledge/pml-kb/datatypes.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to datatypes; conf=1.00"
+    },
+    {
+      "id": "pml_dotnet_netgridcontrol",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "pml_element_createelement",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "pml_eqnocase_method",
+      "category": "typeconversion",
+      "target": "src/knowledge/pml-kb/typeconversion.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to typeconversion; conf=1.00"
+    },
+    {
+      "id": "pml_macro_finish_directive",
+      "category": "macros",
+      "target": "src/knowledge/pml-kb/macros.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "pml_nested_loop_collection_mutation",
+      "category": "controlflow",
+      "target": "src/knowledge/pml-kb/controlflow.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to controlflow; conf=1.00"
+    },
+    {
+      "id": "string_format_specifier_I2",
+      "category": "objects",
+      "target": "src/knowledge/pml-kb/objects.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "string_ift_function",
+      "category": "datatypes",
+      "target": "src/knowledge/pml-kb/datatypes.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "string_inset_function",
+      "category": "datatypes",
+      "target": "src/knowledge/pml-kb/datatypes.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "using_namespace_directive",
+      "category": "controlflow",
+      "target": "src/knowledge/pml-kb/controlflow.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "var_delete_loop_clear",
+      "category": "datatypes",
+      "target": "src/knowledge/pml-kb/datatypes.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "cb_fnc_01_attribute",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to pdmsinteraction; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_01_dbref",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to pdmsinteraction; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_01_elementtype",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to pdmsinteraction; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_01_elsehandle",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to errorhandling; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_01_handle",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to errorhandling; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_02_attribute",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to pdmsinteraction; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_02_dbref",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to pdmsinteraction; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_02_file",
+      "category": "objects",
+      "target": "src/knowledge/pml-kb/objects.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to objects; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_02_ramcommonlogger",
+      "category": "logging",
+      "target": "src/knowledge/pml-kb/logging.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to logging; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_03_file",
+      "category": "objects",
+      "target": "src/knowledge/pml-kb/objects.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to objects; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_03_ramcommonlogger",
+      "category": "logging",
+      "target": "src/knowledge/pml-kb/logging.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to logging; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_03_undefined",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to errorhandling; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_04_attribute",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to pdmsinteraction; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_04_block",
+      "category": "collections",
+      "target": "src/knowledge/pml-kb/collections.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to collections; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_04_collect_all",
+      "category": "collections",
+      "target": "src/knowledge/pml-kb/collections.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to collections; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_04_elementtype",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to pdmsinteraction; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_04_evaluate",
+      "category": "collections",
+      "target": "src/knowledge/pml-kb/collections.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to collections; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_04_handle",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to errorhandling; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_05_array",
+      "category": "arrays",
+      "target": "src/knowledge/pml-kb/arrays.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to arrays; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_05_attribute",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to pdmsinteraction; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_05_collect_all",
+      "category": "collections",
+      "target": "src/knowledge/pml-kb/collections.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to collections; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_05_elsehandle",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to errorhandling; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_05_handle",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to errorhandling; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_06_attribute",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to pdmsinteraction; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_06_block",
+      "category": "collections",
+      "target": "src/knowledge/pml-kb/collections.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to collections; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_06_collect_all",
+      "category": "collections",
+      "target": "src/knowledge/pml-kb/collections.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to collections; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_06_elementtype",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to pdmsinteraction; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_06_handle",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to errorhandling; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_06_ramcommonlogger",
+      "category": "logging",
+      "target": "src/knowledge/pml-kb/logging.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to logging; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_07_attribute",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to pdmsinteraction; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_07_block",
+      "category": "collections",
+      "target": "src/knowledge/pml-kb/collections.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to collections; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_07_collect_all",
+      "category": "collections",
+      "target": "src/knowledge/pml-kb/collections.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to collections; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_07_elementtype",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to pdmsinteraction; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_07_handle",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to errorhandling; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_07_ramcommonlogger",
+      "category": "logging",
+      "target": "src/knowledge/pml-kb/logging.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to logging; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_08_attribute",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to pdmsinteraction; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_08_coll_all",
+      "category": "collections",
+      "target": "src/knowledge/pml-kb/collections.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to collections; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_08_evaluate",
+      "category": "collections",
+      "target": "src/knowledge/pml-kb/collections.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to collections; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_08_handle",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to errorhandling; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_08_ramcommonlogger",
+      "category": "logging",
+      "target": "src/knowledge/pml-kb/logging.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to logging; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_08_undefined",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to errorhandling; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_09_array",
+      "category": "arrays",
+      "target": "src/knowledge/pml-kb/arrays.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to arrays; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_09_attribute",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to pdmsinteraction; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_09_file",
+      "category": "objects",
+      "target": "src/knowledge/pml-kb/objects.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to objects; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_09_ramcommonlogger",
+      "category": "logging",
+      "target": "src/knowledge/pml-kb/logging.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to logging; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_09_undefined",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to errorhandling; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_10_array",
+      "category": "arrays",
+      "target": "src/knowledge/pml-kb/arrays.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to arrays; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_10_attribute",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to pdmsinteraction; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_10_handle",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to errorhandling; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_10_ramcommonlogger",
+      "category": "logging",
+      "target": "src/knowledge/pml-kb/logging.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to logging; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_10_undefined",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to errorhandling; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_11_attribute",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to pdmsinteraction; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_11_block",
+      "category": "collections",
+      "target": "src/knowledge/pml-kb/collections.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to collections; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_11_evaluate",
+      "category": "collections",
+      "target": "src/knowledge/pml-kb/collections.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to collections; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_11_ramcommonlogger",
+      "category": "logging",
+      "target": "src/knowledge/pml-kb/logging.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to logging; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_11_undefined",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to errorhandling; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_12_attribute",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to pdmsinteraction; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_12_file",
+      "category": "objects",
+      "target": "src/knowledge/pml-kb/objects.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to objects; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_12_ramcommonlogger",
+      "category": "logging",
+      "target": "src/knowledge/pml-kb/logging.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to logging; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_12_undefined",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to errorhandling; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_13_attribute",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to pdmsinteraction; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_13_dbref",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to pdmsinteraction; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_13_handle",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to errorhandling; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_13_ramcommonlogger",
+      "category": "logging",
+      "target": "src/knowledge/pml-kb/logging.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to logging; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_13_undefined",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to errorhandling; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_14_array",
+      "category": "arrays",
+      "target": "src/knowledge/pml-kb/arrays.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to arrays; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_14_attribute",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to pdmsinteraction; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_14_file",
+      "category": "objects",
+      "target": "src/knowledge/pml-kb/objects.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to objects; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_14_ramcommonlogger",
+      "category": "logging",
+      "target": "src/knowledge/pml-kb/logging.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to logging; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_14_undefined",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to errorhandling; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_15_attribute",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to pdmsinteraction; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_15_file",
+      "category": "objects",
+      "target": "src/knowledge/pml-kb/objects.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to objects; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_15_ramcommonlogger",
+      "category": "logging",
+      "target": "src/knowledge/pml-kb/logging.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to logging; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_15_undefined",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to errorhandling; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_17_collect_all",
+      "category": "collections",
+      "target": "src/knowledge/pml-kb/collections.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to collections; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_17_elsehandle",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to errorhandling; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_17_handle",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to errorhandling; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_17_netdatasource",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to dotnetinterop; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_17_netgridcontrol",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to dotnetinterop; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_17_syscom",
+      "category": "syscom",
+      "target": "src/knowledge/pml-kb/syscom.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to syscom; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_fnc_18_attribute",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to pdmsinteraction; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_frm_04_collect_all",
+      "category": "collections",
+      "target": "src/knowledge/pml-kb/collections.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to collections; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_frm_04_handle",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to errorhandling; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_frm_04_netdatasource",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to dotnetinterop; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_frm_04_netgridcontrol",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to dotnetinterop; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_frm_04_pmlfilebrowser",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to dotnetinterop; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_frm_04_ramcommonlogger",
+      "category": "logging",
+      "target": "src/knowledge/pml-kb/logging.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to logging; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_frm_05_attribute",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to pdmsinteraction; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_frm_05_elementtype",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to pdmsinteraction; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_frm_05_elsehandle",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to errorhandling; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_frm_05_handle",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to errorhandling; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_frm_05_netdatasource",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to dotnetinterop; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_frm_05_netgridcontrol",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to dotnetinterop; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_frm_06_attribute",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to pdmsinteraction; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_frm_06_block",
+      "category": "collections",
+      "target": "src/knowledge/pml-kb/collections.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to collections; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_frm_06_evaluate",
+      "category": "collections",
+      "target": "src/knowledge/pml-kb/collections.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to collections; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_frm_06_handle",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to errorhandling; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_frm_06_netdatasource",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to dotnetinterop; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_frm_06_netgridcontrol",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to dotnetinterop; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_frm_07_attribute",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to pdmsinteraction; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_frm_07_coll_all",
+      "category": "collections",
+      "target": "src/knowledge/pml-kb/collections.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to collections; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_frm_07_collect_all",
+      "category": "collections",
+      "target": "src/knowledge/pml-kb/collections.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to collections; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_frm_07_elsehandle",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to errorhandling; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_frm_07_handle",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to errorhandling; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "cb_frm_07_pmlfilebrowser",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": false,
+      "importBatch": "2",
+      "userNotes": "Category resolved to dotnetinterop; low conf=0.32 but structure adequate"
+    },
+    {
+      "id": "form_anchor_form_size_keyword",
+      "category": "forms",
+      "target": "src/knowledge/pml-kb/forms.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to forms; conf=0.82"
+    },
+    {
+      "id": "forms_conditional_comment_syntax",
+      "category": "macros",
+      "target": "src/knowledge/pml-kb/macros.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to macros; conf=0.82"
+    },
+    {
+      "id": "forms_element_manager_create_tag",
+      "category": "pdmsinteraction",
+      "target": "src/knowledge/pml-kb/pdmsinteraction.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to pdmsinteraction; conf=0.82"
+    },
+    {
+      "id": "forms_layout_gadget_method_access",
+      "category": "forms",
+      "target": "src/knowledge/pml-kb/forms.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to forms; conf=0.82"
+    },
+    {
+      "id": "forms_net_grid_bind_datasource",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to dotnetinterop; conf=0.82"
+    },
+    {
+      "id": "netdatasource_collection_list_type",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to dotnetinterop; conf=0.82"
+    },
+    {
+      "id": "netgridcontrol_fixedRows_method",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to dotnetinterop; conf=0.82"
+    },
+    {
+      "id": "netgridcontrol_rowAddDeleteGrid_method",
+      "category": "dotnetinterop",
+      "target": "src/knowledge/pml-kb/dotnetinterop.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "1",
+      "userNotes": "Category resolved to dotnetinterop; conf=0.82"
+    },
+    {
+      "id": "control_do_values_iteration",
+      "category": "controlflow",
+      "target": "src/knowledge/pml-kb/controlflow.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "errorhandling_defined_global_form",
+      "category": "errorhandling",
+      "target": "src/knowledge/pml-kb/errorhandling.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "objects_file_set_exists_pattern",
+      "category": "objects",
+      "target": "src/knowledge/pml-kb/objects.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "objects_net_data_source_binding",
+      "category": "objects",
+      "target": "src/knowledge/pml-kb/objects.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "objects_pml_folder_browser",
+      "category": "objects",
+      "target": "src/knowledge/pml-kb/objects.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "ui_alert_warning_method",
+      "category": "ui",
+      "target": "src/knowledge/pml-kb/ui.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "ui_container_pmlnetcontrol_net",
+      "category": "ui",
+      "target": "src/knowledge/pml-kb/ui.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    },
+    {
+      "id": "ui_form_menu_dynamic",
+      "category": "forms",
+      "target": "src/knowledge/pml-kb/forms.ts",
+      "hasPatchBlock": true,
+      "hasGapObject": true,
+      "importBatch": "2",
+      "userNotes": "CB anchor missing but not blocking — will be generated during import"
+    }
+  ],
+  "rejectedIds": [
+    "authuser-global-object",
+    "aveva-presentation-namespaces",
+    "global-pmlfilebrowser-function",
+    "handle-code-severity-syntax",
+    "netdatasource-modes",
+    "pml-attribute-meta",
+    "pml-clock-timing",
+    "pml-elementtype-meta",
+    "pml-obj-pmlexcelhelper",
+    "pml-obj-ramcommonlogger",
+    "pml-obj-ramimportexcelconfigloader",
+    "pml-param-prefix-suffix",
+    "pml-str-matchwild",
+    "pml-str-substring",
+    "pml-var-indirection",
+    "cb_obj_10_do",
+    "customer-excel-reader-readexcel-method",
+    "cb_mac_27_alpha_io_chain",
+    "cb_mac_27_collect_all_tree",
+    "cb_mac_28_",
+    "cb_mac_29_",
+    "cb_mac_29_do",
+    "cb_mac_30_",
+    "cb_mac_31_do",
+    "cb_mac_32_",
+    "cb_mac_32_do",
+    "cb_mac_33_do",
+    "cb_mac_34_",
+    "cb_mac_34_do",
+    "cb_mac_35_",
+    "cb_mac_35_do",
+    "cb_obj_11_do",
+    "mac_17_badref_method",
+    "mac_17_colon_dynamic_property_access",
+    "mac_17_isnamed_pseudo_attribute",
+    "mac_17_string_interpolation_dollar_var",
+    "cb_fnc_01_",
+    "cb_fnc_01_do",
+    "cb_fnc_02_",
+    "cb_fnc_03_",
+    "cb_fnc_04_do",
+    "cb_fnc_05_",
+    "cb_fnc_05_do",
+    "cb_fnc_06_do",
+    "cb_fnc_07_do",
+    "cb_fnc_08_do",
+    "cb_fnc_09_",
+    "cb_fnc_09_do",
+    "cb_fnc_10_",
+    "cb_fnc_10_do",
+    "cb_fnc_11_",
+    "cb_fnc_11_do",
+    "cb_fnc_12_",
+    "cb_fnc_12_do",
+    "cb_fnc_13_",
+    "cb_fnc_13_do",
+    "cb_fnc_14_",
+    "cb_fnc_14_do",
+    "cb_fnc_15_",
+    "cb_fnc_15_do",
+    "cb_fnc_16_",
+    "cb_fnc_17_do",
+    "cb_fnc_18_",
+    "cb_frm_04_do",
+    "cb_frm_05_do",
+    "cb_frm_06_do",
+    "cb_frm_07_do",
+    "cb_obj_12_file"
+  ],
+  "validationRequired": [
+    "npm run validate:kb",
+    "npm run typecheck",
+    "npm test"
+  ]
+}

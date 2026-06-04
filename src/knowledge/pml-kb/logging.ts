@@ -119,5 +119,42 @@ export const loggingEntries: KBEntry[] = [
     ],
     "sourcedoc": "Codebase-derived; official PDF section not identified — паттерн контекстного логирования из codebase",
     "sourcecodebase": "ramImportExcelElementLoader.pmlobj"
+  },
+  {
+    "id": "customer-ram-common-logger-global",
+    "category": "logging",
+    "subcategory": "logging",
+    "title": "!!ramCommonLogger — Global Logger Lazy Initialization",
+    "principle": "Lazy initialization of a shared global logger object.",
+    "rule": "Check undefined(!!ramCommonLogger) before creating the object to avoid re-initialization.",
+    "syntax": "if(undefined(!!ramCommonLogger)) then\n  !!ramCommonLogger = object RAMCOMMONLOGGER()\nendif",
+    "exampleCanonical": "-- CB ramImportExcelConfigLoader.pmlobj\ndefine method .addErrorToList(!element is STRING, !detail is STRING, !error is STRING)\n  if(undefined(!!ramCommonLogger)) then\n    !!ramCommonLogger = object RAMCOMMONLOGGER()\n  endif\n  !errorList = object ARRAY()\n  !errorList.append(!element)\n  !!ramCommonLogger.addLogDetails(!this.objecttype(), !errorList)\nendmethod",
+    "exampleAntipattern": "// ❌ Always recreates the logger\n!!ramCommonLogger = object RAMCOMMONLOGGER()  -- Overwrites existing logger",
+    "pitfalls": [
+      "!!ramCommonLogger is a global variable; ensure it is not cleared elsewhere",
+      "RAMCOMMONLOGGER object must be defined in the same session"
+    ],
+    "relatedIds": [],
+    "sourcedoc": "ramImportExcelConfigLoader.pmlobj",
+    "sourcecodebase": "ramImportExcelConfigLoader.pmlobj"
+  },
+  {
+    "id": "obj_08_ramcommonlogger",
+    "category": "logging",
+    "subcategory": "custom_logger",
+    "title": "RAMCOMMONLOGGER customer add-in class",
+    "principle": "Customer-specific logging class RAMCOMMONLOGGER provides centralized error and log entry logging.",
+    "rule": "Initialize the global `!!ramCommonLogger` lazily using `undefined(!!ramCommonLogger)` check, then call `addLogDetails(context, data)` for logging.",
+    "syntax": "if(undefined(!!ramCommonLogger)) then\\n  !!ramCommonLogger = object RAMCOMMONLOGGER()\\nendif\\n!!ramCommonLogger.addLogDetails(!context, !data)",
+    "exampleCanonical": "-- CB ramValueConverter.pmlobj\\nif(undefined(!!ramCommonLogger)) then\\n  !!ramCommonLogger = object RAMCOMMONLOGGER()\\nendif\\nif(!this.logElement.unset() AND !this.logAttribute.unset()) then\\n  !!ramCommonLogger.addLogDetails(!this.objecttype(), !errorData)\\nelse\\n  !errorList = object ARRAY()\\n  !errorList.append(!this.logElement)\\n  !errorList.append(!this.logAttribute)\\n  !errorList.append(!errorData)\\n  !!ramCommonLogger.addLogDetails(!this.objecttype(), !errorList)\\nendif",
+    "exampleAntipattern": "-- Missing undefined check — may fail on first use\\n  !!ramCommonLogger = object RAMCOMMONLOGGER()\\n  !!ramCommonLogger.addLogDetails(...)  -- may fail if already initialized differently",
+    "pitfalls": [
+      "RAMCOMMONLOGGER is a customer-specific add-in not in standard PML KB.",
+      "The `undefined()` function checks if a global variable has been assigned.",
+      "Always initialize lazily to avoid overwriting existing instances."
+    ],
+    "relatedIds": [],
+    "sourcedoc": "ramValueConverter.pmlobj",
+    "sourcecodebase": "ramValueConverter.pmlobj"
   }
 ];

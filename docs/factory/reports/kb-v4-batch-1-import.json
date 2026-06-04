@@ -1,0 +1,41 @@
+{
+  "generatedAt": "2026-06-04T22:30:00.000Z",
+  "batchId": "batch-1",
+  "status": "imported_and_validated",
+  "importedIds": [
+    "d7_attribute_hash_validation",
+    "d7_attribute_type_gated_assignment",
+    "d7_element_creation_api",
+    "d7_netgridcontrol_excel_io",
+    "d7_special_char_stripping"
+  ],
+  "changedKbFiles": [
+    "src/knowledge/pml-kb/objects.ts",
+    "src/knowledge/pml-kb/typeconversion.ts",
+    "src/knowledge/pml-kb/dotnetinterop.ts",
+    "src/knowledge/pml-kb/datatypes.ts"
+  ],
+  "sourcecodebase": "JDE_newtag_import.pmlmac",
+  "preImportPmlWorkerReview": {
+    "status": "passed",
+    "canonicalParseErrorCount": 0,
+    "antipatternParseErrorCount": 0,
+    "blockers": []
+  },
+  "validation": [
+    { "command": "npm run validate:kb", "status": "passed", "summary": "Total entries 123, categories 18, issues 0" },
+    { "command": "npm run typecheck", "status": "passed" }
+  ],
+  "categoryDeltas": {
+    "datatypes": "+1",
+    "dotnetinterop": "+2",
+    "objects": "+1",
+    "typeconversion": "+1"
+  },
+  "newCategoriesAdded": false,
+  "autoImportedPatchDrafts": false,
+  "residualRisks": [
+    "Future batches may dilute search/context smoke top-8 retrieval.",
+    "Semantic review remains recommended after additional batches."
+  ]
+}
