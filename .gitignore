@@ -5,5 +5,8 @@ coverage/
 *.log
 .DS_Store
 
+# Pi session artifacts are temporary and must not be committed.
+.pi/
+
 # Reference clones are preserved locally but not intended for normal commits.
 temp/

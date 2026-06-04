@@ -1,0 +1,76 @@
+-- Benchmark macro: tagged-element export with timestamped filename
+-- Purpose: demonstrate the same pattern family as EBE_full_tag_export
+--        (datetime stamp, .NET import guard, LSTDEF collect, exportasxls)
+--        but with a different project context (P&ID tag export).
+-- Author: pml-worker benchmark generator
+-- Customer: BAMI Engineering
+-- Rev: 01
+
+------------------------------------------------------------------------
+-- Step 1 — Timestamped filename components
+-- KB: mac_file_path_pattern, datetime_file_timestamp, p2_datetime_api
+--      dt_string_substitution, tc_real_to_string
+------------------------------------------------------------------------
+!dt = OBJECT DATETIME()
+!year = !dt.year()
+!month = !dt.month().string('I2')
+!date = !dt.date().string('I2')
+!hour = !dt.hour().string('I2')
+!minute = !dt.minute().string('I2')
+
+------------------------------------------------------------------------
+-- Step 2 — .NET assembly imports with mandatory handle-any guard
+-- KB: eh_import_protection, dn_import_guard, p2_pmltags
+------------------------------------------------------------------------
+import |Aveva.Engineering.Tags.Pml|
+handle any
+endhandle
+using namespace |Aveva.Engineering.Tags|
+
+import 'GridControl'
+handle any
+endhandle
+using namespace |Aveva.Core.Presentation|
+
+------------------------------------------------------------------------
+-- Step 3 — Tag manager object
+-- KB: p2_pmltags
+------------------------------------------------------------------------
+!!tags = object PMLTAGS()
+
+------------------------------------------------------------------------
+-- Step 4 — Collect list definitions matching a naming convention
+-- KB: ap_pipeline_macro, cf_do_enddo_loop, arr_iteration
+--     pdms_dbref_resolve
+------------------------------------------------------------------------
+var !pidLists collect all LSTDEF with (LstNam eq '100.01 All P&ID Export Report')
+if (!pidLists.size() gt 0) then
+
+    -- Step 5 — Iterate over matching list definitions
+    -- KB: cf_do_enddo_loop, arr_iteration, dt_dbref_usage
+    do !pidGrid values !pidLists
+
+        !listName = !pidGrid.dbref().lstnam
+        !listDef  = !!tags.GetListDefinition('100 ADMIN', !listName)
+        !dbView   = !listDef.DbViewName()
+
+        -- Step 6 — Build timestamped file path via $!<expression>
+        -- KB: mac_file_path_pattern, dt_string_substitution
+        !exportFolder  = |C:\Engineering\Exports\PID\|
+        !namedDated    = |PID_TagRegister_$!<year>-$!<month>-$!<date>_$!<hour>-$!<minute>.xlsx|
+        !namedDefault  = |PID_TagRegister.xlsx|
+
+        -- Step 7 — Export to Excel (twice: dated + default)
+        -- KB: p2_pmltags, ap_pipeline_macro
+        using namespace |Aveva.Core.Presentation|
+        !!tags.exportasxls('100 ADMIN','$!listName','$!exportFolder$!namedDated')
+        !!tags.exportasxls('100 ADMIN','$!listName','$!exportFolder$!namedDefault')
+
+    enddo
+endif
+
+------------------------------------------------------------------------
+-- Step 8 — Macro completion
+-- KB: ap_pipeline_macro
+------------------------------------------------------------------------
+FINISH

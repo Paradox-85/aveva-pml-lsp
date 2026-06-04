@@ -1,0 +1,238 @@
+{
+  "fileId": "mac_09",
+  "filePath": "docs/codebase/macros/JDE_newtag_import.pmlmac",
+  "reviewDate": "2026-06-03",
+  "overallGapScore": 0.72,
+  "dimensions": {
+    "D1_syntax": {
+      "score": 0.70,
+      "gaps": [
+        "Special en-dash character (‐) in replace() call is a Unicode character not commonly documented in PML string examples.",
+        "Dollar-sign-pipe string syntax ($!tag, $!!error.text) in PML1 command-style text substitution is partially covered."
+      ]
+    },
+    "D2_patterns": {
+      "score": 0.65,
+      "gaps": [
+        {
+          "pattern": "object CREATEELEMENT()",
+          "suggestedKbId": "d7_element_creation_api",
+          "note": "Element creation API not in KB"
+        },
+        {
+          "pattern": "object ELEMENTTYPE()",
+          "suggestedKbId": "d7_element_creation_api",
+          "note": "Element type object not in KB"
+        },
+        {
+          "pattern": "!elem.AddAttributeValue()",
+          "suggestedKbId": "d7_element_creation_api",
+          "note": "AddAttributeValue method not in KB"
+        },
+        {
+          "pattern": "!elem.GetErrors()",
+          "suggestedKbId": "d7_element_creation_api",
+          "note": "GetErrors method not in KB"
+        },
+        {
+          "pattern": "!!displayProgress()",
+          "suggestedKbId": "d7_display_progress",
+          "note": "Display progress helper not in KB (FMSYS.setProgress is covered but not displayProgress)"
+        },
+        {
+          "pattern": "!tag.dbref() on STRING",
+          "suggestedKbId": "d7_string_dbref_conversion",
+          "note": "STRING.dbref() conversion not explicitly documented"
+        }
+      ]
+    },
+    "D3_structure": {
+      "score": 0.75,
+      "gaps": [
+        "Benchmark preserves the macro lifecycle: import → read Excel → iterate → create elements → set attributes → write feedback → SAVEWORK/UNCLAIM ALL.",
+        "Nested handle blocks (handle any within handle none) are correctly represented."
+      ]
+    },
+    "D4_naming": {
+      "score": 0.70,
+      "gaps": [
+        "Original uses project-specific column names (:RAMACTION, :pcsEXCLASS) that may not be in KB.",
+        "Benchmark preserves these names as they are task-description requirements."
+      ]
+    },
+    "D5_logic": {
+      "score": 0.65,
+      "gaps": [
+        "The !isError flag pattern (set to false, set to true on error, checked after all type-gated assignments) is a specific error-recovery pattern not fully in KB.",
+        "The EXCLASS special handling (NON-EX / NA / NON EX → N/A) is a domain-specific rule.",
+        "The empty value filter (if (!fileVal.empty().not()) then skip) is present but the comment about writing to issue file is stripped."
+      ]
+    },
+    "D6_dependencies": {
+      "score": 0.55,
+      "gaps": [
+        "NETGRIDCONTROL / NETDATASOURCE — GridControl add-in documented in NET Interfaces.md but method details (getrows, gettitles, bindToDataSource, clearGrid, saveGridToExcel) are not fully catalogued.",
+        "Aveva.Engineering.PMLElementManager namespace — CREATEELEMENT, ELEMENTTYPE, SetElementTypeByName, AddAttributeValue, GetErrors are not in KB.",
+        "SAVEWORK / UNCLAIM ALL — cleanup commands not in KB."
+      ]
+    },
+    "D7_kbCompleteness": {
+      "newEntriesNeeded": [
+        {
+          "suggestedId": "d7_element_creation_api",
+          "category": "dotnetinterop",
+          "subcategory": "PMLElementManager",
+          "title": "Element creation via Aveva.Engineering.PMLElementManager",
+          "principle": "Use CREATEELEMENT and ELEMENTTYPE objects to create elements with typed attributes in AVEVA Engineering.",
+          "rule": "Create ELEMENTTYPE with class name, validate name() is not UNKNOWN, then call SetElementTypeByName, AddAttributeValue, Execute, and GetErrors.",
+          "syntax": "!elem = object CREATEELEMENT()\n!et = object ELEMENTTYPE('|:$<ClassName>|')\nif (!et.name() neq |UNKNOWN|) then\n  !elem.SetElementTypeByName('|:$<ClassName>|')\n  !elem.AddAttributeValue('|NAME|', !tagName)\n  !elem.Execute()\n  !errors = !elem.GetErrors()\nendif",
+          "exampleCanonical": "-- CB JDE_newtag_import.pmlmac\n!elem = object CREATEELEMENT()\n!et = object ELEMENTTYPE('|:$!<Type>|')\nif (!et.name() neq |UNKNOWN|) then\n  !elem.SetElementTypeByName('|:$!<Type>|')\n  !elem.AddAttributeValue(|NAME|, !tag)\n  !elem.Execute()\n  !errors = !elem.GetErrors()\n  DO !error values !errors\n    !err = |$!tag;NA;NA;$!error|\n    !issueData.append(!err.split(|;|))\n  ENDDO\nendif",
+          "exampleAntipattern": "-- Creating element without type validation\n!elem = object CREATEELEMENT()\n!elem.SetElementTypeByName('|:$!<Type>|')  -- crashes if type is unknown\n!elem.Execute()",
+          "pitfalls": [
+            "Always check ELEMENTTYPE.name() neq UNKNOWN before calling SetElementTypeByName",
+            "GetErrors() returns an ARRAY of error strings — iterate to log them",
+            "CREATEELEMENT is in Aveva.Engineering.PMLElementManager namespace, not a builtin"
+          ],
+          "relatedIds": ["obj_namespace_loading", "obj_attribute_hash"],
+          "sourcedoc": "AVEVA Engineering PML Customization — Database Interfaces",
+          "sourcecodebase": "JDE_newtag_import.pmlmac"
+        },
+        {
+          "suggestedId": "d7_display_progress",
+          "category": "ui",
+          "subcategory": "progress",
+          "title": "Display progress with !!displayProgress",
+          "principle": "Use !!displayProgress(current, total) in loops to show progress in AVEVA UI.",
+          "rule": "Call !!displayProgress(!current, !total) inside DO loops to update the user-facing progress indicator.",
+          "syntax": "DO !row values !data\n  !rowIdx = !data.findFirst(!row)\n  !!displayProgress(!rowIdx, !data.size())\nENDDO",
+          "exampleCanonical": "-- CB JDE_newtag_import.pmlmac\nDO !row values !data\n  !rowIdx = !data.findFirst(!row)\n  !!displayProgress(!rowIdx, !data.size())\nENDDO",
+          "exampleAntipattern": "-- No progress shown in long loops\nDO !row values !data\n  -- no progress update\nENDDO",
+          "pitfalls": [
+            "!!displayProgress is a global helper function, not a method of a specific object",
+            "First argument should be current iteration count, second should be total"
+          ],
+          "relatedIds": ["fmsys_set_progress"],
+          "sourcedoc": "AVEVA Engineering PML Customization",
+          "sourcecodebase": "JDE_newtag_import.pmlmac"
+        },
+        {
+          "suggestedId": "d7_string_dbref_conversion",
+          "category": "typeconversion",
+          "subcategory": "dbref",
+          "title": "STRING to DBREF conversion via .dbref() method",
+          "principle": "Convert a STRING variable to a DBREF using the .dbref() method for database element references.",
+          "rule": "Use !tagName.dbref() where !tagName is a STRING in the format /$<element_path> to obtain a DBREF.",
+          "syntax": "!tagName = |/path/to/element|\n!tagRef = !tagName.dbref()",
+          "exampleCanonical": "-- CB JDE_newtag_import.pmlmac\n!tag = |/$!<Tag>|\n!tagRef = !tag.dbref()",
+          "exampleAntipattern": "-- Using dbref command instead of method\nDBREF !tagRef /path/to/element  -- PML1 style, not PML2 method",
+          "pitfalls": [
+            "The string must be in valid element path format (e.g., /$<Type>/<Name>)",
+            "The referenced element must exist or be creatable in the current session scope",
+            "DBREF conversion does not validate element existence — handle errors after use"
+          ],
+          "relatedIds": ["dt_dbref_creation"],
+          "sourcedoc": "AVEVA Engineering PML Customization — PML Expressions",
+          "sourcecodebase": "JDE_newtag_import.pmlmac"
+        },
+        {
+          "suggestedId": "d7_netgridcontrol_excel_io",
+          "category": "dotnetinterop",
+          "subcategory": "GridControl",
+          "title": "NETGRIDCONTROL and NETDATASOURCE for Excel import/export",
+          "principle": "Use NETGRIDCONTROL and NETDATASOURCE objects to read/write Excel files in PML macros.",
+          "rule": "Create NETGRIDCONTROL, bind to NETDATASOURCE with file path, call getrows()/gettitles(), iterate data, write results back via clearGrid + BindToDataSource + saveGridToExcel.",
+          "syntax": "!grid = object NETGRIDCONTROL()\n!source = object NETDATASOURCE('Grid Table', !fileName)\n!grid.bindToDataSource(!source)\n!data = !grid.getrows()\n!heading = !grid.gettitles()",
+          "exampleCanonical": "-- CB JDE_newtag_import.pmlmac\n!grid = object NETGRIDCONTROL()\n!dataSource = object NETDATASOURCE('Grid Table', !fileName)\n!grid.bindToDataSource(!dataSource)\n!data = !grid.getrows()\n!heading = !grid.gettitles()",
+          "exampleAntipattern": "-- Missing import for GridControl\n!grid = object NETGRIDCONTROL()  -- fails without import 'GridControl'",
+          "pitfalls": [
+            "Must import 'GridControl' with handle any/endhandle",
+            "NETDATASOURCE constructor signature: NETDATASOURCE('Grid Table', fileName) for read, NETDATASOURCE('data', headers, data) for write",
+            "saveGridToExcel requires the data argument to match the NETDATASOURCE name"
+          ],
+          "relatedIds": ["net_interfaces_overview"],
+          "sourcedoc": "AVEVA PML Add-ins documentation",
+          "sourcecodebase": "JDE_newtag_import.pmlmac"
+        },
+        {
+          "suggestedId": "d7_attribute_type_gated_assignment",
+          "category": "typeconversion",
+          "subcategory": "attribute_assignment",
+          "title": "Type-gated attribute value assignment",
+          "principle": "Before assigning an attribute value, check the attribute type (objecttype) and use the appropriate conversion method (real(), string(), dbref()).",
+          "rule": "Obtain attribute value via !tagRef.attribute(!attr.name()), check objecttype(), then assign using the matching conversion method within a handle any block.",
+          "syntax": "!currentValue = !tagRef.attribute(!attr.name())\n!valType = !currentValue.objecttype()\nif (!valType eq 'REAL') then\n  !tagRef.attribute(!attr.name()) = !fileVal.real()\nendif\nif (!valType eq 'STRING') then\n  !tagRef.attribute(!attr.name()) = !fileVal.string()\nendif\nif (!valType eq 'DBREF') then\n  !tagRef.attribute(!attr.name()) = (!fileVal).dbref()\nendif",
+          "exampleCanonical": "-- CB JDE_newtag_import.pmlmac\n!currentValue = !tagRef.attribute(!attr.name())\n!valType = !currentValue.objecttype()\nif (!valType eq 'REAL') then\n  !tagRef.attribute(!attr.name()) = !fileVal.real()\n  handle any\n    !err = |$!tag;$!col;$!fileVal;$!!error.text|\n    !issueData.append(!err.split(|;|))\n  endhandle\nendif",
+          "exampleAntipattern": "-- Assigning without type check\n!tagRef.attribute(!attr.name()) = !fileVal  -- may fail if types mismatch",
+          "pitfalls": [
+            "Always check objecttype() before assigning — different types need different conversion methods",
+            "Wrap each type-gated assignment in handle any to catch conversion failures",
+            "ARRAY type attributes should be skipped (not assigned via simple assignment)",
+            "DBREF values need / prefix prepended before .dbref() conversion"
+          ],
+          "relatedIds": ["obj_attribute_hash", "dt_string_methods"],
+          "sourcedoc": "AVEVA Engineering PML Customization",
+          "sourcecodebase": "JDE_newtag_import.pmlmac"
+        },
+        {
+          "suggestedId": "d7_special_char_stripping",
+          "category": "datatypes",
+          "subcategory": "string",
+          "title": "Special character stripping from type names",
+          "principle": "Strip invalid characters from element type names using iterative replace() over a character list.",
+          "rule": "Define a symbol string containing all invalid characters, split into an array, iterate with DO/ENDDO, calling replace() on each symbol.",
+          "syntax": "!symbol = |. , - ~ * : ; _ / \\ ' \" & ? ! # $ % ( )|\n!symbols = !symbol.split()\n!symbols.append(| |)\n!symbols.append('|')\nDO !symb values !symbols\n  !type = !type.replace(!symb, '')\nENDDO",
+          "exampleCanonical": "-- CB JDE_newtag_import.pmlmac\n!sym = |. , - ~ * : ; _ / \\ ' \" & ? ! # $ % ( )|\n!symList = !sym.split()\n!symList.append(| |)\n!symList.append('|')\nDO !symb values !symList\n  !typeRaw = !typeRaw.replace(!symb, '')\nENDDO\n!typeRaw = !typeRaw.trim()",
+          "exampleAntipattern": "-- Single replace call misses other characters\n!type = !type.replace(|. , - ~|, '')  -- only removes first occurrence of the whole substring",
+          "pitfalls": [
+            "Must iterate over individual characters, not replace the whole string at once",
+            "Trim() after stripping to remove leading/trailing whitespace",
+            "The en-dash (‐) character is Unicode and must be copied exactly from source",
+            "Pipe character (|) must be appended separately as it may not appear in the split"
+          ],
+          "relatedIds": ["dt_string_methods", "cb_mac_09_tag_cleaning"],
+          "sourcedoc": "AVEVA PML String Object documentation",
+          "sourcecodebase": "JDE_newtag_import.pmlmac"
+        },
+        {
+          "suggestedId": "d7_savework_unclaim",
+          "category": "macros",
+          "subcategory": "cleanup",
+          "title": "SAVEWORK and UNCLAIM ALL macro cleanup commands",
+          "principle": "End Excel-driven element modification macros with SAVEWORK to commit changes and UNCLAIM ALL to release database claims.",
+          "rule": "Place SAVEWORK followed by UNCLAIM ALL at the end of macros that modify elements to ensure all changes are committed and no database locks remain.",
+          "syntax": "SAVEWORK\nUNCLAIM ALL",
+          "exampleCanonical": "-- CB JDE_newtag_import.pmlmac\n!reportGrid.saveGridToExcel(!feedbackFile, |data|)\n\nSAVEWORK\nUNCLAIM ALL",
+          "exampleAntipattern": "-- Missing SAVEWORK\n!reportGrid.saveGridToExcel(!feedbackFile, |data|)\n-- macro ends without SAVEWORK — changes may not persist",
+          "pitfalls": [
+            "SAVEWORK must follow the last element-modifying operation",
+            "UNCLAIM ALL releases all claimed elements — do not use if you need to keep claims",
+            "Both should be at the very end of the macro"
+          ],
+          "relatedIds": ["cleanup_command"],
+          "sourcedoc": "AVEVA PML Command Reference",
+          "sourcecodebase": "JDE_newtag_import.pmlmac"
+        },
+        {
+          "suggestedId": "d7_attribute_hash_validation",
+          "category": "objects",
+          "subcategory": "attribute",
+          "title": "Attribute hash validation before assignment",
+          "principle": "Use attribute.hash() to verify that an attribute name is valid for the target element before attempting to set its value.",
+          "rule": "Create ATTRIBUTE object, check hash() > 0, then proceed with value assignment. Log errors for invalid attributes.",
+          "syntax": "!attr = object ATTRIBUTE(|$!col|)\nif (!attr.hash() gt 0) then\n  !tagRef.attribute(!attr.name()) = !fileVal\nelse\n  !err = |Attribute [$!col] is not valid in AVEVA|\n  !issueData.append(!err.split(|;|))\nendif",
+          "exampleCanonical": "-- CB JDE_newtag_import.pmlmac\n!attr = object ATTRIBUTE(|$!col|)\nif (!attr.hash() gt 0) then\n  -- proceed with assignment\nelse\n  !err = |$!tag;$!col;$!fileVal;Attribute [$!col] is not valid in AVEVA|\n  !issueData.append(!err.split(|;|))\nendif",
+          "exampleAntipattern": "-- No hash check before assignment\n!attr = object ATTRIBUTE(|$!col|)\n!tagRef.attribute(!attr.name()) = !fileVal  -- may silently fail",
+          "pitfalls": [
+            "hash() returns 0 for non-existent attributes — always check before assignment",
+            "System attributes (prefixed with :) and UDAs both return valid hashes",
+            "Empty attribute names return hash 0"
+          ],
+          "relatedIds": ["obj_attribute_hash"],
+          "sourcedoc": "AVEVA Engineering PML Customization — Attribute Class",
+          "sourcecodebase": "JDE_newtag_import.pmlmac"
+        }
+      ]
+    }
+  },
+  "actionRequired": "patch_kb"
+}

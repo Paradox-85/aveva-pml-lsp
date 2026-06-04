@@ -1,0 +1,137 @@
+{
+  "fileId": "obj_08",
+  "filePath": "docs/codebase/objects/ramValueConverter.pmlobj",
+  "reviewDate": "2026-06-03",
+  "overallGapScore": 0.35,
+  "dimensions": {
+    "D1_syntax": {
+      "score": 0.95,
+      "gaps": [
+        "All syntax constructs (INSET, handle/elsehandle, DO/ENDDO, $!type dynamic constructor, !value$<text> dynamic method, undefined(), SPLIT(), skip if(), break) are supported by PML parser. No syntax gaps."
+      ]
+    },
+    "D2_patterns": {
+      "score": 0.90,
+      "gaps": [
+        {
+          "pattern": "object $!subType() dynamic type constructor",
+          "line": "~185",
+          "description": "Dynamic type constructor using string variable — syntactically valid but not well-documented in KB",
+          "suggestedKbId": "obj_08_dynamic_constructor"
+        },
+        {
+          "pattern": "!value$!<valueFormattingText>.string($!formatStr)",
+          "line": "~325",
+          "description": "Dynamic method call via dollar-substitution — complex PML construct not explicitly in KB",
+          "suggestedKbId": "obj_08_dynamic_method_call"
+        },
+        {
+          "pattern": "skip if(!value.occurs(!char).neq(2))",
+          "line": "~217",
+          "description": "skip with conditional expression in DO loop — valid but not well-documented",
+          "suggestedKbId": "obj_08_skip_conditional"
+        }
+      ]
+    },
+    "D3_structure": {
+      "score": 0.98,
+      "gaps": [
+        "Benchmark preserves identical structure: define object block with 8 members, 19 methods at file scope in same order. No structural gaps."
+      ]
+    },
+    "D4_naming": {
+      "score": 0.95,
+      "gaps": [
+        {
+          "typo": "isNameWithoutSlah",
+          "description": "Typo: missing 's' in 'Slashes' — preserved in benchmark for fidelity"
+        },
+        {
+          "typo": "!elementRefe",
+          "description": "Typo: missing 'r' in 'Ref' — preserved in benchmark for fidelity"
+        }
+      ]
+    },
+    "D5_logic": {
+      "score": 0.97,
+      "gaps": [
+        "All operational logic faithfully reproduced: DBREF normalization, array subtype conversion, DATETIME parsing with SPLIT separator iteration, REAL formatting with conditional format/label, error logging with conditional branch."
+      ]
+    },
+    "D6_dependencies": {
+      "score": 0.55,
+      "gaps": [
+        {
+          "dependency": "RAMCOMMONLOGGER",
+          "type": "customer_addin",
+          "description": "Customer-specific global object class — not in KB"
+        },
+        {
+          "dependency": "RAMCOMMONLOGGER.addLogDetails()",
+          "type": "customer_addin_method",
+          "description": "Customer-specific method on RAMCOMMONLOGGER — not in KB"
+        },
+        {
+          "dependency": "REAL.unit()",
+          "type": "system_object_method",
+          "description": "REAL object unit() method returning unit object — not in KB"
+        },
+        {
+          "dependency": "REAL.unit().name()",
+          "type": "system_object_method",
+          "description": "Unit object name() method — not in KB"
+        },
+        {
+          "dependency": "REAL.unit().shortname()",
+          "type": "system_object_method",
+          "description": "Unit object shortname() method — not in KB"
+        },
+        {
+          "dependency": "DBREF.namn",
+          "type": "system_object_member",
+          "description": "DBREF member 'namn' (name without slash) — not in KB"
+        },
+        {
+          "dependency": "FORMAT.label",
+          "type": "system_object_member",
+          "description": "FORMAT member 'label' — not in KB"
+        },
+        {
+          "dependency": "DATEFORMAT('') constructor",
+          "type": "system_object_constructor",
+          "description": "DATEFORMAT string constructor — not in KB"
+        },
+        {
+          "dependency": "DATETIME(year, month, day) constructor",
+          "type": "system_object_constructor",
+          "description": "DATETIME 3-argument constructor — not in KB"
+        },
+        {
+          "dependency": "undefined(!!ramCommonLogger)",
+          "type": "pml_function",
+          "description": "undefined() function for checking global variable state — partially in KB"
+        },
+        {
+          "dependency": "!this.logElement.unset()",
+          "type": "system_object_method",
+          "description": "unset() method on STRING — not in KB"
+        }
+      ]
+    },
+    "D7_kbCompleteness": {
+      "newEntriesNeeded": [
+        "obj_08_dynamic_constructor",
+        "obj_08_dynamic_method_call",
+        "obj_08_skip_conditional",
+        "obj_08_ramcommonlogger",
+        "obj_08_real_unit",
+        "obj_08_dbref_namn",
+        "obj_08_format_label",
+        "obj_08_dateformat_constructor",
+        "obj_08_datetime_constructor",
+        "obj_08_unset_method"
+      ]
+    }
+  },
+  "actionRequired": "patch_kb"
+}

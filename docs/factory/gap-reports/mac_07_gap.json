@@ -1,0 +1,213 @@
+{
+  "fileId": "mac_07",
+  "fileName": "JDE_BI_tagRegister-export.pmlmac",
+  "fileType": "macro",
+  "generatedAt": "2026-06-03T00:00:00Z",
+  "dimensions": {
+    "D1_syntax": {
+      "description": "PML syntax construct coverage",
+      "status": "PASS",
+      "notes": "Benchmark covers all PML syntax from original: -- comments, --$m, --ONERROR, GOLABEL, LABEL, import, using namespace, handle/elsehandle/endhandle, if/elseif/endif, SYSCOM, SAVEWORK, UNCLAIM ALL, FINISH, variable declarations, $! substitution, pipe-delimited strings, ARRAY literal, OBJECT DATETIME(), method chains."
+    },
+    "D2_objects_methods": {
+      "description": "PML object and method usage coverage",
+      "status": "PASS",
+      "notes": "All objects from original present in benchmark: ARRAY(), DATETIME(), MEASURE(), UNIT(), PMLTAGS(), RAMCOMMONLOGGER(). All method calls preserved: .year(), .month(), .date(), .hour(), .minute(), .string(), .split(), .append(), addHeading(), setunits(), dbref(), lstflt, exportasxls(), writeErrorDataToExcel()."
+    },
+    "D3_control_flow": {
+      "description": "Control flow patterns",
+      "status": "PASS",
+      "notes": "Error handling via ONERROR/GOLABEL preserved. Conditional logic with if/endif for grid.size() checks preserved. Error handler block with handle any/endhandle preserved. Variable scoping with var/! local preserved."
+    },
+    "D4_namespaces_imports": {
+      "description": "Namespace and import coverage",
+      "status": "PASS",
+      "notes": "All three namespace imports preserved: 'Aveva.Engineering.Tags.Pml', 'Aveva.Core.Presentation', 'Aveva.Engineering.Tags'. Single-quote string delimiters preserved as in original."
+    },
+    "D5_error_handling": {
+      "description": "Error handling completeness",
+      "status": "PASS",
+      "notes": "Original top-level --ONERROR GOLABEL /Error preserved. Error handler block at LABEL /Error with handle any/endhandle preserved. Error log file path with timestamp preserved. SAVEWORK and UNCLAIM ALL preserved."
+    },
+    "D6_data_patterns": {
+      "description": "Data transformation and pattern coverage",
+      "status": "PASS",
+      "notes": "Empty value patterns (split + append chain) preserved. Common attributes 2D array (12 rows, attributePath → displayName) preserved. Replace data patterns (38 rows, value → NA mapping) preserved. All export sections (MTR, RDL, DOC, ALL, 3D, RDL-dataset) with their filter conditions preserved."
+    },
+    "D7_kb_gaps": {
+      "description": "Knowledge base gaps identified",
+      "status": "GAPS_FOUND",
+      "gaps": [
+        {
+          "id": "gap-001",
+          "pattern": "RAMCOMMONLOGGER object",
+          "category": "add-in-object",
+          "severity": "HIGH",
+          "description": "RAMCOMMONLOGGER is a custom/add-in logging object used for error data collection and Excel export. Not documented in KB. Methods used: addHeading(ARRAY), writeErrorDataToExcel(STRING, BOOLEAN).",
+          "originalUsage": "!!ramCommonLogger = object RAMCOMMONLOGGER() / !!ramCommonLogger.addHeading(!headings.split(|;|)) / !!ramCommonLogger.writeErrorDataToExcel(!logFile, false)",
+          "kbEntryCandidate": {
+            "title": "RAMCOMMONLOGGER Logging Object",
+            "category": "add-in-objects",
+            "description": "Custom logging object for collecting error data and writing to Excel. Used in Power BI export macros.",
+            "methods": [
+              {
+                "name": "addHeading(ARRAY headers)",
+                "result": "VOID",
+                "purpose": "Register column headings for error log output"
+              },
+              {
+                "name": "writeErrorDataToExcel(STRING filePath, BOOLEAN overwrite)",
+                "result": "VOID",
+                "purpose": "Write collected error data to an Excel file at the specified path"
+              }
+            ],
+            "tags": ["logging", "error-handling", "excel-export", "add-in"]
+          }
+        },
+        {
+          "id": "gap-002",
+          "pattern": "PMLTAGS.exportasxls()",
+          "category": "engineering-objects",
+          "severity": "MEDIUM",
+          "description": "PMLTAGS.exportasxls() method signature not fully documented in KB. Used for exporting grid data to Excel files.",
+          "originalUsage": "!!tags.exportasxls(!gridGroupName, '$!<gridRef.LSTNAM>', '$!filepath')",
+          "kbEntryCandidate": {
+            "title": "PMLTAGS.exportasxls Method",
+            "category": "engineering-objects",
+            "description": "Exports tag/list data to an Excel file. Used with LSTDEF grid references.",
+            "signature": "exportasxls(STRING gridGroupName, STRING listName, STRING filePath)",
+            "parameters": [
+              {
+                "name": "gridGroupName",
+                "type": "STRING",
+                "description": "Category name of the grid group"
+              },
+              {
+                "name": "listName",
+                "type": "STRING",
+                "description": "Name of the list definition to export"
+              },
+              {
+                "name": "filePath",
+                "type": "STRING",
+                "description": "Output Excel file path"
+              }
+            ],
+            "tags": ["export", "excel", "PMLTAGS", "list-definition"]
+          }
+        },
+        {
+          "id": "gap-003",
+          "pattern": "jacExportRDLDataReport() custom function",
+          "category": "custom-function",
+          "severity": "MEDIUM",
+          "description": "jacExportRDLDataReport is a custom/external PML function not in KB. Called with filePath, rdlFilter, tagFilter, emptyPatternList, replaceData, isDisplayEmpty parameters.",
+          "originalUsage": "!!jacExportRDLDataReport(!filePath, !rdlFilter, !tagFilter, !emptyPatternList, !replaceData, !isDisplayEmpty)",
+          "kbEntryCandidate": {
+            "title": "jacExportRDLDataReport Custom Function",
+            "category": "custom-functions",
+            "description": "Custom function for exporting RDL tag properties data with filtering and data sanitization.",
+            "signature": "!!jacExportRDLDataReport(STRING filePath, STRING rdlFilter, STRING tagFilter, ARRAY emptyPatternList, ARRAY replaceData, BOOLEAN isDisplayEmpty)",
+            "tags": ["custom", "RDL", "export", "tag-properties"]
+          }
+        },
+        {
+          "id": "gap-004",
+          "pattern": "jacExportRDLDataReportMatrix() custom function",
+          "category": "custom-function",
+          "severity": "MEDIUM",
+          "description": "jacExportRDLDataReportMatrix is a custom/external PML function not in KB. Extends jacExportRDLDataReport with common attributes for matrix-style export.",
+          "originalUsage": "!!jacExportRDLDataReportMatrix(!filePathRam, !rdlFilter, !tagFilter, !emptyPatternList, !commonAttributes, !replaceData, false)",
+          "kbEntryCandidate": {
+            "title": "jacExportRDLDataReportMatrix Custom Function",
+            "category": "custom-functions",
+            "description": "Custom function for exporting RDL tag properties in matrix format with common attribute mappings.",
+            "signature": "!!jacExportRDLDataReportMatrix(STRING filePath, STRING rdlFilter, STRING tagFilter, ARRAY emptyPatternList, ARRAY commonAttributes, ARRAY replaceData, BOOLEAN isErrorReport)",
+            "tags": ["custom", "RDL", "export", "matrix", "tag-properties"]
+          }
+        },
+        {
+          "id": "gap-005",
+          "pattern": "UNIT and MEASURE objects",
+          "category": "engineering-objects",
+          "severity": "LOW",
+          "description": "UNIT and MEASURE objects for unit configuration not documented in KB. Used for setting up angular frequency with rpm unit.",
+          "originalUsage": "!AngularFrequencyDimension = object MEASURE('AngularFrequency') / !rpmUnit = object UNIT(|rpm|) / !AngularFrequencyDimension.setunits(!rpmUnit)",
+          "kbEntryCandidate": {
+            "title": "MEASURE and UNIT Objects",
+            "category": "engineering-objects",
+            "description": "Objects for unit management in AVEVA Engineering. MEASURE creates a dimension, UNIT creates a unit reference, setunits() assigns the unit to the dimension.",
+            "methods": [
+              {
+                "name": "MEASURE(STRING dimensionName)",
+                "result": "MEASURE",
+                "purpose": "Create a measure/dimension object"
+              },
+              {
+                "name": "UNIT(STRING unitName)",
+                "result": "UNIT",
+                "purpose": "Create a unit reference object"
+              },
+              {
+                "name": "setunits(UNIT unit)",
+                "result": "VOID",
+                "purpose": "Assign a unit to the measure dimension"
+              }
+            ],
+            "tags": ["units", "MEASURE", "UNIT", "engineering"]
+          }
+        },
+        {
+          "id": "gap-006",
+          "pattern": "DATETIME.year() / .month() / .date() / .hour() / .minute() chain",
+          "category": "system-objects",
+          "severity": "LOW",
+          "description": "DATETIME component extraction chain pattern not documented in KB. Common pattern for timestamp generation.",
+          "originalUsage": "!dt = OBJECT DATETIME() / !year = !dt.year() / !month = !dt.month().string('I2')",
+          "kbEntryCandidate": {
+            "title": "DATETIME Component Extraction",
+            "category": "system-objects",
+            "description": "DATETIME object methods for extracting date/time components. Commonly chained with .string() for formatting.",
+            "methods": [
+              {
+                "name": "year()",
+                "result": "INTEGER",
+                "purpose": "Return the year component"
+              },
+              {
+                "name": "month()",
+                "result": "INTEGER",
+                "purpose": "Return the month component"
+              },
+              {
+                "name": "date()",
+                "result": "INTEGER",
+                "purpose": "Return the day component"
+              },
+              {
+                "name": "hour()",
+                "result": "INTEGER",
+                "purpose": "Return the hour component"
+              },
+              {
+                "name": "minute()",
+                "result": "INTEGER",
+                "purpose": "Return the minute component"
+              }
+            ],
+            "tags": ["datetime", "timestamp", "date", "time"]
+          }
+        }
+      ]
+    }
+  },
+  "summary": {
+    "totalDimensions": 7,
+    "passed": 6,
+    "gapsFound": 1,
+    "kbEntriesToCreate": 6,
+    "benchmarkValid": true,
+    "lintClean": true,
+    "validateClean": true
+  }
+}

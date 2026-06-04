@@ -1,0 +1,48 @@
+{
+  "fileId": "mac_21",
+  "filePath": "docs/codebase/macros/JDE_dbView_extractor.pmlmac",
+  "taskDescription": "PML macro that extracts DbView information (elements, expression filters, attribute filters, expression columns, attribute columns) from PDMS/E3D and exports to Excel via GridControl/NETDATASOURCE.",
+  "originalSemantics": "PML macro that collects all DBVW objects in the world, iterates each DbView's elements (ELEL), and collects sub-objects (EXPFIL, ATTFIL, EXPCOL, ATTCOL) scoped to $!dbView. For ATTCOL, uses handle none recovery to query ATTDEF attributes. Handles (2,442) error for expression column too-long. Imports GridControl with handle ANY, creates NETGRIDCONTROL bound to NETDATASOURCE, saves to Excel.",
+  "patternsUsed": [
+    "collectallfor_basic",
+    "handle_any_generic",
+    "specific_error_codes",
+    "array_split_pattern",
+    "string_concatenation",
+    "do_enddo_loop",
+    "if_then_endif",
+    "netgridcontrol_core_presentation"
+  ],
+  "lintResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 282
+  },
+  "validateResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 282
+  },
+  "benchmarkFile": "docs/factory/benchmarks/mac_21_benchmark.pmlmac",
+  "gapReportFile": "docs/factory/gap-reports/mac_21_gap.json",
+  "kbPatchFile": "docs/factory/kb-patches/mac_21_kb_patch.ts",
+  "kbGaps": [
+    "DbView sub-object types (EXPFIL, ATTFIL, EXPCOL, ATTCOL) with scoped CollectAllFor",
+    "DbView .elel property for element iteration",
+    "Handle NONE for var command recovery",
+    "NETDATASOURCE + NETGRIDCONTROL Excel export pattern",
+    "String .unset() and .empty() methods"
+  ],
+  "gapScores": {
+    "D1_syntax": 0.5,
+    "D2_patterns": 0.45,
+    "D3_structure": 0.4,
+    "D4_naming": 0.2,
+    "D5_logic": 0.45,
+    "D6_dependencies": 0.5,
+    "overallGapScore": 0.48
+  },
+  "kbEntriesGenerated": 5,
+  "confidenceScore": 0.72,
+  "status": "complete"
+}

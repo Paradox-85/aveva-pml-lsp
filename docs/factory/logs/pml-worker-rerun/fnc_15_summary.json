@@ -1,0 +1,20 @@
+{
+  "fileId": "fnc_15",
+  "status": "completed_summary_reconstructed_after_repair",
+  "recoveredFromRun": "e6ef1fee",
+  "timestamp": "2026-06-03T23:28:05.695Z",
+  "artifacts": {
+    "benchmark": "docs/factory/benchmarks/fnc_15_benchmark.pmlfnc",
+    "gapReport": "docs/factory/gap-reports/fnc_15_gap.json",
+    "kbPatch": "docs/factory/kb-patches/fnc_15_kb_patch.ts",
+    "summary": "docs/factory/logs/pml-worker-rerun/fnc_15_summary.json"
+  },
+  "validation": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 11
+  },
+  "overallGapScore": 0.73,
+  "actionRequired": "patch_kb",
+  "note": "Repair run regenerated benchmark and reported success, but summary file was absent; orchestrator validated benchmark clean and wrote summary."
+}

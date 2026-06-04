@@ -1,0 +1,63 @@
+{
+  "fileId": "frm_03",
+  "filePath": "docs/codebase/forms/ramCommonLoggerForm.pmlfrm",
+  "fileType": "form",
+  "taskDescription": "Form to log tool issues and report — NETGRIDControl-based logger form with refresh, export, and clear functionality.",
+  "runDate": "2026-06-03",
+  "runMode": "worker-benchmark-generation",
+  "kbSearches": [
+    "form dialog dock right button frame container NETGRIDCONTROL member",
+    "NETGRIDCONTROL columnExcelFilter outlookGroupStyle fixedRows ROWADDDELETEGRID PMLNETControl Data List",
+    "NETDATASOURCE Collection List bindToDataSource saveGridToExcel autoFitColumns",
+    "PMLNETControl container dock fill anchor button callback frame form dialog",
+    "defined set neq global object class member RAMCOMMONLOGGER RAMFILEWRITERCLASS",
+    "callback assignment string method background color form member NETDATA"
+  ],
+  "patternsUsed": [
+    "setup_form_dialog_dock",
+    "button_callback_string_assignment",
+    "frame_container_pmlnetcontrol",
+    "netgridcontrol_object_creation",
+    "netdatasource_collection_list",
+    "defined_global_check",
+    "array_object_creation",
+    "using_namespace_aveva_core_presentation",
+    "handle_any_error_block",
+    "import_gridcontrol",
+    "import_pmlfilebrowser",
+    "form_anchor_positioning",
+    "background_color_attribute",
+    "string_comparison_set_neq"
+  ],
+  "lintResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 240
+  },
+  "validateResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 240
+  },
+  "kbGaps": [
+    "NETDATASOURCE with 'Collection List' data type not in KB (only 'Grid Drawings' and 'Piping')",
+    "NETGRIDCONTROL.fixedRows() method not in KB",
+    "NETGRIDCONTROL.rowAddDeleteGrid() method not in KB",
+    "form-size anchor positioning keyword not in KB",
+    "RAMCOMMONLOGGER external class methods not in KB (project-specific)",
+    "RAMFILEWRITERCLASS.browseFile() method not in KB (project-specific)"
+  ],
+  "benchmarkPath": "docs/factory/benchmarks/frm_03_benchmark.pmlfrm",
+  "gapReportPath": "docs/factory/gap-reports/frm_03_gap.json",
+  "kbPatchPath": "docs/factory/kb-patches/frm_03_kb_patch.ts",
+  "kbEntriesToAdd": 4,
+  "originalChangesMade": [
+    "formTitle: 'Tool Logger' → |Tool Logger| (string normalization)",
+    "anchor xmin form+1 → anchor xmin form-size (positioning fix)",
+    "ROWADDDELETEGRID → rowAddDeleteGrid (case normalization)",
+    "HEADERSORT → headerSort (case normalization)"
+  ],
+  "overallGapScore": 0.15,
+  "confidenceScore": 0.85,
+  "actionRequired": "patch_kb"
+}

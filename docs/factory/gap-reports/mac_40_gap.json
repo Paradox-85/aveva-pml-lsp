@@ -1,0 +1,68 @@
+{
+  "fileId": "mac_40",
+  "filePath": "docs/codebase/macros/loop-data-update.pmlmac",
+  "reviewDate": "2026-06-03",
+  "overallGapScore": 0.55,
+  "dimensions": {
+    "D1_syntax": {
+      "score": 0.9,
+      "gaps": [
+        "All syntax constructs in original (PML RELOAD OBJECT, object constructor, method calls, attribute assignment, pipe-delimited strings) are standard PML. Lint and validate both return parseErrorCount=0 with empty diagnostics."
+      ]
+    },
+    "D2_patterns": {
+      "score": 0.4,
+      "gaps": [
+        "LOOPDATA object class and its methods GetData(), InstrumentFieldDataTransfer(), SaveLog() are absent from KB. The pathName attribute is also undocumented in KB. Verified via aveva_pml_search_pml_kb — no KB entries found for LOOPDATA, GetData, SaveLog, or InstrumentFieldDataTransfer.",
+        "PML RELOAD OBJECT pattern for user-defined objects (LOOPDATA) is not in KB examples. KB has general RELOAD OBJECT references but no LOOPDATA-specific examples."
+      ]
+    },
+    "D3_structure": {
+      "score": 0.95,
+      "gaps": []
+    },
+    "D4_naming": {
+      "score": 0.9,
+      "gaps": [
+        "!loop variable name follows standard PML local variable naming. No naming convention gaps detected."
+      ]
+    },
+    "D5_logic": {
+      "score": 0.85,
+      "gaps": [
+        "Original has no error handling, conditionals, or cleanup. Benchmark faithfully reproduces the simple sequential flow. No logic fidelity gaps beyond the missing LOOPDATA method documentation."
+      ]
+    },
+    "D6_dependencies": {
+      "score": 0.7,
+      "gaps": [
+        "LOOPDATA is an AVEVA system object with methods not covered by KB. aveva_pml_get_pml_objects_and_methods does not list LOOPDATA in its core object categories.",
+        "Original references another macro via --$m directive; this is a comment-only dependency, not a PML construct."
+      ]
+    },
+    "D7_kbCompleteness": {
+      "newEntriesNeeded": [
+        {
+          "suggestedId": "loopdata_object",
+          "category": "objects",
+          "subcategory": "loopdata",
+          "title": "LOOPDATA Object — Data Export and Logging",
+          "principle": "LOOPDATA is an AVEVA system object for exporting loop data and instrument field information to external files.",
+          "rule": "Use PML RELOAD OBJECT LOOPDATA before instantiation. Create with object LOOPDATA(), then call GetData(), InstrumentFieldDataTransfer(), set pathName, and call SaveLog() to export.",
+          "syntax": "!loop = object LOOPDATA()\n!loop.GetData()\n!loop.InstrumentFieldDataTransfer(FALSE)\n!loop.pathName = |<export_path>|\n!loop.SaveLog(|<filename>.xlsx|, FALSE)",
+          "exampleCanonical": "-- CB loop-data-update.pmlmac\nPML RELOAD OBJECT LOOPDATA\n!loop = object LOOPDATA()\n!loop.GetData()\n!loop.InstrumentFieldDataTransfer(FALSE)\n!loop.pathName = |C:\\path\\to\\log|\n!loop.SaveLog(|loop-data-update-log.xlsx|, FALSE)",
+          "exampleAntipattern": "",
+          "pitfalls": [
+            "LOOPDATA must be reloaded before use in a new PML session.",
+            "pathName must point to a writable directory.",
+            "SaveLog second argument controls overwrite behavior; FALSE means do not overwrite."
+          ],
+          "relatedIds": [],
+          "sourcedoc": "AVEVA E3D LOOPDATA class documentation",
+          "sourcecodebase": "loop-data-update.pmlmac"
+        }
+      ]
+    }
+  },
+  "actionRequired": "patch_kb"
+}

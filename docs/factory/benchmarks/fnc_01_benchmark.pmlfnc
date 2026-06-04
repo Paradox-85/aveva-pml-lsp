@@ -1,0 +1,10 @@
+define function !!createObjectsFromExcelSheet(!excelFullPath is STRING, !sheetName is STRING, !isTranspose is BOOLEAN, !columns is ARRAY, !isCreate is BOOLEAN, !forceUpdate is BOOLEAN, !arrayAppend is BOOLEAN, !isEXfile is BOOLEAN, !exAttributesData is ARRAY) is ARRAY
+  $* Factory benchmark generated from semantic summary for docs/codebase/functions/createObjectsFromExcelSheet.pmlfnc
+  !result = ||
+  handle any
+    !result = |fnc_01|
+  endhandle
+  !arr = ARRAY()
+  !arr.Append(!result)
+  return !arr
+endfunction

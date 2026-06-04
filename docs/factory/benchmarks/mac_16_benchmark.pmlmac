@@ -1,0 +1,17 @@
+-- $* Factory benchmark generated from semantic source summary only for mac_16
+-- $* Source path: docs/codebase/macros/JDE_3D_items_extractor.pmlmac
+-- $* Script for export all 3D elements into EXCEL report
+-- $* Metadata comment: $m "file path" convention (original source path stored in macro header)
+
+
+-- Create empty array object
+!data = object array()
+
+-- PML1 collect all: gather all SITE elements into a collection variable
+var !sites collect all SITE
+
+-- Iterate over collection values (not indices)
+do !siteName values !sites
+	-- Obtain a dbref for each site name string
+	!siteRef = !siteName.dbref()
+enddo

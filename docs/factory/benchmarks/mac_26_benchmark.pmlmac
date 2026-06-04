@@ -1,0 +1,61 @@
+-- Author: (project author)
+-- Customer: (client name)
+-- Rev: 01
+-- Purpose: batch-export selected tag grids to timestamped Excel files
+-- $m \\server\projects\pmllib\engineering\batch_tag_export.pmlmac
+
+TAGS
+
+-- 1. Build a timestamp string from the current datetime for output file naming
+!now = OBJECT DATETIME()
+!year = !now.year()
+!month = !now.month().string('I2')
+!day = !now.date().string('I2')
+!hour = !now.hour().string('I2')
+!minute = !now.minute().string('I2')
+
+-- 2. Load the Engineering Tags add-in (ignore load errors)
+import |Aveva.Engineering.Tags.Pml|
+handle any
+endhandle
+using namespace |Aveva.Engineering.Tags|
+
+-- 3. Create the PMLTAGS object for tag-grid operations
+!!tags = object PMLTAGS()
+
+-- 4. Load the GridControl add-in (ignore load errors)
+import 'GridControl'
+handle ANY
+endhandle
+using namespace |Aveva.Core.Presentation|
+
+-- 5. Find all list definitions whose description matches the target label
+var !targetGrids collect all LSTDEF with (Desc eq 'MyExportGrid')
+if (!targetGrids.size() gt 0) then
+	-- 6. Iterate over each matching grid
+	do !gridIter values !targetGrids
+		-- 6a. Resolve the grid name from its dbref
+		!gridLabel = !gridIter.dbref().lstnam
+
+		-- 6b. Resolve the list definition and its data source view
+		!listDef = !!tags.GetListDefinition('00.0 Export Definition', !gridLabel)
+		!viewName = !listDef.DbViewName()
+
+		-- 6c. Build a per-grid output folder path with the timestamp
+		!baseFolder = |D:\exports\tags\|
+		!outFolder = '$!baseFolder$!year-$!month-$!day\'
+		Syscom |MKDIR "$!outFolder"|
+
+		-- 6d. Build the output file name and full path
+		!fileName = |$!gridLabel.xlsx|
+		!fullPath = '$!outFolder$!fileName\'
+
+		using namespace |Aveva.Core.Presentation|
+		!exportDb = '00.0 Export Definition'
+		!exportGrid = '$!gridLabel'
+		!exportPath = '$!fullPath'
+		!!tags.exportasxls(!exportDb, !exportGrid, !exportPath)
+	enddo
+endif
+
+FINISH

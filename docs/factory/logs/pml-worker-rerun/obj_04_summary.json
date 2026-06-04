@@ -1,0 +1,92 @@
+{
+  "fileId": "obj_04",
+  "filePath": "docs/codebase/objects/ramImportExcelConfigLoader.pmlobj",
+  "fileType": "object",
+  "reviewDate": "2026-06-03",
+  "runType": "rerun",
+  "semantics": {
+    "objectName": "RAMIMPORTEXCELCONFIGLOADER",
+    "purpose": "Import and parse Excel configuration data (class mapping, attribute mapping, UOM mapping, paths, priority, settings) from spreadsheet sheets",
+    "memberCount": 6,
+    "memberTypes": ["ARRAY", "ARRAY", "ARRAY", "ARRAY", "ARRAY", "ARRAY"],
+    "methodCount": 9,
+    "methods": [
+      ".ramImportExcelConfigLoader() — constructor stub",
+      ".clearData() — initialize all mapping arrays",
+      ".loadConfigDetails(!excelFullPath is STRING) — read Excel, populate arrays by sheet name",
+      ".getClassName(!excelClassName, !option) — lookup class mapping",
+      ".getAttributeName(!excelAttributeName, !option) — lookup attribute mapping",
+      ".getUOMName(!excelUOMName) — lookup UOM mapping",
+      ".getPathName(!fileName) — lookup path mapping",
+      ".getPriorityOrder(!actionName) — get sorted priority order for action",
+      ".getSettingDetail(!settingName) — lookup setting value",
+      ".addErrorToList(!element, !detail, !error) — log error to shared logger"
+    ],
+    "externalDependencies": [
+      "import 'RamAEPMLExcelReader' — customer add-in",
+      "RamPMLExcelReaderClass — customer Excel reader class",
+      "!!ramCommonLogger — global logger object",
+      "RAMCOMMONLOGGER.addLogDetails() — customer logging method"
+    ]
+  },
+  "patternsUsed": [
+    "array-object",
+    "string-object",
+    "array-evaluate-block-evalIndex",
+    "array-findFirst",
+    "string-upcase-method",
+    "string-eqnocase-method",
+    "string-trim-method",
+    "string-neq-method",
+    "array-remove-method",
+    "array-reindex",
+    "array-sortedindices",
+    "array-append",
+    "handle-any",
+    "import-namespace",
+    "using-namespace",
+    "object-constructor",
+    "global-variable-pattern",
+    "lazy-global-initialization-pattern",
+    "objecttype-method",
+    "undefined-function",
+    "array-reindex-sortedindices-pattern"
+  ],
+  "lintResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 604
+  },
+  "validateResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 604
+  },
+  "kbGaps": [
+    "RamPMLExcelReaderClass() customer add-in class",
+    "RamAEPMLExcelReader import namespace",
+    "ReadExcel() customer method",
+    "!!ramCommonLogger global logger",
+    "RAMCOMMONLOGGER.addLogDetails() method",
+    "STRING.neq() PML2 method form",
+    "Lazy global initialization pattern",
+    "ARRAY.Evaluate() with !evalIndex BLOCK pattern",
+    "ARRAY.ReIndex() + SortedIndices() sort pattern"
+  ],
+  "kbPatchEntries": 8,
+  "gapReport": {
+    "overallGapScore": 0.25,
+    "dimensions": {
+      "D1_syntax": { "score": 0.9, "gaps": 1 },
+      "D2_patterns": { "score": 0.6, "gaps": 3 },
+      "D3_structure": { "score": 0.95, "gaps": 1 },
+      "D4_naming": { "score": 0.9, "gaps": 1 },
+      "D5_logic": { "score": 0.95, "gaps": 1 },
+      "D6_dependencies": { "score": 0.5, "gaps": 2 },
+      "D7_kbCompleteness": { "newEntriesNeeded": 8 }
+    },
+    "actionRequired": "patch_kb"
+  },
+  "typoFixes": [],
+  "confidenceScore": 0.95
+}

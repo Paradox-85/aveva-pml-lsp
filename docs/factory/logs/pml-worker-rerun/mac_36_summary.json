@@ -1,0 +1,72 @@
+{
+  "fileId": "mac_36",
+  "filePath": "docs/codebase/macros/JDE_tagProperties_export_with_RDL.pmlmac",
+  "fileType": "macro",
+  "runType": "rerun",
+  "runDate": "2026-06-03",
+  "benchmark": {
+    "path": "docs/factory/benchmarks/mac_36_benchmark.pmlmac",
+    "size": 3912,
+    "lint": {
+      "diagnostics": [],
+      "parseErrorCount": 0,
+      "astNodeCount": 353
+    },
+    "validate": {
+      "diagnostics": [],
+      "parseErrorCount": 0,
+      "astNodeCount": 353
+    }
+  },
+  "patternsUsed": [
+    "import GridControl with handle any",
+    "using namespace Aveva.Core.Presentation",
+    "ARRAY() with append/size methods",
+    "COLL ALL PML1 collection query with compound WITH clause",
+    "EVAL ... FOR ALL PML1 query expression",
+    "do ... values loop over array",
+    "do ... from ... to loop with break",
+    "dbref() conversion from STRING to DBREF",
+    "findFirst() on ARRAY returning REAL index",
+    ".set() method for boolean check on REAL",
+    ".lowcase() method on STRING",
+    "inset() function for string containment",
+    "object BLOCK() for dynamic expression evaluation",
+    ".evaluate() method on DBREF",
+    "IFT() conditional function",
+    ".unset() / .empty() / .not() method chain",
+    "handle ANY nested inside conditional for error recovery",
+    "!!displayProgress(current, total)",
+    "var !name DELETE for variable clearing",
+    "OBJECT DATETIME() with accessor methods",
+    ".string('I2') for zero-padded formatting",
+    "object NETGRIDCONTROL() with clearGrid/BindToDataSource/saveGridToExcel",
+    "object NETDATASOURCE(label, headers, data)"
+  ],
+  "kbGaps": [
+    "COLL ALL with complex WITH clause — not explicitly documented",
+    "EVAL ... FOR ALL PML1 query — not documented",
+    "do ... values loop pattern — not documented",
+    "inset() function — not documented",
+    "IFT() conditional function — not documented",
+    "BLOCK object + evaluate() pattern — not documented",
+    "NETGRIDCONTROL methods (clearGrid, saveGridToExcel) — not documented",
+    "NETDATASOURCE 3-arg constructor — not documented",
+    "OBJECT DATETIME() — not documented",
+    "!!displayProgress(current, total) two-arg form — not documented",
+    "Nested handle ANY inside loops — not documented",
+    "var !name DELETE for loop variable clearing — not documented",
+    ".unset().not() / .empty().not() double-method chain — not documented"
+  ],
+  "gapReport": {
+    "path": "docs/factory/gap-reports/mac_36_gap.json",
+    "overallGapScore": 0.45,
+    "actionRequired": "patch_kb"
+  },
+  "kbPatch": {
+    "path": "docs/factory/kb-patches/mac_36_kb_patch.ts",
+    "entriesGenerated": 12
+  },
+  "confidenceScore": 0.92,
+  "notes": "Benchmark faithfully reconstructed from original. All PML constructs validated clean by MCP lint+validate. 12 new KBEntry candidates drafted for D7 gaps. Primary gap areas: PML1 declarative query syntax (COLL ALL, EVAL FOR ALL), do ... values loop, IFT/inset functions, NETGRIDCONTROL/NETDATASOURCE methods, nested error handling, and !!displayProgress two-arg form."
+}

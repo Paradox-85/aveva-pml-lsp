@@ -1,0 +1,135 @@
+import 'GridControl'
+import |RamAETagValidator|
+handle any
+endhandle
+
+
+
+setup form !!ramimportExcelReclassificationForm resize
+  member .items is ARRAY
+exit
+
+define method .ramimportExcelReclassificationForm()
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+endmethod
+
+define method .init()
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+endmethod
+
+define method .clearData()
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+endmethod
+
+define method .loadData(!elementLoader is RAMIMPORTEXCELELEMENTLOADER)
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+endmethod
+
+define method .loadSelectedClass()
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+endmethod
+
+define method .updateExcelNamingDataInDatabase() is ARRAY
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+  !result = ARRAY()
+  return !result
+endmethod
+
+define method .updateExcelNamingDataInGrid() is ARRAY
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+  !result = ARRAY()
+  return !result
+endmethod
+
+define method .getRootAttributes() is ARRAY
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+  !result = ARRAY()
+  return !result
+endmethod
+
+define method .validateRootAttribute(!rootNameAttribute is ARRAY, !elementRefe is DBREF) is ARRAY
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+  !result = ARRAY()
+  return !result
+endmethod
+
+define method .loadGridData(!headings is ARRAY, !rows is ARRAY, !errorCells is ARRAY)
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+  !result = ARRAY()
+  return !result
+endmethod
+
+define method .getClassNamingDetails(!className is STRING, !key is STRING) is ARRAY
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+  return ||
+endmethod
+
+define method .getClassPropertyDetails(!className is STRING, !attributePath is ARRAY, !propertyName is STRING) is STRING
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+  return ||
+endmethod
+
+define method .getClassNamingDetails()
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+endmethod
+
+define method .getAttributeValueByPath(!elementRefe is DBREF, !attributeDetail is ARRAY) is ARRAY
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+  return !!CE
+endmethod
+
+define method .reclassifytags()
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+endmethod
+
+define method .refreshForm()
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+endmethod

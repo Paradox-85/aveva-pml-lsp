@@ -1,0 +1,176 @@
+import 'Aveva.Engineering.Tags.Pml'
+handle any
+endhandle
+
+using namespace 'Aveva.Core.Presentation'
+using namespace 'Aveva.Engineering.Tags'
+
+-- ============================================================
+-- Macro: manual-data-export
+-- Purpose: Export tag and list data from AVEVA Engineering to
+--          Excel workbooks for reporting and data management.
+-- ============================================================
+
+-- init: define variables
+!pathName = |C:\Users\ADZV\OneDrive - Ramboll\Ramboll_Jackdaw - Admin Team\JDE-Power-BI|
+!realUnset = ARRAY()
+!dt = OBJECT DATETIME()
+!year = !dt.year()
+!month = !dt.month().string('I2')
+!date = !dt.date().string('I2')
+!hour = !dt.hour().string('I2')
+!minute = !dt.minute().string('I2')
+!emptyPatternString = |Unset unset UNSET|
+!emptyPatternList = !emptyPatternString.split()
+!emptyPatternList.append(| |)
+!emptyPatternList.append(||)
+!emptyPatternList.append(|0ampere|)
+!rdlMasterFile = |C:\Users\ADZV\OneDrive - Ramboll\Ramboll_Jackdaw - Admin Team\RDL\_Master\RDL-Master-File.xlsx|
+!isErrorReport = false
+
+!commonAttributes = object ARRAY()
+!commonAttributes[1][1] = ':RAMTagOwner'
+!commonAttributes[1][2] = 'Tag Owner'
+!commonAttributes[2][1] = ':TagStatus'
+!commonAttributes[2][2] = 'Tag Status'
+!commonAttributes[3][1] = 'NAMN of :TagRefToPurchaseOrder'
+!commonAttributes[3][2] = 'PO Number'
+!commonAttributes[4][1] = ':RAMPackageNumber of :TagRefToPurchaseOrder'
+!commonAttributes[4][2] = 'Package'
+!commonAttributes[5][1] = ':TagClassName'
+!commonAttributes[5][2] = 'Shell Class'
+!commonAttributes[6][1] = 'NAMN of :TagRefToMCPackage'
+!commonAttributes[6][2] = 'MC Package'
+!commonAttributes[7][1] = 'NAMN of :MCPackageToCommissioningPackageRef of :TagRefToMCPackage'
+!commonAttributes[7][2] = 'Comm Package'
+!commonAttributes[8][1] = 'NAMN of :TagRefToArea'
+!commonAttributes[8][2] = 'Area'
+!commonAttributes[9][1] = ':RambollTagStatus'
+!commonAttributes[9][2] = 'Maturity'
+!commonAttributes[10][1] = 'NAMN of :TagRefToProcessUnit'
+!commonAttributes[10][2] = 'Process Unit'
+!commonAttributes[11][1] = ':RAMInstallationContractors'
+!commonAttributes[11][2] = 'Install By'
+!commonAttributes[12][1] = 'REPLACE(IFT(:TagName of :TagRefToParentTag neq NAMN of :TagRefToParentTag and (not(unset(:TagName of :TagRefToParentTag)) and not(empty(:TagName of :TagRefToParentTag))), :TagName of :TagRefToParentTag, NAMN of :TagRefToParentTag), |‐|, |-|)'
+!commonAttributes[12][2] = 'Parent Tag'
+
+!replaceData = object ARRAY()
+!replaceData.append('999999999ampere;NA')
+!replaceData.append('999999999deg/s;NA')
+!replaceData.append('999999999degC;NA')
+!replaceData.append('999999999kg;NA')
+!replaceData.append('999999kg;NA')
+!replaceData.append('99999kg;NA')
+!replaceData.append('999999999kg/m3;NA')
+!replaceData.append('999999999kg/s;NA')
+!replaceData.append('999999999kW;NA')
+!replaceData.append('999999999m/s;NA')
+!replaceData.append('9999999993m/s;NA')
+!replaceData.append('999999999m3/s;NA')
+!replaceData.append('999999999mm;NA')
+!replaceData.append('999999999mm2;NA')
+!replaceData.append('999999999Pa.s;NA')
+!replaceData.append('999999999pascal;NA')
+!replaceData.append('999999999Ratio;NA')
+!replaceData.append('999999999second;NA')
+!replaceData.append('999999999volt;NA')
+!replaceData.append('999999999;NA')
+!replaceData.append('999999999N/m;NA')
+!replaceData.append('9999999mm;NA')
+!replaceData.append('9999999;NA')
+!replaceData.append('999999;NA')
+!replaceData.append('99999;NA')
+!replaceData.append('9999999000;NA')
+!replaceData.append('9999999993;NA')
+!replaceData.append('9999999000ampere;NA')
+!replaceData.append('999999ampere;NA')
+!replaceData.append('N/A;NA')
+!replaceData.append('N.A;NA')
+!replaceData.append('N.A.;NA')
+!replaceData.append('Area-NA;NA')
+!replaceData.append('PU-NA;NA')
+!replaceData.append('PO-NA;NA')
+!replaceData.append('SECE-NA;NA')
+!replaceData.append('01/01/1990 00:00:00;NA')
+
+$(-- export MTR data
+!!tags = object PMLTAGS()
+var !grid collect all LSTDEF with (LSTNAM eq |IM-tag-dataset|)
+if (!grid.size() eq 1) then
+    !gridRef = !grid.first().dbref()
+    !gridRef.lstflt = !realUnset
+    !filePathOrigin = |$!pathName\_master\data\MTR-dataset.xlsx|
+    !filePath = |$!pathName\_master\data\_history\MTR-dataset-$!<year>-$!<month>-$!<date>_$!<hour>.xlsx|
+    var !gridGroupName CATNAM of LSTGRP of $!gridRef
+    !!tags.exportasxls(!gridGroupName, '$!<gridRef.LSTNAM>', '$!filePath')
+    SYSCOM |copy /y "$!<filePath>" "$!<filePathOrigin>"|
+endif$)
+
+$(-- export DOC data
+!realUnset = ARRAY()
+!!tags = object PMLTAGS()
+var !grid collect all LSTDEF with (LSTNAM eq |403-DOCUMENT|)
+if (!grid.size() eq 1) then
+    !gridRef = !grid.first().dbref()
+    !gridRef.lstflt = !realUnset
+    !filePathOrigin = |$!pathName\_master\data\MDR.xlsx|
+    !filePath = |$!pathName\_master\data\_history\MDR-$!<year>-$!<month>-$!<date>_$!<hour>.xlsx|
+    var !gridGroupName CATNAM of LSTGRP of $!gridRef
+    !!tags.exportasxls(!gridGroupName, '$!<gridRef.LSTNAM>', '$!filePath')
+    SYSCOM |copy /y "$!<filePath>" "$!<filePathOrigin>"|
+endif$)
+
+$(-- collect data based on type
+!classList = ARRAY()
+!classList.append(|SIGNAL CABLE|)
+do !className values !classList
+    !tagFilter = 'NOT(:TagStatus inset (|VOID|, |Future|)) and ISNAMED and NOT(EMPTY(:RAMTAGOWNER)) and :RDLName of :ClassMappingRefToClass of :TagRefToClass eq |$!className|'
+    var !tagList collect all (ENGITE) with ($!tagFilter)
+    !size = !tagList.size()
+    if (!size gt 0) then
+        !rdlFilter = |:RDLSource eq 'AKSO_Tag Properties Templates_Rev6'|
+        !filePathRam = |$!pathName\_master\data\vendor_data\vendorReport-$!<className>.xlsx|
+        !!jacExportRDLDataReportMatrix(!filePathRam, !rdlFilter, !tagFilter, !emptyPatternList, !commonAttributes, !replaceData, !isErrorReport)
+    endif
+enddo$)
+
+-- collect data based on tag name
+$(!pattern = |*GB.*|
+!tagFilter = 'NOT(:TagStatus inset (|VOID|, |Future|)) and ISNAMED and NOT(EMPTY(:RAMTAGOWNER)) and matchwild(name, |$!pattern|)'
+var !tagList collect all (ENGITE) with ($!tagFilter)
+!size = !tagList.size()
+if (!size gt 0) then
+    !rdlFilter = |:RDLSource eq 'AKSO_Tag Properties Templates_Rev6'|
+    !filePathRam = |$!pathName\_master\data\vendor_data\vendorReport-SWA.xlsx|
+    !!jacExportRDLDataReportMatrix(!filePathRam, !rdlFilter, !tagFilter, !emptyPatternList, !commonAttributes, !replaceData, !isErrorReport)
+endif$)
+
+-- collect vendor packages
+$(!packageListString = |CPI|
+!packageList = !packageListString.split()
+do !pckgName values !packageList
+    $P Package name: $!pckgName
+    --!tagFilter = 'NOT(:TagStatus inset (|VOID|, |Future|)) and ISNAMED and NOT(EMPTY(:RAMTAGOWNER)) and (:RAMPackageNumber of :TagRefToPurchaseOrder eq |$!pckgName|)'
+    !tagFilter = 'NOT(:TagStatus inset (|VOID|, |Future|)) and ISNAMED and NOT(EMPTY(:RAMTAGOWNER)) and matchwild(namn of :TagRefToPurchaseOrder, |*$!pckgName*|)'
+    var !tagList collect all (ENGITE) with ($!tagFilter)
+    !size = !tagList.size()
+    if (!size gt 0) then
+        !rdlFilter = |:RDLSource eq 'AKSO_Tag Properties Templates_Rev6'|
+        !filePathRam = |$!pathName\_master\data\vendor_data\vendorReport-$!<pckgName>.xlsx|
+        !!jacExportRDLDataReportMatrix(!filePathRam, !rdlFilter, !tagFilter, !emptyPatternList, !commonAttributes, !replaceData, !isErrorReport)
+    endif
+enddo$)
+
+-- collect comm packages
+$(!packageListString = |8402-C24|
+!packageList = !packageListString.split()
+do !pckgName values !packageList
+    !tagFilter = 'NOT(:TagStatus inset (|VOID|, |Future|)) and ISNAMED and NOT(EMPTY(:RAMTAGOWNER)) and matchwild(NAMN of :MCPackageToCommissioningPackageRef of :TagRefToMCPackage, |*$!pckgName*|)'
+    var !tagList collect all (ENGITE) with ($!tagFilter)
+    !size = !tagList.size()
+    if (!size gt 0) then
+        !rdlFilter = |:RDLSource eq 'AKSO_Tag Properties Templates_Rev6'|
+        !filePathRam = |$!pathName\_master\data\comm_data\commReport-$!<pckgName>.xlsx|
+        !!jacExportRDLDataReportMatrix(!filePathRam, !rdlFilter, !tagFilter, !emptyPatternList, !commonAttributes, !replaceData, !isErrorReport)
+    endif
+enddo$)

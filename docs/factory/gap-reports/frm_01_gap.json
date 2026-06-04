@@ -1,0 +1,283 @@
+{
+  "fileId": "frm_01",
+  "filePath": "docs/codebase/forms/jacEISDeliveryForm.pmlfrm",
+  "reviewDate": "2026-06-03",
+  "overallGapScore": 0.35,
+  "dimensions": {
+    "D1_syntax": {
+      "score": 0.15,
+      "gaps": [
+        {
+          "description": "PML array indices start at 1, not 0. Original uses !array[0] in .loadPopup() which triggers a runtime warning.",
+          "severity": "warning",
+          "originalLines": "118-119",
+          "pattern": "Array access with 0-based index on ARRAY parameter"
+        },
+        {
+          "description": "String concatenation with backslash path separator using + operator: !file.FULLNAME() + '\\'. Linter accepts but this is non-standard string concatenation.",
+          "severity": "info",
+          "originalLines": "244,248,252",
+          "pattern": "Path concatenation with backslash via + operator"
+        }
+      ]
+    },
+    "D2_patterns": {
+      "score": 0.30,
+      "gaps": [
+        {
+          "description": "Menu creation via !this.newMenu() is not well-documented in KB. Used for bar menu and popup menu.",
+          "severity": "gap",
+          "originalLines": "73,87,118",
+          "pattern": "Dynamic menu creation with newMenu() and bar.add()",
+          "suggestedKbId": "ui_form_menu_dynamic"
+        },
+        {
+          "description": "Container gadget with PMLNETCONTROL and NET sub-type is used but KB coverage is limited to basic PMLNETCONTROL examples.",
+          "severity": "partial",
+          "originalLines": "22",
+          "pattern": "container gadget with PMLNETCONTROL 'NET' sub-type",
+          "suggestedKbId": "ui_container_pmlnetcontrol_net"
+        },
+        {
+          "description": "do ... values ... enddo iteration over ARRAY elements is used but KB examples show DO FROM/TO pattern predominantly.",
+          "severity": "partial",
+          "originalLines": "233",
+          "pattern": "DO !index VALUES !selectedItems ENDDO iteration",
+          "suggestedKbId": "control_do_values_iteration"
+        }
+      ]
+    },
+    "D3_structure": {
+      "score": 0.10,
+      "gaps": [
+        {
+          "description": "Form lifecycle: constructor (.jacEISDeliveryForm) sets callbacks and initializes NETGRIDCONTROL; .init() creates JACEISDELIVERYMANAGER and loads reports. This two-phase init pattern is not explicitly covered in KB.",
+          "severity": "minor",
+          "originalLines": "61-122, 128-135",
+          "pattern": "Two-phase form lifecycle: constructor + init method"
+        }
+      ]
+    },
+    "D4_naming": {
+      "score": 0.05,
+      "gaps": [
+        {
+          "description": "Customer-specific naming prefix JAC- used in JACEISDELIVERYMANAGER, NETGRIDCONTROL references. Not reflected in KB naming conventions.",
+          "severity": "minor",
+          "originalLines": "42-44",
+          "pattern": "JAC- prefix for custom objects (JACEISDELIVERYMANAGER)"
+        },
+        {
+          "description": "RAM- prefix used in RAMFILEWRITERCLASS and RAMCOMMONLOGGER/RAMCOMMONLOGGERFORM. Not in KB naming conventions.",
+          "severity": "minor",
+          "originalLines": "44, 142, 144",
+          "pattern": "RAM- prefix for custom file/logger classes"
+        }
+      ]
+    },
+    "D5_logic": {
+      "score": 0.25,
+      "gaps": [
+        {
+          "description": "defined() check with global form reference !!ramcommonloggerform - KB has defined/undefined pattern but not for global form objects.",
+          "severity": "gap",
+          "originalLines": "141",
+          "pattern": "defined() check for global form existence",
+          "suggestedKbId": "errorhandling_defined_global_form"
+        },
+        {
+          "description": "File existence check via !file.set() AND !file.exists() - KB has FILE.exists() but the pattern of using .set() first is not documented.",
+          "severity": "gap",
+          "originalLines": "231",
+          "pattern": "FILE object with .set() then .exists() check",
+          "suggestedKbId": "objects_file_set_exists_pattern"
+        },
+        {
+          "description": "String replacement pattern !this.teRevision.Val used in csvFileName.replace('{0}', ...) - KB has .replace() on strings but not with template placeholders.",
+          "severity": "minor",
+          "originalLines": "248",
+          "pattern": "String replace with template placeholder {0}"
+        }
+      ]
+    },
+    "D6_dependencies": {
+      "score": 0.60,
+      "gaps": [
+        {
+          "description": "Custom object JACEISDELIVERYMANAGER with methods: readConfiguration(), getReportList(), loadReportDetails(), loadReport(), executePmlFunction(), and properties: headings, rows, excelFileName, csvFileName, isPMLFunction. Not in KB.",
+          "severity": "critical",
+          "originalLines": "42, 131-134, 156-157, 197-200, 237-252",
+          "pattern": "Custom business logic manager object",
+          "suggestedKbId": "objects_custom_business_manager"
+        },
+        {
+          "description": "Custom object RAMFILEWRITERCLASS with methods: writeDataToExcelFile(), writeDataToTextFile(), browseFile(). Not in KB.",
+          "severity": "critical",
+          "originalLines": "44, 245, 249, 263",
+          "pattern": "Custom file writer utility class",
+          "suggestedKbId": "objects_custom_file_writer"
+        },
+        {
+          "description": "Custom form RAMCOMMONLOGGERFORM with clearData() method. Not in KB.",
+          "severity": "major",
+          "originalLines": "142",
+          "pattern": "Custom logger form with clearData()",
+          "suggestedKbId": "forms_custom_logger_form"
+        },
+        {
+          "description": "Custom global RAMCOMMONLOGGER object instantiation. Not in KB.",
+          "severity": "major",
+          "originalLines": "144",
+          "pattern": "Custom global logger object",
+          "suggestedKbId": "objects_custom_logger_global"
+        },
+        {
+          "description": "NET add-in objects NETGRIDCONTROL, NETDATASOURCE - KB has GridControl import examples but not NETDATASOURCE binding pattern.",
+          "severity": "major",
+          "originalLines": "42, 76-82, 207-208, 266",
+          "pattern": "NET add-in grid with data source binding",
+          "suggestedKbId": "objects_net_data_source_binding"
+        },
+        {
+          "description": "PMLFOLDERBROWSER object with .show() and .selectedPath() methods. Not in KB.",
+          "severity": "major",
+          "originalLines": "187-189",
+          "pattern": "PMLFolderBrowser with show and selectedPath",
+          "suggestedKbId": "objects_pml_folder_browser"
+        },
+        {
+          "description": "!!alert.warning() system alert - KB covers alert but not the .warning() method specifically.",
+          "severity": "minor",
+          "originalLines": "212, 258",
+          "pattern": "System alert with .warning() method",
+          "suggestedKbId": "ui_alert_warning_method"
+        }
+      ]
+    },
+    "D7_kbCompleteness": {
+      "newEntriesNeeded": [
+        {
+          "suggestedId": "ui_form_menu_dynamic",
+          "category": "forms",
+          "subcategory": "menu",
+          "title": "Dynamic Menu Creation in PML Forms",
+          "principle": "PML forms support dynamic menu creation via !this.newMenu() and bar.add() methods, enabling runtime popup and bar menus.",
+          "rule": "Use !this.newMenu('menuName') to create a menu object, then .add('callback', 'label', 'command') to add entries. Use !this.bar.add('category', 'name') for bar menu entries.",
+          "syntax": "!menu = !this.newMenu('menuName')\n!menu.add('callback', 'Label Text', '!this.methodName()')\n!this.bar.add('Category', 'name')",
+          "exampleCanonical": "-- Dynamic menu in form constructor\n!this.bar.add('Tools', 'toolsMenu')\n!toolsMenu = !this.newMenu('toolsMenu')\n!toolsMenu.add('callback', 'Option 1', '!this.doOption1()')\n!toolsMenu.add('callback', 'Option 2', '!this.doOption2()')",
+          "exampleAntipattern": "-- Static menu defined at form setup (less flexible)\n!menu = menu\n!menu.add('Static', '.staticMethod')",
+          "pitfalls": ["Menu names must be unique within the form scope", "Callback commands are strings, not method references", "Bar menu categories appear as submenus"],
+          "relatedIds": ["ui_button_callback", "ui_container_popup"],
+          "sourcedoc": "AVEVA PML Customization Guide - Forms and Menus",
+          "sourcecodebase": "jacEISDeliveryForm.pmlfrm"
+        },
+        {
+          "suggestedId": "control_do_values_iteration",
+          "category": "controlflow",
+          "subcategory": "iteration",
+          "title": "DO VALUES Iteration over ARRAY Elements",
+          "principle": "PML supports iterating over ARRAY elements using DO ... VALUES ... ENDDO, which yields each populated element as the loop index.",
+          "rule": "Use DO !index VALUES !arrayName to iterate over all populated elements. !index holds the value of each element (not the position).",
+          "syntax": "DO !index VALUES !arrayName\n  -- !index contains each element value\nENDDO",
+          "exampleCanonical": "-- Iterate over selected list items\n!selectedItems = !this.list.val\ndo !index values !selectedItems\n  !viewName = !this.list.rtext[!index]\n  !this.processView(!viewName)\nenddo",
+          "exampleAntipattern": "-- Using FROM/TO with array Size() when VALUES is more natural\n!i = 1\ndo while !i.le(!selectedItems.Size())\n  !index = !selectedItems[!i]\n  !i = !i + 1\nenddo",
+          "pitfalls": ["!index holds the element value, not the array index", "Use !selectedItems[!index] to access array by value when values are indices", "Array indices in PML start at 1"],
+          "relatedIds": ["datatypes_array_methods", "control_do_from_to"],
+          "sourcedoc": "AVEVA PML Customization Guide - Control Logic",
+          "sourcecodebase": "jacEISDeliveryForm.pmlfrm"
+        },
+        {
+          "suggestedId": "errorhandling_defined_global_form",
+          "category": "errorhandling",
+          "subcategory": "defined_check",
+          "title": "defined() Check for Global Form Objects",
+          "principle": "Use defined() to check if a global form object exists before attempting to access it, preventing runtime errors.",
+          "rule": "Use if(defined(!!globalForm)) to check existence. If the form exists, access its methods; otherwise, create a new instance.",
+          "syntax": "if(defined(!!globalForm)) then\n  !!globalForm.method()\nelse\n  !!globalVar = object CLASS()\nendif",
+          "exampleCanonical": "-- Safe access to global logger form\nif(defined(!!ramcommonloggerform)) then\n  !!ramcommonloggerform.clearData()\nelse\n  !!RAMCOMMONLOGGER = object RAMCOMMONLOGGER()\nendif",
+          "exampleAntipattern": "-- Direct access without check (will error if form not loaded)\n!!ramcommonloggerform.clearData()",
+          "pitfalls": ["defined() checks variable existence, not object validity", "Global form names are case-insensitive in PML"],
+          "relatedIds": ["datatypes_defined_undefined", "objects_form_lifecycle"],
+          "sourcedoc": "AVEVA PML Customization Guide - Expressions",
+          "sourcecodebase": "jacEISDeliveryForm.pmlfrm"
+        },
+        {
+          "suggestedId": "objects_file_set_exists_pattern",
+          "category": "objects",
+          "subcategory": "file",
+          "title": "FILE Object set() and exists() Pattern",
+          "principle": "The FILE object requires .set() to resolve the path before .exists() can reliably check for the file or folder.",
+          "rule": "Create FILE object with path, call .set() to resolve, then use .exists() to check. Combine with AND for conditional logic.",
+          "syntax": "!file = object FILE(!path)\nif(!file.set() AND !file.exists()) then\n  -- file/folder exists\nelse\n  -- handle missing\nendif",
+          "exampleCanonical": "!file = object FILE(!outputFolder.val)\nif(!file.set() AND !file.exists()) then\n  -- proceed with export\nelse\n  !!alert.warning('Please select valid output folder')\nendif",
+          "exampleAntipattern": "-- Checking exists without set (may fail on relative paths)\n!file = object FILE(!path)\nif(!file.exists()) then",
+          "pitfalls": [".set() resolves the path and returns success/failure", ".exists() checks both files and folders", "Use .fullname() to get resolved absolute path"],
+          "relatedIds": ["objects_file_methods", "errorhandling_defined_global_form"],
+          "sourcedoc": "AVEVA PML Objects Reference - FILE",
+          "sourcecodebase": "jacEISDeliveryForm.pmlfrm"
+        },
+        {
+          "suggestedId": "objects_net_data_source_binding",
+          "category": "objects",
+          "subcategory": "netgrid",
+          "title": "NETGRIDCONTROL with NETDATASOURCE Binding",
+          "principle": "NETGRIDCONTROL from GridControl add-in can be bound to data via NETDATASOURCE object for dynamic data display.",
+          "rule": "Create NETGRIDCONTROL object, configure properties (columnExcelFilter, fixedRows, etc.), create NETDATASOURCE with columns and rows, then bind with bindToDataSource().",
+          "syntax": "using namespace 'Aveva.Core.Presentation'\n!grid = object NETGRIDCONTROL()\n!grid.columnExcelFilter(true)\n!grid.fixedRows(true)\n!nds = object NETDATASOURCE('name', !headings, !rows)\n!grid.bindToDataSource(!nds)",
+          "exampleCanonical": "!this.gridSelectionList = object NETGRIDCONTROL()\n!this.coSelectionList.control = !this.gridSelectionList.handle()\n!this.gridSelectionList.columnExcelFilter(true)\n!this.gridSelectionList.fixedRows(true)\n!this.gridSelectionList.singleRowSelection(false)\n!this.gridSelectionList.editableGrid(true)\n!this.gridSelectionList.outlookGroupStyle(false)\n!nds = object NETDATASOURCE('viewName', !headings, !rows)\n!this.gridSelectionList.bindToDataSource(!nds)",
+          "exampleAntipattern": "-- Direct assignment without binding (no data display)\n!grid = object NETGRIDCONTROL()\n!grid.data = !rows",
+          "pitfalls": ["NETGRIDCONTROL requires GridControl import", "NETDATASOURCE namespace must be set", "Column names in headings must match data array dimensions"],
+          "relatedIds": ["objects_file_methods", "ui_container_pmlnetcontrol_net"],
+          "sourcedoc": "AVEVA GridControl Add-in Documentation",
+          "sourcecodebase": "jacEISDeliveryForm.pmlfrm"
+        },
+        {
+          "suggestedId": "ui_container_pmlnetcontrol_net",
+          "category": "ui",
+          "subcategory": "container",
+          "title": "Container Gadget with PMLNETCONTROL Type",
+          "principle": "PML container gadgets can host .NET controls via PMLNETCONTROL sub-type, enabling rich data grids and custom UI elements.",
+          "rule": "Declare container gadget with PMLNETCONTROL and a sub-type string. Set the .control property to the .NET object's handle().",
+          "syntax": "container .contName PMLNETCONTROL 'SUBTYPE' anchor all at x y wid h\n-- In method:\n!this.contName.control = !netObject.handle()",
+          "exampleCanonical": "container .coSelectionList PMLNETCONTROL 'NET' anchor all at xmax+2 ymin width 80 height 20\n-- In constructor:\n!this.coSelectionList.control = !this.gridSelectionList.handle()",
+          "exampleAntipattern": "-- Using container without PMLNETCONTROL for .NET controls\ncontainer .coSelectionList anchor all at xmax+2 ymin width 80 height 20",
+          "pitfalls": ["PMLNETCONTROL requires GridControl or appropriate import", "The .control property must be set to the .NET object's handle()", "Container must be anchored for proper resizing"],
+          "relatedIds": ["objects_net_data_source_binding", "ui_button_callback"],
+          "sourcedoc": "AVEVA PML Customization Guide - Gadgets",
+          "sourcecodebase": "jacEISDeliveryForm.pmlfrm"
+        },
+        {
+          "suggestedId": "objects_pml_folder_browser",
+          "category": "objects",
+          "subcategory": "browser",
+          "title": "PMLFolderBrowser Object for Folder Selection",
+          "principle": "PMLFolderBrowser provides a standard folder selection dialog accessible from PML forms.",
+          "rule": "Create PMLFolderBrowser object, call .show(title, mode) to display, then read .selectedPath() for the result.",
+          "syntax": "using namespace 'Aveva.Core.Presentation'\n!browser = object PMLFOLDERBROWSER()\n!browser.show('Select Folder', true)\n!path = !browser.selectedPath()",
+          "exampleCanonical": "using namespace 'Aveva.Core.Presentation'\n!folderBrowser = object PMLFOLDERBROWSER()\n!folderBrowser.show('Select Output Folder', true)\n!this.teOutputFolder.val = !folderBrowser.selectedPath()",
+          "exampleAntipattern": "-- Using FILE object for folder browsing (less user-friendly)\n!file = object FILE('')\n!file.browse()",
+          "pitfalls": ["PMLFOLDERBROWSER requires Aveva.Core.Presentation namespace", "selectedPath() returns empty string if dialog cancelled", "Second parameter of .show() controls multi-select mode"],
+          "relatedIds": ["objects_file_methods", "ui_button_callback"],
+          "sourcedoc": "AVEVA PML Objects Reference",
+          "sourcecodebase": "jacEISDeliveryForm.pmlfrm"
+        },
+        {
+          "suggestedId": "ui_alert_warning_method",
+          "category": "ui",
+          "subcategory": "alert",
+          "title": "!!alert.warning() System Alert Method",
+          "principle": "The !!alert global object provides a .warning() method for displaying warning messages to users.",
+          "rule": "Use !!alert.warning('message') to display a non-fatal warning dialog.",
+          "syntax": "!!alert.warning('Warning message text')",
+          "exampleCanonical": "if(!isDetailsSet) then\n  !!alert.warning('PML Function cannot be previewed')\nelse\n  -- process data\nendif",
+          "exampleAntipattern": "-- Using $P for user-facing messages (goes to command line, not visible)\n$P Warning: no data selected",
+          "pitfalls": ["!!alert.warning() is non-blocking", "Message text should be concise and actionable", "Use for user-facing warnings, not debug output"],
+          "relatedIds": ["errorhandling_defined_global_form", "objects_file_set_exists_pattern"],
+          "sourcedoc": "AVEVA PML Objects Reference - Alert",
+          "sourcecodebase": "jacEISDeliveryForm.pmlfrm"
+        }
+      ]
+    }
+  },
+  "actionRequired": "rerun_worker"
+}

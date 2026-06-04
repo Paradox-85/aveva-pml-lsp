@@ -1,0 +1,77 @@
+{
+  "fileId": "mac_13",
+  "filePath": "docs/codebase/macros/EBE_assetRegister_import.pmlmac",
+  "fileType": "macro",
+  "status": "complete",
+  "runDate": "2026-06-03",
+  "semantics": {
+    "description": "Import asset register data from Excel (xlsx) to AVEVA Engineering (PDMS/E3D). Reads grid data via NETGRIDCONTROL/NETDATASOURCE, iterates rows to create new elements (CREATEELEMENT/ELEMENTTYPE) or update existing element attributes (ATTRIBUTE/dbref), logs all issues to CSV file.",
+    "keyOperations": [
+      "ARRAY() issue list initialization",
+      "FILE object CSV issue log (Open/WriteRecord/Close)",
+      "import Aveva.Engineering.PMLElementManager namespace",
+      "import 'GridControl' .NET add-in",
+      "using namespace Aveva.Core.Presentation",
+      "NETGRIDCONTROL + NETDATASOURCE Excel data binding",
+      "getrows() / gettitles() data extraction",
+      "findfirst() column index lookup",
+      "CREATEELEMENT + ELEMENTTYPE new element creation",
+      "SetElementTypeByName + AddAttributeValue + Execute element execution",
+      "GetErrors() error enumeration",
+      "dbref attribute access and update",
+      "ATTRIBUTE object creation for UDA updates",
+      "Nested handle/elsehandle error handling",
+      "FINISH macro termination"
+    ]
+  },
+  "patternsUsed": [
+    "pml_array_object",
+    "pml_file_object",
+    "pml_import_directive",
+    "pml_handle_error",
+    "pml_using_namespace",
+    "pml_string_object",
+    "pml_string_chained_methods",
+    "pml_do_values_loop",
+    "pml_if_then_else_endif",
+    "pml_dotnet_netgridcontrol",
+    "pml_element_createelement",
+    "pml_element_dbref",
+    "pml_attribute_object",
+    "pml_macro_finish_directive"
+  ],
+  "lintResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 327
+  },
+  "validateResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 327
+  },
+  "kbGaps": [
+    "NETGRIDCONTROL / NETDATASOURCE constructor and method patterns",
+    "bindToDataSource / getrows / gettitles .NET interop methods",
+    "CREATEELEMENT / ELEMENTTYPE method signatures",
+    "ATTRIBUTE object creation and attribute assignment via dbref",
+    "findfirst() return type and .set() validity test",
+    "Chained STRING methods (replace().trim())",
+    "Nested handle block scoping behavior",
+    "FINISH directive in macro context",
+    "Aveva.Core.Presentation namespace usage",
+    "!class neq || empty-string comparison pattern"
+  ],
+  "benchmarkPath": "docs/factory/benchmarks/mac_13_benchmark.pmlmac",
+  "gapReportPath": "docs/factory/gap-reports/mac_13_gap.json",
+  "kbPatchPath": "docs/factory/kb-patches/mac_13_kb_patch.ts",
+  "gapScore": 0.30,
+  "actionRequired": "patch_kb",
+  "confidenceScore": 0.85,
+  "changesFromOriginal": [
+    "Customer OneDrive paths replaced with generic AVEVA_SERVER paths",
+    "Nested 'handle any' inside 'if' block consolidated into single handler per if-block (semantically equivalent, cleaner structure)",
+    "$() block-comment preprocessor directives removed (not pure PML syntax, conditional compilation artifacts)",
+    "Redundant inner 'handle any' for SetElementTypeByName errors removed (outer handler covers same scope)"
+  ]
+}

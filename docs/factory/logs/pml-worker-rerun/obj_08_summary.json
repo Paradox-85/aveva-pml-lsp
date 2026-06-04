@@ -1,0 +1,127 @@
+{
+  "fileId": "obj_08",
+  "filePath": "docs/codebase/objects/ramValueConverter.pmlobj",
+  "fileType": "object",
+  "reviewDate": "2026-06-03",
+  "semanticSummary": {
+    "objectName": "RAMVALUECONVERTER",
+    "purpose": "Convert values between PML types (STRING, REAL, DBREF, DATETIME, ARRAY) with formatting support",
+    "memberCount": 8,
+    "methodCount": 19,
+    "keyMembers": [
+      "realFormat (FORMAT) — formatting config for REAL→STRING conversion",
+      "isFormatApplied (BOOLEAN) — whether format should be applied",
+      "isUnitRequired (BOOLEAN) — whether unit label should be appended",
+      "dateFormat (DATEFORMAT) — date formatting template",
+      "isNameWithoutSlah (BOOLEAN) — strip slash from DBREF names",
+      "isError (BOOLEAN) — error status flag",
+      "logElement (STRING) — logging context element",
+      "logAttribute (STRING) — logging context attribute"
+    ],
+    "keyMethods": [
+      ".ramValueConverter() — constructor: clears data and format",
+      ".clearData() — reset error/log state",
+      ".clearFormat() — reset format config",
+      ".isError() — getter for error status",
+      ".setLogInformation(!element, !attribute) — set logging context",
+      ".convertStringToDbref(!name) — STRING→DBREF with name normalization",
+      ".convertStringToValidDBString(!name) — normalize with '/' prefix",
+      ".convertStringToValidNameString(!name) — normalize name string",
+      ".convertStringToArray(!str, !subType) — split and convert array",
+      ".convertArrayValue(!arr, !subType) — iterate and convert each element",
+      ".convertValue(!val, !type) — generic type converter (DBREF/DATETIME/STRING/fallback)",
+      ".setRealFormat(!fmt, !apply, !unit) — configure REAL formatting",
+      ".setDateFormat(!fmt) — configure date formatting",
+      ".setReferenceFormat(!noSlash) — configure DBREF name style",
+      ".getUnitFromValue(!val) — extract unit name from REAL",
+      ".convertToString(!val) — ANY→STRING with type-specific formatting",
+      ".convertDBTypeToType(!dbType) — map DBType strings to generic types",
+      ".addErrorData(!data) — log error via RAMCOMMONLOGGER"
+    ]
+  },
+  "patternsUsed": [
+    "obj_definition_with_members",
+    "method_with_return_type",
+    "object_STRING_constructor",
+    "object_DBREF_constructor",
+    "object_ARRAY_constructor",
+    "STRING_trim_subString_occurs_split_eq_neq",
+    "DBREF_set_dbref_Name",
+    "ARRAY_append",
+    "INSET_operator",
+    "DO_ENDDO_with_VALUES",
+    "skip_conditional",
+    "handle_any_endif",
+    "elsehandle_None",
+    "SPLIT_function",
+    "dynamic_constructor_dollar",
+    "dynamic_method_call_dollar",
+    "undefined_global_check",
+    "objectType_EQNoCase",
+    "unset_set_methods"
+  ],
+  "lintResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 895
+  },
+  "validateResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 895
+  },
+  "gapScore": 0.35,
+  "gapScoreBreakdown": {
+    "D1_syntax": 0.95,
+    "D2_patterns": 0.90,
+    "D3_structure": 0.98,
+    "D4_naming": 0.95,
+    "D5_logic": 0.97,
+    "D6_dependencies": 0.55
+  },
+  "kbGaps": [
+    "RAMCOMMONLOGGER customer add-in class not in KB",
+    "RAMCOMMONLOGGER.addLogDetails() method not in KB",
+    "REAL.unit().name().shortname() methods not in KB",
+    "DBREF.namn member not in KB",
+    "FORMAT.label member not in KB",
+    "DATEFORMAT('') constructor not in KB",
+    "DATETIME(year,month,day) constructor not in KB",
+    "unset() method on STRING not in KB",
+    "Dynamic $!type() constructor not well-documented",
+    "Dynamic !value$<text> method call not well-documented"
+  ],
+  "kbPatchesDrafted": 10,
+  "kbPatchIds": [
+    "obj_08_dynamic_constructor",
+    "obj_08_dynamic_method_call",
+    "obj_08_skip_conditional",
+    "obj_08_ramcommonlogger",
+    "obj_08_real_unit",
+    "obj_08_dbref_namn",
+    "obj_08_format_label",
+    "obj_08_dateformat_constructor",
+    "obj_08_datetime_constructor",
+    "obj_08_unset_method"
+  ],
+  "typoPreservation": [
+    "isNameWithoutSlah (missing 's' in Slashes)",
+    "!elementRefe (missing 'r' in Ref)"
+  ],
+  "previousBenchmarkQuality": "stub_methods_only",
+  "previousBenchmarkIssues": [
+    "19 stub methods with placeholder bodies (skip/handle)",
+    "No operational logic reproduced",
+    "Gaps were listed as keywords rather than actual patterns",
+    "Overall gap score 0.95 was misleading (very high = many gaps but not analyzed)"
+  ],
+  "currentBenchmarkQuality": "full_reconstruction",
+  "currentBenchmarkNotes": [
+    "All 19 methods with complete implementation bodies",
+    "All 8 member declarations preserved",
+    "All PML syntax constructs validated (895 AST nodes, 0 errors)",
+    "Typo preservation maintained for fidelity",
+    "Gap score 0.35 reflects real dependency gaps only"
+  ],
+  "actionRequired": "patch_kb"
+}

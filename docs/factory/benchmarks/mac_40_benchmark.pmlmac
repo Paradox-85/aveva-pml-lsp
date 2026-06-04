@@ -1,0 +1,18 @@
+$* Factory benchmark generated from semantic source summary only for mac_40
+$* Source path: docs/codebase/macros/loop-data-update.pmlmac
+$* Semantic description: Macro that reloads the LOOPDATA object, creates an
+$* instance, calls GetData(), disables instrument field data transfer, sets
+$* the export path, and saves the log to an Excel file.
+$* $m "C:\Users\ADZV\OneDrive - Ramboll\AVEVA_SERVER\Addons\PMLLIB\RAM\Engineering\jackdow\run-macro\cable-connection.pmlmac"
+
+PML RELOAD OBJECT LOOPDATA
+
+!loop = object LOOPDATA()
+
+!loop.GetData()
+
+!loop.InstrumentFieldDataTransfer(FALSE)
+
+!loop.pathName = |C:\Users\ADZV\OneDrive - Ramboll\Ramboll_Jackdaw - Admin Team\Aveva\AVEVA setup\E&I intelligent database\Log|
+
+!loop.SaveLog(|loop-data-update-log.xlsx|, FALSE)

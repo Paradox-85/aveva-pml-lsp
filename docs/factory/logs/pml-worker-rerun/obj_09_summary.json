@@ -1,0 +1,69 @@
+{
+  "fileId": "obj_09",
+  "filePath": "docs/codebase/objects/jacEISDeliveryManager.pmlobj",
+  "fileType": "object",
+  "originalLineCount": 353,
+  "originalMethodCount": 9,
+  "originalMemberCount": 10,
+  "benchmarkPath": "docs/factory/benchmarks/obj_09_benchmark.pmlobj",
+  "benchmarkLineCount": 353,
+  "benchmarkMethodCount": 9,
+  "lintResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 924
+  },
+  "validateResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 924
+  },
+  "kbResearch": {
+    "patternsConfirmed": [
+      "PML2 object definition with members",
+      "ARRAY/STRING/BOOLEAN member types",
+      "object ClassName() constructor pattern",
+      "FILE object exists() method",
+      "COLLECTION.Types().scope().Filter().Results()",
+      "EXPRESSION object for filtering",
+      "ARRAY.Append().ReIndex().FindFirst().Find().AppendArray().Evaluate()",
+      "STRING methods: EQNoCase, after, before, trim, split, matchwild, upcase, substring, set, neq, not, size, eq, set",
+      "BLOCK with !evalIndex in evaluate()",
+      "DO/ENDDO with indices/values loops",
+      "handle ANY/elsehandle none/endhandle",
+      "$!command substitution",
+      "using namespace directive",
+      "COLLECT ALL DBVW query"
+    ],
+    "kbSources": [
+      "collections-reference.md",
+      "commands-reference.md",
+      "array object.md",
+      "string object.md",
+      "Methods on User-Defined Object Types.md",
+      "PML_LANGUAGE_VARIANTS.md",
+      "best-practices.md",
+      "MCP syntax reference",
+      "MCP objects and methods reference",
+      "MCP loop examples"
+    ]
+  },
+  "gapReportPath": "docs/factory/gap-reports/obj_09_gap.json",
+  "kbPatchPath": "docs/factory/kb-patches/obj_09_kb_patch.ts",
+  "kbGaps": [
+    "undefined() built-in function not explicitly documented",
+    "STRING.unset() method not in KB method list",
+    "!this.objecttype() method not in KB reference",
+    "!evalIndex special variable in BLOCK not documented",
+    "PROJECT CODE with !!evar() pattern not covered",
+    "External objects (RAMEXCELREADERCLASS, EISDBVIEWEXTRACTOR, RAMCOMMONLOGGER) not in KB"
+  ],
+  "confidenceScore": 0.85,
+  "actionRequired": "patch_kb",
+  "notes": [
+    "Benchmark faithfully reproduces all syntax and logic from original",
+    "External/custom objects (EISDBVIEWEXTRACTOR, RAMEXCELREADERCLASS, RAMCOMMONLOGGER) are project-specific and not in KB",
+    "5 KB patch entries drafted for D7 gaps",
+    "Lint and validate both clean with 0 errors"
+  ]
+}

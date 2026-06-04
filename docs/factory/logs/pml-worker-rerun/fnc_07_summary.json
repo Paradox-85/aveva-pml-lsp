@@ -1,0 +1,19 @@
+{
+  "fileId": "fnc_07",
+  "status": "completed_summary_reconstructed_from_existing_artifacts",
+  "timestamp": "2026-06-03T23:22:34.603Z",
+  "artifacts": {
+    "benchmark": "docs/factory/benchmarks/fnc_07_benchmark.pmlfnc",
+    "gapReport": "docs/factory/gap-reports/fnc_07_gap.json",
+    "kbPatch": "docs/factory/kb-patches/fnc_07_kb_patch.ts",
+    "summary": "docs/factory/logs/pml-worker-rerun/fnc_07_summary.json"
+  },
+  "validation": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 7
+  },
+  "overallGapScore": 0.88,
+  "actionRequired": "patch_kb",
+  "note": "Subagent reported completion or partial completion but summary file was missing; benchmark/gap/patch artifacts exist and benchmark validates clean."
+}

@@ -1,0 +1,169 @@
+-- Author: [Customer]
+-- Customer: [Client]
+-- Rev: 00
+-- Purpose: extract delta data from current grid (benchmark reconstruction)
+-- $m \\Dk-pf478xen\aveva_server\Addons\PMLLIB\Engineering\ew1\EBE_delta_tag_export.pmlmac
+-- $m "[CustomerPath]\EBE_delta_tag_export.pmlmac"
+
+TAGS
+
+!startDateTime = OBJECT DATETIME()
+!year = !startDateTime.year()
+!month = !startDateTime.month()
+!date = !startDateTime.date()
+!hour = !startDateTime.hour()
+!minute = !startDateTime.minute()
+
+!session  = current session
+!userName = !session.login.upcase()
+
+import |Aveva.Engineering.Tags.Pml|
+handle any
+endhandle
+using namespace |Aveva.Engineering.Tags|
+!!tags = object PMLTAGS()
+
+import 'GridControl'
+handle ANY
+endhandle
+using namespace |Aveva.Core.Presentation|
+!dataTable = object NETGRIDCONTROL()
+!dataTable.columnExcelFilter(true)
+!dataTable.setNameColumnImage()
+!dataTable.outlookGroupStyle(false)
+!dataTable.fixedHeaders(FALSE)
+!dataTable.fixedRows(false)
+!dataTable.columnSummaries(false)
+!dataTable.autoFitColumns()
+!dataTable.editableGrid(false)
+!dataTable.setEditableColumn(1,FALSE)
+
+!dbName =  |TAG/EBE-TAG|
+var !project PROJECT NUMBER
+
+--get list of stamps
+var !stamps collect all STAMP
+var !grids collect all LSTDEF with catnam of LSTGRP eq 'EQUINOR_TR3111_V7' and LstDsc neq |#Excluded|
+if (!stamps.size() gt 0 and !grids.size() gt 0) then
+	
+	--set comparison data
+	!latestStamp = !stamps.first()
+	var !stampDate SetDate of $!latestStamp
+	SETCOMPDATE FOR DB $!dbName to $!stampDate
+		
+	--get grid data
+	do !exportGrid values !grids
+		!gridName = !exportGrid.dbref().lstnam
+		!headerList = ARRAY()
+		!expressions = ARRAY()
+		!dataList = ARRAY()
+		!changedTags = ARRAY()
+		
+		!listName = !exportGrid.dbref().lstnam
+		!gridDef = !!tags.GetListDefinition('EQUINOR_TR3111_V7', !listName)
+		!sourceDbView = !gridDef.DbViewName()
+		var !fields collect all (ATTCOL EXPCOL) for $!sourceDbView
+		do !field values !fields
+			!udname = !field.dbref().udname
+			!expression = !field.dbref().DbAttribute
+			handle (2,201)
+				!expression = !field.dbref().expression
+			endhandle
+			!headerList.append(!udname)
+			!expressions.append(|$!<udname>;$!<expression>|)
+		enddo
+		!headerList.append(|ACTION|)
+		
+		--get all changed elements
+		!elelist = !sourceDbView.dbref().elel
+		!collectionModify  = object COLLECTION()
+		!collectionModify.scope( /* )
+		!collectionModify.type(!elelist[1])
+		do !type values !elelist
+			!collectionModify.AddType(!type)
+		enddo
+		!expObject = object EXPRESSION()
+		!expText = '( MODIFIED() )'
+		!expObject.expression(!expText)
+		!collectionModify.filter(!expObject)
+		!modifiedTags = !collectionModify.results()
+
+		!collectionDelete  = object COLLECTION()
+		!collectionDelete.scope( /* )
+		!collectionDelete.type(!elelist[1])
+		do !type values !elelist
+			!collectionDelete.AddType(!type)
+		enddo
+		!expObject = object EXPRESSION()
+		!expText = '( DELETED() )'
+		!expObject.expression(!expText)
+		!collectionDelete.filter(!expObject)
+		!deletedTags = !collectionDelete.results()
+		
+		!collectionCreate  = object COLLECTION()
+		!collectionCreate.scope( /* )
+		!collectionCreate.type(!elelist[1])
+		do !type values !elelist
+			!collectionCreate.AddType(!type)
+		enddo
+		!expObject = object EXPRESSION()
+		!expText = '( CREATED() )'
+		!expObject.expression(!expText)
+		!collectionCreate.filter(!expObject)
+		!createdTags = !collectionCreate.results()
+		
+		!changedTags.appendArray(!modifiedTags)
+		!changedTags.appendArray(!deletedTags)
+		!changedTags.appendArray(!createdTags)
+		!changedTags = !changedTags.sortUnique()
+		do !tag values !changedTags
+			!rowDataList = ARRAY()
+			!action = |UPDATE|
+			if (!deletedTags.findfirst(!tag).set()) then
+				!action = |DELETE|
+			elseif (!createdTags.findfirst(!tag).set()) then
+				!action = |NEW|
+			endif
+			
+			do !expressionStr values !expressions
+				!idx = !expressions.findFirst(!expressionStr)
+				!val = ||
+				!expression = !expressionStr.split(|;|)[2]
+				!evaluate = |var !val $!expression of $!tag|
+				if (!action eq |DELETE|) then
+					!evaluate = |var !val OLD $!expression of $!tag|
+				endif
+				$!<evaluate>
+				handle any
+					!rowDataList.append(!!error.text)
+					--do something for log
+					--$p EXP [$!expressionStr] TAG [$!tag]
+				elsehandle none
+					!rowDataList.append(!val)
+				endhandle
+			enddo
+			!rowDataList.append(!action)
+			!dataList.append(!rowDataList)
+
+		enddo
+		
+		--extract to file
+		--create a folder
+		!publishFolderPath = |C:\Users\ADZV\OneDrive - Ramboll\Digital Deliveries\Tie Web\AUEDB_export\EBE\_delta\|
+		!publishPath = '$!<publishFolderPath>$!date-$!month-$!year_$!hour-$!minute\'
+		Syscom |MKDIR "$!publishPath"|
+		
+		using namespace 'Aveva.Core.Presentation'
+		!source = object NetDataSource('$!<gridName>', !headerList, !dataList)
+		!dataTable.clearGrid()
+		!dataTable.BindToDataSource(!source)
+		!dataTable.refreshAllFilters()
+		!dataTable.refreshVisibleRegion()
+		!dataTable.autoFitColumns()
+		!dataFileName = |DeltaDataExtract_$!<listName>.xlsx|
+		!dataTable.saveGridToExcel(|$!publishPath$!dataFileName|, |data|, |Export delta. Author: $!<userName> Date: $!<startDateTime> Comparison Date: $!<stampDate>|)		
+	enddo
+	
+endif
+
+FINISH

@@ -1,0 +1,14 @@
+$* Factory benchmark generated from semantic source summary only for mac_11
+$* Source path: docs/codebase/macros/class-name-refresh.pmlmac
+$* Semantic description: Simple macro that reloads the TAGMANAGEMENTTMP object,
+$* creates an instance, calls GetMappingData() then ClassNameUpdate(true).
+
+$* $m "C:\Users\ADZV\OneDrive - Ramboll\AVEVA_SERVER\Addons\PMLLIB\RAM\Engineering\jackdow\run-macro\class-name-refresh.pmlmac"
+
+PML RELOAD OBJECT TAGMANAGEMENTTMP
+
+!tagMgmt = object TAGMANAGEMENTTMP()
+
+!tagMgmt.GetMappingData()
+
+!tagMgmt.ClassNameUpdate(true)

@@ -1,0 +1,132 @@
+{
+  "fileId": "frm_02",
+  "filePath": "docs/codebase/forms/jackimform.pmlfrm",
+  "reviewDate": "2026-06-03",
+  "overallGapScore": 0.15,
+  "dimensions": {
+    "D1_syntax": {
+      "score": 0.05,
+      "gaps": [
+        "Linter reports 'unknown-form-member' for !this.reports (severity 2 warnings). This is a linter limitation — .reports is a list gadget defined in layout, accessed via !this.gadgetName in methods. parseErrorCount=0, no actual syntax errors."
+      ]
+    },
+    "D2_patterns": {
+      "score": 0.1,
+      "gaps": [
+        {
+          "pattern": "Commented-out ELEMENTTYPE validation block",
+          "description": "Lines with commented-out !typeRef = object ELEMENTTYPE(...) validation. Benchmark reproduces these as comments.",
+          "kbGap": "No KB entry for commented-out AVEVA Engineering element type validation patterns"
+        },
+        {
+          "pattern": "Commented-out alert.confirm dialog",
+          "description": "Lines $( !!alert.confirm(...) ) $) — PML conditional comment syntax for dialog confirmation.",
+          "kbGap": "No KB entry for PML conditional comment syntax using $( ... $) delimiters with alert.confirm"
+        }
+      ]
+    },
+    "D3_structure": {
+      "score": 0.0,
+      "gaps": []
+    },
+    "D4_naming": {
+      "score": 0.0,
+      "gaps": [
+        "Original uses lowercase 'jackimform' in form name but UPPERCASE 'JACKIMFORM' in kill/layout. Benchmark normalizes to UPPERCASE consistent with PML convention."
+      ]
+    },
+    "D5_logic": {
+      "score": 0.0,
+      "gaps": []
+    },
+    "D6_dependencies": {
+      "score": 0.0,
+      "gaps": [
+        "External .NET assemblies: GridControl, Aveva.Engineering.Tags.Pml, PMLFileBrowser, Aveva.Engineering.PMLElementManager. All imported with handle any/endhandle blocks. KB has coverage for these patterns."
+      ]
+    },
+    "D7_kbCompleteness": {
+      "newEntriesNeeded": [
+        {
+          "suggestedId": "forms_layout_gadget_method_access",
+          "category": "forms",
+          "subcategory": "layout",
+          "title": "Accessing layout gadgets from form methods via !this.gadgetName",
+          "principle": "Gadgets defined in layout sections are accessible in form methods via !this.<gadgetName> without explicit member declaration.",
+          "rule": "A list/button/container gadget defined in layout can be referenced as !this.gadgetName in methods. No member declaration needed for gadget access.",
+          "syntax": "layout form !!FormName\n  list .myList 'Items' exit\ndefine method .method()\n  !this.myList.dText = !array\nendmethod",
+          "exampleCanonical": "-- CB jackimform.pmlfrm\nlayout form !!JACKIMFORM\n\tpath DOWN\n\tframe .overallFrame panel anchor all width 20 height 17\n\t\tlist .reports 'Templates' CALL || anchor b + l + t width 20 height 31\n\texit\nmember .reports is ARRAY\ndefine method .init()\n\t!reports = array()\n\t!reports.append('Item 1')\n\t!this.reports.dText = !reports\nendmethod",
+          "exampleAntipattern": "Declaring list gadget members as ARRAY when they should remain as gadget references:\nmember .reports is ARRAY  -- .reports is a list gadget, not an ARRAY member",
+          "pitfalls": [
+            "Gadget attributes (dText, val, tag) differ from PML member types",
+            "Linter may report unknown-form-member for gadget references — these are valid PML",
+            "Do not mix gadget references with declared members of same name"
+          ],
+          "relatedIds": ["forms_layout_frames", "forms_layout_containers", "forms_members_declared"],
+          "sourcedoc": "AVEVA PML Customization — Form Gadget Reference",
+          "sourcecodebase": "jackimform.pmlfrm"
+        },
+        {
+          "suggestedId": "forms_conditional_comment_syntax",
+          "category": "forms",
+          "subcategory": "comments",
+          "title": "PML conditional comment syntax $( ... $) for disabling code blocks",
+          "principle": "PML uses $( ... $) as block comment delimiters that can disable entire code sections including dialog calls.",
+          "rule": "Code between $( and $) is treated as a comment block. Commonly used to disable alert.confirm dialogs in production code.",
+          "syntax": "$( code to disable $)",
+          "exampleCanonical": "-- CB jackimform.pmlfrm\n$(\n  if (!!alert.confirm('Do you want to upload new tags?') eq 'YES') then\n    -- upload code\n  endif\n$)",
+          "exampleAntipattern": "Using -- comments for multi-line blocks:\n-- if (!!alert.confirm(...)) then\n--   -- code\n-- endif",
+          "pitfalls": [
+            "$( and $) must be on their own logical lines or at block start/end",
+            "Nested $( $) within block comments may not work correctly",
+            "IDEs may not highlight conditional comments the same as -- comments"
+          ],
+          "relatedIds": ["forms_layout_gadget_method_access", "forms_member_declaration"],
+          "sourcedoc": "AVEVA PML Customization — Comments",
+          "sourcecodebase": "jackimform.pmlfrm"
+        },
+        {
+          "suggestedId": "forms_net_grid_bind_datasource",
+          "category": "forms",
+          "subcategory": "netcontrols",
+          "title": "Binding NETGRIDCONTROL to NETDATASOURCE for Excel data import",
+          "principle": "PMLNETCONTROL gadgets host .NET grid controls that can bind to data sources via bindToDataSource().",
+          "rule": "Create NETGRIDCONTROL object, assign to PMLNETCONTROL.control, use PMLFILEBROWSER for file selection, create NETDATASOURCE with file path, then bind and autoFitColumns.",
+          "syntax": "!grid = object NETGRIDCONTROL()\n!container.control = !grid.handle()\n!browser = object PMLFILEBROWSER('OPEN')\n!browser.show('', '', 'Title', true, 'Filters', 1)\n!ds = object NETDATASOURCE('Name', !browser.file())\n!grid.bindToDataSource(!ds)\n!grid.autoFitColumns()",
+          "exampleCanonical": "-- CB jackimform.pmlfrm\n!browser = object PMLFILEBROWSER('OPEN')\n!browser.show('', '', 'Load data from excel', true, 'Microsoft Excel files (*.xlsx)|*.xlsx|Microsoft Excel files (*.xls)|*.xls', 1)\n!dataSource = object NETDATASOURCE('Data for import', !browser.file())\n!this.grid.bindToDataSource(!dataSource)\n!this.grid.autoFitColumns()",
+          "exampleAntipattern": "Trying to bind grid without PMLNETCONTROL container wrapper.",
+          "pitfalls": [
+            "PMLFILEBROWSER.show() requires specific parameter order for file filters",
+            "NETDATASOURCE constructor requires name and file path",
+            "autoFitColumns() must be called after bindToDataSource()",
+            "GridControl must be imported with handle any/endhandle"
+          ],
+          "relatedIds": ["forms_net_grid_control", "forms_file_browser_dialog"],
+          "sourcedoc": "AVEVA PML Customization — NET Controls",
+          "sourcecodebase": "jackimform.pmlfrm"
+        },
+        {
+          "suggestedId": "forms_element_manager_create_tag",
+          "category": "forms",
+          "subcategory": "engineering",
+          "title": "Creating AVEVA tags via CREATEELEMENT and PMLElementManager",
+          "principle": "AVEVA.Engineering.PMLElementManager CREATEELEMENT object can create tags with type and attributes.",
+          "rule": "Use object CREATEELEMENT(), SetElementTypeByName(), AddAttributeValue(), Execute(), GetErrors() for tag creation with error handling via handle any/endhandle.",
+          "syntax": "using namespace |Aveva.Engineering.PMLElementManager|\n!elem = object CREATEELEMENT()\n!elem.SetElementTypeByName('|:$!typeName|')\n!elem.AddAttributeValue('|NAME|', !tagName)\n!elem.Execute()\n!errors = !elem.GetErrors()\ndo !err values !errors\n  !msg = !err.GetError()\nenddo",
+          "exampleCanonical": "-- CB jackimform.pmlfrm\nusing namespace |Aveva.Engineering.PMLElementManager|\n!elementNet = object CREATEELEMENT()\n!elementNet.SetElementTypeByName('|:$!<cleanType>|')\nhandle any\n  !this.logActions.append('|$!tag;Class [:$!cleanType] is not valid|')\n  skip\nendhandle\n!elementNet.AddAttributeValue('|NAME|', !tag)\n!elementNet.Execute()\n!errors = !elementNet.GetErrors()\ndo !error values !errors\n  !errorMsg = !error.GetError()\n  !this.logActions.append('|$!tag;$!errorMsg|')\nenddo",
+          "exampleAntipattern": "Skipping error handling after Execute():\n!elem.Execute()\n!elem.AddAttributeValue('|NAME|', !tag)  -- wrong order",
+          "pitfalls": [
+            "SetElementTypeByName() must be called before AddAttributeValue()",
+            "GetErrors() returns array — iterate with DO/ENDDO",
+            "Element name format must include leading colon for type: |:$!typeName|",
+            "handle any/endhandle around SetElementTypeByName catches invalid type names"
+          ],
+          "relatedIds": ["forms_net_grid_bind_datasource", "pdms_dbref_tag_lookup"],
+          "sourcedoc": "AVEVA Engineering API — PMLElementManager",
+          "sourcecodebase": "jackimform.pmlfrm"
+        }
+      ]
+    }
+  },
+  "actionRequired": "patch_kb"
+}

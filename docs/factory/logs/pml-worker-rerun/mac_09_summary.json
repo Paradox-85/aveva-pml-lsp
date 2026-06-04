@@ -1,0 +1,66 @@
+{
+  "fileId": "mac_09",
+  "filePath": "docs/codebase/macros/JDE_newtag_import.pmlmac",
+  "runDate": "2026-06-03",
+  "runType": "rerun",
+  "semanticSummary": "Excel-driven tag import macro for AVEVA Elements. Reads source tag data from an Excel workbook via NETGRIDCONTROL/NETDATASOURCE, identifies column indices for NAME, ACTTYPE, and :RAMACTION columns. Iterates rows, cleans tag names (replace dashes, en-dashes, spaces with underscores), strips special characters from type names via iterative replace loop, creates element tags via CREATEELEMENT/ELEMENTTYPE API with type validation (UNKNOWN check), sets attributes with type-gated conversion (REAL→.real(), DBREF→.dbref() with / prefix, STRING→.string()), writes issue/feedback Excel report, calls SAVEWORK and UNCLAIM ALL for cleanup. Uses Aveva.Engineering.PMLElementManager namespace.",
+  "benchmarkResult": {
+    "path": "docs/factory/benchmarks/mac_09_benchmark.pmlmac",
+    "lintDiagnostics": [],
+    "lintParseErrorCount": 0,
+    "lintAstNodeCount": 543,
+    "validateDiagnostics": [],
+    "validateParseErrorCount": 0,
+    "validateAstNodeCount": 543,
+    "status": "clean"
+  },
+  "gapReport": {
+    "path": "docs/factory/gap-reports/mac_09_gap.json",
+    "overallGapScore": 0.72,
+    "dimensions": {
+      "D1_syntax": 0.70,
+      "D2_patterns": 0.65,
+      "D3_structure": 0.75,
+      "D4_naming": 0.70,
+      "D5_logic": 0.65,
+      "D6_dependencies": 0.55,
+      "D7_kbCompleteness": "8 new entries needed"
+    }
+  },
+  "kbPatch": {
+    "path": "docs/factory/kb-patches/mac_09_kb_patch.ts",
+    "entriesCount": 8,
+    "entries": [
+      "d7_element_creation_api",
+      "d7_display_progress",
+      "d7_string_dbref_conversion",
+      "d7_netgridcontrol_excel_io",
+      "d7_attribute_type_gated_assignment",
+      "d7_special_char_stripping",
+      "d7_savework_unclaim",
+      "d7_attribute_hash_validation"
+    ]
+  },
+  "confidenceScore": 0.85,
+  "actionRequired": "patch_kb",
+  "patternsUsed": [
+    "NETGRIDCONTROL/NETDATASOURCE Excel I/O",
+    "CREATEELEMENT/ELEMENTTYPE element creation API",
+    "Attribute hash validation",
+    "Type-gated attribute assignment (REAL/DBREF/STRING)",
+    "Special character stripping via iterative replace",
+    "!!displayProgress loop progress",
+    "SAVEWORK/UNCLAIM ALL cleanup",
+    "Nested handle blocks (handle any within handle none)",
+    "STRING methods (replace, trim, lowcase, upcase, split, empty)",
+    "ARRAY methods (Append, AppendArray, findFirst, size)",
+    "DBREF conversion via .dbref() method"
+  ],
+  "kbGaps": [
+    "CREATEELEMENT/ELEMENTTYPE/SetElementTypeByName/AddAttributeValue/GetErrors not in KB",
+    "!!displayProgress not in KB (FMSYS.setProgress is covered)",
+    "STRING.dbref() conversion not explicitly documented",
+    "NETGRIDCONTROL method details (getrows, gettitles, bindToDataSource, clearGrid, saveGridToExcel) not fully catalogued",
+    "SAVEWORK/UNCLAIM ALL cleanup commands not in KB"
+  ]
+}

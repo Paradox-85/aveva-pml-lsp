@@ -1,0 +1,17 @@
+-- Benchmark macro: extract tag properties from current element
+-- KB pattern: !!ce current-element pseudo variable
+-- KB pattern: !local local variable assignment
+-- KB pattern: dot-notation attribute access on element reference
+-- Source file: JDE_getTagInfo.pmlmac
+
+-- 1. Obtain the current element and store it in a local variable
+!tag = !!ce
+
+-- 2. Extract the tag name attribute into a local variable
+!tagName = !tag.name
+
+-- 3. Extract the tag description attribute into a local variable
+!tagDescription = !tag.desc
+
+-- 4. Extract the tag active type attribute into a local variable
+!tagActtype = !tag.acttype

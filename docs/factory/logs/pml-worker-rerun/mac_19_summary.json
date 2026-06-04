@@ -1,0 +1,55 @@
+{
+  "fileId": "mac_19",
+  "fileName": "JDE_data-import.pmlmac",
+  "fileType": "macro",
+  "originalPath": "docs/codebase/macros/JDE_data-import.pmlmac",
+  "benchmarkPath": "docs/factory/benchmarks/mac_19_benchmark.pmlmac",
+  "gapReportPath": "docs/factory/gap-reports/mac_19_gap.json",
+  "kbPatchPath": "docs/factory/kb-patches/mac_19_kb_patch.ts",
+  "summary": {
+    "originalSemantics": "PML macro that imports GridControl and RamPMLExcelReader add-ins, reloads TAGMANAGEMENTTMP object, reads Excel file data using custom function createObjectsFromExcelSheet(), sorts unique results, and if issues are found generates an Excel report grid using NETGRIDCONTROL/NETDATASOURCE with Aveva.Core.Presentation namespace to display Tag No, Attribute, File Value, AVEVA Value, and Issue Description columns.",
+    "patternsUsed": [
+      "import_module_handle_any_pattern",
+      "macro_reload_object_command",
+      "object_instantiation",
+      "array_initialization",
+      "array_append_method",
+      "datetime_object_methods",
+      "string_format_specifier_I2",
+      "matchwild_function_call",
+      "global_function_call",
+      "array_sortunique",
+      "if_then_endif",
+      "dollar_print_command",
+      "array_split_method",
+      "using_namespace_directive",
+      "netgridcontrol_netdatasource",
+      "bind_to_datasource",
+      "string_replace_method",
+      "save_work_keyword"
+    ],
+    "lintResult": {
+      "diagnostics": [],
+      "parseErrorCount": 0,
+      "astNodeCount": 177
+    },
+    "validateResult": {
+      "diagnostics": [],
+      "parseErrorCount": 0,
+      "astNodeCount": 177
+    },
+    "gapScore": 0.42,
+    "kbGaps": [
+      "PML RELOAD OBJECT command not in KB",
+      "string('I2') format specifier not in KB",
+      "SAVEWORK keyword not in KB",
+      "DATETIME object methods not in KB",
+      "matchwild() function call form not in KB",
+      "using namespace directive not in KB",
+      "NETGRIDCONTROL with Aveva.Core.Presentation not fully in KB",
+      "clearGrid()/saveGridToExcel() methods not in KB"
+    ],
+    "kbEntriesDrafted": 8,
+    "confidenceScore": 0.78
+  }
+}

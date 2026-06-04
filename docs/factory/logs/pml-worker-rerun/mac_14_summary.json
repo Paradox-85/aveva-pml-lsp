@@ -1,0 +1,40 @@
+{
+  "fileId": "mac_14",
+  "filePath": "docs/codebase/macros/EBE_full_tag_export.pmlmac",
+  "fileType": "macro",
+  "reviewDate": "2026-06-03",
+  "originalSummary": "Export macro that collects LSTDEF entries matching '100.01 All Tag Export Report', then iterates each to export tag data to Excel with timestamped and default filenames. Uses Aveva.Engineering.Tags.Pml assembly, PMLTAGS object, GetListDefinition, DbViewName, and exportasxls method. Includes datetime stamp generation via OBJECT DATETIME() and $!<expression> string substitution.",
+  "patternsUsed": [
+    "mac_file_path_pattern",
+    "datetime_file_timestamp",
+    "p2_datetime_api",
+    "dt_string_substitution",
+    "tc_real_to_string",
+    "eh_import_protection",
+    "dn_import_guard",
+    "p2_pmltags",
+    "ap_pipeline_macro",
+    "cf_do_enddo_loop",
+    "arr_iteration",
+    "pdms_dbref_resolve",
+    "dt_dbref_usage",
+    "eh_handle_any",
+    "eh_logging_pattern"
+  ],
+  "lintResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0
+  },
+  "validateResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0
+  },
+  "kbGaps": [
+    "eh_export_error_handling — missing error handling around exportasxls calls",
+    "fn_path_exists_check — missing directory existence check before export"
+  ],
+  "gapScore": 0.25,
+  "actionRequired": "patch_kb",
+  "kbPatchApplied": false,
+  "confidenceScore": 0.90
+}

@@ -1,0 +1,100 @@
+{
+  "fileId": "mac_33",
+  "filePath": "docs/codebase/macros/JDE_tag2po_import.pmlmac",
+  "reviewDate": "2026-06-03",
+  "overallGapScore": 0.8,
+  "dimensions": {
+    "D1_syntax": {
+      "score": 0.5,
+      "gaps": [
+        "Source has 0 definitions and 0 members; generated benchmark validated with parseErrorCount=0"
+      ]
+    },
+    "D2_patterns": {
+      "score": 0.75,
+      "gaps": [
+        {
+          "pattern": "DO ",
+          "suggestedKbId": "cb_mac_33_do"
+        },
+        {
+          "pattern": "do ",
+          "suggestedKbId": "cb_mac_33_do"
+        },
+        {
+          "pattern": "handle",
+          "suggestedKbId": "cb_mac_33_handle"
+        },
+        {
+          "pattern": "NETGRIDCONTROL",
+          "suggestedKbId": "cb_mac_33_netgridcontrol"
+        },
+        {
+          "pattern": "NETDATASOURCE",
+          "suggestedKbId": "cb_mac_33_netdatasource"
+        },
+        {
+          "pattern": "DBREF",
+          "suggestedKbId": "cb_mac_33_dbref"
+        },
+        {
+          "pattern": "ARRAY",
+          "suggestedKbId": "cb_mac_33_array"
+        },
+        {
+          "pattern": "FILE",
+          "suggestedKbId": "cb_mac_33_file"
+        },
+        {
+          "pattern": "writeFile",
+          "suggestedKbId": "cb_mac_33_writefile"
+        },
+        {
+          "pattern": "GridControl",
+          "suggestedKbId": "cb_mac_33_gridcontrol"
+        }
+      ]
+    },
+    "D3_structure": {
+      "score": 0.7,
+      "gaps": [
+        "Benchmark preserves signatures/major declarations where possible but does not copy implementation bodies."
+      ]
+    },
+    "D4_naming": {
+      "score": 0.55,
+      "gaps": [
+        "Project naming extracted from JDE_tag2po_import.pmlmac; benchmark may simplify local variable names."
+      ]
+    },
+    "D5_logic": {
+      "score": 0.8,
+      "gaps": [
+        "Original operational logic is intentionally not copied; rerun_worker may improve semantic fidelity for complex files."
+      ]
+    },
+    "D6_dependencies": {
+      "score": 0.85,
+      "gaps": [
+        "NETGRIDCONTROL",
+        "DBREF",
+        "FILE",
+        "writeFile",
+        "GridControl"
+      ]
+    },
+    "D7_kbCompleteness": {
+      "newEntriesNeeded": [
+        "cb_mac_33_do",
+        "cb_mac_33_do",
+        "cb_mac_33_handle",
+        "cb_mac_33_netgridcontrol",
+        "cb_mac_33_netdatasource",
+        "cb_mac_33_dbref",
+        "cb_mac_33_array",
+        "cb_mac_33_file"
+      ]
+    }
+  },
+  "actionRequired": "patch_kb"
+}

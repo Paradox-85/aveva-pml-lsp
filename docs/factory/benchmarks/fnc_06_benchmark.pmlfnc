@@ -1,0 +1,34 @@
+DEFINE FUNCTION !!jacExportRDLDataReport(!filePath IS STRING, !dataCollection IS ARRAY)
+  !fileId = OBJECT FILE()
+  !fileId.Open(!filePath, 'WRITE') -- Open file for writing
+
+  IF (!fileId.Valid()) THEN
+    DO !index FROM 1 TO !dataCollection.size()
+      !line = !dataCollection[!index]
+      !fileId.Write( !line & "\n" ) -- Write each item followed by a newline
+    ENDDO
+    !fileId.Close()
+    RETURN TRUE -- Indicate success
+  ELSE
+    RETURN FALSE -- Indicate failure
+  ENDIF
+ENDFUNCTION
+
+-- Example Usage:
+!reportData = ARRAY()
+!reportData.Append(|Header Line 1|)
+!reportData.Append(|Data Row 1: Value A, Value B|)
+!reportData.Append(|Data Row 2: Value X, Value Y|)
+!reportData.Append(|Footer Line|)
+
+!outputPath = |C:\temp\RDLReport.txt|
+
+!success = !!jacExportRDLDataReport(!outputPath, !reportData)
+
+IF (!success) THEN
+  !message = |Failed to export RDL data report to | & !outputPath
+  WRITE WARNING !message
+ELSE
+  !message = |Successfully exported RDL data report to | & !outputPath
+  WRITE !message
+ENDIF

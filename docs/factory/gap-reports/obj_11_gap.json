@@ -1,0 +1,139 @@
+{
+  "fileId": "obj_11",
+  "filePath": "docs/codebase/objects/TagManagementTmp.pmlobj",
+  "reviewDate": "2026-06-03",
+  "overallGapScore": 0.95,
+  "dimensions": {
+    "D1_syntax": {
+      "score": 0.5,
+      "gaps": [
+        "Source has 29 definitions and 7 members; generated benchmark validated with parseErrorCount=0"
+      ]
+    },
+    "D2_patterns": {
+      "score": 0.75,
+      "gaps": [
+        {
+          "pattern": "COLL ALL",
+          "suggestedKbId": "cb_obj_11_coll_all"
+        },
+        {
+          "pattern": "collect all",
+          "suggestedKbId": "cb_obj_11_collect_all"
+        },
+        {
+          "pattern": "DO ",
+          "suggestedKbId": "cb_obj_11_do"
+        },
+        {
+          "pattern": "do ",
+          "suggestedKbId": "cb_obj_11_do"
+        },
+        {
+          "pattern": "handle",
+          "suggestedKbId": "cb_obj_11_handle"
+        },
+        {
+          "pattern": "elsehandle",
+          "suggestedKbId": "cb_obj_11_elsehandle"
+        },
+        {
+          "pattern": "SYSCOM",
+          "suggestedKbId": "cb_obj_11_syscom"
+        },
+        {
+          "pattern": "NETGRIDCONTROL",
+          "suggestedKbId": "cb_obj_11_netgridcontrol"
+        },
+        {
+          "pattern": "NETDATASOURCE",
+          "suggestedKbId": "cb_obj_11_netdatasource"
+        },
+        {
+          "pattern": "ELEMENTTYPE",
+          "suggestedKbId": "cb_obj_11_elementtype"
+        },
+        {
+          "pattern": "ATTRIBUTE",
+          "suggestedKbId": "cb_obj_11_attribute"
+        },
+        {
+          "pattern": "BLOCK",
+          "suggestedKbId": "cb_obj_11_block"
+        },
+        {
+          "pattern": "matchwild",
+          "suggestedKbId": "cb_obj_11_matchwild"
+        },
+        {
+          "pattern": "!!",
+          "suggestedKbId": "cb_obj_11_"
+        },
+        {
+          "pattern": "DBREF",
+          "suggestedKbId": "cb_obj_11_dbref"
+        },
+        {
+          "pattern": "ARRAY",
+          "suggestedKbId": "cb_obj_11_array"
+        },
+        {
+          "pattern": "FILE",
+          "suggestedKbId": "cb_obj_11_file"
+        },
+        {
+          "pattern": "ReadExcel",
+          "suggestedKbId": "cb_obj_11_readexcel"
+        },
+        {
+          "pattern": "GridControl",
+          "suggestedKbId": "cb_obj_11_gridcontrol"
+        }
+      ]
+    },
+    "D3_structure": {
+      "score": 0.7,
+      "gaps": [
+        "Benchmark preserves signatures/major declarations where possible but does not copy implementation bodies."
+      ]
+    },
+    "D4_naming": {
+      "score": 0.55,
+      "gaps": [
+        "Project naming extracted from TagManagementTmp.pmlobj; benchmark may simplify local variable names."
+      ]
+    },
+    "D5_logic": {
+      "score": 0.8,
+      "gaps": [
+        "Original operational logic is intentionally not copied; rerun_worker may improve semantic fidelity for complex files."
+      ]
+    },
+    "D6_dependencies": {
+      "score": 0.85,
+      "gaps": [
+        "SYSCOM",
+        "NETGRIDCONTROL",
+        "ELEMENTTYPE",
+        "ATTRIBUTE",
+        "DBREF",
+        "FILE",
+        "ReadExcel",
+        "GridControl"
+      ]
+    },
+    "D7_kbCompleteness": {
+      "newEntriesNeeded": [
+        "cb_obj_11_coll_all",
+        "cb_obj_11_collect_all",
+        "cb_obj_11_do",
+        "cb_obj_11_do",
+        "cb_obj_11_handle",
+        "cb_obj_11_elsehandle",
+        "cb_obj_11_syscom",
+        "cb_obj_11_netgridcontrol"
+      ]
+    }
+  },
+  "actionRequired": "patch_kb"
+}

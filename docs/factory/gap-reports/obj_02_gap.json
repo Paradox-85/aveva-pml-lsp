@@ -1,0 +1,16 @@
+{
+  "fileId": "obj_02",
+  "filePath": "docs/codebase/objects/ramExcelReaderClass.pmlobj",
+  "reviewDate": "2026-06-03",
+  "overallGapScore": 0.72,
+  "dimensions": {
+    "D1_syntax": {"score":0.65,"gaps":[{"description":"STRING .set() method underdocumented"},{"description":"STRING .neq() method underdocumented"},{"description":"PMLFILEBROWSER('OPEN') constructor and .file() method missing"},{"description":"Benchmark-only RamAEPMLExcelReader.GetSheetData/GetSheetNames methods not in KB"},{"description":"ARRAY.Join / numeric .string() conversion underdocumented"},{"description":"undefined() and !!Error.text need dedicated entries"}]},
+    "D2_patterns": {"score":0.70,"gaps":[{"description":"ARRAY.Evaluate(object BLOCK(...)) compound indexing pattern"},{"description":"Reader caching/lazy initialization pattern"},{"description":"Sheet-name/table pair storage pattern"}]},
+    "D3_structure": {"score":0.55,"gaps":[{"description":"Benchmark adds extra members/methods"},{"description":"Benchmark restructures API around file+sheetIndex instead of loaded tables"},{"description":"Original clears/replaces excelTables, benchmark appends"}]},
+    "D4_naming": {"score":0.30,"gaps":[{"description":"RamPMLExcelReaderClass vs RamAEPMLExcelReader dependency name mismatch"},{"description":"getSheet* method naming changed"},{"description":"!!ramCommonLogger.addLogDetails vs RAMCOMMONLOGGER.AddMessage"}]},
+    "D5_logic": {"score":0.68,"gaps":[{"description":"Original stores [sheetName, table] pairs"},{"description":"Original removes heading row in getSheetRows"},{"description":"Original supports column lookup by column name"},{"description":"Original splits error by # and logs structured array"}]},
+    "D6_dependencies": {"score":0.80,"gaps":[{"description":"RamAEPMLExcelReader/RamPMLExcelReaderClass add-in"},{"description":"PMLFILEBROWSER methods"},{"description":"RAMCOMMONLOGGER global"},{"description":"!!Error global object"}]},
+    "D7_kbCompleteness": {"newEntriesNeeded":["objects-ram-aepml-excel-reader","objects-string-set-neq-methods","objects-pmlfilebrowser-showopen","objects-ramcommonlogger","objects-error-global","objects-array-block-evaluate","patterns-reader-caching","objects-string-join-method"]}
+  },
+  "actionRequired": "patch_kb"
+}

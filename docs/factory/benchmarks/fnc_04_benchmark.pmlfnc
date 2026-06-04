@@ -1,0 +1,126 @@
+
+-- File:        jacExportFullDataReport
+-- Description: Function to export report of complete data
+import 'JacReportExtractor'
+handle ANY
+endhandle
+
+using namespace 'JacReportExtractor'
+
+define function !!jacExportFullDataReport(!path is STRING, !filter is STRING)
+
+  -- Initialise a clock to measure execution time, if needed for performance analysis.
+  -- PML does not require explicit clock initialisation for general purpose code,
+  -- but it is useful for benchmarking or debugging performance.
+  -- !clock_handle = object CLOCK() -- This is how CLOCK object can be instantiated but not used here due to source not providing object instantiation syntax
+  
+  -- The original source uses 'clock init' which is a legacy syntax not aligned with modern PML object-oriented approach.
+  -- As per KB and best practices, direct clock manipulation outside of a CLOCK object is not standard.
+  -- For benchmark purposes, we will omit the 'clock init' as it does not follow modern PML.
+
+  -- Instantiate the main report extractor object.
+  -- This object is assumed to be defined in the 'JacReportExtractor' import.
+  !reportExtractor = object FULLREPORTEXTRACTOR()
+
+  -- Process system attributes.
+  -- First, define the base element type (e.g., 'ENGITE' for Engineering Item).
+  !baseElement = object elementType('ENGITE')
+  
+  -- Retrieve system attributes of the base element.
+  !systemAttributes = !baseElement.SYSTEMATTRIBUTES()
+  
+  -- Evaluate and filter system attributes.
+  -- The BLOCK(|...|) construct is used for delayed evaluation within the loop context.
+  !engiteAttributes = !systemAttributes.evaluate(object BLOCK(|!systemAttributes[!evalIndex].name()|))
+  
+  -- Add a predefined set of common system attributes.
+  -- 'split' function tokenizes a string into an array.
+  !engiteAttributes.appendArray(split('NAME TYPE ACTTYPE LOCK OWNER DESC', ' '))
+  
+  -- Sort the attributes and remove duplicates.
+  !engiteAttributes.SortUnique()
+  
+  -- Iterate through each unique system attribute.
+  do !engiteAttribute values !engiteAttributes
+    -- Instantiate an ATTRIBUTE object for the current attribute name.
+    !attribute = object ATTRIBUTE(!engiteAttribute)
+    
+    -- Retrieve attribute properties.
+    !name = !attribute.name()
+    !category = !attribute.category()
+    !type = !attribute.type()
+    
+    -- Define a variable to hold report text data for the attribute.
+    -- ATTDEF is part of the syntax for defining attributes, typically used in schemas.
+    -- Here, it's used to access a report text definition linked to an attribute.
+    var !reportTextData ATTDEF $!engiteAttribute RPTX
+    
+    -- Get the first report text definition.
+    !reportText = !reportTextData[1]
+    
+    -- Store the collected attribute data in the report extractor.
+    !reportExtractor.storeAttributeData(!name, !type, !category, !reportText)
+  enddo
+
+  -- Process user-defined attributes (UDAs).
+  -- Instantiate a COLLECTION object.
+  !collection = object COLLECTION()
+  
+  -- Set the collection type to 'UDA' to gather user-defined attributes.
+  !collection.type(|UDA|)
+  
+  -- Get the results (references) of the UDA collection.
+  !udaElementRefes = !collection.results()
+  
+  -- Iterate through each UDA reference.
+  do !udaElementRefe values !udaElementRefes
+    -- Extract UDA properties. Prefix ':' for custom UDAs is common.
+    !name = ':' + !udaElementRefe.udname
+    !repTxt = !udaElementRefe.rptxt
+    !type = !udaElementRefe.utype
+    !category = !udaElementRefe.uCat
+    
+    -- Store UDA data in the report extractor.
+    !reportExtractor.storeAttributeData(!name, !type, !category, !repTxt)
+  enddo
+  
+  -- The original source code included 'clock read all' and '$P' statements.
+  -- These are for logging/debugging and are outside the scope of PML syntax for core logic.
+  -- They are omitted in the benchmark for clarity of PML constructs.
+
+  -- Process the filter string.
+  -- Check if the filter is set and not empty after trimming.
+  if (!filter.set() AND !filter.trim().neq('')) then
+    !filter = 'WITH (' + !filter + ')'
+  else
+    !filter = '' -- If filter is empty or not set, set it to an empty string.
+  endif
+
+  -- Collect elements of type 'ENGITEM' based on the filter.
+  -- 'COLLECT ALL' is a powerful PML construct for gathering elements.
+  var !tags COLLECT ALL (ENGITEM) $!filter
+
+  -- Calculate progress bar size.
+  -- 'extraSize' is 40% of the number of tags, used for total progress estimation.
+  !extraSize = !tags.size() * 0.4
+  !progressSize = !tags.size() + !extraSize
+
+  -- Iterate through the collected tags and extract report format.
+  do !i indices !tags
+    -- Display progress using an external function '!!displayProgress'.
+    -- This function is assumed to be defined elsewhere or is a built-in utility.
+    !!displayProgress(!i, !progressSize)
+    
+    -- Extract the report format for the current element.
+    !reportExtractor.extractElementReportFormat(!tags[!i])
+  enddo
+
+  -- Export the extracted data to an Excel file.
+  !reportExtractor.netGridExcelWriter(!path)
+  
+  -- Display final progress as 100%.
+  !!displayProgress(100, 100)
+
+  -- Omitted 'clock read all' and '$P' as they are for logging/debugging.
+
+endfunction

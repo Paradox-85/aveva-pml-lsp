@@ -1,0 +1,70 @@
+{
+  "fileId": "mac_05",
+  "filePath": "docs/codebase/macros/EIS_data_update.pmlmac",
+  "fileType": "macro",
+  "taskDescription": "Reconstruction of EIS_data_update.pmlmac — a 14-step routine macro for updating data in Jackdaw (JDE), including tag class mapping, tag name updates, 3D pipe data transfer, manual valve/alarm/signal/loop/cable list updates, pipe support, PBS properties, and CPI items, with centralized error logging to Excel via RAMCOMMONLOGGER.",
+  "benchmarkFile": "docs/factory/benchmarks/mac_05_benchmark.pmlmac",
+  "benchmarkSize": 3290,
+  "lintResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 282
+  },
+  "validateResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 282
+  },
+  "kbGaps": [
+    "TAGMANAGEMENTTMP custom object not in KB",
+    "RAMCOMMONLOGGER custom global object not in KB",
+    "jacUpdateClassDetails custom function not in KB",
+    "jacUpdateTagName custom function not in KB",
+    "jacUpdateTagNameWithBore custom function not in KB",
+    "STRING.String(FORMAT) with I2 zero-padding not explicitly documented",
+    "ONERROR GOLABEL PML error command not in KB",
+    "UNCLAIM ALL PML command not in KB",
+    "current session global not explicitly documented",
+    "unset()/badref() dbref validation pattern not in KB",
+    "inset operator for array membership not in KB",
+    "ISNAMED keyword not in KB",
+    "Attribute query with of operator not in KB",
+    "Macro-level ONERROR + handle any error handler pattern not in KB"
+  ],
+  "patternsUsed": [
+    "array_object",
+    "array_append",
+    "string_object",
+    "string_lowcase",
+    "string_upcase",
+    "string_split",
+    "string_matchwild",
+    "datetime_object",
+    "string_string_real_format",
+    "handle_any",
+    "savework_command",
+    "dollar_p_print",
+    "dollar_m_macro",
+    "pml_comments",
+    "pml_label_statement",
+    "pml_inset_operator",
+    "pml_isnamed_keyword",
+    "pml_attribute_query_of",
+    "pml_unset_badref_check"
+  ],
+  "gapReport": "docs/factory/gap-reports/mac_05_gap.json",
+  "kbPatch": "docs/factory/kb-patches/mac_05_kb_patch.ts",
+  "gapScore": 0.55,
+  "confidenceScore": 0.80,
+  "dimensions": {
+    "D1_syntax": { "score": 0.6, "gaps": 4 },
+    "D2_patterns": { "score": 0.7, "gaps": 5 },
+    "D3_structure": { "score": 0.3, "gaps": 2 },
+    "D4_naming": { "score": 0.4, "gaps": 3 },
+    "D5_logic": { "score": 0.5, "gaps": 6 },
+    "D6_dependencies": { "score": 0.3, "gaps": 3 },
+    "D7_kbCompleteness": { "newEntriesNeeded": 8 }
+  },
+  "actionRequired": "patch_kb",
+  "notes": "Benchmark faithfully reproduces all KB-confirmed patterns from original. Custom objects (TAGMANAGEMENTTMP, RAMCOMMONLOGGER) and custom functions (jacUpdate*) are referenced but not implemented — they are external dependencies. 8 new KB entries drafted for patch_kb action."
+}

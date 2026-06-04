@@ -1,0 +1,97 @@
+-- Macro: JDE_tagProperties_upload
+-- Mass upload tag properties from Excel spreadsheet
+-- Author: AVEVA PML Worker (reconstructed from KB patterns)
+-- Company: Ramboll Energies
+-- Purpose: Iterate rows from Excel via NETDATASOURCE, validate tags in AVEVA DB,
+--          update RAMInstallationContractors and RAMTAGOWNER attributes.
+
+import |GridControl|
+handle any
+endhandle
+
+using namespace |Aveva.Core.Presentation|
+
+-- Configuration: path to Excel file
+!PathName = |C:\data\TagsWithInstallationContractor.xlsx|
+
+-- Validate file existence
+!file = object File(!PathName)
+!fileName = !file.name()
+
+if (!fileName eq '') then
+  $P Error: Cannot resolve file name for path |$!PathName|
+  finish
+endif
+
+!issueData = ARRAY()
+
+-- Create NET data source bound to the Excel file
+!dataSource = object NETDATASOURCE('Grid Table', !fileName)
+!dataTable = object NETGRIDCONTROL()
+!dataTable.bindToDataSource(!dataSource)
+
+-- Retrieve rows from the spreadsheet
+!data = !dataTable.getrows()
+
+if (!data.Unset()) then
+  $P Warning: No data rows retrieved from |$!fileName|
+  finish
+endif
+
+-- Iterate over each row
+do !row values !data
+  !Tag       = !row[1]
+  !EngCon    = !row[2]
+  !InsCon    = !row[3]
+
+  -- Skip blank rows
+  if (!Tag.Unset() or !Tag eq '') then
+    continue
+  endif
+
+  -- Build a tag reference string and resolve it in the database
+  !tagName = |$!<Tag>|
+  !tagref  = !tagName.dbref()
+
+  !isTagValid = true
+
+  -- Validate that the tag exists
+  handle any
+    !issueMsg = |$!<Tag>;TAG $!<Tag> does not exist in AVEVA|
+    !issueData.append(!issueMsg)
+    !isTagValid = false
+  endhandle
+
+  if (!isTagValid) then
+    -- Update RAMInstallationContractors attribute
+    handle any
+      !ciValue = !tagref.:RAMInstallationContractors
+    elsehandle none
+      if (!ciValue.lowcase().trim() neq !InsCon.lowcase().trim()) then
+        !tagref.:RAMInstallationContractors = !InsCon
+      else
+        !issueMsg = |$!<Tag>;No changes for :RAMInstallationContractors: <$!InsCon> = current <$!ciValue>|
+        !issueData.append(!issueMsg)
+      endif
+    endhandle
+
+    -- Update RAMTAGOWNER attribute
+    handle any
+      !ceValue = !tagref.:RAMTAGOWNER
+    elsehandle none
+      if (!ceValue.lowcase().trim() neq !EngCon.lowcase().trim()) then
+        !tagref.:RAMTAGOWNER = !EngCon
+      else
+        !issueMsg = |$!<Tag>;No changes for :RAMTAGOWNER: <$!EngCon> = current <$!ceValue>|
+        !issueData.append(!issueMsg)
+      endif
+    endhandle
+  endif
+enddo
+
+-- Write issue log to CSV file
+!issueFile = object file('C:\data\TagsWithInstallationContractor_issues.csv')
+!issueFile.writeFile(|OVERWRITE|, !issueData)
+
+$P Upload complete. Issues written to CSV.
+finish

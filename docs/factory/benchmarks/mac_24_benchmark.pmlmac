@@ -1,0 +1,23 @@
+-- CB JDE_fullDataProperties-export.pmlmac
+-- Macro: export full tag data properties for active tags to Excel
+-- Pattern: datetime extraction, string formatting, filter construction,
+--          path interpolation, macro function call
+
+-- Get current datetime
+!dt = OBJECT DATETIME()
+
+-- Extract and format date/time components with zero-padding (I2 = 2-digit integer)
+!year = !dt.year()
+!month = !dt.month().string('I2')
+!date = !dt.date().string('I2')
+!hour = !dt.hour().string('I2')
+!minute = !dt.minute().string('I2')
+
+-- Build a filter for active, named tags with a RAMTAGOWNER attribute
+!filter = ':TagStatus eq |ACTIVE| and ISNAMED and NOT(EMPTY(:RAMTAGOWNER))'
+
+-- Construct the output file path with variable interpolation ($!<var>)
+!publishPath = |C:\Users\ADZV\OneDrive - Ramboll\Ramboll_Jackdaw - Admin Team\EIS\Export for Shell\TagPropertyValue_full_extract_$!<year>-$!<month>-$!<date>-$!<hour>.xlsx|
+
+-- Call the global export function (defined in a .pmlfnc or loaded macro)
+!!jacExportFullDataReport(!publishPath, !filter)

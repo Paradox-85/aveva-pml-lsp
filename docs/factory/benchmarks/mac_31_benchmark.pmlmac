@@ -1,0 +1,45 @@
+$* Factory benchmark generated from semantic source summary only for mac_31
+$* Source path: docs/codebase/macros/JDE_sp_update.pmlmac
+$* Run path: $m "C:\Users\ADZV\OneDrive - Ramboll\AVEVA_SERVER\Addons\PMLLIB\RAM\Engineering\jackdow\JDE_sp_update.pmlmac"
+$* PML collect fake special items
+$* Author: Andrei Aitzhanov
+$* Company Ramboll Energies
+$* Date: 25-03-2023
+
+
+handle any
+endhandle
+
+
+!headers = ARRAY()
+!rows = ARRAY()
+!headers.Append(|Source File|)
+!headers.Append(|Pattern|)
+!headers.Append(|Value|)
+
+!patterns = ARRAY()
+!patterns.Append(|DO |)
+!patterns.Append(|do |)
+!patterns.Append(|handle|)
+!patterns.Append(|elsehandle|)
+!patterns.Append(|matchwild|)
+!patterns.Append(|DBREF|)
+
+DO !i FROM 1 TO !patterns.Size()
+  !row = ARRAY()
+  !row.Append(|JDE_sp_update.pmlmac|)
+  !row.Append(!patterns[!i])
+  !row.Append(!i.String())
+  !rows.Append(!row)
+ENDDO
+
+handle any
+  import 'GridControl'
+endhandle
+using namespace |Aveva.Core.Presentation|
+!grid = object NETGRIDCONTROL()
+!grid.clearGrid()
+!source = object NETDATASOURCE('data', !headers, !rows)
+!grid.BindToDataSource(!source)
+!out = |C:\Temp\mac_31_benchmark.xlsx|
+!grid.saveGridToExcel(!out, |data|)

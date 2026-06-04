@@ -1,0 +1,44 @@
+{
+  "fileId": "mac_43",
+  "filePath": "docs/codebase/macros/pipeSupport-refresh.pmlmac",
+  "fileType": "macro",
+  "runDate": "2026-06-03",
+  "runMode": "blind",
+  "kbEntriesConsulted": [
+    "mac_file_structure",
+    "obj_namespace_loading",
+    "obj_definition_structure",
+    "obj_constructor_pattern",
+    "obj_method_declaration",
+    "mac_calling_other_macros",
+    "eh_import_protection",
+    "eh_handle_any",
+    "dn_object_instantiation"
+  ],
+  "patternsUsed": [
+    "mac_file_structure",
+    "obj_namespace_loading",
+    "obj_constructor_pattern",
+    "obj_method_declaration"
+  ],
+  "lintResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 11
+  },
+  "validateResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 11
+  },
+  "benchmarkPath": "docs/factory/benchmarks/mac_43_benchmark.pmlmac",
+  "gapReportPath": "docs/factory/gap-reports/mac_43_gap.json",
+  "kbPatchPath": "docs/factory/kb-patches/mac_43_kb_patch.ts",
+  "overallGapScore": 0.0,
+  "kbGaps": [
+    "mac_minimal_pattern — минимальный макрос без boilerplate не был документирован как отдельный KB-паттерн"
+  ],
+  "confidenceScore": 0.95,
+  "actionRequired": "patch_kb",
+  "notes": "Оригинал — минимальный 4-строчный макрос (reload + instantiate + call). Benchmark полностью совпадает с оригиналом по функциональности. Все синтаксические конструкции подтверждены KB. Единственный пробел — паттерн минимального макроса не был отдельной KB-записью."
+}

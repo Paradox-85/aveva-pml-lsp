@@ -1,0 +1,62 @@
+{
+  "fileId": "mac_43",
+  "filePath": "docs/codebase/macros/pipeSupport-refresh.pmlmac",
+  "reviewDate": "2026-06-03",
+  "overallGapScore": 0.0,
+  "dimensions": {
+    "D1_syntax": {
+      "score": 1.0,
+      "gaps": []
+    },
+    "D2_patterns": {
+      "score": 1.0,
+      "gaps": []
+    },
+    "D3_structure": {
+      "score": 1.0,
+      "gaps": [
+        {
+          "description": "Оригинал — минимальный макрос без секций import/handle/переменных. KB mac_file_structure показывает production-шаблон с этими секциями, но не документирует паттерн минимального макроса.",
+          "severity": "low",
+          "kb_coverage": "mac_file_structure описывает production-шаблон, но не explicit-паттерн 'минимальный macro: reload+instantiate+call'"
+        }
+      ]
+    },
+    "D4_naming": {
+      "score": 1.0,
+      "gaps": []
+    },
+    "D5_logic": {
+      "score": 1.0,
+      "gaps": []
+    },
+    "D6_dependencies": {
+      "score": 1.0,
+      "gaps": []
+    },
+    "D7_kbCompleteness": {
+      "newEntriesNeeded": [
+        {
+          "suggestedId": "mac_minimal_pattern",
+          "category": "macros",
+          "subcategory": "minimal",
+          "title": "Минимальный макрос: reload + instantiate + call без boilerplate",
+          "principle": "Не все макросы требуют import/handle/переменных; минимальный паттерн — комментарий-путь → PML RELOAD OBJECT → object NAME() → метод — валиден и встречается в production.",
+          "rule": "Минимальный макрос: (опц.) --$m комментарий → PML RELOAD OBJECT <имя> → !var = object <имя>() → !var.метод() ; error-handling и import-guard отсутствуют намеренно.",
+          "syntax": "--$m \"path/to/macro.pmlmac\"\nPML RELOAD OBJECT OBJECTNAME\n!obj = object OBJECTNAME()\n!obj.someMethod()",
+          "exampleCanonical": "--$m \"C:\\Users\\ADZV\\OneDrive - Ramboll\\AVEVA_SERVER\\Addons\\PMLLIB\\RAM\\Engineering\\jackdow\\run-macro\\pipeSupport-refresh.pmlmac\"\nPML RELOAD OBJECT TAGMANAGEMENTTMP\n!tagMgmt = object TAGMANAGEMENTTMP()\n!tagMgmt.pipeSupportDataUpdate()",
+          "exampleAntipattern": "",
+          "pitfalls": [
+            "Отсутствие error handling означает, что ошибки propagate вверх по стеку вызовов",
+            "TAGMANAGEMENTTMP должен быть загружен (pml rehash + pml reload) до вызова",
+            "Минимальный макрос не защищает от отсутствующих зависимостей"
+          ],
+          "relatedIds": ["mac_file_structure", "obj_namespace_loading", "obj_constructor_pattern"],
+          "sourcedoc": "pipeSupport-refresh.pmlmac",
+          "sourcecodebase": "pipeSupport-refresh.pmlmac"
+        }
+      ]
+    }
+  },
+  "actionRequired": "patch_kb"
+}

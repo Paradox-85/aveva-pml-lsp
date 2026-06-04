@@ -1,0 +1,124 @@
+define object RAMFILEWRITERCLASS
+
+    import |GridControl|
+    handle (1000,0)
+    endhandle
+
+    import |PMLFileBrowser|
+    handle (1000,0)
+    endhandle
+
+    -- Member: field separator for text export
+    member .separator is STRING
+
+    -- Constructor
+    define method .ramFileWriterClass()
+        !this.separator = |	|
+    endmethod
+
+    ----------------------------------------------------------------
+    -- .getTextExportFormatRow
+    --
+    -- Description: Join a single data row ARRAY into a delimited STRING
+    ----------------------------------------------------------------
+    define method .getTextExportFormatRow(!dataList is ARRAY) is STRING
+        !result = ||
+        do !i from 1 to !dataList.Size()
+            if ( !i gt 1 ) then
+                !result = !result & !this.separator
+            endif
+            !result = !result & !dataList[!i].string()
+        enddo
+        return !result
+    endmethod
+
+    ----------------------------------------------------------------
+    -- .getTextExportFormat
+    --
+    -- Description: Format an ARRAY of rows into an ARRAY of delimited STRING lines
+    ----------------------------------------------------------------
+    define method .getTextExportFormat(!dataList is ARRAY) is ARRAY
+        !lines = object array()
+        do !row values !dataList
+            !lines.Append(!this.getTextExportFormatRow(!row))
+        enddo
+        return !lines
+    endmethod
+
+    ----------------------------------------------------------------
+    -- .writeDataToTextFile (without heading)
+    ----------------------------------------------------------------
+    define method .writeDataToTextFile(!name is STRING, !isDisplayFile is BOOLEAN, !logData is ARRAY)
+        !content = !this.getTextExportFormat(!logData)
+        !file    = object File(!name)
+
+        handle any
+            !file.WriteFile(|OVERWRITE|, !content)
+            if ( !isDisplayFile ) then
+                syscom |"$!name" &|
+            endif
+        elsehandle none
+            $P Error writing text file: $!!Error.text
+        endhandle
+    endmethod
+
+    ----------------------------------------------------------------
+    -- .writeDataToTextFile (with heading)
+    ----------------------------------------------------------------
+    define method .writeDataToTextFile(!name is STRING, !isDisplayFile is BOOLEAN, !heading is ARRAY, !logData is ARRAY)
+        !combined = object array()
+        !combined.Append(!heading)
+        !combined.AppendArray(!logData)
+        !content  = !this.getTextExportFormat(!combined)
+        !file     = object File(!name)
+
+        handle any
+            !file.WriteFile(|OVERWRITE|, !content)
+            if ( !isDisplayFile ) then
+                syscom |"$!name" &|
+            endif
+        elsehandle none
+            $P Error writing text file: $!!Error.text
+        endhandle
+    endmethod
+
+    ----------------------------------------------------------------
+    -- .writeDataToExcelFile
+    ----------------------------------------------------------------
+    define method .writeDataToExcelFile(!name is STRING, !isDisplayFile is BOOLEAN, !heading is ARRAY, !logData is ARRAY)
+        !allData = object array()
+        !allData.Append(!heading)
+        !allData.AppendArray(!logData)
+
+        using namespace |Aveva.Pdms.Presentation|
+        !nds = object NetDataSource(|Export|, !heading, !allData)
+        !grid = object NetGridControl()
+        !grid.BindToDataSource(!nds)
+        !grid.SaveGridToExcel(!name)
+        !grid = null
+        !nds  = null
+
+        if ( !isDisplayFile ) then
+            syscom |"$!name" &|
+        endif
+    endmethod
+
+    ----------------------------------------------------------------
+    -- .browseFile
+    ----------------------------------------------------------------
+    define method .browseFile(!fileType is STRING) is STRING
+        var !selected is FILE
+        !!pmlFileBrowser(!this.separator, !fileType, |Save file as|, true, ||)
+        handle any
+            !selected = !!pmlFileBrowser.file
+        elsehandle none
+            return ||
+        endhandle
+
+        if ( !selected.Unset().Not() and !selected.Exists() ) then
+            return !selected.FullName()
+        endif
+        return ||
+    endmethod
+
+endobject

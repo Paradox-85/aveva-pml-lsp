@@ -1,0 +1,66 @@
+{
+  "fileId": "obj_10",
+  "filePath": "docs/codebase/objects/LoopData.pmlobj",
+  "fileType": "object",
+  "fileName": "LoopData.pmlobj",
+  "originalParseErrors": 1,
+  "benchmarkParseErrors": 0,
+  "benchmarkDiagnostics": [],
+  "originalDiagnostics": [
+    {
+      "severity": 1,
+      "message": "Expected expression, but found 'and'",
+      "line": 85,
+      "source": "pml-parser"
+    }
+  ],
+  "benchmarkStatus": "clean",
+  "lintPassed": true,
+  "validatePassed": true,
+  "methodsInOriginal": 13,
+  "methodsInBenchmark": 13,
+  "methods": [
+    ".LoopData()",
+    ".SaveLog()",
+    ".GetData()",
+    ".Debug()",
+    ".LoopCreate()",
+    ".TryToLoopCreate()",
+    ".SingleCableConnect()",
+    ".MultipleCableConnect()",
+    ".JBFEdataTransfer()",
+    ".InstrumentFieldDataTransfer()",
+    ".TryGetCableForEle()",
+    ".TryToGetCableRef()",
+    ".TryToSetValue()"
+  ],
+  "membersInOriginal": 9,
+  "membersInBenchmark": 9,
+  "kbPatternsConfirmed": [
+    "cb_obj_10_collect_all",
+    "cb_obj_10_do",
+    "cb_obj_10_handle",
+    "cb_obj_10_elsehandle",
+    "cb_obj_10_dbref",
+    "cb_obj_10_array",
+    "cb_obj_10_file",
+    "cb_obj_10_gridcontrol"
+  ],
+  "kbPatternsNotInKB": [
+    "NETGRIDCONTROL / NETDATASOURCE (.NET add-in objects)",
+    "ELEMENTTYPE / CREATEELEMENT (PMElementManager)",
+    "ATTRIBUTE (PML attribute object)",
+    "SYSCOM (system command execution)"
+  ],
+  "kbGaps": [
+    "No KB entry for NETGRIDCONTROL and NETDATASOURCE .NET add-in usage patterns",
+    "No KB entry for ELEMENTTYPE and CREATEELEMENT PMElementManager usage",
+    "No KB entry for ATTRIBUTE object construction and hash() usage",
+    "No KB entry for SYSCOM command execution pattern"
+  ],
+  "gapScore": 0.42,
+  "confidenceScore": 0.88,
+  "actionRequired": "patch_kb",
+  "notes": "Benchmark validates cleanly with 0 parse errors. Original has 1 parse error on line 85 (multi-line collect all expression with line continuation). Benchmark reformatted multi-line expressions to single lines, resolving the parse error. All 13 methods and 9 members faithfully reproduced. Added missing .SaveLog() and .Debug() methods. Some external add-in patterns (NETGRIDCONTROL, ELEMENTTYPE, ATTRIBUTE, SYSCOM) lack KB coverage."
+  "rerunDate": "2026-06-03"
+}

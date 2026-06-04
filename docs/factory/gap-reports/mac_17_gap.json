@@ -1,0 +1,53 @@
+{
+  "fileId": "mac_17",
+  "filePath": "docs/codebase/macros/JDE_class-mapping-rename.pmlmac",
+  "reviewDate": "2026-06-03",
+  "overallGapScore": 0.08,
+  "dimensions": {
+    "D1_syntax": {
+      "score": 1.0,
+      "gaps": [
+        "Benchmark covers all syntax: handle block, var collect all with filter, DO VALUES iteration, .dbref(), colon dynamic property access, pipe string interpolation, .length(), $P command, IF/ENDIF, .Substring(), property assignment. 0 parse errors, 0 diagnostics."
+      ]
+    },
+    "D2_patterns": {
+      "score": 1.0,
+      "gaps": [
+        "All patterns from original are present in benchmark: collect all with filter, DO VALUES iteration, .dbref(), colon dynamic property access (.:PropertyName), string interpolation (|$!<var>|), .length(), $P command, IF/ENDIF, .Substring(), property assignment via dbref"
+      ]
+    },
+    "D3_structure": {
+      "score": 1.0,
+      "gaps": [
+        "Benchmark preserves all structural elements: handle block, variable declaration with filter, DO/ENDDO loop, IF/ENDIF conditional block. No structural gaps."
+      ]
+    },
+    "D4_naming": {
+      "score": 1.0,
+      "gaps": [
+        "All original variable names preserved: !classAttributeList, !classAttributeItem, !classAttributeItemRef, !classGroupName, !attributeName, !name, !len. No naming simplification needed."
+      ]
+    },
+    "D5_logic": {
+      "score": 1.0,
+      "gaps": [
+        "Benchmark captures complete operational logic: collect-filter-iterate-dbref-read-dynamic-construct-name-length-check-truncate-rename-assign. No logic gaps."
+      ]
+    },
+    "D6_dependencies": {
+      "score": 1.0,
+      "gaps": [
+        "All dependencies covered: ISNAMED pseudo-attribute, badref() method, namn pseudo-attribute, LENGTH method, SUBSTRING method, NAME command via $P. All present in benchmark."
+      ]
+    },
+    "D7_kbCompleteness": {
+      "newEntriesNeeded": [
+        "mac_17_colon_dynamic_property_access",
+        "mac_17_string_interpolation_dollar_var",
+        "mac_17_isnamed_pseudo_attribute",
+        "mac_17_badref_method"
+      ]
+    }
+  },
+  "actionRequired": "patch_kb"
+}

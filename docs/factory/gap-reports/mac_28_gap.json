@@ -1,0 +1,86 @@
+{
+  "fileId": "mac_28",
+  "filePath": "docs/codebase/macros/JDE_RDL-import.pmlmac",
+  "reviewDate": "2026-06-03",
+  "overallGapScore": 0.73,
+  "dimensions": {
+    "D1_syntax": {
+      "score": 0.5,
+      "gaps": [
+        "Source has 0 definitions and 0 members; generated benchmark validated with parseErrorCount=0"
+      ]
+    },
+    "D2_patterns": {
+      "score": 0.75,
+      "gaps": [
+        {
+          "pattern": "NETGRIDCONTROL",
+          "suggestedKbId": "cb_mac_28_netgridcontrol"
+        },
+        {
+          "pattern": "NETDATASOURCE",
+          "suggestedKbId": "cb_mac_28_netdatasource"
+        },
+        {
+          "pattern": "ATTRIBUTE",
+          "suggestedKbId": "cb_mac_28_attribute"
+        },
+        {
+          "pattern": "!!",
+          "suggestedKbId": "cb_mac_28_"
+        },
+        {
+          "pattern": "ARRAY",
+          "suggestedKbId": "cb_mac_28_array"
+        },
+        {
+          "pattern": "FILE",
+          "suggestedKbId": "cb_mac_28_file"
+        },
+        {
+          "pattern": "GridControl",
+          "suggestedKbId": "cb_mac_28_gridcontrol"
+        }
+      ]
+    },
+    "D3_structure": {
+      "score": 0.7,
+      "gaps": [
+        "Benchmark preserves signatures/major declarations where possible but does not copy implementation bodies."
+      ]
+    },
+    "D4_naming": {
+      "score": 0.55,
+      "gaps": [
+        "Project naming extracted from JDE_RDL-import.pmlmac; benchmark may simplify local variable names."
+      ]
+    },
+    "D5_logic": {
+      "score": 0.8,
+      "gaps": [
+        "Original operational logic is intentionally not copied; rerun_worker may improve semantic fidelity for complex files."
+      ]
+    },
+    "D6_dependencies": {
+      "score": 0.85,
+      "gaps": [
+        "NETGRIDCONTROL",
+        "ATTRIBUTE",
+        "FILE",
+        "GridControl"
+      ]
+    },
+    "D7_kbCompleteness": {
+      "newEntriesNeeded": [
+        "cb_mac_28_netgridcontrol",
+        "cb_mac_28_netdatasource",
+        "cb_mac_28_attribute",
+        "cb_mac_28_",
+        "cb_mac_28_array",
+        "cb_mac_28_file",
+        "cb_mac_28_gridcontrol"
+      ]
+    }
+  },
+  "actionRequired": "patch_kb"
+}

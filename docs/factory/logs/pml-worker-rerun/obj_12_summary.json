@@ -1,0 +1,20 @@
+{
+  "fileId": "obj_12",
+  "status": "completed_summary_reconstructed_from_existing_artifacts",
+  "recoveredFromRun": "b970501b",
+  "timestamp": "2026-06-03T23:26:30.064Z",
+  "artifacts": {
+    "benchmark": "docs/factory/benchmarks/obj_12_benchmark.pmlobj",
+    "gapReport": "docs/factory/gap-reports/obj_12_gap.json",
+    "kbPatch": null,
+    "summary": "docs/factory/logs/pml-worker-rerun/obj_12_summary.json"
+  },
+  "validation": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 23
+  },
+  "overallGapScore": 0.6,
+  "actionRequired": "manual_review",
+  "note": "Subagent completed/failed with incomplete final output, but artifacts exist and benchmark validates clean; summary normalized by orchestrator."
+}

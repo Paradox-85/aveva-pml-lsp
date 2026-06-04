@@ -1,0 +1,186 @@
+{
+  "fileId": "mac_03",
+  "filePath": "docs/codebase/macros/EBE_delta_tag_export.pmlmac",
+  "reviewDate": "2026-06-03",
+  "overallGapScore": 0.35,
+  "dimensions": {
+    "D1_syntax": {
+      "score": 0.25,
+      "gaps": [
+        "SetDate of dbref — syntax for extracting date from STAMP, no KB entry found",
+        "OLD attribute qualifier — OLD $!expression of $!tag, no KB entry",
+        "SETCOMPDATE FOR DB — database comparison date command, no KB entry",
+        "ARRAY.findFirst().set() — chaining .set() on findFirst result, not in KB",
+        ".split(|;|)[2] — STRING Split with delimiter then array subscript, not in KB"
+      ]
+    },
+    "D2_patterns": {
+      "score": 0.40,
+      "gaps": [
+        "PMLTAGS.GetListDefinition — object constructor and method, no KB entry",
+        "NetDataSource(gridName, headers, data) — .NET data source pattern, no KB entry",
+        "NETGRIDCONTROL.saveGridToExcel(path, format, description) — export method, no KB entry",
+        "Multi-COLLECTION pattern (modify/delete/create) — three separate collections for change tracking, no KB entry",
+        "Dynamic evaluate via $! substitution — $!<evaluate> with generated code string, no KB entry"
+      ]
+    },
+    "D3_structure": {
+      "score": 0.20,
+      "gaps": [
+        "Macro TAGS/FINISH wrapper structure — top-level TAGS and FINISH commands, no KB entry",
+        "Nested DO/ENDDO: outer grid loop → inner tag loop → inner expression loop — 3-level nesting, no KB example",
+        "COLLECTION scope( /* ) with wildcard root — scope to all, partially documented"
+      ]
+    },
+    "D4_naming": {
+      "score": 0.10,
+      "gaps": [
+        "Customer prefix EBE_ in TAG/EBE-TAG and list category — not documented in naming conventions",
+        "Variable naming convention: !rowDataList (plural), !publishPath — no KB entry for customer naming"
+      ]
+    },
+    "D5_logic": {
+      "score": 0.50,
+      "gaps": [
+        "findfirst().set() membership test — pattern to check if tag exists in collection, not in KB",
+        "elsehandle none — empty elsehandle block (no-op handler), not documented in KB",
+        "Dynamic code generation with $!<evaluate> — runtime eval of string as PML code, no KB entry",
+        "sortUnique() for deduplication — KB documents but no example of chaining appendArray then sortUnique",
+        "handle any with elsehandle none — combined handler pattern for mixed success/failure, no KB entry"
+      ]
+    },
+    "D6_dependencies": {
+      "score": 0.30,
+      "gaps": [
+        "import |Aveva.Engineering.Tags.Pml| — .NET assembly import, no KB entry for this specific assembly",
+        "GridControl import for NETGRIDCONTROL — partially documented in NET Interfaces.md",
+        "NetDataSource from Aveva.Core.Presentation — no KB entry for constructor signature"
+      ]
+    },
+    "D7_kbCompleteness": {
+      "newEntriesNeeded": [
+        {
+          "suggestedId": "macro_setdate_stamp",
+          "category": "datetime",
+          "subcategory": "SetDate",
+          "title": "SetDate of dbref — extract date from STAMP",
+          "principle": "Use SetDate of dbref to extract a date value from a STAMP element.",
+          "rule": "VAR !date SetDate of $!stampVar",
+          "syntax": "VAR !resultVar SetDate of $!dbref",
+          "exampleCanonical": "-- CB mac_03\n!latestStamp = !stamps.first()\nvar !stampDate SetDate of $!latestStamp",
+          "exampleAntipattern": "",
+          "pitfalls": ["STAMP must be a valid dbref; otherwise SetDate returns UNSET"],
+          "relatedIds": ["dt_datetime_object"],
+          "sourcedoc": "AVEVA Engineering PML Reference",
+          "sourcecodebase": "EBE_delta_tag_export.pmlmac"
+        },
+        {
+          "suggestedId": "pdms_old_qualifier",
+          "category": "pdmsinteraction",
+          "subcategory": "OLD",
+          "title": "OLD attribute qualifier for deleted element values",
+          "principle": "Use OLD qualifier to retrieve the value of an attribute before an element was deleted.",
+          "rule": "VAR !val OLD $!attribute of $!dbref",
+          "syntax": "OLD <attribute_expression> of <dbref>",
+          "exampleCanonical": "-- CB mac_03\nif (!action eq |DELETE|) then\n  !evaluate = |var !val OLD $!expression of $!tag|\nendif\n$!<evaluate>",
+          "exampleAntipattern": "",
+          "pitfalls": ["OLD qualifier only works for deleted elements; using it on existing elements may fail", "Must use dynamic $! evaluation to pass attribute name at runtime"],
+          "relatedIds": ["pdms_dbref_access"],
+          "sourcedoc": "AVEVA Engineering Database Interface",
+          "sourcecodebase": "EBE_delta_tag_export.pmlmac"
+        },
+        {
+          "suggestedId": "pdms_setcompdate",
+          "category": "pdmsinteraction",
+          "subcategory": "comparison",
+          "title": "SETCOMPDATE command — set database comparison date",
+          "principle": "SETCOMPDATE sets the comparison date for database queries, enabling delta detection.",
+          "rule": "SETCOMPDATE FOR DB $!dbName to $!stampDate",
+          "syntax": "SETCOMPDATE FOR DB <dbname> to <datetime>",
+          "exampleCanonical": "-- CB mac_03\nvar !stampDate SetDate of $!latestStamp\nSETCOMPDATE FOR DB $!dbName to $!stampDate",
+          "exampleAntipattern": "",
+          "pitfalls": ["Must set comparison date before collecting modified/deleted/created elements", "Date must be a valid STAMP date"],
+          "relatedIds": ["macro_setdate_stamp", "collections_collection_filter"],
+          "sourcedoc": "AVEVA Engineering PML Reference",
+          "sourcecodebase": "EBE_delta_tag_export.pmlmac"
+        },
+        {
+          "suggestedId": "objects_pmltags",
+          "category": "objects",
+          "subcategory": "PMLTAGS",
+          "title": "PMLTAGS object and GetListDefinition method",
+          "principle": "PMLTAGS is a system object providing access to tag list definitions and database views.",
+          "rule": "!!tags = object PMLTAGS()\n!gridDef = !!tags.GetListDefinition(!catName, !listName)\n!viewName = !gridDef.DbViewName()",
+          "syntax": "PMLTAGS.GetListDefinition(category, listName) → DBREF",
+          "exampleCanonical": "-- CB mac_03\n!!tags = object PMLTAGS()\n!gridDef = !!tags.GetListDefinition('EQUINOR_TR3111_V7', !listName)\n!sourceDbView = !gridDef.DbViewName()",
+          "exampleAntipattern": "",
+          "pitfalls": ["Category name must match exactly; case-sensitive", "List name must exist in the specified category"],
+          "relatedIds": ["pdms_dbref_access"],
+          "sourcedoc": "AVEVA Engineering Tags API",
+          "sourcecodebase": "EBE_delta_tag_export.pmlmac"
+        },
+        {
+          "suggestedId": "dotnet_netdatasource",
+          "category": "dotnetinterop",
+          "subcategory": "NetDataSource",
+          "title": "NetDataSource .NET object for grid data binding",
+          "principle": "NetDataSource creates a .NET data source from PML arrays for binding to grid controls.",
+          "rule": "!source = object NetDataSource(name, headers, data)\n!grid.BindToDataSource(!source)",
+          "syntax": "NetDataSource(STRING name, ARRAY headers, ARRAY data)",
+          "exampleCanonical": "-- CB mac_03\n!source = object NetDataSource('$!<gridName>', !headerList, !dataList)\n!dataTable.clearGrid()\n!dataTable.BindToDataSource(!source)",
+          "exampleAntipattern": "",
+          "pitfalls": ["headers must be ARRAY of STRING", "data must be ARRAY of ARRAY (rows)", "namespace must be Aveva.Core.Presentation"],
+          "relatedIds": ["ui_netgridcontrol"],
+          "sourcedoc": "AVEVA Core Presentation API",
+          "sourcecodebase": "EBE_delta_tag_export.pmlmac"
+        },
+        {
+          "suggestedId": "ui_netgridcontrol_export",
+          "category": "ui",
+          "subcategory": "NETGRIDCONTROL",
+          "title": "NETGRIDCONTROL saveGridToExcel method",
+          "principle": "NETGRIDCONTROL.saveGridToExcel exports the bound grid to an Excel file.",
+          "rule": "!grid.saveGridToExcel(path, format, description)",
+          "syntax": "saveGridToExcel(STRING path, STRING format, STRING description)",
+          "exampleCanonical": "-- CB mac_03\n!dataTable.saveGridToExcel('|$!publishPath$!dataFileName|', |data|, |Export delta. Author: $!<userName> Date: $!<startDateTime> Comparison Date: $!<stampDate>|)",
+          "exampleAntipattern": "",
+          "pitfalls": ["Path must include file extension (.xlsx)", "Format parameter determines Excel export format"],
+          "relatedIds": ["dotnet_netdatasource", "ui_netgridcontrol_basic"],
+          "sourcedoc": "AVEVA Core Presentation API",
+          "sourcecodebase": "EBE_delta_tag_export.pmlmac"
+        },
+        {
+          "suggestedId": "errorhandling_elsehandle_none",
+          "category": "errorhandling",
+          "subcategory": "elsehandle",
+          "title": "elsehandle none — empty elsehandle as no-op",
+          "principle": "elsehandle none is a valid empty handler that explicitly marks a block with no error recovery.",
+          "rule": "handle any\n  -- error handling code\nelsehandle none\n  -- success path, no error handler needed\nendhandle",
+          "syntax": "elsehandle none",
+          "exampleCanonical": "-- CB mac_03\n$!<evaluate>\nhandle any\n  !rowDataList.append(!!error.text)\nelsehandle none\n  !rowDataList.append(!val)\nendhandle",
+          "exampleAntipattern": "handle any\n  -- nothing\nendhandle  -- missing elsehandle; implicit no-op but less explicit",
+          "pitfalls": ["elsehandle none is optional; omitting it is equivalent but less explicit", "Do not confuse with missing elsehandle entirely in nested blocks"],
+          "relatedIds": ["errorhandling_handle_any"],
+          "sourcedoc": "AVEVA PML Customization Guide",
+          "sourcecodebase": "EBE_delta_tag_export.pmlmac"
+        },
+        {
+          "suggestedId": "arrays_findfirst_set_membership",
+          "category": "arrays",
+          "subcategory": "FindFirst",
+          "title": "ARRAY.findFirst().set() pattern for membership testing",
+          "principle": "Use findFirst() combined with .set() to test whether a value exists in an array.",
+          "rule": "if (!array.findFirst(!value).set()) then ... endif",
+          "syntax": "if (!<array>.findFirst(<value>).set()) then",
+          "exampleCanonical": "-- CB mac_03\nif (!deletedTags.findfirst(!tag).set()) then\n  !action = |DELETE|\nelsif (!createdTags.findfirst(!tag).set()) then\n  !action = |NEW|\nendif",
+          "exampleAntipattern": "if (!deletedTags.findFirst(!tag) neq UNSET) then  -- less idiomatic",
+          "pitfalls": ["findFirst returns UNSET if not found; .set() checks for valid result", "Must use lowercase findfirst in some PML versions; check case sensitivity"],
+          "relatedIds": ["arrays_findFirst", "arrays_sortUnique"],
+          "sourcedoc": "AVEVA PML Array Reference",
+          "sourcecodebase": "EBE_delta_tag_export.pmlmac"
+        }
+      ]
+    }
+  },
+  "actionRequired": "patch_kb"
+}

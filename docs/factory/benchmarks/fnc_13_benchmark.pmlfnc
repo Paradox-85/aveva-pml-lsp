@@ -1,0 +1,43 @@
+-- docs/codebase/functions/jacUpdatePatternToAttribute.pmlfnc
+-- Benchmark for function `!!jacUpdatePatternToAttribute`
+
+-- Description:
+-- Updates a specified attribute of the current element (!!CE)
+-- based on a given pattern. This is a placeholder for actual
+-- business logic which would likely involve regular expressions,
+-- database queries, or more complex string matching.
+
+DEFINE FUNCTION !!jacUpdatePatternToAttribute (
+    !pattern       IS STRING,
+    !attributeName IS STRING
+) IS LOGICAL
+
+    -- Check if the current element exists.
+    IF (!!CE.Exists()) THEN
+        -- Example logic: If the pattern is "RED", set the attribute to "COLOUR RED".
+        -- In a real scenario, this would involve more sophisticated pattern matching
+        -- and attribute setting.
+        IF (!pattern.eq('RED')) THEN
+            !!CE.attribute(!attributeName).set('COLOUR RED')
+            RETURN TRUE
+        ELSEIF (!pattern.eq('BLUE')) THEN
+            !!CE.attribute(!attributeName).set('COLOUR BLUE')
+            RETURN TRUE
+        ELSE
+            -- Default case: Set attribute to pattern if no specific match
+            !!CE.attribute(!attributeName).set(!pattern.uppercas())
+            RETURN TRUE
+        ENDIF
+    ELSE
+        -- Log a warning if no current element is selected
+        MESSAGE WARN '!!jacUpdatePatternToAttribute: No current element selected (!!CE is NULL).'
+        RETURN FALSE
+    ENDIF
+
+ENDFUNCTION
+
+-- Example Usage:
+-- Assuming !!CE is pointing to an element.
+-- !!jacUpdatePatternToAttribute('RED', 'ATT1')
+-- !!jacUpdatePatternToAttribute('BLUE', 'ATT2')
+-- !!jacUpdatePatternToAttribute('GREEN', 'ATT3')

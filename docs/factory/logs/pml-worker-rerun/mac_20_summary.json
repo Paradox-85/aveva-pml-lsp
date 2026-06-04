@@ -1,0 +1,63 @@
+{
+  "fileId": "mac_20",
+  "taskDescription": "PML macro that creates DbView objects based on Excel template. Reads Excel via NETGRIDCONTROL/NETDATASOURCE, iterates rows, and for each row processes 4 parameter types: (1) creates DbView with NEW DBVW/DESC/UDNA/AUTCRE/ALWDEL/ELEL REM ALL; (2) adds elements with ELEL ADD and specific error handling; (3) creates EXPFILTER; (4) creates EXPCOLUMN/ATTCOLUMN with matchwild fallback and error recovery.",
+  "originalFilePath": "docs/codebase/macros/JDE_dbView_creator.pmlmac",
+  "benchmarkPath": "docs/factory/benchmarks/mac_20_benchmark.pmlmac",
+  "gapReportPath": "docs/factory/gap-reports/mac_20_gap.json",
+  "kbPatchPath": "docs/factory/kb-patches/mac_20_kb_patch.ts",
+  "reviewDate": "2026-06-03",
+  "lintResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 268
+  },
+  "validateResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 268
+  },
+  "overallGapScore": 0.52,
+  "dimensions": {
+    "D1_syntax": { "score": 0.55, "gapCount": 9 },
+    "D2_patterns": { "score": 0.5, "gapCount": 5 },
+    "D3_structure": { "score": 0.4, "gapCount": 3 },
+    "D4_naming": { "score": 0.2, "gapCount": 2 },
+    "D5_logic": { "score": 0.45, "gapCount": 7 },
+    "D6_dependencies": { "score": 0.55, "gapCount": 7 }
+  },
+  "kbEntriesDrafted": 12,
+  "kbEntries": [
+    "string_after_method",
+    "delete_member_mem_command",
+    "handle_tuple_error_codes",
+    "elsehandle_none_pattern",
+    "netgridcontrol_core_presentation",
+    "netdatasource_object",
+    "dbview_creation_commands",
+    "dbview_sub_objects",
+    "elel_add_commands",
+    "string_replace_method",
+    "utyp_command",
+    "macro_data_driven_template_pattern"
+  ],
+  "confidenceScore": 0.85,
+  "benchmarkLines": 90,
+  "patternsUsed": [
+    "ARRAY_initialization",
+    "import_module_handle_any_pattern",
+    "using_namespace_directive",
+    "netgridcontrol_core_presentation",
+    "netdatasource_object",
+    "do_values_iteration",
+    "string_dbref_method",
+    "handle_any_fallback",
+    "dollar_substitution_syntax",
+    "dbview_creation_commands",
+    "handle_tuple_error_codes",
+    "elsehandle_none_pattern",
+    "dbview_sub_objects",
+    "matchwild_function_call",
+    "string_replace_method",
+    "macro_data_driven_template_pattern"
+  ]
+}

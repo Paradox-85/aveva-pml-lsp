@@ -1,0 +1,124 @@
+import 'pmlfilebrowser'
+handle any
+endhandle
+
+setup form !!RPTOUTPUT dialog
+  member .items is ARRAY
+exit
+
+define method .rptOutput()
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+endmethod
+
+define method .initialise()
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+endmethod
+
+define method .sessionDate()
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+endmethod
+
+define method .dateSession(!timeGadget is GADGET, !dateGadget is GADGET, !callType is STRING)
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+  return ||
+endmethod
+
+define method .onApply(!modeSel is STRING )
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+  return ||
+endmethod
+
+define method .changeSinceExtr(!changesOptions is STRING)
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+  return ||
+endmethod
+
+define method .changeSinceTime(!changesOptions is STRING)
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+  return ||
+endmethod
+
+define method .changeSinceStamp(!changesOptions is STRING)
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+  return ||
+endmethod
+
+define method .diffSinceExtr()
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+endmethod
+
+define method .diffSinceStamp()
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+endmethod
+
+define method .errorWrite()
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+endmethod
+
+define method .pullDowns()
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+endmethod
+
+define method .update()
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+endmethod
+
+define method .ifScreen()
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+endmethod
+
+define method .sinceSelect()
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+endmethod
+
+define method .ifTime()
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+endmethod

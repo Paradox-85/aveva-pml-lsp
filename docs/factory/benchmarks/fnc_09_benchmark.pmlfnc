@@ -1,0 +1,79 @@
+$*
+$* PML Benchmark for function: jacPropagateParentData
+$* Description: Propagates a specific attribute (e.g., SPECREF) from a child element's owner to the child element itself.
+$*
+DEFINE FUNCTION !!jacPropagateParentData (!childElement IS DBREF) IS LOGICAL
+$*  Propagate the 'SPECREF' attribute from the child's owner to the child.
+  !status = FALSE
+  IF (!childElement.OWNER.valid()) THEN
+    !parentElement = !childElement.OWNER
+    $* Check if the parent element has the SPECREF attribute before attempting to read it
+    IF (!!parentElement.ATTRIBUTES.contains('SPECREF')) THEN
+      !parentSpecref = !parentElement.SPECREF
+      $* Only propagate if the parent's SPECREF is set (not null/empty)
+      IF (!parentSpecref.isnull().not()) THEN
+        !childElement.SPECREF = !parentSpecref
+        !status = TRUE
+      ENDIF
+    ENDIF
+  ENDIF
+  RETURN !status
+ENDFUNCTION
+
+$* --- Test Block ---
+$* Create some dummy elements for testing
+NEW SITE /BENCHMARK_SITE
+  OWNER /BENCHMARK_SITE
+  NEW ZONE /BENCHMARK_ZONE
+    OWNER /BENCHMARK_ZONE
+    NEW PIPE /BENCHMARK_PIPE
+      !testPipe = !!CE()
+
+$* Set SPECREF on the parent (ZONE)
+!!CE(owner).SPECREF = 'ZONE-SPEC-PROPAGATED'
+
+$* Call the function
+$P '--- Calling !!jacPropagateParentData ---'
+!propagationSuccess = !!jacPropagateParentData(!testPipe)
+$P 'Propagation function returned: ' & !propagationSuccess.string()
+
+$* Verify the child's SPECREF
+!childSpecref = !testPipe.SPECREF
+$P 'Child PIPE SPECREF after propagation: ' & !childSpecref
+
+IF (!propagationSuccess) THEN
+  IF (!childSpecref EQ 'ZONE-SPEC-PROPAGATED') THEN
+    $P 'VERIFICATION: PASSED - Child SPECREF matches parent.'
+  ELSE
+    $P 'VERIFICATION: FAILED - Child SPECREF does not match parent. Expected "ZONE-SPEC-PROPAGATED", got "' & !childSpecref & '".'
+  ENDIF
+ELSE
+  $P 'VERIFICATION: FAILED - Propagation function returned FALSE, so verification of child SPECREF is not applicable.'
+ENDIF
+
+$* Test case: Parent without SPECREF
+NEW PIPE /BENCHMARK_PIPE_NO_PARENT_SPEC
+  !testPipeNoParentSpec = !!CE()
+  $* Parent (ZONE /BENCHMARK_ZONE) currently has SPECREF, we need a parent without
+  NEW SITE /SITE_NO_SPEC
+    OWNER /SITE_NO_SPEC
+    NEW ZONE /ZONE_NO_SPEC
+      OWNER /ZONE_NO_SPEC
+      NEW PIPE /PIPE_NO_SPEC
+        !testPipeNoParentSpec = !!CE()
+      
+    !propagationSuccessNoSpec = !!jacPropagateParentData(!testPipeNoParentSpec)
+    $P '--- Calling !!jacPropagateParentData for element with parent having no SPECREF ---'
+    $P 'Propagation function returned: ' & !propagationSuccessNoSpec.string()
+    !childSpecrefNoSpec = !testPipeNoParentSpec.SPECREF
+    $P 'Child PIPE SPECREF after propagation (parent has no SPECREF): ' & !childSpecrefNoSpec
+    
+    IF (!propagationSuccessNoSpec.not()) THEN
+      $P 'VERIFICATION: PASSED - Propagation correctly returned FALSE as parent had no SPECREF.'
+    ELSE
+      $P 'VERIFICATION: FAILED - Propagation returned TRUE unexpectedly.'
+    ENDIF
+  
+$* --- Clean up dummy elements ---
+DELETE !!CE(name /BENCHMARK_SITE)
+DELETE !!CE(name /SITE_NO_SPEC)

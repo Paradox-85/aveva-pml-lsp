@@ -1,0 +1,85 @@
+{
+  "fileId": "mac_11",
+  "filePath": "docs/codebase/macros/class-name-refresh.pmlmac",
+  "reviewDate": "2026-06-03",
+  "overallGapScore": 0.15,
+  "dimensions": {
+    "D1_syntax": {
+      "score": 0.0,
+      "gaps": [
+        "All syntax constructs (PML RELOAD OBJECT, object constructor, method call with boolean arg, $m marker) confirmed by KB syntax reference. Benchmark lint and validate both return 0 parse errors."
+      ]
+    },
+    "D2_patterns": {
+      "score": 0.2,
+      "gaps": [
+        "TAGMANAGEMENTTMP is a custom/project-specific object not present in KB. Methods GetMappingData() and ClassNameUpdate(boolean) are not documented in KB entries."
+      ]
+    },
+    "D3_structure": {
+      "score": 0.0,
+      "gaps": [
+        "Simple linear structure: reload → construct → call → call. Benchmark faithfully reproduces this order."
+      ]
+    },
+    "D4_naming": {
+      "score": 0.0,
+      "gaps": [
+        "Variable !tagMgmt follows standard PML local naming convention. Object name TAGMANAGEMENTTMP is consistent with naming pattern."
+      ]
+    },
+    "D5_logic": {
+      "score": 0.0,
+      "gaps": [
+        "No complex logic, boundary conditions, or error handling. Straightforward sequential execution."
+      ]
+    },
+    "D6_dependencies": {
+      "score": 0.3,
+      "gaps": [
+        "TAGMANAGEMENTTMP is an external/custom object (likely from PDMS/AVEVA Plant addon). No KB entry exists for this object type, its constructor, or its methods GetMappingData/ClassNameUpdate."
+      ]
+    },
+    "D7_kbCompleteness": {
+      "newEntriesNeeded": [
+        {
+          "suggestedId": "kb-tagmanagementtmp-object",
+          "category": "external_objects",
+          "subcategory": "pdms_addons",
+          "title": "TAGMANAGEMENTTMP Object",
+          "principle": "TAGMANAGEMENTTMP is a custom/external object used for tag management operations including alarm updates and class name updates.",
+          "rule": "Always PML RELOAD OBJECT before creating instances of TAGMANAGEMENTTMP to ensure latest method definitions are loaded.",
+          "syntax": "PML RELOAD OBJECT TAGMANAGEMENTTMP\n!tagMgmt = object TAGMANAGEMENTTMP()\n!tagMgmt.GetMappingData()\n!tagMgmt.ClassNameUpdate(boolean)",
+          "exampleCanonical": "PML RELOAD OBJECT TAGMANAGEMENTTMP\n!tagMgmt = object TAGMANAGEMENTTMP()\n!tagMgmt.GetMappingData()\n!tagMgmt.ClassNameUpdate(true)",
+          "exampleAntipattern": "!tagMgmt = object TAGMANAGEMENTTMP()  -- missing RELOAD OBJECT first\n!tagMgmt.ClassNameUpdate(true)",
+          "pitfalls": [
+            "Skipping PML RELOAD OBJECT may cause stale method definitions.",
+            "ClassNameUpdate expects a boolean argument; omitting it causes runtime error."
+          ],
+          "relatedIds": [],
+          "sourcedoc": "AVEVA PDMS/Plant Customization Guide",
+          "sourcecodebase": "class-name-refresh.pmlmac, alarm_refresh.pmlmac"
+        },
+        {
+          "suggestedId": "kb-pml-reload-object-directive",
+          "category": "directives",
+          "subcategory": "object_lifecycle",
+          "title": "PML RELOAD OBJECT Directive",
+          "principle": "PML RELOAD OBJECT reloads a PML object definition from its source, ensuring the latest version is available for instantiation.",
+          "rule": "Use PML RELOAD OBJECT before creating instances of custom or addon objects that may have been updated.",
+          "syntax": "PML RELOAD OBJECT <objectName>",
+          "exampleCanonical": "PML RELOAD OBJECT TAGMANAGEMENTTMP",
+          "exampleAntipattern": "",
+          "pitfalls": [
+            "RELOAD OBJECT only affects objects loaded via PML; objects defined in .pmlobj files may need different reload mechanisms.",
+            "Repeated reloads without cleanup may cause memory leaks for some object types."
+          ],
+          "relatedIds": ["kb-tagmanagementtmp-object"],
+          "sourcedoc": "AVEVA PML Customization Guide",
+          "sourcecodebase": "class-name-refresh.pmlmac, alarm_refresh.pmlmac"
+        }
+      ]
+    }
+  },
+  "actionRequired": "patch_kb"
+}

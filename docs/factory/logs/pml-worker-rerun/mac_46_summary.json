@@ -1,0 +1,103 @@
+{
+  "fileId": "mac_46",
+  "filePath": "docs/codebase/macros/TB terminal correction macro.pmlmac",
+  "fileType": "macro",
+  "runType": "FACTORY-RERUN-SINGLE",
+  "runDate": "2026-06-03",
+  "worker": "pml-worker",
+  "benchmark": {
+    "path": "docs/factory/benchmarks/mac_46_benchmark.pmlmac",
+    "sizeBytes": 3094,
+    "lintResult": {
+      "diagnostics": [],
+      "parseErrorCount": 0,
+      "astNodeCount": 183
+    },
+    "validateResult": {
+      "diagnostics": [],
+      "parseErrorCount": 0,
+      "astNodeCount": 183
+    }
+  },
+  "patternsReproduced": [
+    "$M macro directive",
+    "FILE object creation and readfile()",
+    "ARRAY() creation",
+    "DO/ENDDO with values iteration",
+    "DO/ENDDO with indices iteration",
+    "DBREF creation via .dbref()",
+    "DBREF-to-PDMS-attribute access via .:  syntax",
+    "Collection methods: size(), eq(), eqnocase(), remove(), append()",
+    "object BLOCK(...) constructor for evaluate()",
+    "findFirst() search",
+    "set() / unset() / .not() chain",
+    "$! variable substitution in $P print",
+    "$P print command in macro",
+    "$* comment style",
+    "Nested IF/ENDIF",
+    "break statement in loop"
+  ],
+  "kbSearched": [
+    "DBREF collection terminals channels outgoing connections",
+    "HavePartOutGoingConnections HavePartIncomingConnection PML collection append remove",
+    "collection evaluate findFirst unset eqnocase refPropagatedSignals channelTerminals marking",
+    "dbref HavePartTerminals HavePartChannels refPropagatedSignals IncomingConnection acttype"
+  ],
+  "kbReferences": [
+    "array object.md — ARRAY methods: Append, Clear, Size, Evaluate, FindFirst, Remove",
+    "PML objects and methods — FILE, ARRAY, COLLECTION, UNDOABLE objects",
+    "PML syntax reference — dollar commands, control flow, operators",
+    "code-examples-corpus.json — official manual patterns",
+    "PML language variants — PML1/PML2 keyword reference"
+  ],
+  "gapReport": {
+    "path": "docs/factory/gap-reports/mac_46_gap.json",
+    "overallScore": 0.38,
+    "dimensions": {
+      "D1_syntax": 0.35,
+      "D2_patterns": 0.40,
+      "D3_structure": 0.25,
+      "D4_naming": 0.30,
+      "D5_logic": 0.45,
+      "D6_dependencies": 0.50,
+      "D7_kbCompleteness": "5 new entries drafted"
+    },
+    "actionRequired": "patch_kb"
+  },
+  "kbPatch": {
+    "path": "docs/factory/kb-patches/mac_46_kb_patch.ts",
+    "entriesCount": 5,
+    "entryIds": [
+      "pdl_dbref_attr_access",
+      "pml_block_constructor",
+      "pdms_terminal_attribute_names",
+      "pml_eqnocase_method",
+      "pml_nested_loop_collection_mutation"
+    ]
+  },
+  "changesFromOriginal": [
+    "Removed file-specific path from $M directive (changed to generic macro name)",
+    "Replaced file-read logic with collectallfor world-wide CE collection",
+    "Normalized attribute casing to consistent PascalCase (HavePartTerminals, HavePartChannels, HavePartOutGoingConnections, etc.)",
+    "Removed commented-out lines",
+    "Added structural comments throughout",
+    "Changed !marking assignment to consistent string concatenation without $! prefix",
+    "Normalized variable casing: !Terminals → !terminals, !Channels → !channels, !outConn → !outConn, etc."
+  ],
+  "preservedFromOriginal": [
+    "Full loop structure and nesting",
+    "All PML constructs: DO/ENDDO, IF/ENDIF, break",
+    "All collection method calls: size(), eq(), eqnocase(), remove(), append(), evaluate(), findFirst(), set(), unset()",
+    "All DBREF attribute access patterns via .:  notation",
+    "$P print with $! variable substitution",
+    "Core terminal-correction logic flow"
+  ],
+  "confidenceScore": 0.72,
+  "notes": [
+    "Benchmark preserves original logic faithfully while normalizing syntax",
+    "Original has several logic issues (D5) that are preserved as-is — benchmark does not fix bugs",
+    "KB gaps identified in D6 (PDMS-specific attributes) are the highest-severity gaps",
+    "5 KBEntry candidates drafted for D7 — all categories validated against kb-entry.ts schema",
+    "No JavaScript/Python/C-style constructs used — all patterns are native PML"
+  ]
+}

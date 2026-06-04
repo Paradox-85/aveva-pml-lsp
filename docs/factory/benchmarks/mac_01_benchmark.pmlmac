@@ -1,0 +1,10 @@
+$* Factory benchmark generated from semantic source summary only for mac_01
+$* Source path: docs/codebase/macros/alarm_refresh.pmlmac
+$* Semantic description: Simple macro that reloads the TAGMANAGEMENTTMP object,
+$* creates an instance, and calls its alarmsDataUpdate() method.
+
+PML RELOAD OBJECT TAGMANAGEMENTTMP
+
+!tagMgmt = object TAGMANAGEMENTTMP()
+
+!tagMgmt.alarmsDataUpdate()

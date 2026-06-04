@@ -1,0 +1,69 @@
+{
+  "fileId": "mac_26",
+  "fileName": "JDE_leirvik_tag_export.pmlmac",
+  "fileType": "macro",
+  "generatedAt": "2026-06-03T00:00:00Z",
+  "dimensions": {
+    "D1_structure": {
+      "score": 0.0,
+      "originalPatterns": ["macro header comments", "TAGS/FINISH delimiters", "sequential step layout"],
+      "benchmarkPatterns": ["macro header comments", "TAGS/FINISH delimiters", "sequential step layout"],
+      "coverage": "full",
+      "notes": "Benchmark preserves the original macro header format, TAGS/FINISH markers, and sequential step layout with numbered comments."
+    },
+    "D2_syntax": {
+      "score": 0.0,
+      "originalPatterns": ["OBJECT DATETIME() with method chain", "import + handle any/endhandle", "using namespace", "object PMLTAGS()", "var collect all LSTDEF with (condition)", "do ... values iteration", "$! substitution in single-quoted strings", "Syscom |MKDIR ...|", "FINISH"],
+      "benchmarkPatterns": ["OBJECT DATETIME() with method chain", "import + handle any/endhandle", "using namespace", "object PMLTAGS()", "var collect all LSTDEF with (condition)", "do ... values iteration", "$! substitution in single-quoted strings", "Syscom |MKDIR ...|", "FINISH"],
+      "coverage": "full",
+      "notes": "All syntax patterns from original are present in benchmark. The $!<var> form (with angle brackets) was simplified to $!var (without brackets) which the parser accepts."
+    },
+    "D3_semantics": {
+      "score": 0.0,
+      "originalSemantics": ["extract current datetime components", "load .NET add-ins with error tolerance", "create PMLTAGS object", "query grid definitions by description", "iterate over matching grids", "build timestamped output path", "create output directory", "export grid to XLSX"],
+      "benchmarkSemantics": ["extract current datetime components", "load .NET add-ins with error tolerance", "create PMLTAGS object", "query grid definitions by description", "iterate over matching grids", "build timestamped output path", "create output directory", "export grid to XLSX"],
+      "coverage": "full",
+      "notes": "All semantic steps preserved. Hardcoded paths replaced with generic placeholders. DbViewName() method present but unused (mirror of original where it was also unused)."
+    },
+    "D4_edgeCases": {
+      "score": 0.0,
+      "originalEdgeCases": ["handle any (ignore import errors)", "size() > 0 guard before iteration", "path construction with variable interpolation", "MKDIR before export"],
+      "benchmarkEdgeCases": ["handle any (ignore import errors)", "size() gt 0 guard before iteration", "path construction with variable interpolation", "MKDIR before export"],
+      "coverage": "full",
+      "notes": "All edge-case patterns preserved. Error handling via 'handle any/endhandle' and size guard before DO loop."
+    },
+    "D5_naming": {
+      "score": 0.0,
+      "originalNaming": ["!startDateTime, !year, !month, !date, !hour, !minute", "!grids, !gridName, !gridDef, !sourceDbView", "!publishFolderPath, !publishPath, !dataFileName"],
+      "benchmarkNaming": ["!now, !year, !month, !day, !hour, !minute", "!targetGrids, !gridIter, !gridLabel, !listDef, !viewName", "!baseFolder, !outFolder, !fileName, !fullPath"],
+      "coverage": "full",
+      "notes": "Naming style consistent: local vars with !, global with !!. Generic names used instead of project-specific ones."
+    },
+    "D6_comments": {
+      "score": 0.0,
+      "originalComments": ["header block with author/customer/rev/purpose/$m", "inline -- comments for each step"],
+      "benchmarkComments": ["header block with author/customer/rev/purpose/$m", "inline -- comments for each step"],
+      "coverage": "full",
+      "notes": "Comment style preserved. Header block format matches original."
+    },
+    "D7_kbCoverage": {
+      "score": 1,
+      "newEntries": [
+        {
+          "id": "object-datetime-methods",
+          "title": "DATETIME Object Methods",
+          "category": "object",
+          "description": "OBJECT DATETIME() creates a DATETIME object. Methods: year() (INTEGER), month() (INTEGER), date() (INTEGER), hour() (INTEGER), minute() (INTEGER). All return numeric components of the current date/time.",
+          "codeExample": "!now = OBJECT DATETIME()\n!year = !now.year()\n!month = !now.month().string('I2')\n!day = !now.date().string('I2')\n!hour = !now.hour().string('I2')\n!minute = !now.minute().string('I2')",
+          "tags": ["datetime", "date", "time", "timestamp"]
+        }
+      ]
+    }
+  },
+  "overall": 0.03,
+  "lintDiagnostics": [],
+  "validateDiagnostics": [],
+  "lintParseErrorCount": 0,
+  "validateParseErrorCount": 0,
+  "summary": "Benchmark faithfully reproduces all original patterns. Only gap: DATETIME object methods not in KB. All lint/validate clean."
+}

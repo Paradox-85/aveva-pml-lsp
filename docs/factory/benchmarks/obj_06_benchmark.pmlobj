@@ -1,0 +1,726 @@
+------------------------------------------------------------------------
+--
+-- File:        RAMIMPORTEXCELELEMENTLOADER
+-- Description: Object to import the excel data
+-- Author:      Karthik N
+-- Created:     09-01-2024
+--
+------------------------------------------------------------------------
+import 'RamAEUpdateElement'
+handle any
+endhandle
+
+define object RAMIMPORTEXCELELEMENTLOADER
+
+  member .issueList             is ARRAY
+  member .reclassifyMasterList  is ARRAY
+  member .dataLoader            is RAMIMPORTEXCELDATALOADER
+  member .tagManagement         is RAMTAGMANAGEMENT
+  member .valueConverter        is RAMVALUECONVERTER
+
+endobject
+
+------------------------------------------------------------------------
+--
+-- Method:     ramImportExcelElementLoader
+-- Description: constructor method
+--
+------------------------------------------------------------------------
+define method .ramImportExcelElementLoader()
+
+  !this.tagManagement         = object RAMTAGMANAGEMENT()
+  !this.valueConverter        = object RAMVALUECONVERTER()
+  !this.issueList             = object ARRAY()
+  !this.reclassifyMasterList  = object ARRAY()
+
+endmethod
+
+----------------------------------------------------------------------
+--
+-- Method:      .setDataLoader
+--
+-- Description: Setting Import Details
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--    1   R      RAMIMPORTEXCELDATALOADER      Data Loader Object
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .setDataLoader(!dataLoader is RAMIMPORTEXCELDATALOADER)
+  !this.dataLoader    = !dataLoader
+endmethod
+
+----------------------------------------------------------------------
+--
+-- Method:      .loadElement
+--
+-- Description: Method to load element in the database
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--    1   R      STRING      Element Name
+--    2   R      STRING      Element Type
+-- Return:
+--   [Data Type] [Description]
+--    DBREF        Created Element
+------------------------------------------------------------------------
+define method .loadElement()
+
+  !!displayProgress(1, 100)
+
+  !this.issueList                    = object ARRAY()
+  !this.reclassifyMasterList         = object ARRAY()
+  !masterList                        = !this.dataLoader.getMasterList()
+  !classList                         = !this.dataLoader.getClassMapping()
+  !attributeList                     = !this.dataLoader.getAttributeMapping()
+  !attParameterList                  = !this.dataLoader.getAttributeParameter()
+  !uomList                           = !this.dataLoader.getUOMMapping()
+  !defaultClassName                  = !this.dataLoader.getSettingValue('DefaultClass')
+  !defaultClassName                  = !this.dataLoader.validateElementType(!defaultClassName)
+  !isReclassifyAllowed               = !this.isAllowed('Reclassification')
+  !isForceCreateAllowed              = !this.isAllowed('ForceCreate')
+  !isForceUpdateAllowed              = !this.isAllowed('ForceUpdate')
+  !isForceReclassifyAllowed          = !this.isAllowed('ForceReclassification')
+  !isDefaultClassSet                 = !defaultClassName.set()
+  !classAttributeData                = !this.dataLoader.processClassStorageAttribute()
+  !isTagNamePreserved                = !this.isAllowed('PreserveExcelTag')
+
+  !onePercentValue =  !masterList.size() * 0.01
+
+  -- Looping excel sheets
+  do !index indices !masterList
+
+    !listDetails                     = !masterList[!index]
+    !excelClassName                  = !listDetails[1]
+    !excelAttributeDetails           = !listDetails[2]
+
+    if(!index.gt(!onePercentValue)) then
+      !!displayProgress(!index, !masterList.size())
+    endif
+
+    -- details needed for data import
+    !attributeValueRows              = !listDetails[3]
+    !className                       = !classList[!index]
+    !attributeDetails                = !attributeList[!index]
+    !paramterDetails                 = !attParameterList[!index]
+    !uomDetails                      = !uomList[!index]
+
+    -- Class identified during load process check
+    !isClassIdentifiable             = !className.set() AND !className.neq('')
+
+    -- Force import setting check
+    !isForceValid                    = !isDefaultClassSet AND (!isForceCreateAllowed OR !isForceReclassifyAllowed)
+
+    if(!isClassIdentifiable OR !isForceValid OR !isForceUpdateAllowed) then
+
+      -- Looping each tag element rows
+      do !valueIndex indices !attributeValueRows
+
+        !classStorageAttribute       = object ARRAY()
+        !classStorageAttribute.append(!excelClassName)
+        !classStorageAttribute.append(!classAttributeData)
+
+        !attributeValueRow           = !attributeValueRows[!valueIndex]
+        !nameAttIndex                = !attributeDetails.findFirst('NAME')
+        if(!nameAttIndex.set()) then
+          !name                      = !attributeValueRow[!nameAttIndex]
+          !parameter                 = !paramterDetails[!nameAttIndex]
+          !excelTagName              = !this.getProcessedValue(!name, !parameter)
+          !elementRefe               = !this.validateName(!excelTagName)
+
+          ----------------------------------------------------------------------------------------------------------
+          -- Create new element if not available in database
+          ----------------------------------------------------------------------------------------------------------
+          !classErrorMessage         = ''
+          if(!elementRefe.unset()) then
+
+            if(!className.unset() AND !isForceCreateAllowed AND !isDefaultClassSet) then
+              !className             = !defaultClassName
+            endif
+
+            if(!className.set()) then
+              !elementRefe           = !this.tagManagement.createElement(!excelTagName, !className)
+            else
+              !classErrorMessage     = 'Not able to derive class from excel'
+            endif
+          endif
+
+          if(!elementRefe.set()) then
+
+            ----------------------------------------------------------------------------------------------------------
+            -- Reclassification process
+            ----------------------------------------------------------------------------------------------------------
+            !isAddedForReclassify    = false
+            !isReclassifyNeeded      = !className.eqNocase(!elementRefe.acttype).not()
+            if(!isReclassifyNeeded AND !isReclassifyAllowed) then
+
+              if(!className.unset() AND !isForceReclassifyAllowed AND !isDefaultClassSet) then
+                !className           = !defaultClassName
+              endif
+
+              if(!className.set()) then
+                !reclassifyDetails   = object ARRAY()
+                !reclassifyDetails.append(!elementRefe)
+                !reclassifyDetails.append(!className)
+                !reclassifyDetails.append(!paramterDetails)
+                !reclassifyDetails.append(!attributeDetails)
+                !reclassifyDetails.append(!excelAttributeDetails)
+                !reclassifyDetails.append(!attributeValueRow)
+                !reclassifyDetails.append(!uomDetails)
+                !reclassifyDetails.append(!classStorageAttribute)
+                !reclassifyDetails.append(!elementRefe.name)
+                !this.reclassifyMasterList.append(!reclassifyDetails)
+                !isAddedForReclassify = true
+              endif
+            endif
+
+            -- Class mismatch warning between Excel and AVEVA
+            if(!isReclassifyNeeded AND !className.set() AND !className.neq('')) then
+              !this.addErrorToList(!elementRefe.name, 'Type', 'ER15 - ' + 'Excel Type - $!className AVEVA Type - ' + !elementRefe.acttype, 1)
+            endif
+
+            ----------------------------------------------------------------------------------------------------------
+            -- Attribute Update process
+            ----------------------------------------------------------------------------------------------------------
+            !isForceUpdate           = !isReclassifyNeeded AND !isAddedForReclassify.not() AND !isForceUpdateAllowed
+            if(!isReclassifyNeeded.not() OR (!isForceUpdate)) then
+
+              -- Looping attribute column details
+              !this.modifyElement(!elementRefe, !paramterDetails, !attributeDetails, !excelAttributeDetails, !attributeValueRow, !uomDetails, !classStorageAttribute, !isTagNamePreserved, false)
+
+             -- Add error only if the element is not added for reclassification. It will be further handled by reclassify form
+            elseif(!isAddedForReclassify.not()) then
+              !this.addErrorToList(!elementRefe.name, 'Type', 'ER1 - ' + 'Element not of proper type - update failed reclassification issue')
+            endif
+          else
+            if(!classErrorMessage.eq('')) then
+              !classErrorMessage     = 'Tag Name not valid, import failed for the tag'
+            endif
+            !this.addErrorToList(!excelTagName, 'NAME', 'ER2 - ' + !classErrorMessage)
+          endif
+        else
+          !this.addErrorToList(!excelClassName, '', 'ER3 - ' + 'Name column not available for the class, import failed for the class')
+        endif
+      enddo
+    else
+      !this.addErrorToList(!excelClassName, '', 'ER4 - ' + 'Not able to derive element type for excel class, import failed for the class')
+    endif
+  enddo
+
+  !this.writeDataToLog()
+
+  if(!this.reclassifyMasterList.set()) then
+    !this.displayReclassficationForm()
+  endif
+
+endmethod
+
+----------------------------------------------------------------------
+--
+-- Method:      .writeDataToLog
+--
+-- Description: Method to reclassify the element to relevant class
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--    1   R      DBREF         Element
+--    2   R      STRING      Change Type
+-- Return:
+--   [Data Type] [Description]
+--    BOOLEAN   Reclassification Status
+------------------------------------------------------------------------
+define method .writeDataToLog()
+
+  !configDetails = !this.dataLoader.configDetail
+  !logFilePath       = !configDetails.getPathName('errorLogFolder')
+  if(!logFilePath.set()) then
+    !time              = object DATETIME()
+    !dateFormat        = object DATEFORMAT('Y_M_D')
+    !dateStr           = !dateFormat.string(!time)
+    !fileName          = !dateFormat.string(!time) + '_' + !time.hour().string() + !time.minute().string() + !time.second().string()
+
+    !logFileName       = !logFilePath + '\' + !fileName + '_ImportLog.txt'
+    if(!logFileName.MatchWild('*.xlsx') OR !logFileName.MatchWild('*.XLSX')) then
+      !!ramCommonLogger.writeErrorDataToExcel(!logFileName, false)
+    else
+      !!ramCommonLogger.writeErrorDataToTextFile(!logFileName, false)
+    endif
+  endif
+
+endmethod
+
+----------------------------------------------------------------------
+--
+-- Method:      .displayReclassficationForm
+--
+-- Description: Method to reclassify the element to relevant class
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--    1   R      DBREF         Element
+--    2   R      STRING      Change Type
+-- Return:
+--   [Data Type] [Description]
+--    BOOLEAN   Reclassification Status
+------------------------------------------------------------------------
+define method .displayReclassficationForm() is BOOLEAN
+
+  SHOW !!ramimportExcelReclassificationForm
+  !!ramimportExcelReclassificationForm.loadData(!this)
+
+endmethod
+
+----------------------------------------------------------------------
+--
+-- Method:      .reclassifyElement
+--
+-- Description: Method to reclassify the element to relevant class
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--    1   R      DBREF         Element
+--    2   R      STRING      Change Type
+-- Return:
+--   [Data Type] [Description]
+--    BOOLEAN   Reclassification Status
+------------------------------------------------------------------------
+define method .reclassifyElement(!elementRefes is ARRAY, !type is STRING, !asyncFunction is STRING)
+  !this.tagManagement.reclassifyElement(!elementRefes, !type, !asyncFunction)
+endmethod
+
+----------------------------------------------------------------------
+--
+-- Method:      .modifyElementDetails
+--
+-- Description: Method to modify the element attribute
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--    1   R      STRING      Element Name
+--    2   R      STRING      Element Type
+-- Return:
+--   [Data Type] [Description]
+--    BOOLEAN   Reclassification Status
+------------------------------------------------------------------------
+define method .modifyElementDetails(!updateDetails is ARRAY) is BOOLEAN
+
+  !this.tagManagement.modifyElementDetails(!updateDetails, true)
+
+endmethod
+
+----------------------------------------------------------------------
+--
+-- Method:      .modifyElement
+--
+-- Description: Method to modify the element attribute
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--    1   R      STRING      Element Name
+--    2   R      STRING      Element Type
+-- Return:
+--   [Data Type] [Description]
+--    BOOLEAN   Reclassification Status
+------------------------------------------------------------------------
+define method .modifyElement(!elementRefe is DBREF, !paramterDetails is ARRAY, !attributeDetails is ARRAY, !excelAttributeDetails is ARRAY, !attributeValueRow is ARRAY, !uomDetails is ARRAY, !classStorageAttribute is ARRAY, !isTagNamePreserved is BOOLEAN, !isNameupdateAllowed is BOOLEAN) is BOOLEAN
+
+  !isOnlyEmptyUpdate       = !this.isAllowed('UpdateOnlyIfEmpty')
+  !isSkipExcelEmptyValue       = !this.isAllowed('SkipExcelEmpty')
+  !updateDetails           = object ARRAY()
+
+  do !attIndex indices !attributeDetails
+    !attributeName         = !attributeDetails[!attIndex]
+    !dbAttribute           = object ATTRIBUTE(!attributeName)
+    !isPseudo              = !dbAttribute.isPseudo()
+    !isNameUpdate          = !attributeName.eqNocase('NAME') AND !isNameupdateAllowed
+
+    if(!isNameUpdate.not()) then
+      -- Skipping name update and pseudo attribute update
+      skip if(!isPseudo)
+    endif
+
+    !excelAttributeName    = !excelAttributeDetails[!attIndex]
+    !masterColumnName      = !this.dataLoader.getSettingValue('MasterClassColumn')
+    !isMasterColumn        = !excelAttributeName.eqNocase(!masterColumnName)
+    !additionalMessage     = '#' + !elementRefe.acttype + '#' + !excelAttributeName
+
+    -- skip if the master column is unmapped in attribute mapping
+    -- if attribute mapped then store the master column value in attribute
+    !isMasterUnmapped      = !isMasterColumn AND !attributeName.unset()
+    skip if(!isMasterUnmapped)
+    !parameter             = !paramterDetails[!attIndex]
+    !attributeValue        = !this.getProcessedValue(!attributeValueRow[!attIndex].trim(), !parameter)
+    !uomValue              = !uomDetails[!attIndex]
+
+    if(!attributeName.set()) then
+      !isAttributeAvailable = !this.tagManagement.isAttributeAvailable(!elementRefe, !attributeName)
+      if(!isAttributeAvailable) then
+        !isEmptyUpdate         = !isOnlyEmptyUpdate AND !this.tagManagement.checkIfAttributeEmpty(!elementRefe, !attributeName)
+        !isExcelValueEmpty     = !attributeValue.eq('') OR !attributeValue.unset()
+        if(!isSkipExcelEmptyValue AND !isExcelValueEmpty) then
+          skip
+        endif
+
+        if((!isEmptyUpdate.set() AND !isEmptyUpdate) OR !isOnlyEmptyUpdate.not()) then
+          if(!isExcelValueEmpty.not()) then
+            !attributeValue     = !this.getValidStringData(!elementRefe, !attributeName, !attributeValue, !uomValue, !additionalMessage)
+          endif
+          !updateDetail          = object ARRAY()
+          !updateDetail.append(!elementRefe)
+          !updateDetail.append(!attributeName)
+          !updateDetail.append(!attributeValue)
+          !updateDetails.append(!updateDetail)
+        elseif(!isEmptyUpdate.unset()) then
+          !this.addErrorToList(!elementRefe.name, !attributeName, 'ER5 - Error While process attribute - attribute may not be valid' + !additionalMessage, 2)
+        else
+          -- TODO
+          if(!isExcelValueEmpty.not()) then
+            !attributeValue     = !this.getValidStringData(!elementRefe, !attributeName, !attributeValue, !uomValue, !additionalMessage)
+          endif
+          !excelValue = ''
+          !databaseValue = ''
+          !isSameValue       = !this.tagManagement.checkSameValueAfterConversion(!elementRefe, !attributeName, !attributeValue, !excelValue, !databaseValue)
+          if(!isSameValue.not()) then
+            !this.addErrorToList(!elementRefe.name, !attributeName, 'ER9 - ' + 'Excel value - |$!excelValue| Database value - |$!databaseValue| - Only empty attribute allowed to update(config)' + !additionalMessage, 1)
+          endif
+        endif
+      else
+        !acttype = !elementRefe.acttype
+        !this.addErrorToList(!elementRefe.name, !attributeName, 'ER14 - ' + 'Attribute not valid for the element type ' + !acttype + !additionalMessage)
+      endif
+    else
+      !this.addErrorToList(!elementRefe.name, !excelAttributeName, 'ER10 - ' + 'Not able to derive attribute for excel attribute name' + !additionalMessage)
+    endif
+
+  enddo
+
+  -- Updating the class details in the attribute mentioned in the general setting
+  !excelSheetName          = !classStorageAttribute[1]
+  !attributeDetail         = !classStorageAttribute[2]
+  if(!attributeDetail.set()) then
+    !attributeName         = !attributeDetail[1]
+    !isEmptyUpdate         = !isOnlyEmptyUpdate AND !this.tagManagement.checkIfAttributeEmpty(!elementRefe, !attributeName)
+    !value                 = !excelSheetName
+    !parameter             = !attributeDetail[2]
+    !attributeValue        = !this.getProcessedValue(!value, !parameter)
+    if((!isEmptyUpdate.set() AND !isEmptyUpdate) OR !isOnlyEmptyUpdate.not()) then
+      !updateDetail          = object ARRAY()
+      !updateDetail.append(!elementRefe)
+      !updateDetail.append(!attributeName)
+      !updateDetail.append(!attributeValue)
+      !updateDetails.append(!updateDetail)
+    else
+      !excelValue = ''
+      !databaseValue = ''
+      !isSameValue       = !this.tagManagement.checkSameValueAfterConversion(!elementRefe, !attributeName, !attributeValue, !excelValue, !databaseValue)
+      if(!isSameValue.not()) then
+        !this.addErrorToList(!elementRefe.name, !attributeName, 'ER9 - ' + 'Excel value - |$!excelValue| Database value - |$!databaseValue| - Only empty attribute allowed to update(config)' + '#' + !elementRefe.acttype, 1)
+      endif
+    endif
+  endif
+
+  !this.tagManagement.modifyElementDetails(!updateDetails, !isTagNamePreserved)
+
+endmethod
+
+----------------------------------------------------------------------
+--
+-- Method:      .getProcessedValue
+--
+-- Description: Method to modify the element attribute
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--    1   R      STRING      Element Name
+--    2   R      STRING      Element Type
+-- Return:
+--   [Data Type] [Description]
+--    BOOLEAN   Reclassification Status
+------------------------------------------------------------------------
+define method .getProcessedValue(!value is STRING, !parameter is STRING) is STRING
+  !attributeValue        = !this.dataLoader.getProcessedValue(!value, !parameter)
+  return !attributeValue
+endmethod
+
+----------------------------------------------------------------------
+--
+-- Method:      .getValidStringData
+--
+-- Description: Method to modify the element attribute
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--    1   R      STRING      Element Name
+--    2   R      STRING      Element Type
+-- Return:
+--   [Data Type] [Description]
+--    BOOLEAN   Reclassification Status
+------------------------------------------------------------------------
+define method .getValidStringData(!element is DBREF, !attribute is STRING, !attributeValue is STRING, !uomValue is STRING) is STRING
+
+  !result = !this.getValidStringData(!element, !attribute, !attributeValue, !uomValue, '')
+  return !result
+
+endmethod
+
+----------------------------------------------------------------------
+--
+-- Method:      .getValidStringData
+--
+-- Description: Method to modify the element attribute
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--    1   R      STRING      Element Name
+--    2   R      STRING      Element Type
+-- Return:
+--   [Data Type] [Description]
+--    BOOLEAN   Reclassification Status
+------------------------------------------------------------------------
+define method .getValidStringData(!element is DBREF, !attribute is STRING, !attributeValue is STRING, !uomValue is STRING, !additionalMessage is STRING) is STRING
+
+  !result                = object STRING()
+  !currentValue          = !element.attribute(!attribute)
+  handle any
+    !this.addErrorToList(!element.name, !attribute, 'ER13 - ' + !!error.text + !additionalMessage)
+
+  elsehandle None
+    !attributeType       = !currentValue.objecttype()
+    !result              = !attributeValue
+
+    if((!attributeType eq 'DBREF') OR (!attribute.eqNocase('NAME'))) then
+      !leadChar          = !attributeValue.trim().subString(1,1)
+      if(!leadChar neq '/' and !leadChar neq '=') then
+        !result          = '/' + !attributeValue
+      endif
+
+    elseif(!attributeType eq 'REAL') then
+      !dbAttribute       = object ATTRIBUTE(!attribute)
+      !unit              = !dbAttribute.units()
+
+      -- Update the value in dbunits, because c# attribute update only accept values without unit
+      if(!unit.string().neq('')) then
+        !measure         = object MEASURE(!unit)
+        !dbUnit          = !measure.dbunit()
+        !format          = object FORMAT()
+        !format.units    = !dbUnit.string()
+        !format.TRAILZEROS    = false
+
+        !attributeValueSplit = object ARRAY()
+        !isSplited       = !this.getValueSplit(!attributeValue, !attributeValueSplit)
+        if(!isSplited) then
+          !tempValue     = !attributeValueSplit[1] + !this.replaceUOM(!attributeValueSplit[2])
+        else
+          !tempValue       = !attributeValue
+          if(!uomValue.set() AND !uomValue.neq('')) then
+            !tempValue     = !attributeValue + !this.replaceUOM(!uomValue)
+          else
+            !this.addErrorToList(!element.name, !attribute, 'ER16 - ' + 'import with default unit ' + !dbUnit.string() + !additionalMessage, 1)
+          endif
+        endif
+
+        -- Accept the value in current project unit
+        !realValue       = object REAL(!tempValue)
+        handle any
+          !this.addErrorToList(!element.name, !attribute, 'ER6 - ' + 'Not able to convert ' + !tempValue + ' to real' + !additionalMessage, 2)
+        elsehandle None
+          !result          = !realValue.string(!format)
+          handle any
+            !this.addErrorToList(!element.name, !attribute, 'ER7 - ' + 'Unit conversion failed. Original value - ' + !tempValue + ' to unit - ' + !dbUnit.string() + !additionalMessage, 2)
+          endhandle
+        endhandle
+      endif
+    endif
+  endhandle
+
+  return !result
+
+endmethod
+
+----------------------------------------------------------------------
+--
+-- Method:      .getValueSplit
+--
+-- Description: Method to convert string to element
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--    1   R      STRING      Element Name
+-- Return:
+--   [Data Type] [Description]
+--    DBREF        Element
+------------------------------------------------------------------------
+define method .replaceUOM(!uomValue is STRING) is STRING
+
+  !resultUOMValue    = !uomValue
+  !tempUnit          = !this.dataLoader.getUOMName(!uomValue)
+  if(!tempUnit.set()) then
+    !resultUOMValue  = !tempUnit
+  endif
+  return !resultUOMValue
+
+endmethod
+
+----------------------------------------------------------------------
+--
+-- Method:      .getValueSplit
+--
+-- Description: Method to convert string to element
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--    1   R      STRING      Element Name
+-- Return:
+--   [Data Type] [Description]
+--    DBREF        Element
+------------------------------------------------------------------------
+define method .getValueSplit(!attributeValue is STRING, !attributeValueSplit is ARRAY) is BOOLEAN
+
+  !isSplited                   = false
+  do !i from 1 to !attributeValue.length()
+    !subStr                    = !attributeValue.substring(!i,1)
+    if(!subStr.isLetters()) then
+      !index                   = !i - 1
+      !attributeValueSplit[1]  = !attributeValue.substring(1, !index).trim()
+      !attributeValueSplit[2]  = !attributeValue.substring(!index + 1, !attributeValue.length() - !index)
+      !isSplited               = true
+      break
+    endif
+  enddo
+
+  return !isSplited
+
+endmethod
+
+----------------------------------------------------------------------
+--
+-- Method:      .validateName
+--
+-- Description: Method to convert string to element
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--    1   R      STRING      Element Name
+-- Return:
+--   [Data Type] [Description]
+--    DBREF        Element
+------------------------------------------------------------------------
+define method .validateName(!name is STRING) is DBREF
+
+  !elementRefe        = object DBREF()
+  !validName          = !name.trim()
+  !isSlashNeeded      = !validName.subString(1,1).neq('/') AND !validName.subString(1,1).neq('=') $
+                        AND !validName.occurs(' ').eq(0)
+  if(!isSlashNeeded) then
+    !validName        = '/' + !name
+  endif
+
+  !elementRefe        = !validName.dbRef()
+  handle any
+  endhandle
+
+  return !elementRefe
+
+endmethod
+
+----------------------------------------------------------------------
+--
+-- Method:      .isAllowed
+--
+-- Description: Method to convert string to element
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--    1   R      STRING      Element Name
+-- Return:
+--   [Data Type] [Description]
+--    DBREF        Element
+------------------------------------------------------------------------
+define method .isAllowed(!setting is STRING) is BOOLEAN
+
+  !isAllowed   = false
+  !value       = !this.dataLoader.getSettingValue(!setting)
+  if(!value.eqNocase('TRUE')) then
+    !isAllowed = true
+  endif
+
+  return !isAllowed
+
+endmethod
+
+----------------------------------------------------------------------
+--
+-- Method:      .getReclassificationList
+--
+-- Description: Method to convert string to element
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--    1   R      STRING      Element Name
+-- Return:
+--   [Data Type] [Description]
+--    DBREF        Element
+------------------------------------------------------------------------
+define method .getReclassificationList() is ARRAY
+
+  return !this.reclassifyMasterList
+
+endmethod
+
+------------------------------------------------------------------------
+--
+-- Method:     addErrorToList
+-- Description: Method to add errors to common logger
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--     1    R          DBREF          Element
+--     2    R          STRING       Attribute Name
+--     3    R          STRING       Error Details
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .addErrorToList(!element is STRING, !detail is STRING, !errorDetail is STRING)
+  !this.addErrorToList(!element, !detail, !errorDetail, 2)
+endmethod
+
+------------------------------------------------------------------------
+--
+-- Method:     addErrorToList
+-- Description: Method to add errors to common logger
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--     1    R          DBREF          Element
+--     2    R          STRING       Attribute Name
+--     3    R          STRING       Error Details
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .addErrorToList(!element is STRING, !detail is STRING, !errorDetail is STRING, !severityLevel is REAL)
+
+  if(undefined(!!ramCommonLogger)) then
+    !!ramCommonLogger = object RAMCOMMONLOGGER()
+  endif
+
+  !errorList          = object ARRAY()
+  !errorList.append(!element)
+  !errorList.append(!detail)
+  !errorList.AppendArray(!errorDetail.split('#'))
+  !!ramCommonLogger.addLogDetails(!this.objecttype(), !errorList, !severityLevel)
+
+endmethod

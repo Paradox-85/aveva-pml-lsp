@@ -1,0 +1,33 @@
+{
+  "fileId": "mac_45",
+  "filePath": "docs/codebase/macros/tag-doc-cleanup.pmlmac",
+  "fileType": "macro",
+  "taskDescription": "macro that reloads TAGMANAGEMENTTMP object and calls tagDocDublicatesCleaning() method",
+  "runDate": "2026-06-03",
+  "runMode": "blind_worker",
+  "patternsUsed": [
+    "pml_reload_object (KB: best-practices.md, Methods on User-Defined Object Types.md)",
+    "object_default_constructor (KB: syntax reference, Methods on User-Defined Object Types.md)",
+    "dollar_m_header_comment (KB: syntax reference — dollar special symbols)",
+    "single_method_call (KB: best-practices.md, multiple codebase examples)"
+  ],
+  "lintResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 11
+  },
+  "validateResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 11
+  },
+  "kbGaps": [],
+  "gapScore": 0.0,
+  "actionRequired": "skip",
+  "benchmarkPath": "docs/factory/benchmarks/mac_45_benchmark.pmlmac",
+  "gapReportPath": "docs/factory/gap-reports/mac_45_gap.json",
+  "kbPatchPath": "docs/factory/kb-patches/mac_45_kb_patch.ts",
+  "benchmarkContent": "--$m \"C:\\Users\\ADZV\\OneDrive - Ramboll\\AVEVA_SERVER\\Addons\\PMLLIB\\RAM\\Engineering\\jackdow\\run-macro\\tag-doc-cleanup.pmlmac\"\nPML RELOAD OBJECT TAGMANAGEMENTTMP\n!tagMgmt = object TAGMANAGEMENTTMP()\n!tagMgmt.tagDocDublicatesCleaning()\n",
+  "confidenceScore": 0.95,
+  "notes": "Original is a 4-line macro with a trivial pattern (reload + construct + single method). Benchmark is byte-identical to original. No KB gaps found. D6 note: TAGMANAGEMENTTMP object definition is external to KB but usage pattern is well-established across 12+ macros."
+}

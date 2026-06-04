@@ -1,0 +1,48 @@
+{
+  "fileId": "mac_07",
+  "fileName": "JDE_BI_tagRegister-export.pmlmac",
+  "fileType": "macro",
+  "status": "COMPLETE",
+  "executedAt": "2026-06-03T00:00:00Z",
+  "summary": {
+    "originalSize": 8342,
+    "benchmarkSize": 8342,
+    "lintDiagnostics": 0,
+    "lintParseErrors": 0,
+    "validateDiagnostics": 0,
+    "validateParseErrors": 0,
+    "kbGapsFound": 6,
+    "kbPatchesWritten": 6
+  },
+  "semanticSummary": "Multi-domain tag register export macro for Power BI. Imports Aveva.Engineering.Tags and Core.Presentation namespaces. Initializes datetime, empty-value patterns, RAMCOMMONLOGGER, unit configuration, common attribute mappings (12 rows), and data-replacement patterns (38 rows). Exports 6 data domains (MTR, RDL, DOC, ALL, 3D, RDL-dataset) via LSTDEF grid queries with filter clearing and Excel export. Calls external rclone sync batch. Error handler writes log to Excel, saves work, unclaims.",
+  "patternsIdentified": [
+    "ONERROR/GOLABEL error dispatch",
+    "import/handle any/endhandle namespace safety",
+    "using namespace (single-quote delimiters)",
+    "OBJECT DATETIME() component extraction chain",
+    "STRING.split() + ARRAY.append() empty pattern builder",
+    "object RAMCOMMONLOGGER() logging setup",
+    "object MEASURE() / object UNIT() / .setunits() unit config",
+    "2D ARRAY for attribute name mappings",
+    "ARRAY.append() for replacement data patterns",
+    "PMLTAGS() exportasxls() grid export",
+    "LSTDEF collect + dbref + lstflt filter clearing",
+    "CATNAM of LSTGRP grid group name extraction",
+    "SYSCOM copy for file backup",
+    "Custom jacExportRDLDataReport() function calls",
+    "LABEL /Error + handle any/endhandle error handler",
+    "SAVEWORK + UNCLAIM ALL cleanup",
+    "SYSCOM call for external batch execution",
+    "FINISH macro termination"
+  ],
+  "kbGapsSummary": [
+    { "id": "gap-001", "pattern": "RAMCOMMONLOGGER", "severity": "HIGH" },
+    { "id": "gap-002", "pattern": "PMLTAGS.exportasxls()", "severity": "MEDIUM" },
+    { "id": "gap-003", "pattern": "jacExportRDLDataReport()", "severity": "MEDIUM" },
+    { "id": "gap-004", "pattern": "jacExportRDLDataReportMatrix()", "severity": "MEDIUM" },
+    { "id": "gap-005", "pattern": "MEASURE/UNIT objects", "severity": "LOW" },
+    { "id": "gap-006", "pattern": "DATETIME component extraction", "severity": "LOW" }
+  ],
+  "d1toD6Status": "All dimensions D1-D6 PASS — benchmark fully covers original syntax, objects, control flow, namespaces, error handling, and data patterns.",
+  "d7Status": "GAPS_FOUND — 6 KB entries to create (see kb-patches/mac_07_kb_patch.ts)"
+}

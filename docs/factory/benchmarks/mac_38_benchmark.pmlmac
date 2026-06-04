@@ -1,0 +1,112 @@
+-- Macro: JDE_vendorPackage-reports
+-- Description: Run path data to Excel by vendor package
+-- Author: AVEVA Automation Framework
+-- Category: macros
+
+-- Import required modules
+import 'GridControl'
+handle any
+endhandle
+
+import 'Aveva.Engineering.Tags.Pml'
+handle any
+endhandle
+
+-- Declare namespaces
+using namespace 'Aveva.Core.Presentation'
+using namespace 'Aveva.Engineering.Tags'
+
+-- ============================================================
+-- Configuration variables
+-- ============================================================
+
+-- Output directory path (project-specific, adjust as needed)
+!pathName = |/project/output/vendorReports|
+
+-- Empty-pattern strings for Excel export filtering
+!emptyPatternString = |Unset unset UNSET 0|
+!emptyPatternList = !emptyPatternString.split()
+!emptyPatternList.append(| |)
+!emptyPatternList.append(||)
+
+-- Common attributes for report columns (2D ARRAY)
+-- Each row: [attribute expression, column header]
+!commonAttributes = object ARRAY()
+!commonAttributes[1][1] = ':RAMTagOwner'
+!commonAttributes[1][2] = 'Tag Owner'
+!commonAttributes[2][1] = ':TagStatus'
+!commonAttributes[2][2] = 'Tag Status'
+!commonAttributes[3][1] = 'NAMN of :TagRefToPurchaseOrder'
+!commonAttributes[3][2] = 'PO Number'
+!commonAttributes[4][1] = ':RAMPackageNumber of :TagRefToPurchaseOrder'
+!commonAttributes[4][2] = 'Package'
+!commonAttributes[5][1] = ':TagClassName'
+!commonAttributes[5][2] = 'Shell Class'
+!commonAttributes[6][1] = 'NAMN of :TagRefToMCPackage'
+!commonAttributes[6][2] = 'MC Package'
+!commonAttributes[7][1] = 'NAMN of :MCPackageToCommissioningPackageRef of :TagRefToMCPackage'
+!commonAttributes[7][2] = 'Comm Package'
+!commonAttributes[8][1] = 'NAMN of :TagRefToArea'
+!commonAttributes[8][2] = 'Area'
+!commonAttributes[9][1] = ':RambollTagStatus'
+!commonAttributes[9][2] = 'Maturity'
+!commonAttributes[10][1] = 'NAMN of :TagRefToProcessUnit'
+!commonAttributes[10][2] = 'Process Unit'
+!commonAttributes[11][1] = ':RAMInstallationContractors'
+!commonAttributes[11][2] = 'Install By'
+!commonAttributes[12][1] = 'REPLACE(IFT(:TagName of :TagRefToParentTag neq NAMN of :TagRefToParentTag and (not(unset(:TagName of :TagRefToParentTag)) and not(empty(:TagName of :TagRefToParentTag))), :TagName of :TagRefToParentTag, NAMN of :TagRefToParentTag), |&#8211;|, |-|)'
+!commonAttributes[12][2] = 'Parent Tag'
+
+-- ============================================================
+-- Main processing loop: iterate over vendor packages
+-- ============================================================
+
+-- Collect unique vendor package numbers from PurchaseOrder elements
+var !packages eval (:RAMPackageNumber) for all :PurchaseOrder
+!packages.unique()
+
+-- Loop over each package
+do !pckgName values !packages
+    -- Build tag filter for this package
+    !tagFilter = ':tagStatus neq |VOID| and ISNAMED and NOT(EMPTY(:RAMTAGOWNER)) and matchwild(:RAMPackageNumber of :TagRefToPurchaseOrder, |*$!pckgName*|)'
+
+    -- Collect all ENGINEERING tags matching the filter
+    var !tagList collect all (ENGITE) with ($!tagFilter)
+
+    -- Process only if tags were found
+    !size = !tagList.size()
+    if (!size gt 0) then
+        -- RDL filter for data template selection
+        !rdlFilter = |:RDLSource eq 'AKSO_Tag Properties Templates_Rev6'|
+
+        -- Construct output file path
+        !filePathRam = |$!pathName\_master\data\vendor_data\vendorReport_$!<pckgName>.xlsx|
+
+        -- Export data to Excel via custom report matrix function
+        !!jacExportRDLDataReportMatrix(!filePathRam, !rdlFilter, !tagFilter, !emptyPatternList, !commonAttributes)
+    endif
+enddo
+
+-- ============================================================
+-- Error handler
+-- ============================================================
+
+LABEL /Error
+handle any
+    SAVEWORK
+    UNCLAIM ALL
+
+    -- Generate timestamp for log file name
+    !dt = OBJECT DATETIME()
+    !year = !dt.year()
+    !month = !dt.month().string('I2')
+    !date = !dt.date().string('I2')
+    !hour = !dt.hour().string('I2')
+    !minute = !dt.minute().string('I2')
+
+    -- Write error data to Excel log
+    !!ramCommonLogger.writeErrorDataToExcel(|/project/output/vendorReports/Logs/Night-macro/vendorReport-log_$!<year>-$!<month>-$!<date>-$!<hour>.xlsx|, false)
+
+    -- Stop macro execution
+    FINISH
+endhandle

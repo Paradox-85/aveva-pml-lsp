@@ -1,0 +1,273 @@
+-- Macro: Vendor Tag Import from Excel to AVEVA Elements
+-- Purpose: Import vendor tag data from .xlsx files into AVEVA Elements,
+--          mapping columns to element attributes via a mapping table,
+--          and producing an issue/feedback Excel report.
+-- Author: PML Worker (KB-generated benchmark)
+-- Date: 2026-06-03
+
+-- ============================================================
+-- Section 1: Imports and namespace setup
+-- ============================================================
+import |Aveva.Engineering.PMLElementManager|
+handle any
+endhandle
+
+import 'GridControl'
+handle any
+endhandle
+
+using namespace |Aveva.Core.Presentation|
+
+-- ============================================================
+-- Section 2: Read input Excel file via NETGRIDCONTROL
+-- ============================================================
+!fileName = |C:\Data\vendortags\input.xlsx|
+!dataSource = object NETDATASOURCE('Grid Table', !fileName)
+!dataTable = object NETGRIDCONTROL()
+!dataTable.bindToDataSource(!dataSource)
+!data = !dataTable.getrows()
+!heading = !dataTable.gettitles()
+
+-- ============================================================
+-- Section 3: Prepare clean heading list (lowercase + trim)
+-- ============================================================
+!cleanHeading = ARRAY()
+do !col values !heading
+	!cleanHeading.append(!col.lowCase().trim())
+enddo
+
+-- ============================================================
+-- Section 4: Read mapping table from second Excel file
+-- ============================================================
+!mappedColumns = ARRAY()
+!mappingDataTable = object NETGRIDCONTROL()
+!mappingDataSource = object NETDATASOURCE('Grid Table', |C:\Data\vendortags\mapping.xlsx|)
+!mappingDataTable.bindToDataSource(!mappingDataSource)
+!mappingData = !mappingDataTable.getrows()
+
+do !row values !mappingData
+	!mappedColumns.append(!row[1])
+enddo
+
+-- ============================================================
+-- Section 5: Locate required columns (name + type)
+-- ============================================================
+!nameId = !cleanHeading.findfirst(|default tag name|)
+!typeId = !cleanHeading.findfirst(|rdl class type|)
+
+if (!nameId.set() and !typeId.set()) then
+
+	-- ========================================================
+	-- Section 6: Process each data row
+	-- ========================================================
+	do !row values !data
+
+		!rowIdx = !data.findfirst(!row)
+
+		-- Progress reporting
+		!!displayProgress(!rowIdx, !data.size())
+
+		-- Extract and clean tag name
+		!Tag = !row[!nameId].replace(|‐|, |-|).trim()
+
+		-- Extract and clean tag type (strip special symbols)
+		!Type = !row[!typeId]
+		!symbol = |. , - ~ * : ; _ / \ ' " & ? ! # $ % ( )|
+		!symbols = !symbol.split()
+		!symbols.append(| |)
+		do !symb values !symbols
+			!Type = !Type.replace(!symb, '')
+		enddo
+
+		!tagName = |/$!<Tag>|
+		!tagref = !tagName.dbref()
+
+		-- ====================================================
+		-- Section 7: Create element if it does not exist
+		-- ====================================================
+		handle any
+			using namespace |Aveva.Engineering.PMLElementManager|
+			!elementNet = object CREATEELEMENT()
+			!etype = object ELEMENTTYPE(|:$!<Type>|)
+
+			if (!etype.valid()) then
+				!elementNet.SetElementTypeByName(|:$!<Type>|)
+				handle any
+					!msg = |$!tag;:$!Type;NA;Class [:$!Type] is not valid in AVEVA. Tag will not be created|
+					!!issueFile.WriteRecord(!msg)
+				elsehandle none
+					!elementNet.AddAttributeValue(|NAME|, !tagName)
+					!elementNet.Execute()
+					!errors = !elementNet.GetErrors()
+					do !error values !errors
+						!msg = |$!tag;:$!Type;NA;NA;$!error|
+						!issueData.append(!msg.split(|;|))
+					enddo
+				endhandle
+			else
+				!msg = |$!tag;:$!Type;NA;NA;Class is not valid in AVEVA. Tag will not be created|
+				!issueData.append(!msg.split(|;|))
+			endif
+		elsehandle none
+		endhandle
+
+		-- Refresh reference after potential creation
+		!tagref = !tagName.dbref()
+
+		-- ====================================================
+		-- Section 8: Set attribute values from Excel columns
+		-- ====================================================
+		handle none
+			!acttype = !tagref.acttype
+
+			do !col values !cleanHeading
+				var !value DELETE
+				var !currentValue DELETE
+				!col = !col.trim()
+
+				if (!col.lowCase() neq |default tag name| and !col.lowCase() neq |rdl class type|) then
+					!idx = !cleanHeading.findfirst(!col)
+					!fileValue = !row[!idx].trim()
+
+					-- Look up mapped attribute names
+					!mappedIdx = !mappedColumns.findfirst(!col.lowCase())
+					if (!mappedIdx.set()) then
+						!attributeName1 = !mappingData[!mappedIdx][2]
+						!attributeName2 = !mappingData[!mappedIdx][3]
+						!attribute1 = object ATTRIBUTE(!attributeName1)
+						!attribute2 = object ATTRIBUTE(!attributeName2)
+
+						-- Only process non-empty, non-NA values
+						if (!fileValue.empty().not() and !fileValue.lowCase() neq |na| and !fileValue.lowCase() neq |n/a| and !fileValue.lowCase() neq |unset| and !fileValue neq |0|) then
+
+							-- ---- Attribute 1 (primary) ----
+							if (!attribute1.hash() gt 0) then
+								!currentValue = !tagref.attribute(!attribute1.name())
+								handle none
+									!isError = false
+									!valueType = !currentValue.objecttype()
+
+									if (!valueType eq 'REAL') then
+										!tagref.attribute(!attribute1.name()) = !fileValue.real()
+										handle any
+											!isError = true
+											!msg = |$!tag;$!acttype;$!attributeName1;$!fileValue;$!!error.text|
+											!issueData.append(!msg.split(|;|))
+										endhandle
+									endif
+
+									if (!valueType eq 'DBREF') then
+										!fileValue = |/$!fileValue|
+										!tagref.attribute(!attribute1.name()) = !fileValue.dbref()
+										handle any
+											!isError = true
+											!msg = |$!tag;$!acttype;$!attributeName1;$!fileValue;$!!error.text|
+											!issueData.append(!msg.split(|;|))
+										endhandle
+									endif
+
+									if (!valueType eq 'STRING') then
+										!tagref.attribute(!attribute1.name()) = !fileValue.string()
+										handle any
+											!isError = true
+											!msg = |$!tag;$!acttype;$!attributeName1;$!fileValue;$!!error.text|
+											!issueData.append(!msg.split(|;|))
+										endhandle
+									endif
+
+									if (!valueType eq 'ARRAY') then
+										skip
+									endif
+
+									if !isError then
+										$p error: $!tagName type: $!valueType attribute: $!col value: $!fileValue
+									endif
+								elsehandle any
+									!msg = |$!tag;$!acttype;$!attributeName1;$!fileValue;$!!error.text|
+									!issueData.append(!msg.split(|;|))
+								endhandle
+							else
+								!msg = |$!tag;$!attributeName1;$!fileValue;Attribute is not valid in AVEVA for this item. Attribute value will not be uploaded|
+								!issueData.append(!msg.split(|;|))
+							endif
+
+							-- ---- Attribute 2 (alternative) ----
+							if (!attributeName2.trim() neq ||) then
+								if (!attribute2.hash() gt 0) then
+									!currentValue = !tagref.attribute(!attribute2.name())
+									handle none
+										!isError = false
+										!valueType = !currentValue.objecttype()
+
+										if (!valueType eq 'REAL') then
+											!tagref.attribute(!attribute2.name()) = !fileValue.real()
+											handle any
+												!isError = true
+												!msg = |$!tag;$!acttype;$!attributeName2;$!fileValue;$!!error.text|
+												!issueData.append(!msg.split(|;|))
+											endhandle
+										endif
+
+										if (!valueType eq 'DBREF') then
+											!fileValue = |/$!fileValue|
+											!tagref.attribute(!attribute2.name()) = !fileValue.dbref()
+											handle any
+												!isError = true
+												!msg = |$!tag;$!acttype;$!attributeName2;$!fileValue;$!!error.text|
+												!issueData.append(!msg.split(|;|))
+											endhandle
+										endif
+
+										if (!valueType eq 'STRING') then
+											!tagref.attribute(!attribute2.name()) = !fileValue.string()
+											handle any
+												!isError = true
+												!msg = |$!tag;$!acttype;$!attributeName2;$!fileValue;$!!error.text|
+												!issueData.append(!msg.split(|;|))
+											endhandle
+										endif
+
+										if (!valueType eq 'ARRAY') then
+											skip
+										endif
+
+										if !isError then
+											$p error: $!tagName type: $!valueType attribute: $!col value: $!fileValue
+										endif
+									elsehandle any
+										!msg = |$!tag;$!acttype;$!attributeName2;$!fileValue;$!!error.text|
+										!issueData.append(!msg.split(|;|))
+									endhandle
+								else
+									!msg = |$!tag;$!acttype;$!attributeName2;$!fileValue;Attribute is not valid in AVEVA for this item. Attribute value will not be uploaded|
+									!issueData.append(!msg.split(|;|))
+								endif
+							endif
+						endif
+					else
+						!msg = |$!tag;$!acttype;$!col;$!fileValue;There is no mapping for attribute mapping file. Please check mapping|
+						!issueData.append(!msg.split(|;|))
+					endif
+				endif
+			enddo
+		elsehandle any
+		endhandle
+	enddo
+endif
+
+-- ============================================================
+-- Section 9: Write issue/feedback Excel report
+-- ============================================================
+!IssueFileName = !fileName.replace(|.xlsx|, |_RAMfeedback.xlsx|)
+!issueData = ARRAY()
+!headerList = ARRAY()
+!msg = |Tag No;Tag Type;Attribute;Value;Issue Description|
+!headerList.appendArray(!msg.split(|;|))
+
+!dataTable = object NETGRIDCONTROL()
+!dataTable.clearGrid()
+!source = object NETDATASOURCE('data', !headerList, !issueData)
+!dataTable.bindToDataSource(!source)
+!dataTable.saveGridToExcel(|$!IssueFileName|, |data|)
+
+SAVEWORK

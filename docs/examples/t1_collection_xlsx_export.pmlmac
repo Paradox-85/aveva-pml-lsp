@@ -1,0 +1,62 @@
+----------------------------------------------------------------------
+--
+--  Company:		BAMI S.R.L
+--
+--  File:           t1_collection_xlsx_export.pmlmac
+--  Type:          	Macro Definition
+--  Group:         	MCP server test examples files
+--  Keyword:     	Tag collection & extraction to xlsx
+--  Module:        	Tags
+--  Author:         Andrei Aitzhanov
+--  Created:        Tue Apr  9 12:44:46 2013
+
+--
+--  Description:    Collect tag in AVEVA Engineerin Tag module with some metadata and saving array to xlsx with GridControl .net addin library
+--
+----------------------------------------------------------------------
+
+import 'GridControl'
+handle ANY
+endhandle
+
+!startDateTime = OBJECT DATETIME()
+!year = !startDateTime.year()
+!month = !startDateTime.month().string('I2')
+!date = !startDateTime.date().string('I2')
+!hour = !startDateTime.hour().string('I2')
+!minute = !startDateTime.minute().string('I2')
+
+!msg = |Tag Name;Type;Description;Site Name;Zone Name|
+!headerList = ARRAY()
+!dataList = ARRAY()
+!headerList.appendArray(!msg.split(|;|))
+
+var !items collect all (EQUI SUBE STRUC FRMW SBFR PIPE HVAC CWAY SUPPO BRAN MEM) with (ISNAMED)
+do !item values !items
+	!itemRef = !item.dbref()
+	var !site namn of site of $!item
+	handle any
+		skip
+	endhandle
+	var !zone namn of zone of $!item
+	handle any
+		skip
+	endhandle
+	var !desc desc of $!item
+	handle any
+		var !desc dtxr of $!item
+	endhandle
+	!msg = |$!<itemRef.namn>;$!<itemRef.acttype>;$!<desc>;$!site;$!zone|
+	!dataList.append(!msg.split(|;|))
+enddo
+
+using namespace |Aveva.Core.Presentation|
+!publishPath 		= 'C:\Users\ADZV\OneDrive - Ramboll\Digital Deliveries\LCI\04_3D-tags\_export\'
+!dataFileNameDated 	= |RAM_3DtagRegister_$!<year>-$!<month>-$!<date>_$!<hour>-$!<minute>.xlsx|
+!dataFileName 		= |RAM_3DtagRegister.xlsx|
+!dataTable 			= object NETGRIDCONTROL()
+!dataTable.clearGrid()
+!source 			= object NETDATASOURCE('data', !headerList, !dataList)
+!dataTable.BindToDataSource(!source)
+!dataTable.saveGridToExcel(|$!<publishPath>$!<dataFileNameDated>|)
+!dataTable.saveGridToExcel(|$!<publishPath>$!<dataFileName>|)

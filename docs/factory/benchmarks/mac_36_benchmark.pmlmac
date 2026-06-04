@@ -1,0 +1,89 @@
+$* Factory benchmark generated for mac_36
+$* Source path: docs/codebase/macros/JDE_tagProperties_export_with_RDL.pmlmac
+$* Author: Andrei Aitzhanov
+$* Customer: Ramboll
+$* Rev: 01
+$* Purpose: export tags properties for Shell
+
+import 'GridControl'
+handle any
+endhandle
+using namespace |Aveva.Core.Presentation|
+
+!dataList = ARRAY()
+!headerList = ARRAY()
+!headerList.append(|Tag Name|)
+!headerList.append(|Tag Owner|)
+!headerList.append(|Tag Status|)
+!headerList.append(|Tag Maturity Level|)
+!headerList.append(|RAM Class Name|)
+!headerList.append(|Shell Class Name|)
+!headerList.append(|Property Name|)
+!headerList.append(|Property Group|)
+!headerList.append(|Property Value|)
+
+var !tags COLL ALL (ENGITEM) WITH (:TagStatus eq |ACTIVE| and ISNAMED and NOT(EMPTY(:RAMTAGOWNER)) and :RAMTAGOWNER eq |LEIR| and (LOWCASE(:TagClassName) inset(|gas detector|, |heat detector|, |junction box|, |manual call point|, |signal cable|, |smoke detector|)))
+var !mappings COLL ALL (:ShellClassAttribute) WITH (:RDLSource eq |AKSO_Tag Properties Templates_Rev3|)
+var !classes EVAL (LOWCASE(:RDLName of :MappingRefToClass)) FOR ALL (:ShellClassAttribute) WITH (:RDLSource eq |AKSO_Tag Properties Templates_Rev3|)
+
+do !tagString values !tags
+    !tagRef = !tagString.dbref()
+
+    --set progress
+    !tagIdx = !tags.findFirst(!tagString)
+    !!displayProgress(!tagIdx, !tags.size())
+
+    !class = !tagRef.:TagClassName.lowcase()
+    !idx = !classes.findFirst(!class)
+    if (!idx.set()) then
+        do !x from !idx to !classes.size()
+            var !value DELETE
+
+            !mappingRowRef = !mappings[!x].dbRef()
+            !classEntry = !mappingRowRef.:MappingRefToClass.first()
+            if (!classEntry.:RDLName.lowcase() neq !class) then
+                break
+            endif
+
+            !attributeEntry = !mappingRowRef.:MappingRefToAttribute
+
+            !tagDataRow = ARRAY()
+            !tagDataRow.append(!tagRef.namn)
+            !tagDataRow.append(!tagRef.:RAMTAGOWNER)
+            !tagDataRow.append(!tagRef.:TagStatus)
+            !tagDataRow.append(!tagRef.:RambollTagStatus)
+            !tagDataRow.append(!tagRef.acttype)
+            !tagDataRow.append(!tagRef.:TagClassName)
+            !tagDataRow.append(!attributeEntry.:RDLName)
+            !tagDataRow.append(!attributeEntry.:RDLGroup)
+
+            !expression = IFT(!mappingRowRef.:RDLDabaconExpression.unset() or !mappingRowRef.:RDLDabaconExpression.empty(), !attributeEntry.:RDLDabaconExpression, !mappingRowRef.:RDLDabaconExpression)
+            --$p TAG: $!tagRef.name CLASS: $!classEntry.:RDLName ATTRIBUTE: $!attributeEntry.:RDLName EXPRESSION_A: $!mappingRowRef.:RDLDabaconExpression / $!attributeEntry.:RDLDabaconExpression EXPRESSION: $!expression
+            if (!expression.unset().not() or !expression.empty().not()) then
+                !block = object BLOCK(!expression)
+                !value = !tagRef.evaluate(!block)
+                handle any
+                    !value = 'Error when calculating value as per expression [$!attributeEntry.:RDLDabaconExpression] for element [$!tagRef.name]. Error: $!!error.text'
+                endhandle
+            else
+                !value = |Value can't be calculated in AVEVA. Expression has not been defined|
+            endif
+            !tagDataRow.append(!value)
+            !dataList.append(!tagDataRow)
+        enddo
+    endif
+enddo
+
+!dt = OBJECT DATETIME()
+!year = !dt.year()
+!month = !dt.month().string('I2')
+!date = !dt.date().string('I2')
+!hour = !dt.hour().string('I2')
+!minute = !dt.minute().string('I2')
+
+!publishPath = |C:\Users\ADZV\OneDrive - Ramboll\Ramboll_Jackdaw - Admin Team\Aveva\_LEI data\To LEI\TagPropertyValue_extract_$!<year>-$!<month>-$!<date>-$!<hour>.xlsx|
+!dataTable = object NETGRIDCONTROL()
+!dataTable.clearGrid()
+!source = object NETDATASOURCE('data', !headerList, !dataList)
+!dataTable.BindToDataSource(!source)
+!dataTable.saveGridToExcel(|$!publishPath|)

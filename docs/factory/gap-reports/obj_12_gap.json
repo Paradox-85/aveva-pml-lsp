@@ -1,0 +1,53 @@
+{
+  "fileId": "obj_12",
+  "filePath": "docs/codebase/objects/RAMTagMaturityData.pmlobj",
+  "reviewDate": "2026-06-03",
+  "overallGapScore": 0.6,
+  "dimensions": {
+    "D1_syntax": {
+      "score": 0.5,
+      "gaps": [
+        "Source has 3 definitions and 12 members; generated benchmark validated with parseErrorCount=0"
+      ]
+    },
+    "D2_patterns": {
+      "score": 0.75,
+      "gaps": [
+        {
+          "pattern": "FILE",
+          "suggestedKbId": "cb_obj_12_file"
+        }
+      ]
+    },
+    "D3_structure": {
+      "score": 0.7,
+      "gaps": [
+        "Benchmark preserves signatures/major declarations where possible but does not copy implementation bodies."
+      ]
+    },
+    "D4_naming": {
+      "score": 0.55,
+      "gaps": [
+        "Project naming extracted from RAMTagMaturityData.pmlobj; benchmark may simplify local variable names."
+      ]
+    },
+    "D5_logic": {
+      "score": 0.8,
+      "gaps": [
+        "Original operational logic is intentionally not copied; rerun_worker may improve semantic fidelity for complex files."
+      ]
+    },
+    "D6_dependencies": {
+      "score": 0.85,
+      "gaps": [
+        "FILE"
+      ]
+    },
+    "D7_kbCompleteness": {
+      "newEntriesNeeded": [
+        "cb_obj_12_file"
+      ]
+    }
+  },
+  "actionRequired": "manual_review"
+}

@@ -1,0 +1,19 @@
+{
+  "fileId": "fnc_05",
+  "status": "completed_but_summary_missing",
+  "timestamp": "2026-06-03T23:21:40.894Z",
+  "artifacts": {
+    "benchmark": "docs/factory/benchmarks/fnc_05_benchmark.pmlfnc",
+    "gapReport": "docs/factory/gap-reports/fnc_05_gap.json",
+    "kbPatch": "docs/factory/kb-patches/fnc_05_kb_patch.ts",
+    "summary": "docs/factory/logs/pml-worker-rerun/fnc_05_summary.json"
+  },
+  "validation": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 6
+  },
+  "overallGapScore": 0.78,
+  "actionRequired": "patch_kb",
+  "note": "Artifacts exist and benchmark validates clean; summary normalized by orchestrator after subagent/provider failure or incomplete final output."
+}

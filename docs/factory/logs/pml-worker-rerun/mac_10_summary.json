@@ -1,0 +1,52 @@
+{
+  "fileId": "mac_10",
+  "fileType": "macro",
+  "sourcePath": "docs/codebase/macros/manual-data-export.pmlmac",
+  "benchmarkPath": "docs/factory/benchmarks/mac_10_benchmark.pmlmac",
+  "gapReportPath": "docs/factory/gap-reports/mac_10_gap.json",
+  "kbPatchPath": "docs/factory/kb-patches/mac_10_kb_patch.ts",
+  "summaryDate": "2026-06-03",
+  "semanticSummary": "PML macro for automated export of AVEVA Engineering tag and list data to Excel workbooks. Performs 5 export operations: (1) MTR dataset export via LSTDEF query, (2) DOC/403-DOCUMENT export via LSTDEF query, (3) type-based collection (SIGNAL CABLE) via ENGITE query, (4) tag-name pattern collection (*GB.*) via ENGITE query, (5) vendor package collection (CPI) via ENGITE query, (6) commissioning package collection (8402-C24) via ENGITE query. Uses custom function jacExportRDLDataReportMatrix for detailed report generation with attribute mapping and data replacement.",
+  "patternsUsed": [
+    "pml_import_handle",
+    "pml_using_namespace",
+    "pml_var_local",
+    "pml_obj_datetime",
+    "pml_string_format",
+    "pml_array",
+    "pml_array_append",
+    "pml_array_multidim",
+    "pml_string_split",
+    "pml_query_collect_all",
+    "pml_query_engite",
+    "pml_if_then_endif",
+    "pml_do_values_enddo",
+    "pml_dollar_commands",
+    "pml_dbref",
+    "pml_syscom",
+    "pml_array_size",
+    "pml_array_first"
+  ],
+  "lintResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 506
+  },
+  "validateResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 506
+  },
+  "kbGaps": [
+    "PMLTAGS object and exportasxls method not in KB",
+    "inset operator not in syntax reference",
+    "LSTDEF/LSTGRP objects not in KB",
+    "lstflt attribute not in KB",
+    "DATETIME .string('I2') format codes not documented",
+    "matchwild PML1 query function not in KB (only STRING.MatchWild() method is)"
+  ],
+  "newKBEntriesDrafted": 5,
+  "actionRequired": "patch_kb",
+  "confidenceScore": 0.85,
+  "notes": "Benchmark preserves all original semantics with two typo fixes (commonAttribiutes→commonAttributes, colleact→collect). All PML syntax constructs validated clean. Gap score 0.35 indicates moderate KB gaps in AVEVA Engineering-specific objects (PMLTAGS, LSTDEF, LSTGRP) and PML1 query operators (inset, matchwild function form)."
+}

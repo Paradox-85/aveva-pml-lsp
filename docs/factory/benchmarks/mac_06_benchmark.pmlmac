@@ -1,0 +1,176 @@
+-- Benchmark macro for AE3D pipe data export
+-- Run path: $m ".pi/temp/mac_06_benchmark.pmlmac"
+
+import |GridControl|
+handle any
+endhandle
+
+using namespace |Aveva.Core.Presentation|
+
+-- Stage 1: collecting AE3D data from the current 3D context
+!!FMSYS.setProgressText(|Collecting AE3D pipe data|)
+!!FMSYS.setProgress(0)
+
+!headers = object ARRAY()
+!headers.Append(|Pipe Dbref|)
+!headers.Append(|Pipe Name|)
+!headers.Append(|Pipe Type|)
+!headers.Append(|Branch Dbref|)
+!headers.Append(|Item Dbref|)
+!headers.Append(|Item Name|)
+!headers.Append(|Item Type|)
+!headers.Append(|Volume|)
+
+!rows = object ARRAY()
+!pipes = object ARRAY()
+!branches = object ARRAY()
+!items = object ARRAY()
+
+handle any
+  !pipes = !!collectallfor(|PIPE|, |Lissue eq false|, !!CE)
+elsehandle
+  !pipes = object ARRAY()
+endhandle
+
+!pipeCount = !pipes.Size()
+
+DO !pipeIndex FROM 1 TO !pipeCount
+  !pipe = !pipes[!pipeIndex]
+  !pipeRef = object DBREF(!pipe)
+
+  !pipeName = ||
+  !pipeType = |PIPE|
+
+  handle any
+    !pipeName = !pipeRef.name
+  elsehandle
+    !pipeName = !pipeRef.string()
+  endhandle
+
+  handle any
+    !pipeType = !pipeRef.type
+  elsehandle
+    !pipeType = |PIPE|
+  endhandle
+
+  !branches.Clear()
+
+  handle any
+    !branches.AppendArray(!!collectallfor(|BRAN|, |Lissue eq false|, !pipeRef))
+  elsehandle
+    !branches = object ARRAY()
+  endhandle
+
+  !branchCount = !branches.Size()
+
+  DO !branchIndex FROM 1 TO !branchCount
+    !branch = !branches[!branchIndex]
+    !branchRef = object DBREF(!branch)
+
+    !items.Clear()
+
+    handle any
+      !items.AppendArray(!!collectallfor(|ALL|, |Lissue eq false|, !branchRef))
+    elsehandle
+      !items = object ARRAY()
+    endhandle
+
+    !itemCount = !items.Size()
+
+    DO !itemIndex FROM 1 TO !itemCount
+      !item = !items[!itemIndex]
+      !itemRef = object DBREF(!item)
+
+      !itemName = ||
+      !itemType = ||
+      !volume = ||
+
+      handle any
+        !itemName = !itemRef.name
+      elsehandle
+        !itemName = !itemRef.string()
+      endhandle
+
+      handle any
+        !itemType = !itemRef.type
+      elsehandle
+        !itemType = ||
+      endhandle
+
+      handle any
+        !volume = !itemRef.volume.string()
+      elsehandle
+        !volume = ||
+      endhandle
+
+      !row = object ARRAY()
+      !row.Append(!pipeRef.string())
+      !row.Append(!pipeName)
+      !row.Append(!pipeType)
+      !row.Append(!branchRef.string())
+      !row.Append(!itemRef.string())
+      !row.Append(!itemName)
+      !row.Append(!itemType)
+      !row.Append(!volume)
+      !rows.Append(!row)
+    ENDDO
+  ENDDO
+
+  handle any
+    !!FMSYS.setProgress((!pipeIndex * 60) / !pipeCount)
+  elsehandle
+  endhandle
+ENDDO
+
+-- Stage 2: collecting AE engineering data for matching pipe attributes
+!!FMSYS.setProgressText(|Collecting AE engineering pipe data|)
+!!FMSYS.setProgress(75)
+
+!aeItems = object ARRAY()
+
+handle any
+  !aeItems = !!collectallfor(|ENGITEM|, |Lissue eq false|, !!CE)
+elsehandle
+  !aeItems = object ARRAY()
+endhandle
+
+DO !aeIndex FROM 1 TO !aeItems.Size()
+  !aeItem = !aeItems[!aeIndex]
+  !aeRef = object DBREF(!aeItem)
+
+  !aeName = ||
+  !aeType = |ENGITEM|
+
+  handle any
+    !aeName = !aeRef.name
+  elsehandle
+    !aeName = !aeRef.string()
+  endhandle
+
+  handle any
+    !aeType = !aeRef.type
+  elsehandle
+    !aeType = |ENGITEM|
+  endhandle
+ENDDO
+
+-- Stage 3: binding prepared data to .NET grid and exporting XLSX
+!!FMSYS.setProgressText(|Binding pipe export grid|)
+!!FMSYS.setProgress(90)
+
+!dataGrid = object NETGRIDCONTROL()
+!dataSource = object NETDATASOURCE(|Pipe Data|, !headers, !rows)
+
+handle any
+  !dataGrid.Clear()
+elsehandle
+endhandle
+
+!dataGrid.BindToDataSource(!dataSource)
+
+!!FMSYS.setProgressText(|Saving pipe data to Excel|)
+!publishPath = |C:\Temp\ae3d_pipe_data_export.xlsx|
+!dataGrid.saveGridToExcel(!publishPath, |data|)
+
+!!FMSYS.setProgress(100)
+!!FMSYS.setProgressText(|Pipe data export complete|)

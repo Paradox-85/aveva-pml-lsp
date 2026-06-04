@@ -1,0 +1,38 @@
+{
+  "fileId": "mac_25",
+  "filePath": "docs/codebase/macros/JDE_getTagInfo.pmlmac",
+  "fileType": "macro",
+  "reviewDate": "2026-06-03",
+  "semantics": "Макрос извлекает базовые свойства текущего тега (имя, описание, активный тип) из текущего элемента (!!ce) в локальные переменные.",
+  "patternsUsed": [
+    "pseudo-attr-ce",
+    "local-var-scope",
+    "dot-notation-attr-access"
+  ],
+  "lintResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 15
+  },
+  "validateResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 15
+  },
+  "kbGaps": [
+    "macro-ce-property-extract — паттерн извлечения свойств тега через !!ce"
+  ],
+  "gapScore": {
+    "D1_syntax": 0.0,
+    "D2_patterns": 0.0,
+    "D3_structure": 0.0,
+    "D4_naming": 0.0,
+    "D5_logic": 0.0,
+    "D6_dependencies": 0.0,
+    "D7_kbCompleteness": 0.1,
+    "overall": 0.05
+  },
+  "kbPatchEntries": 1,
+  "confidenceScore": 0.95,
+  "status": "clean"
+}

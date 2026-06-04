@@ -1,0 +1,5 @@
+$* mac_02 — cable-area-update.pmlmac
+$* Reloads TAGMANAGEMENTTMP and invokes defineAreasForCables() on a fresh instance.
+PML RELOAD OBJECT TAGMANAGEMENTTMP
+!tagMgmt = object TAGMANAGEMENTTMP()
+!tagMgmt.defineAreasForCables()

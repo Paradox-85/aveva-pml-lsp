@@ -1,0 +1,263 @@
+{
+  "fileId": "mac_36",
+  "filePath": "docs/codebase/macros/JDE_tagProperties_export_with_RDL.pmlmac",
+  "reviewDate": "2026-06-03",
+  "overallGapScore": 0.45,
+  "dimensions": {
+    "D1_syntax": {
+      "score": 0.35,
+      "gaps": [
+        {
+          "description": "COLL ALL with complex WITH clause (PML1 declarative collection query) — KB covers collect all in PML_LANGUAGE_VARIANTS.md but COLL ALL spelling and compound WITH conditions (eq, INSET, NOT(EMPTY()), ISNAMED) are not explicitly documented",
+          "original_refs": "lines 18-20",
+          "suggested_kb_id": "pml1_coll_all_query_syntax"
+        },
+        {
+          "description": "EVAL ... FOR ALL (PML1 query expression) — not explicitly documented; KB only references collect all pattern",
+          "original_refs": "line 21",
+          "suggested_kb_id": "pml1_eval_for_all_query"
+        },
+        {
+          "description": "do ... values loop (iterate array elements by value) — KB documents do ... from ... to but not do ... values iteration",
+          "original_refs": "line 23",
+          "suggested_kb_id": "do_values_loop_pattern"
+        },
+        {
+          "description": "inset() function (string containment in list of strings) — not documented in KB",
+          "original_refs": "line 20",
+          "suggested_kb_id": "string_inset_function"
+        },
+        {
+          "description": "IFT() conditional function — not documented in KB",
+          "original_refs": "line 52",
+          "suggested_kb_id": "string_ift_function"
+        },
+        {
+          "description": ".unset() / .empty() / .set() / .lowcase() string/real methods — .unset() and .empty() appear in KB examples but .set() and .lowcase() are not explicitly documented",
+          "original_refs": "lines 34, 52-53, 58",
+          "suggested_kb_id": "string_unset_empty_set_methods"
+        },
+        {
+          "description": "OBJECT DATETIME() constructor — not documented in KB",
+          "original_refs": "line 69",
+          "suggested_kb_id": "datetime_object_constructor"
+        }
+      ]
+    },
+    "D2_patterns": {
+      "score": 0.40,
+      "gaps": [
+        {
+          "description": "COLL ALL PML1 collection query pattern with compound filters — not found as canonical KB entry",
+          "original_refs": "lines 18-20",
+          "suggested_kb_id": "pml1_coll_all_compound_query"
+        },
+        {
+          "description": "Nested do loops: outer do ... values + inner do ... from ... to with break — not documented as a composite pattern",
+          "original_refs": "lines 23-70",
+          "suggested_kb_id": "nested_do_loops_with_break"
+        },
+        {
+          "description": "IFT() fallback expression pattern — not found in KB",
+          "original_refs": "line 52",
+          "suggested_kb_id": "ift_fallback_expression"
+        },
+        {
+          "description": "BLOCK object + evaluate() for dynamic expression evaluation — not found as canonical KB entry",
+          "original_refs": "lines 55-56",
+          "suggested_kb_id": "block_evaluate_expression"
+        }
+      ]
+    },
+    "D3_structure": {
+      "score": 0.25,
+      "gaps": [
+        {
+          "description": "Nested handle ANY inside do loop for per-iteration error recovery — KB documents handle ANY at top level but not nested inside loops",
+          "original_refs": "lines 56-59",
+          "suggested_kb_id": "nested_handle_any_in_loop"
+        },
+        {
+          "description": "var !value DELETE pattern to explicitly clear variable before reuse in loop — not documented",
+          "original_refs": "line 32",
+          "suggested_kb_id": "var_delete_loop_clear"
+        }
+      ]
+    },
+    "D4_naming": {
+      "score": 0.10,
+      "gaps": [
+        {
+          "description": "Customer-specific naming (JDE_ prefix, LEIR owner, AKSO_ template names) — project-specific, no KB gap",
+          "original_refs": "throughout",
+          "suggested_kb_id": null
+        }
+      ]
+    },
+    "D5_logic": {
+      "score": 0.50,
+      "gaps": [
+        {
+          "description": "IFT() fallback: primary expression unset/empty → use attribute expression → else literal fallback — complex three-way fallback logic not documented",
+          "original_refs": "line 52",
+          "suggested_kb_id": "ift_three_way_fallback"
+        },
+        {
+          "description": "!!displayProgress(index, total) two-argument progress — KB only documents !!FMSYS.setProgress(percent)",
+          "original_refs": "line 29",
+          "suggested_kb_id": "displayprogress_two_arg"
+        },
+        {
+          "description": ".unset().not() / .empty().not() double-method chain for existence check — unusual pattern not documented",
+          "original_refs": "line 54",
+          "suggested_kb_id": "unset_empty_not_chain"
+        },
+        {
+          "description": "findFirst returning REAL index used as loop start with do ... from — requires understanding findFirst returns UNSET when not found, and .set() converts to boolean",
+          "original_refs": "lines 30, 33",
+          "suggested_kb_id": "findfirst_set_loop_start"
+        }
+      ]
+    },
+    "D6_dependencies": {
+      "score": 0.30,
+      "gaps": [
+        {
+          "description": "Aveva.Core.Presentation namespace with NETGRIDCONTROL and NETDATASOURCE — partially covered; .saveGridToExcel() and .clearGrid() methods not explicitly documented",
+          "original_refs": "lines 2-3, 72-76",
+          "suggested_kb_id": "netgridcontrol_methods"
+        },
+        {
+          "description": "NETDATASOURCE constructor with string label, header array, data array — KB shows NetDataSource (capitalization variant) but not the exact 3-arg constructor pattern",
+          "original_refs": "line 74",
+          "suggested_kb_id": "netdatasource_constructor"
+        }
+      ]
+    },
+    "D7_kbCompleteness": {
+      "newEntriesNeeded": [
+        {
+          "suggestedId": "pml1_coll_all_query_syntax",
+          "category": "controlflow",
+          "subcategory": "pml1_queries",
+          "title": "COLL ALL PML1 declarative collection query",
+          "principle": "COLL ALL is the PML1 declarative syntax for querying all elements of a given type from the database, with optional WITH clause for filtering.",
+          "rule": "Use COLL ALL (TYPE) WITH (conditions) to build a collection variable. Compound conditions use eq, neq, inset, NOT, EMPTY, ISNAMED, etc.",
+          "syntax": "var !varName COLL ALL (ElementType) WITH (:Attr1 eq |value1| and :Attr2 neq |value2|)",
+          "exampleCanonical": "-- mac_36\nvar !tags COLL ALL (ENGITEM) WITH (:TagStatus eq |ACTIVE| and ISNAMED and NOT(EMPTY(:RAMTAGOWNER)) and :RAMTAGOWNER eq |LEIR|)",
+          "exampleAntipattern": "var !tags = !!collectallfor('engitem', '|ACTIVE|', !!ce)  -- PML2 procedural form, different semantics",
+          "pitfalls": ["COLL ALL returns STRING array of element references, not DBREF objects", "Each element in the result is a STRING that must be converted via .dbref()", "The WITH clause uses PML1 attribute syntax (:AttrName)"],
+          "relatedIds": ["pml1_eval_for_all_query", "do_values_loop_pattern"],
+          "sourcedoc": "AVEVA PML Customization — Query Arrays",
+          "sourcecodebase": "JDE_tagProperties_export_with_RDL.pmlmac"
+        },
+        {
+          "suggestedId": "do_values_loop_pattern",
+          "category": "controlflow",
+          "subcategory": "loops",
+          "title": "do ... values loop for array iteration",
+          "principle": "The 'do ... values' construct iterates over each element value in an array, assigning the value to the loop variable.",
+          "rule": "Use 'do !var values !array' to iterate over array values. This is the idiomatic PML loop for iterating array elements by value (not index).",
+          "syntax": "do !item values !array\n  !itemRef = !item.dbref()\nenddo",
+          "exampleCanonical": "-- mac_36\ndo !tagString values !tags\n    !tagRef = !tagString.dbref()\n    -- process !tagRef\nenddo",
+          "exampleAntipattern": "do !i from 1 to !tags.size()\n    !tagString = !tags[!i]  -- index-based, less idiomatic\nenddo",
+          "pitfalls": ["Loop variable is a STRING copy, not a reference", "Cannot modify the original array from within the loop", "Nested with do ... from ... to requires careful index management"],
+          "relatedIds": ["pml1_coll_all_query_syntax", "nested_do_loops_with_break"],
+          "sourcedoc": "AVEVA PML Customization — Control Logic",
+          "sourcecodebase": "JDE_tagProperties_export_with_RDL.pmlmac"
+        },
+        {
+          "suggestedId": "string_inset_function",
+          "category": "datatypes",
+          "subcategory": "string",
+          "title": "inset() string containment function",
+          "principle": "inset() checks whether a string value is contained in a list of string values.",
+          "rule": "Use inset(string, |val1|, |val2|, ...) to test if the string matches any of the listed values. Returns TRUE or FALSE.",
+          "syntax": "inset(:AttributeName, |value1|, |value2|, |value3|)",
+          "exampleCanonical": "-- mac_36\nLOWCASE(:TagClassName) inset(|gas detector|, |heat detector|, |junction box|)",
+          "exampleAntipattern": ":TagClassName eq |gas detector| or :TagClassName eq |heat detector|  -- verbose equivalent",
+          "pitfalls": ["inset() is case-sensitive; use LOWCASE() or UPCASE() for case-insensitive matching", "Only available in PML1 WITH clause expressions"],
+          "relatedIds": ["pml1_coll_all_query_syntax", "string_ift_function"],
+          "sourcedoc": "AVEVA PML Customization — PML Expressions",
+          "sourcecodebase": "JDE_tagProperties_export_with_RDL.pmlmac"
+        },
+        {
+          "suggestedId": "string_ift_function",
+          "category": "datatypes",
+          "subcategory": "string",
+          "title": "IFT() conditional function",
+          "principle": "IFT() is a PML inline conditional function: IFT(condition, trueValue, falseValue).",
+          "rule": "Use IFT(test, valueIfTrue, valueIfFalse) for inline conditional logic in expressions.",
+          "syntax": "IFT(condition, trueValue, falseValue)",
+          "exampleCanonical": "-- mac_36\n!expression = IFT(!mappingRowRef.:RDLDabaconExpression.unset() or !mappingRowRef.:RDLDabaconExpression.empty(), !attributeEntry.:RDLDabaconExpression, !mappingRowRef.:RDLDabaconExpression)",
+          "exampleAntipattern": "if (!condition) then\n    !result = |true_val|\nelse\n    !result = |false_val|\nendif  -- longer form",
+          "pitfalls": ["All three arguments are evaluated before the function call — no short-circuit evaluation", "Return type is ANY; may need explicit type handling"],
+          "relatedIds": ["string_inset_function", "block_evaluate_expression"],
+          "sourcedoc": "AVEVA PML Customization — PML Expressions",
+          "sourcecodebase": "JDE_tagProperties_export_with_RDL.pmlmac"
+        },
+        {
+          "suggestedId": "block_evaluate_expression",
+          "category": "objects",
+          "subcategory": "block",
+          "title": "BLOCK object with evaluate() for dynamic PML expressions",
+          "principle": "The BLOCK object wraps a PML expression string and can be evaluated against a DBREF to produce a runtime value.",
+          "rule": "Use 'object BLOCK(expressionString)' to create a block, then 'dbref.evaluate(block)' to compute the result.",
+          "syntax": "!block = object BLOCK(!expressionString)\n!result = !dbref.evaluate(!block)",
+          "exampleCanonical": "-- mac_36\n!block = object BLOCK(!expression)\n!value = !tagRef.evaluate(!block)",
+          "exampleAntipattern": "!value = !tagRef.:AttributeName  -- static attribute access only",
+          "pitfalls": ["Expression string must be valid PML syntax", "Handle exceptions with handle ANY around evaluate() call", "Returns ANY type; may be STRING, REAL, or ERROR"],
+          "relatedIds": ["string_ift_function", "nested_handle_any_in_loop"],
+          "sourcedoc": "AVEVA PML Customization — Object Methods",
+          "sourcecodebase": "JDE_tagProperties_export_with_RDL.pmlmac"
+        },
+        {
+          "suggestedId": "netgridcontrol_methods",
+          "category": "objects",
+          "subcategory": "netgridcontrol",
+          "title": "NETGRIDCONTROL object methods: clearGrid, BindToDataSource, saveGridToExcel",
+          "principle": "NETGRIDCONTROL is a .NET add-in object for displaying tabular data in PML. Key methods include clearGrid(), BindToDataSource(), and saveGridToExcel().",
+          "rule": "Create NETGRIDCONTROL, clearGrid(), bind NETDATASOURCE, then optionally saveGridToExcel() for export.",
+          "syntax": "!grid = object NETGRIDCONTROL()\n!grid.clearGrid()\n!source = object NETDATASOURCE(label, headers, data)\n!grid.BindToDataSource(!source)\n!grid.saveGridToExcel(path)",
+          "exampleCanonical": "-- mac_36\n!dataTable = object NETGRIDCONTROL()\n!dataTable.clearGrid()\n!source = object NETDATASOURCE('data', !headerList, !dataList)\n!dataTable.BindToDataSource(!source)\n!dataTable.saveGridToExcel(|$!publishPath|)",
+          "exampleAntipattern": "!grid = object array()  -- ARRAY is not NETGRIDCONTROL",
+          "pitfalls": ["Requires 'import GridControl' and 'using namespace |Aveva.Core.Presentation|'", "NETDATASOURCE label parameter is a string identifier", "saveGridToExcel() path must be a valid file path string"],
+          "relatedIds": ["netdatasource_constructor"],
+          "sourcedoc": "AVEVA PML Add-ins — GridControl",
+          "sourcecodebase": "JDE_tagProperties_export_with_RDL.pmlmac"
+        },
+        {
+          "suggestedId": "datetime_object_constructor",
+          "category": "datetime",
+          "subcategory": "datetime",
+          "title": "OBJECT DATETIME() constructor and accessor methods",
+          "principle": "OBJECT DATETIME() creates a datetime object. Access year, month, date, hour, minute via accessor methods.",
+          "rule": "Use !dt = OBJECT DATETIME() then !dt.year(), !dt.month(), etc. Convert to formatted string with .string('format').",
+          "syntax": "!dt = OBJECT DATETIME()\n!year = !dt.year()\n!month = !dt.month().string('I2')",
+          "exampleCanonical": "-- mac_36\n!dt = OBJECT DATETIME()\n!year = !dt.year()\n!month = !dt.month().string('I2')\n!date = !dt.date().string('I2')",
+          "exampleAntipattern": "!year = !!datetime.year()  -- incorrect global reference",
+          "pitfalls": [".string('I2') pads with leading zero for single-digit months/days/hours", "Available as PML2 object; verify PML1 equivalent if needed"],
+          "relatedIds": [],
+          "sourcedoc": "AVEVA PML Customization — Object Methods",
+          "sourcecodebase": "JDE_tagProperties_export_with_RDL.pmlmac"
+        },
+        {
+          "suggestedId": "nested_handle_any_in_loop",
+          "category": "errorhandling",
+          "subcategory": "nested_handle",
+          "title": "Nested handle ANY inside do loops for per-iteration error recovery",
+          "principle": "A handle ANY block can be nested inside a do loop to catch and recover from errors per-iteration without aborting the entire loop.",
+          "rule": "Wrap per-iteration risky operations in handle ANY. Set fallback values in the handler. Use endhandle to close the block.",
+          "syntax": "do !i values !array\n    handle any\n        !result = |fallback value|\n    endhandle\nenddo",
+          "exampleCanonical": "-- mac_36\nif (!expression.unset().not() or !expression.empty().not()) then\n    !block = object BLOCK(!expression)\n    !value = !tagRef.evaluate(!block)\n    handle any\n        !value = 'Error when calculating value as per expression [$!attributeEntry.:RDLDabaconExpression] for element [$!tagRef.name]. Error: $!!error.text'\n    endhandle\nendif",
+          "exampleAntipattern": "handle any\n    do !i values !array\n        -- entire loop in one handler\n    enddo\nendhandle  -- catches too broadly",
+          "pitfalls": ["Nested handle ANY inside outer handle ANY requires careful scoping", "!!error.text is available only within the handler block", "Always set a fallback value in the handler to avoid UNSET propagation"],
+          "relatedIds": ["block_evaluate_expression", "var_delete_loop_clear"],
+          "sourcedoc": "AVEVA PML Customization — Control Logic",
+          "sourcecodebase": "JDE_tagProperties_export_with_RDL.pmlmac"
+        }
+      ]
+    }
+  },
+  "actionRequired": "patch_kb"
+}

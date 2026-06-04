@@ -1,0 +1,48 @@
+{
+  "fileId": "mac_27",
+  "filePath": "docs/codebase/macros/JDE_outputMacro.pmlmac",
+  "fileType": "macro",
+  "reviewDate": "2026-06-03",
+  "semanticsSummary": "macro collects all ENGGRP objects with mcount > 0 under a specific tree (/TMS_ENG), iterates over them, and for each group opens an ALPHA output file, writes a tabulated report of all members showing changes since a fixed date (00:00 01 March 2024), then closes the file. Uses PML1 report I/O chain (ALPHA FILE → OUTPUT TABULATE → CHANGES SINCE → ALPHA FILE END).",
+  "patternsUsed": [
+    "official-manual-004 (do values iteration)",
+    "KNOWLEDGE_BASE_GUIDE (collect all syntax)",
+    "PML_LANGUAGE_VARIANTS (PML1 collect all with for/tree)",
+    "commands-reference (ALPHA commands — partial coverage)"
+  ],
+  "lintResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 35
+  },
+  "validateResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 35
+  },
+  "kbGaps": [
+    "COLLECT ALL with tree filter (for /tree) — not in KB examples",
+    "ALPHA FILE / OUTPUT TABULATE / CHANGES SINCE / ALPHA FILE END report chain — not in KB",
+    "ENGGRP object-specific members (.seq, mcount) — not specifically documented"
+  ],
+  "newKBEntries": [
+    "cb_mac_27_collect_all_tree",
+    "cb_mac_27_alpha_io_chain"
+  ],
+  "overallGapScore": 0.45,
+  "dimensions": {
+    "D1_syntax": 0.3,
+    "D2_patterns": 0.4,
+    "D3_structure": 0.0,
+    "D4_naming": 0.0,
+    "D5_logic": 0.0,
+    "D6_dependencies": 0.15,
+    "D7_kbCompleteness": 2
+  },
+  "actionRequired": "patch_kb",
+  "files": {
+    "benchmark": "docs/factory/benchmarks/mac_27_benchmark.pmlmac",
+    "gapReport": "docs/factory/gap-reports/mac_27_gap.json",
+    "kbPatch": "docs/factory/kb-patches/mac_27_kb_patch.ts"
+  }
+}

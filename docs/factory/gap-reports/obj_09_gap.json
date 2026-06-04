@@ -1,0 +1,166 @@
+{
+  "fileId": "obj_09",
+  "filePath": "docs/codebase/objects/jacEISDeliveryManager.pmlobj",
+  "reviewDate": "2026-06-03",
+  "overallGapScore": 0.25,
+  "dimensions": {
+    "D1_syntax": {
+      "score": 0.1,
+      "gaps": []
+    },
+    "D2_patterns": {
+      "score": 0.2,
+      "gaps": [
+        {
+          "pattern": "undefined() built-in function",
+          "description": "The undefined() function used to check global variable existence is not explicitly documented in KB entries. Used in addErrorToList.",
+          "suggestedKbId": "kb_builtin_undefined"
+        },
+        {
+          "pattern": "STRING.unset() method",
+          "description": "The unset() method on STRING/ARRAY is used for existence checks but not explicitly listed in STRING object KB methods.",
+          "suggestedKbId": "kb_string_unset"
+        }
+      ]
+    },
+    "D3_structure": {
+      "score": 0.0,
+      "gaps": []
+    },
+    "D4_naming": {
+      "score": 0.1,
+      "gaps": [
+        {
+          "pattern": "mixed case in method names",
+          "description": "Original uses mixed case method names (UpCase vs upcase, Trim vs trim, After vs after). KB reference uses lowercase convention. Benchmark normalizes to original casing.",
+          "suggestedKbId": "kb_naming_case_sensitivity"
+        }
+      ]
+    },
+    "D5_logic": {
+      "score": 0.3,
+      "gaps": [
+        {
+          "pattern": "!this.objecttype() method",
+          "description": "Used in addErrorToList to get the object type name. Not documented in KB objects reference.",
+          "suggestedKbId": "kb_object_objecttype"
+        },
+        {
+          "pattern": "STRING.matchwild() with # prefix",
+          "description": "Used for wildcard pattern matching (#PML*, #DBVIEW*, #DBVIEWPIVOT*). STRING KB may cover matchwild but not the # prefix wildcard syntax.",
+          "suggestedKbId": "kb_string_matchwild_prefix"
+        },
+        {
+          "pattern": "BLOCK with evalIndex and array index",
+          "description": "Used as !columns.evaluate(object BLOCK(|!columns[!evalIndex].string()|)). The !evalIndex special variable within BLOCK is a subtle PML construct not explicitly documented in KB.",
+          "suggestedKbId": "kb_block_avevalindex"
+        }
+      ]
+    },
+    "D6_dependencies": {
+      "score": 0.4,
+      "gaps": [
+        {
+          "pattern": "EISDBVIEWEXTRACTOR from JacReportExtractor",
+          "description": "Custom external class from import 'JacReportExtractor'. Not covered in KB. Benchmark correctly uses using namespace but cannot verify methods (loadGrid, setRequiredColumn, getColumnHeader, getRows, getUnpivotRows).",
+          "suggestedKbId": "kb_external_eisdbviewextractor"
+        },
+        {
+          "pattern": "RAMEXCELREADERCLASS custom object",
+          "description": "Custom object used as member .excelConfiguration. Methods called: loadExcelData, getSheetColumn, getSheetRow. Not in KB.",
+          "suggestedKbId": "kb_external_rameexcelreaderclass"
+        },
+        {
+          "pattern": "RAMCOMMONLOGGER global object",
+          "description": "Global object !!ramCommonLogger with addLogDetails method. Lazily instantiated. Not in KB.",
+          "suggestedKbId": "kb_external_ramcommonlogger"
+        },
+        {
+          "pattern": "PROJECT CODE query variable",
+          "description": "PML1 query-style variable used in readConfiguration. Covered in KB commands reference but not specifically documented with !!evar() usage pattern.",
+          "suggestedKbId": "kb_pml1_project_code_evar"
+        }
+      ]
+    },
+    "D7_kbCompleteness": {
+      "newEntriesNeeded": [
+        {
+          "suggestedId": "kb_builtin_undefined",
+          "category": "builtin_functions",
+          "subcategory": "variable_introspection",
+          "title": "undefined() function for global variable existence check",
+          "principle": "Use undefined() to check if a global variable has been assigned before accessing it.",
+          "rule": "undefined(!!globalVar) returns TRUE if the global is unassigned, FALSE if assigned.",
+          "syntax": "if(undefined(!!globalVar)) then ... endif",
+          "exampleCanonical": "-- CB obj_09_addErrorToList\nif(undefined(!!ramCommonLogger)) then\n  !!ramCommonLogger = object RAMCOMMONLOGGER()\nendif",
+          "exampleAntipattern": "-- Accessing unassigned global without check\n!!ramCommonLogger.addLogDetails(...) -- may crash if not initialized",
+          "pitfalls": ["Only works with global variables (!!), not local variables (!)"],
+          "relatedIds": ["kb_pml_variables"],
+          "sourcedoc": "AVEVA PML Customization Guide",
+          "sourcecodebase": "jacEISDeliveryManager.pmlobj"
+        },
+        {
+          "suggestedId": "kb_string_unset",
+          "category": "objects",
+          "subcategory": "string_methods",
+          "title": "STRING.unset() method for existence check",
+          "principle": "Use unset() on STRING or ARRAY to check if the variable has been assigned a value.",
+          "rule": "unset() returns TRUE if the variable is unassigned/undefined, FALSE if it holds a value.",
+          "syntax": "!str.unset() -- TRUE if !str is not set\n!arr.unset() -- TRUE if !arr is not set",
+          "exampleCanonical": "-- CB obj_09_loadReportDetails\nif(!viewDetails.set() AND !viewDetails.size().eq(7)) then\n  -- process details\nelse\n  !this.clearData()\nendif",
+          "exampleAntipattern": "-- Checking set() vs unset() confusion\nif(!str.unset()) then -- wrong: checks if unset, but code expects set\n  ...",
+          "pitfalls": ["set() and unset() are inverses: !x.set() is equivalent to !x.unset().not()"],
+          "relatedIds": ["kb_string_methods", "kb_array_methods"],
+          "sourcedoc": "AVEVA PML Customization Guide",
+          "sourcecodebase": "jacEISDeliveryManager.pmlobj"
+        },
+        {
+          "suggestedId": "kb_object_objecttype",
+          "category": "objects",
+          "subcategory": "object_base_methods",
+          "title": "OBJECT.objecttype() method for runtime type identification",
+          "principle": "Use objecttype() on any PML2 object to get its type name as a STRING at runtime.",
+          "rule": "objecttype() returns a STRING containing the object type identifier.",
+          "syntax": "!this.objecttype() -- returns the type name of the current object",
+          "exampleCanonical": "-- CB obj_09_addErrorToList\n!!ramCommonLogger.addLogDetails(!this.objecttype(), !errorList)",
+          "exampleAntipattern": "-- Hardcoding type names instead of using objecttype()\n!!ramCommonLogger.addLogDetails('JACEISDELIVERYMANAGER', !errorList)",
+          "pitfalls": ["Returns the declared type name, not the variable name"],
+          "relatedIds": ["kb_pml2_objects"],
+          "sourcedoc": "AVEVA PML Customization Guide",
+          "sourcecodebase": "jacEISDeliveryManager.pmlobj"
+        },
+        {
+          "suggestedId": "kb_block_avevalindex",
+          "category": "constructs",
+          "subcategory": "block_evaluation",
+          "title": "BLOCK evaluate with !evalIndex special variable",
+          "principle": "When evaluating a BLOCK on an ARRAY, !evalIndex is a special variable available inside the block that holds the current index.",
+          "rule": "!columns.evaluate(object BLOCK(|!columns[!evalIndex].string()|)) iterates over !columns, with !evalIndex set to each index.",
+          "syntax": "!array.evaluate(object BLOCK(|!array[!evalIndex].method()|))",
+          "exampleCanonical": "-- CB obj_09_columnCollection\n!columnRefNos = !columns.evaluate(object BLOCK(|!columns[!evalIndex].string()|))\n-- CB obj_09_loadReport\n!headings = !headings.evaluate(object BLOCK(|!headings[!evalIndex][1]|))",
+          "exampleAntipattern": "-- Using a regular loop instead of evaluate\nDO !i FROM 1 TO !columns.Size()\n  !result.Append(!columns[!i].string())\nENDDO",
+          "pitfalls": ["!evalIndex is only available inside the BLOCK expression, not outside", "BLOCK evaluates each element; the result is an ARRAY of the evaluated values"],
+          "relatedIds": ["kb_array_evaluate", "kb_constructs_block"],
+          "sourcedoc": "AVEVA PML Customization Guide",
+          "sourcecodebase": "jacEISDeliveryManager.pmlobj"
+        },
+        {
+          "suggestedId": "kb_pml1_project_code_evar",
+          "category": "pml1_query",
+          "subcategory": "system_variables",
+          "title": "PROJECT CODE system variable with !!evar()",
+          "principle": "PROJECT CODE is a PML1 system query variable that returns the current PDMS project code. Use !!evar() to evaluate it in PML2 context.",
+          "rule": "!!evar(|PDMSUSER|) returns the PDMS user data path. !!evar(!varName + |DFLTS|) returns the project defaults path.",
+          "syntax": "var !code PROJECT CODE\n!!evar(!code + |DFLTS|)",
+          "exampleCanonical": "-- CB obj_09_readConfiguration\n!!filePath = !!evar(|PDMSUSER|) + |\\EISConfiguration.xlsx|\nif(!file.exists().not()) then\n  var !projectCode PROJECT CODE\n  !filePath = !!evar(!projectCode + |DFLTS|) + |\\EISConfiguration.xlsx|\nendif",
+          "exampleAntipattern": "-- Using hardcoded paths instead of system variables\n!filePath = 'C:\\\\project\\\\defaults\\\\config.xlsx'",
+          "pitfalls": ["PROJECT CODE requires being in a PDMS session context", "DFLTS path depends on PDMS installation configuration"],
+          "relatedIds": ["kb_pml1_query_system_vars"],
+          "sourcedoc": "AVEVA PDMS Query Reference",
+          "sourcecodebase": "jacEISDeliveryManager.pmlobj"
+        }
+      ]
+    }
+  },
+  "actionRequired": "patch_kb"
+}

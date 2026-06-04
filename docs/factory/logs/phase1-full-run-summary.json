@@ -1,0 +1,789 @@
+{
+  "timestamp": "2026-06-03T13:47:42.199Z",
+  "requested": 78,
+  "processedCount": 78,
+  "errorCount": 0,
+  "processed": [
+    {
+      "id": "obj_06",
+      "action": "patch_kb",
+      "score": 0.95,
+      "benchmarkFile": "docs/factory/benchmarks/obj_06_benchmark.pmlobj",
+      "gapReportFile": "docs/factory/gap-reports/obj_06_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/obj_06_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "obj_07",
+      "action": "patch_kb",
+      "score": 0.95,
+      "benchmarkFile": "docs/factory/benchmarks/obj_07_benchmark.pmlobj",
+      "gapReportFile": "docs/factory/gap-reports/obj_07_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/obj_07_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "mac_03",
+      "action": "patch_kb",
+      "score": 0.93,
+      "benchmarkFile": "docs/factory/benchmarks/mac_03_benchmark.pmlmac",
+      "gapReportFile": "docs/factory/gap-reports/mac_03_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/mac_03_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "mac_05",
+      "action": "patch_kb",
+      "score": 0.73,
+      "benchmarkFile": "docs/factory/benchmarks/mac_05_benchmark.pmlmac",
+      "gapReportFile": "docs/factory/gap-reports/mac_05_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/mac_05_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "mac_07",
+      "action": "patch_kb",
+      "score": 0.78,
+      "benchmarkFile": "docs/factory/benchmarks/mac_07_benchmark.pmlmac",
+      "gapReportFile": "docs/factory/gap-reports/mac_07_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/mac_07_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "mac_08",
+      "action": "patch_kb",
+      "score": 0.88,
+      "benchmarkFile": "docs/factory/benchmarks/mac_08_benchmark.pmlmac",
+      "gapReportFile": "docs/factory/gap-reports/mac_08_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/mac_08_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "mac_09",
+      "action": "patch_kb",
+      "score": 0.88,
+      "benchmarkFile": "docs/factory/benchmarks/mac_09_benchmark.pmlmac",
+      "gapReportFile": "docs/factory/gap-reports/mac_09_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/mac_09_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "mac_10",
+      "action": "patch_kb",
+      "score": 0.8,
+      "benchmarkFile": "docs/factory/benchmarks/mac_10_benchmark.pmlmac",
+      "gapReportFile": "docs/factory/gap-reports/mac_10_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/mac_10_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "obj_04",
+      "action": "patch_kb",
+      "score": 0.94,
+      "benchmarkFile": "docs/factory/benchmarks/obj_04_benchmark.pmlobj",
+      "gapReportFile": "docs/factory/gap-reports/obj_04_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/obj_04_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "obj_08",
+      "action": "patch_kb",
+      "score": 0.95,
+      "benchmarkFile": "docs/factory/benchmarks/obj_08_benchmark.pmlobj",
+      "gapReportFile": "docs/factory/gap-reports/obj_08_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/obj_08_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "obj_09",
+      "action": "patch_kb",
+      "score": 0.95,
+      "benchmarkFile": "docs/factory/benchmarks/obj_09_benchmark.pmlobj",
+      "gapReportFile": "docs/factory/gap-reports/obj_09_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/obj_09_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "obj_10",
+      "action": "patch_kb",
+      "score": 0.95,
+      "benchmarkFile": "docs/factory/benchmarks/obj_10_benchmark.pmlobj",
+      "gapReportFile": "docs/factory/gap-reports/obj_10_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/obj_10_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "mac_01",
+      "action": "manual_review",
+      "score": 0.55,
+      "benchmarkFile": "docs/factory/benchmarks/mac_01_benchmark.pmlmac",
+      "gapReportFile": "docs/factory/gap-reports/mac_01_gap.json",
+      "kbPatchFile": null,
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "mac_02",
+      "action": "manual_review",
+      "score": 0.55,
+      "benchmarkFile": "docs/factory/benchmarks/mac_02_benchmark.pmlmac",
+      "gapReportFile": "docs/factory/gap-reports/mac_02_gap.json",
+      "kbPatchFile": null,
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "mac_11",
+      "action": "manual_review",
+      "score": 0.55,
+      "benchmarkFile": "docs/factory/benchmarks/mac_11_benchmark.pmlmac",
+      "gapReportFile": "docs/factory/gap-reports/mac_11_gap.json",
+      "kbPatchFile": null,
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "mac_12",
+      "action": "patch_kb",
+      "score": 0.8,
+      "benchmarkFile": "docs/factory/benchmarks/mac_12_benchmark.pmlmac",
+      "gapReportFile": "docs/factory/gap-reports/mac_12_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/mac_12_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "mac_13",
+      "action": "patch_kb",
+      "score": 0.88,
+      "benchmarkFile": "docs/factory/benchmarks/mac_13_benchmark.pmlmac",
+      "gapReportFile": "docs/factory/gap-reports/mac_13_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/mac_13_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "mac_14",
+      "action": "patch_kb",
+      "score": 0.75,
+      "benchmarkFile": "docs/factory/benchmarks/mac_14_benchmark.pmlmac",
+      "gapReportFile": "docs/factory/gap-reports/mac_14_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/mac_14_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "mac_15",
+      "action": "manual_review",
+      "score": 0.55,
+      "benchmarkFile": "docs/factory/benchmarks/mac_15_benchmark.pmlmac",
+      "gapReportFile": "docs/factory/gap-reports/mac_15_gap.json",
+      "kbPatchFile": null,
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "mac_16",
+      "action": "manual_review",
+      "score": 0.68,
+      "benchmarkFile": "docs/factory/benchmarks/mac_16_benchmark.pmlmac",
+      "gapReportFile": "docs/factory/gap-reports/mac_16_gap.json",
+      "kbPatchFile": null,
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "mac_17",
+      "action": "patch_kb",
+      "score": 0.68,
+      "benchmarkFile": "docs/factory/benchmarks/mac_17_benchmark.pmlmac",
+      "gapReportFile": "docs/factory/gap-reports/mac_17_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/mac_17_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "mac_18",
+      "action": "patch_kb",
+      "score": 0.85,
+      "benchmarkFile": "docs/factory/benchmarks/mac_18_benchmark.pmlmac",
+      "gapReportFile": "docs/factory/gap-reports/mac_18_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/mac_18_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "mac_19",
+      "action": "patch_kb",
+      "score": 0.78,
+      "benchmarkFile": "docs/factory/benchmarks/mac_19_benchmark.pmlmac",
+      "gapReportFile": "docs/factory/gap-reports/mac_19_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/mac_19_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "mac_20",
+      "action": "patch_kb",
+      "score": 0.88,
+      "benchmarkFile": "docs/factory/benchmarks/mac_20_benchmark.pmlmac",
+      "gapReportFile": "docs/factory/gap-reports/mac_20_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/mac_20_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "mac_21",
+      "action": "patch_kb",
+      "score": 0.8,
+      "benchmarkFile": "docs/factory/benchmarks/mac_21_benchmark.pmlmac",
+      "gapReportFile": "docs/factory/gap-reports/mac_21_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/mac_21_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "mac_22",
+      "action": "patch_kb",
+      "score": 0.93,
+      "benchmarkFile": "docs/factory/benchmarks/mac_22_benchmark.pmlmac",
+      "gapReportFile": "docs/factory/gap-reports/mac_22_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/mac_22_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "mac_23",
+      "action": "patch_kb",
+      "score": 0.75,
+      "benchmarkFile": "docs/factory/benchmarks/mac_23_benchmark.pmlmac",
+      "gapReportFile": "docs/factory/gap-reports/mac_23_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/mac_23_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "mac_24",
+      "action": "manual_review",
+      "score": 0.58,
+      "benchmarkFile": "docs/factory/benchmarks/mac_24_benchmark.pmlmac",
+      "gapReportFile": "docs/factory/gap-reports/mac_24_gap.json",
+      "kbPatchFile": null,
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "mac_25",
+      "action": "manual_review",
+      "score": 0.58,
+      "benchmarkFile": "docs/factory/benchmarks/mac_25_benchmark.pmlmac",
+      "gapReportFile": "docs/factory/gap-reports/mac_25_gap.json",
+      "kbPatchFile": null,
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "mac_26",
+      "action": "patch_kb",
+      "score": 0.78,
+      "benchmarkFile": "docs/factory/benchmarks/mac_26_benchmark.pmlmac",
+      "gapReportFile": "docs/factory/gap-reports/mac_26_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/mac_26_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "mac_27",
+      "action": "manual_review",
+      "score": 0.68,
+      "benchmarkFile": "docs/factory/benchmarks/mac_27_benchmark.pmlmac",
+      "gapReportFile": "docs/factory/gap-reports/mac_27_gap.json",
+      "kbPatchFile": null,
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "mac_28",
+      "action": "patch_kb",
+      "score": 0.73,
+      "benchmarkFile": "docs/factory/benchmarks/mac_28_benchmark.pmlmac",
+      "gapReportFile": "docs/factory/gap-reports/mac_28_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/mac_28_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "mac_29",
+      "action": "patch_kb",
+      "score": 0.83,
+      "benchmarkFile": "docs/factory/benchmarks/mac_29_benchmark.pmlmac",
+      "gapReportFile": "docs/factory/gap-reports/mac_29_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/mac_29_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "mac_30",
+      "action": "patch_kb",
+      "score": 0.73,
+      "benchmarkFile": "docs/factory/benchmarks/mac_30_benchmark.pmlmac",
+      "gapReportFile": "docs/factory/gap-reports/mac_30_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/mac_30_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "mac_31",
+      "action": "patch_kb",
+      "score": 0.7,
+      "benchmarkFile": "docs/factory/benchmarks/mac_31_benchmark.pmlmac",
+      "gapReportFile": "docs/factory/gap-reports/mac_31_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/mac_31_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "mac_32",
+      "action": "patch_kb",
+      "score": 0.8,
+      "benchmarkFile": "docs/factory/benchmarks/mac_32_benchmark.pmlmac",
+      "gapReportFile": "docs/factory/gap-reports/mac_32_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/mac_32_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "mac_33",
+      "action": "patch_kb",
+      "score": 0.8,
+      "benchmarkFile": "docs/factory/benchmarks/mac_33_benchmark.pmlmac",
+      "gapReportFile": "docs/factory/gap-reports/mac_33_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/mac_33_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "mac_34",
+      "action": "patch_kb",
+      "score": 0.83,
+      "benchmarkFile": "docs/factory/benchmarks/mac_34_benchmark.pmlmac",
+      "gapReportFile": "docs/factory/gap-reports/mac_34_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/mac_34_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "mac_35",
+      "action": "patch_kb",
+      "score": 0.83,
+      "benchmarkFile": "docs/factory/benchmarks/mac_35_benchmark.pmlmac",
+      "gapReportFile": "docs/factory/gap-reports/mac_35_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/mac_35_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "mac_36",
+      "action": "patch_kb",
+      "score": 0.88,
+      "benchmarkFile": "docs/factory/benchmarks/mac_36_benchmark.pmlmac",
+      "gapReportFile": "docs/factory/gap-reports/mac_36_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/mac_36_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "mac_37",
+      "action": "patch_kb",
+      "score": 0.85,
+      "benchmarkFile": "docs/factory/benchmarks/mac_37_benchmark.pmlmac",
+      "gapReportFile": "docs/factory/gap-reports/mac_37_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/mac_37_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "mac_38",
+      "action": "patch_kb",
+      "score": 0.8,
+      "benchmarkFile": "docs/factory/benchmarks/mac_38_benchmark.pmlmac",
+      "gapReportFile": "docs/factory/gap-reports/mac_38_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/mac_38_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "mac_39",
+      "action": "manual_review",
+      "score": 0.55,
+      "benchmarkFile": "docs/factory/benchmarks/mac_39_benchmark.pmlmac",
+      "gapReportFile": "docs/factory/gap-reports/mac_39_gap.json",
+      "kbPatchFile": null,
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "mac_40",
+      "action": "manual_review",
+      "score": 0.55,
+      "benchmarkFile": "docs/factory/benchmarks/mac_40_benchmark.pmlmac",
+      "gapReportFile": "docs/factory/gap-reports/mac_40_gap.json",
+      "kbPatchFile": null,
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "mac_41",
+      "action": "manual_review",
+      "score": 0.55,
+      "benchmarkFile": "docs/factory/benchmarks/mac_41_benchmark.pmlmac",
+      "gapReportFile": "docs/factory/gap-reports/mac_41_gap.json",
+      "kbPatchFile": null,
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "mac_42",
+      "action": "manual_review",
+      "score": 0.55,
+      "benchmarkFile": "docs/factory/benchmarks/mac_42_benchmark.pmlmac",
+      "gapReportFile": "docs/factory/gap-reports/mac_42_gap.json",
+      "kbPatchFile": null,
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "mac_43",
+      "action": "manual_review",
+      "score": 0.55,
+      "benchmarkFile": "docs/factory/benchmarks/mac_43_benchmark.pmlmac",
+      "gapReportFile": "docs/factory/gap-reports/mac_43_gap.json",
+      "kbPatchFile": null,
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "mac_44",
+      "action": "manual_review",
+      "score": 0.58,
+      "benchmarkFile": "docs/factory/benchmarks/mac_44_benchmark.pmlmac",
+      "gapReportFile": "docs/factory/gap-reports/mac_44_gap.json",
+      "kbPatchFile": null,
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "mac_45",
+      "action": "manual_review",
+      "score": 0.55,
+      "benchmarkFile": "docs/factory/benchmarks/mac_45_benchmark.pmlmac",
+      "gapReportFile": "docs/factory/gap-reports/mac_45_gap.json",
+      "kbPatchFile": null,
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "mac_46",
+      "action": "patch_kb",
+      "score": 0.75,
+      "benchmarkFile": "docs/factory/benchmarks/mac_46_benchmark.pmlmac",
+      "gapReportFile": "docs/factory/gap-reports/mac_46_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/mac_46_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "mac_47",
+      "action": "manual_review",
+      "score": 0.55,
+      "benchmarkFile": "docs/factory/benchmarks/mac_47_benchmark.pmlmac",
+      "gapReportFile": "docs/factory/gap-reports/mac_47_gap.json",
+      "kbPatchFile": null,
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "obj_11",
+      "action": "patch_kb",
+      "score": 0.95,
+      "benchmarkFile": "docs/factory/benchmarks/obj_11_benchmark.pmlobj",
+      "gapReportFile": "docs/factory/gap-reports/obj_11_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/obj_11_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "fnc_01",
+      "action": "patch_kb",
+      "score": 0.86,
+      "benchmarkFile": "docs/factory/benchmarks/fnc_01_benchmark.pmlfnc",
+      "gapReportFile": "docs/factory/gap-reports/fnc_01_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/fnc_01_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "fnc_02",
+      "action": "patch_kb",
+      "score": 0.68,
+      "benchmarkFile": "docs/factory/benchmarks/fnc_02_benchmark.pmlfnc",
+      "gapReportFile": "docs/factory/gap-reports/fnc_02_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/fnc_02_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "fnc_03",
+      "action": "patch_kb",
+      "score": 0.66,
+      "benchmarkFile": "docs/factory/benchmarks/fnc_03_benchmark.pmlfnc",
+      "gapReportFile": "docs/factory/gap-reports/fnc_03_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/fnc_03_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "fnc_04",
+      "action": "patch_kb",
+      "score": 0.83,
+      "benchmarkFile": "docs/factory/benchmarks/fnc_04_benchmark.pmlfnc",
+      "gapReportFile": "docs/factory/gap-reports/fnc_04_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/fnc_04_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "fnc_05",
+      "action": "patch_kb",
+      "score": 0.78,
+      "benchmarkFile": "docs/factory/benchmarks/fnc_05_benchmark.pmlfnc",
+      "gapReportFile": "docs/factory/gap-reports/fnc_05_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/fnc_05_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "fnc_06",
+      "action": "patch_kb",
+      "score": 0.88,
+      "benchmarkFile": "docs/factory/benchmarks/fnc_06_benchmark.pmlfnc",
+      "gapReportFile": "docs/factory/gap-reports/fnc_06_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/fnc_06_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "fnc_07",
+      "action": "patch_kb",
+      "score": 0.88,
+      "benchmarkFile": "docs/factory/benchmarks/fnc_07_benchmark.pmlfnc",
+      "gapReportFile": "docs/factory/gap-reports/fnc_07_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/fnc_07_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "fnc_08",
+      "action": "patch_kb",
+      "score": 0.83,
+      "benchmarkFile": "docs/factory/benchmarks/fnc_08_benchmark.pmlfnc",
+      "gapReportFile": "docs/factory/gap-reports/fnc_08_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/fnc_08_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "fnc_09",
+      "action": "patch_kb",
+      "score": 0.76,
+      "benchmarkFile": "docs/factory/benchmarks/fnc_09_benchmark.pmlfnc",
+      "gapReportFile": "docs/factory/gap-reports/fnc_09_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/fnc_09_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "fnc_10",
+      "action": "patch_kb",
+      "score": 0.78,
+      "benchmarkFile": "docs/factory/benchmarks/fnc_10_benchmark.pmlfnc",
+      "gapReportFile": "docs/factory/gap-reports/fnc_10_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/fnc_10_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "fnc_11",
+      "action": "patch_kb",
+      "score": 0.78,
+      "benchmarkFile": "docs/factory/benchmarks/fnc_11_benchmark.pmlfnc",
+      "gapReportFile": "docs/factory/gap-reports/fnc_11_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/fnc_11_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "fnc_12",
+      "action": "patch_kb",
+      "score": 0.73,
+      "benchmarkFile": "docs/factory/benchmarks/fnc_12_benchmark.pmlfnc",
+      "gapReportFile": "docs/factory/gap-reports/fnc_12_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/fnc_12_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "fnc_13",
+      "action": "patch_kb",
+      "score": 0.78,
+      "benchmarkFile": "docs/factory/benchmarks/fnc_13_benchmark.pmlfnc",
+      "gapReportFile": "docs/factory/gap-reports/fnc_13_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/fnc_13_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "fnc_14",
+      "action": "patch_kb",
+      "score": 0.76,
+      "benchmarkFile": "docs/factory/benchmarks/fnc_14_benchmark.pmlfnc",
+      "gapReportFile": "docs/factory/gap-reports/fnc_14_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/fnc_14_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "fnc_15",
+      "action": "patch_kb",
+      "score": 0.73,
+      "benchmarkFile": "docs/factory/benchmarks/fnc_15_benchmark.pmlfnc",
+      "gapReportFile": "docs/factory/gap-reports/fnc_15_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/fnc_15_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "fnc_16",
+      "action": "manual_review",
+      "score": 0.58,
+      "benchmarkFile": "docs/factory/benchmarks/fnc_16_benchmark.pmlfnc",
+      "gapReportFile": "docs/factory/gap-reports/fnc_16_gap.json",
+      "kbPatchFile": null,
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "fnc_17",
+      "action": "patch_kb",
+      "score": 0.93,
+      "benchmarkFile": "docs/factory/benchmarks/fnc_17_benchmark.pmlfnc",
+      "gapReportFile": "docs/factory/gap-reports/fnc_17_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/fnc_17_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "fnc_18",
+      "action": "patch_kb",
+      "score": 0.61,
+      "benchmarkFile": "docs/factory/benchmarks/fnc_18_benchmark.pmlfnc",
+      "gapReportFile": "docs/factory/gap-reports/fnc_18_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/fnc_18_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "frm_01",
+      "action": "patch_kb",
+      "score": 0.9,
+      "benchmarkFile": "docs/factory/benchmarks/frm_01_benchmark.pmlfrm",
+      "gapReportFile": "docs/factory/gap-reports/frm_01_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/frm_01_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "frm_02",
+      "action": "patch_kb",
+      "score": 0.95,
+      "benchmarkFile": "docs/factory/benchmarks/frm_02_benchmark.pmlfrm",
+      "gapReportFile": "docs/factory/gap-reports/frm_02_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/frm_02_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "frm_03",
+      "action": "patch_kb",
+      "score": 0.82,
+      "benchmarkFile": "docs/factory/benchmarks/frm_03_benchmark.pmlfrm",
+      "gapReportFile": "docs/factory/gap-reports/frm_03_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/frm_03_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "frm_04",
+      "action": "patch_kb",
+      "score": 0.95,
+      "benchmarkFile": "docs/factory/benchmarks/frm_04_benchmark.pmlfrm",
+      "gapReportFile": "docs/factory/gap-reports/frm_04_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/frm_04_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "frm_05",
+      "action": "patch_kb",
+      "score": 0.95,
+      "benchmarkFile": "docs/factory/benchmarks/frm_05_benchmark.pmlfrm",
+      "gapReportFile": "docs/factory/gap-reports/frm_05_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/frm_05_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "frm_06",
+      "action": "patch_kb",
+      "score": 0.91,
+      "benchmarkFile": "docs/factory/benchmarks/frm_06_benchmark.pmlfrm",
+      "gapReportFile": "docs/factory/gap-reports/frm_06_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/frm_06_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "frm_07",
+      "action": "patch_kb",
+      "score": 0.95,
+      "benchmarkFile": "docs/factory/benchmarks/frm_07_benchmark.pmlfrm",
+      "gapReportFile": "docs/factory/gap-reports/frm_07_gap.json",
+      "kbPatchFile": "docs/factory/kb-patches/frm_07_kb_patch.ts",
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    },
+    {
+      "id": "obj_12",
+      "action": "manual_review",
+      "score": 0.6,
+      "benchmarkFile": "docs/factory/benchmarks/obj_12_benchmark.pmlobj",
+      "gapReportFile": "docs/factory/gap-reports/obj_12_gap.json",
+      "kbPatchFile": null,
+      "parseErrorCount": 0,
+      "diagnostics": 0
+    }
+  ],
+  "errors": []
+}

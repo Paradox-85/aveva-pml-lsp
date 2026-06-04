@@ -1,0 +1,16 @@
+{
+  "fileId": "mac_06",
+  "filePath": "docs/codebase/macros/JDE_pipeData_export.pmlmac",
+  "reviewDate": "2026-06-03",
+  "overallGapScore": 0.82,
+  "dimensions": {
+    "D1_syntax": {"score":0.62,"gaps":[{"name":"PML1 collection declaration with WITH filters and VALUES loop","originalLines":"57-61,177-181","suggestedKbId":"cb_pml1_collect_values_dbref"},{"name":"Quoted import and .NET constructor string forms","originalLines":"7,343-346","suggestedKbId":"cb_netgrid_excel_export_macro"},{"name":"Chained PML1 attribute read through relationship","originalLines":"281-291","suggestedKbId":"cb_deslnk_attribute_fallback"}]},
+    "D2_patterns": {"score":0.9,"gaps":[{"name":"Dual-source AE3D and AE pipe attribute export","originalLines":"57-175,177-337","suggestedKbId":"cb_macro_dual_source_pipe_attribute_export"},{"name":"Large header-to-row positional mapping","originalLines":"11-54,63-174,183-337","suggestedKbId":"cb_macro_ordered_header_row_attribute_mapping"},{"name":"Excel export via NETGRIDCONTROL/NETDATASOURCE","originalLines":"341-346","suggestedKbId":"cb_netgrid_excel_export_macro"}]},
+    "D3_structure": {"score":0.88,"gaps":[{"name":"Original lifecycle not preserved"},{"name":"Error handling scope differs"}]},
+    "D4_naming": {"score":0.76,"gaps":[{"name":"Customer/project naming conventions"},{"name":"Header labels are domain-specific deliverables"}]},
+    "D5_logic": {"score":0.92,"gaps":[{"name":"AE3D filter logic omitted"},{"name":"AE relationship fallback logic omitted"},{"name":"TagSource classification omitted/misrepresented"},{"name":"Progress calculation differs"}]},
+    "D6_dependencies": {"score":0.7,"gaps":[{"name":"GridControl .NET add-in"},{"name":"Custom global progress function"},{"name":"Domain-specific UDA dependencies"}]},
+    "D7_kbCompleteness": {"newEntriesNeeded":["cb_macro_dual_source_pipe_attribute_export","cb_pml1_collect_values_dbref","cb_deslnk_attribute_fallback","cb_netgrid_excel_export_macro"]}
+  },
+  "actionRequired": "patch_kb"
+}

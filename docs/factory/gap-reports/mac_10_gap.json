@@ -1,0 +1,153 @@
+{
+  "fileId": "mac_10",
+  "filePath": "docs/codebase/macros/manual-data-export.pmlmac",
+  "reviewDate": "2026-06-03",
+  "overallGapScore": 0.35,
+  "dimensions": {
+    "D1_syntax": {
+      "score": 0.9,
+      "gaps": [
+        "The `inset` operator (PML1 infix: `value inset (list1, list2)`) is used in tag filters but not explicitly documented in the syntax reference KB. It is a list-membership operator common in PDMS/E3D queries.",
+        "The `!dt.month().string('I2')` format code `'I2'` (zero-padded 2-digit integer) is used for datetime formatting but the STRING(String,FORMAT) reference does not list specific format codes like 'I2'.",
+        "Pipe-escaped path segments (`\\_master`) inside pipe-delimited string literals are used in file paths; KB covers pipe strings but not the backslash-escape convention within them."
+      ]
+    },
+    "D2_patterns": {
+      "score": 0.7,
+      "gaps": [
+        "PMLTAGS object with exportasxls method: the KB does not contain a dedicated entry for the PMLTAGS object or its exportasxls method. The search returned generic examples but no PMLTAGS-specific documentation.",
+        "CATNAM of LSTGRP of pattern: the LSTGRP (List Group) object and its CATNAM attribute are used to derive the group name for export, but no KB entry covers LSTGRP or LSTDEF specifically.",
+        "lstflt attribute on LSTDEF: used to clear list filters (`!gridRef.lstflt = !realUnset`), not covered in KB.",
+        "Custom function jacExportRDLDataReportMatrix: external .pmlfnc call with 7 parameters (filePath, rdlFilter, tagFilter, emptyPatternList, commonAttributes, replaceData, isErrorReport). Not in KB but expected for customer-specific code."
+      ]
+    },
+    "D3_structure": {
+      "score": 0.95,
+      "gaps": [
+        "The original interleaves dollar-block queries (`$()...$)`) with regular macro code. The benchmark preserves this structure identically.",
+        "Variable scoping: `!realUnset = ARRAY()` is re-declared inside a dollar block (DOC section). The benchmark replicates this pattern, which is valid in PML macros."
+      ]
+    },
+    "D4_naming": {
+      "score": 0.85,
+      "gaps": [
+        "Original uses `!commonAttribiutes` (typo: double 'i'). Benchmark corrects to `!commonAttributes`. This is a benign fix.",
+        "Original comment typo: `--colleact comm packages` → benchmark corrects to `-- collect comm packages`.",
+        "Variable names follow customer convention (`!pathName`, `!rdlMasterFile`, `!isErrorReport`) — no naming prefix convention detected. Benchmark preserves all original names except the typo fix.",
+        "No global variable prefix convention is visible in this macro; all variables are local (`!`)."
+      ]
+    },
+    "D5_logic": {
+      "score": 0.8,
+      "gaps": [
+        "The `!realUnset = ARRAY()` reset inside the DOC dollar block is a micro-reset pattern. The benchmark preserves it, but the KB lacks documentation on re-initializing ARRAY variables inside dollar-block contexts.",
+        "The `matchwild` function is used in PML1 query expressions (`matchwild(name, |$!pattern|)`) which is the PML1 command-style form, different from the STRING.MatchWild() method form documented in KB.",
+        "The `IFT(...)` conditional function combined with `REPLACE(...)` in the Parent Tag attribute expression is a nested expression pattern not explicitly covered in KB."
+      ]
+    },
+    "D6_dependencies": {
+      "score": 0.7,
+      "gaps": [
+        "External import: `import 'Aveva.Engineering.Tags.Pml'` — confirmed as valid PML import pattern but the module's specific API surface is not in KB.",
+        "Custom function `!!jacExportRDLDataReportMatrix` is a global function from a customer-specific `.pmlfnc` file. Not in KB (expected).",
+        "LSTDEF, LSTGRP objects are AVEVA Engineering list-management objects. Their specific attributes/methods are not documented in KB.",
+        "ENGITE element type is used in `collect all (ENGITE)` — this is an AVEVA Engineering element type, not documented in KB."
+      ]
+    },
+    "D7_kbCompleteness": {
+      "newEntriesNeeded": [
+        {
+          "suggestedId": "pml_obj_pmltags",
+          "category": "objects",
+          "subcategory": "AVEVA Engineering",
+          "title": "PMLTAGS object and exportasxls method",
+          "principle": "The PMLTAGS object provides methods to query and export engineering tag data to spreadsheet formats.",
+          "rule": "Create a PMLTAGS instance with `object PMLTAGS()`, then call `.exportasxls(!groupName, !listName, !filePath)` to export matching tags.",
+          "syntax": "!!tags = object PMLTAGS()\n!!tags.exportasxls(!groupName, !listName, !filePath)",
+          "exampleCanonical": "-- Export tags from a named list\n!!tags = object PMLTAGS()\nvar !grid collect all LSTDEF with (LSTNAM eq |my-list|)\nif (!grid.size() eq 1) then\n    !gridRef = !grid.first().dbref()\n    var !gName CATNAM of LSTGRP of $!gridRef\n    !!tags.exportasxls(!gName, '$!<gridRef.LSTNAM>', '$!outPath')\nendif",
+          "exampleAntipattern": "-- Don't reuse PMLTAGS across different export contexts without clearing\n!!tags = object PMLTAGS()\n!!tags.exportasxls(...)\n!!tags.exportasxls(...) -- stale state may cause wrong export",
+          "pitfalls": [
+            "PMLTAGS is specific to AVEVA Engineering; it may not be available in PDMS-only environments.",
+            "The exportasxls method requires valid group and list names; passing empty strings causes runtime errors."
+          ],
+          "relatedIds": ["pml_query_collect_all", "pml_string_split"],
+          "sourcedoc": "AVEVA Engineering PML Customization",
+          "sourcecodebase": "manual-data-export.pmlmac"
+        },
+        {
+          "suggestedId": "pml_op_inset",
+          "category": "operators",
+          "subcategory": "PML1 query operators",
+          "title": "inset operator for list membership in PML1 queries",
+          "principle": "The `inset` operator tests whether a value is a member of a list of values in PML1 query expressions.",
+          "rule": "Use `value inset (list1, list2, ...)` in PML1 query expressions to test membership. Combine with `NOT` to exclude values.",
+          "syntax": "NOT(:TagStatus inset (|VOID|, |Future|))",
+          "exampleCanonical": "-- Exclude tags with VOID or Future status\n!tagFilter = 'NOT(:TagStatus inset (|VOID|, |Future|)) and ISNAMED'",
+          "exampleAntipattern": "-- Don't use inset with PML2 method chaining\n!status.inset(...) -- incorrect, use infix form",
+          "pitfalls": [
+            "inset is a PML1 infix operator; it works inside query expression strings but not in PML2 object method chains.",
+            "Values inside inset must be pipe-delimited strings."
+          ],
+          "relatedIds": ["pml_query_collect_all", "pml_op_matchwild"],
+          "sourcedoc": "AVEVA PDMS/E3D Query Reference",
+          "sourcecodebase": "manual-data-export.pmlmac"
+        },
+        {
+          "suggestedId": "pml_obj_lstgrp_lstdef",
+          "category": "objects",
+          "subcategory": "AVEVA Engineering Lists",
+          "title": "LSTDEF and LSTGRP objects for list management",
+          "principle": "LSTDEF (List Definition) and LSTGRP (List Group) are AVEVA Engineering objects used to manage named lists for tag data grouping.",
+          "rule": "Query LSTDEF to find a list by name. Access LSTGRP via `LSTGRP of` to get the group. Use CATNAM to get the group name. Set lstflt to clear filters.",
+          "syntax": "var !grid collect all LSTDEF with (LSTNAM eq |listName|)\n!gridRef = !grid.first().dbref()\n!gridRef.lstflt = !realUnset\nvar !gName CATNAM of LSTGRP of $!gridRef",
+          "exampleCanonical": "-- Find and clear a list\nvar !grid collect all LSTDEF with (LSTNAM eq |IM-tag-dataset|)\nif (!grid.size() eq 1) then\n    !gridRef = !grid.first().dbref()\n    !gridRef.lstflt = ARRAY()\n    var !gName CATNAM of LSTGRP of $!gridRef\nendif",
+          "exampleAntipattern": "-- Don't assume grid.size() == 1; always check before accessing first()",
+          "pitfalls": [
+            "LSTDEF/LSTGRP are Engineering-specific; not available in PDMS.",
+            "lstflt is a reference attribute; setting it to an empty ARRAY clears the filter."
+          ],
+          "relatedIds": ["pml_query_collect_all", "pml_obj_pmltags"],
+          "sourcedoc": "AVEVA Engineering List Reference",
+          "sourcecodebase": "manual-data-export.pmlmac"
+        },
+        {
+          "suggestedId": "pml_fmt_datetime_string",
+          "category": "patterns",
+          "subcategory": "datetime formatting",
+          "title": "DATETIME object with .string() format codes",
+          "principle": "The OBJECT DATETIME() construct returns a datetime object with methods for year, month, date, hour, minute, second. Each can be formatted via .string(formatCode).",
+          "rule": "Use `.string('I2')` for zero-padded 2-digit integers, `.string('I4')` for 4-digit years. Format codes follow PDMS/E3D FORMAT conventions.",
+          "syntax": "!dt = OBJECT DATETIME()\n!year = !dt.year()\n!month = !dt.month().string('I2')",
+          "exampleCanonical": "-- Build a timestamped filename\n!dt = OBJECT DATETIME()\n!ts = !dt.year().string() & '-' & !dt.month().string('I2') & '-' & !dt.date().string('I2')",
+          "exampleAntipattern": "-- Don't use .string() without format code for zero-padding\n!month = !dt.month().string() -- may produce single-digit '3' instead of '03'",
+          "pitfalls": [
+            "Format codes like 'I2' are PDMS/E3D FORMAT codes; their exact behavior may vary by product version.",
+            ".year() returns a REAL; .string() on a bare REAL may not zero-pad."
+          ],
+          "relatedIds": ["pml_string_object", "pml_var_local"],
+          "sourcedoc": "AVEVA E3D PML Customization",
+          "sourcecodebase": "manual-data-export.pmlmac"
+        },
+        {
+          "suggestedId": "pml_cmd_matchwild_query",
+          "category": "functions",
+          "subcategory": "PML1 query functions",
+          "title": "matchwild function in PML1 query expressions",
+          "principle": "The `matchwild` function in PML1 query expressions performs wildcard pattern matching on attribute values or names.",
+          "rule": "Use `matchwild(attribute, |pattern|)` inside PML1 query expression strings. Supports `*` (any chars) and `?` (single char).",
+          "syntax": "matchwild(name, |*GB.*|)\nmatchwild(namn of :Ref, |*$!pckgName*|)",
+          "exampleCanonical": "-- Find tags matching a pattern\n!tagFilter = 'ISNAMED and matchwild(name, |*GB.*|)'",
+          "exampleAntipattern": "-- Don't use matchwild as a STRING method in query strings\nmatchwild(!name, |*|) -- incorrect, use PML1 infix form",
+          "pitfalls": [
+            "matchwild in query strings is PML1-style; the STRING.MatchWild() method is PML2-style. They are not interchangeable in query expression strings.",
+            "Variable interpolation in matchwild patterns requires `$!var` syntax inside pipe strings."
+          ],
+          "relatedIds": ["pml_op_inset", "pml_query_collect_all"],
+          "sourcedoc": "AVEVA PDMS/E3D Query Reference",
+          "sourcecodebase": "manual-data-export.pmlmac"
+        }
+      ]
+    }
+  },
+  "actionRequired": "patch_kb"
+}

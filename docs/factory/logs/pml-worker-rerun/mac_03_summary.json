@@ -1,0 +1,50 @@
+{
+  "fileId": "mac_03",
+  "filePath": "docs/codebase/macros/EBE_delta_tag_export.pmlmac",
+  "fileType": "macro",
+  "status": "COMPLETE",
+  "benchmarkSaved": "docs/factory/benchmarks/mac_03_benchmark.pmlmac",
+  "benchmarkSize": 5144,
+  "lintResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 540
+  },
+  "validateResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 540
+  },
+  "gapReport": "docs/factory/gap-reports/mac_03_gap.json",
+  "overallGapScore": 0.35,
+  "kbPatch": "docs/factory/kb-patches/mac_03_kb_patch.ts",
+  "kbEntriesAdded": 8,
+  "confidenceScore": 0.85,
+  "dimensions": {
+    "D1_syntax": { "score": 0.25, "gaps": 5 },
+    "D2_patterns": { "score": 0.40, "gaps": 5 },
+    "D3_structure": { "score": 0.20, "gaps": 3 },
+    "D4_naming": { "score": 0.10, "gaps": 2 },
+    "D5_logic": { "score": 0.50, "gaps": 5 },
+    "D6_dependencies": { "score": 0.30, "gaps": 3 },
+    "D7_kbCompleteness": { "newEntriesNeeded": 8 }
+  },
+  "actionRequired": "patch_kb",
+  "patternsUsed": [
+    "dt_datetime_object",
+    "errorhandling_handle_any",
+    "arrays_append",
+    "arrays_appendArray",
+    "arrays_findFirst",
+    "arrays_sortUnique",
+    "collections_collection_filter",
+    "dotnet_interop_import",
+    "strings_split",
+    "strings_upcase",
+    "pdms_dbref_access",
+    "syscom_mkdir",
+    "controlflow_do_enddo",
+    "controlflow_if_elseif_endif",
+    "errorhandling_elsehandle"
+  ]
+}

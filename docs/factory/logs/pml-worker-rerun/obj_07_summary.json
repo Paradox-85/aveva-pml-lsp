@@ -1,0 +1,61 @@
+{
+  "fileId": "obj_07",
+  "filePath": "docs/codebase/objects/ramTagManagement.pmlobj",
+  "fileType": "object",
+  "runDate": "2026-06-03",
+  "status": "complete",
+  "patternsUsed": [
+    "KB-SYNTAX-OBJECT-DEFINE",
+    "KB-SYNTAX-MEMBER",
+    "KB-SYNTAX-METHOD-DEFINE",
+    "KB-SYNTAX-HANDLE-ELSEHANDLE",
+    "KB-OBJ-ARRAY",
+    "KB-OBJ-DBREF",
+    "KB-OBJ-ATTRIBUTE",
+    "KB-OBJ-ELEMENTTYPE",
+    "KB-CONTROL-IF-THEN-ELSEIF-ENDIF",
+    "KB-CONTROL-DO-ENDDO",
+    "KB-CONTROL-SKIP",
+    "KB-EXPR-DOLLAR-SUBSTITUTION",
+    "KB-EXPR-COMPARISON",
+    "KB-QUERY-COLLECTALLFOR",
+    "KB-DEP-USING-NAMESPACE",
+    "KB-OBJ-METHOD-OVERLOADING",
+    "KB-OBJ-VAR-QUERY"
+  ],
+  "lintResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0
+  },
+  "validateResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 2192
+  },
+  "kbGaps": [
+    "KB-EXPR-DOLLAR-DYNAMIC-CONSTRUCT — $! dynamic object construction not in KB",
+    "KB-OBJ-VAR-BACKREF-QUERY — var backref query syntax not in KB",
+    "KB-DEP-NAMESPACE-RAMAEUPDATEELEMENT — AVEVA internal namespace objects not in KB",
+    "KB-QUERY-COLLECTALLFOR-WORL — collectAllFor with WORL scope not in KB",
+    "KB-OBJ-ATTRIBUTE-ISPSUEDO-BYPASS — pseudo attribute bypass logic not in KB"
+  ],
+  "gapAnalysis": {
+    "overallGapScore": 0.12,
+    "actionRequired": "patch_kb",
+    "dimensions": {
+      "D1_syntax": { "score": 0.05, "gapCount": 2 },
+      "D2_patterns": { "score": 0.15, "gapCount": 3 },
+      "D3_structure": { "score": 0.0, "gapCount": 0 },
+      "D4_naming": { "score": 0.0, "gapCount": 0 },
+      "D5_logic": { "score": 0.2, "gapCount": 3 },
+      "D6_dependencies": { "score": 0.3, "gapCount": 3 },
+      "D7_kbCompleteness": { "newEntriesNeeded": 5 }
+    }
+  },
+  "outputFiles": {
+    "benchmark": "docs/factory/benchmarks/obj_07_benchmark.pmlobj",
+    "gapReport": "docs/factory/gap-reports/obj_07_gap.json",
+    "kbPatch": "docs/factory/kb-patches/obj_07_kb_patch.ts"
+  },
+  "confidenceScore": 0.88
+}

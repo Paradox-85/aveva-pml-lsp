@@ -1,0 +1,12 @@
+DEFINE FUNCTION !!jacUpdateEquipmentNumber (!pmlElement IS DBREF, !newEquipmentNumber IS STRING)
+    -- Check if the provided element is valid
+    IF (!pmlElement.IsValid()) THEN
+        -- Set the EQUI (Equipment Number) attribute of the element
+        !pmlElement.EQUI = !newEquipmentNumber
+        RETURN TRUE
+    ELSE
+        -- Log an error or return FALSE if the element is not valid
+        CALCULATE WARNING 'Provided element is not valid for updating equipment number.'
+        RETURN FALSE
+    ENDIF
+ENDFUNCTION

@@ -1,0 +1,97 @@
+define object RAMCOMMONLOGGER
+
+  member .logDataList is ARRAY
+  member .headings is ARRAY
+  member .fileWriter is RAMFILEWRITERCLASS
+
+  define method .ramCommonLogger()
+    this.clearData()
+    this.fileWriter = object RAMFILEWRITERCLASS()
+  endmethod
+
+  define method .clearData()
+    this.logDataList = ARRAY()
+    this.headings = ARRAY()
+  endmethod
+
+  define method .addLogDetails(!tool is STRING, !detail is STRING, !severity is STRING)
+    !row = ARRAY()
+    !row.Append(!tool)
+    !row.Append(!detail)
+    !row.Append(!severity)
+    this.logDataList.Append(!row)
+  endmethod
+
+  define method .addLogDetails(!element is STRING, !attribute is STRING, !detail is STRING, !severity is STRING)
+    !row = ARRAY()
+    !row.Append(!element)
+    !row.Append(!attribute)
+    !row.Append(!detail)
+    !row.Append(!severity)
+    this.logDataList.Append(!row)
+  endmethod
+
+  define method .addLogSplitDetails(!tool is STRING, !detail is STRING, !severity is STRING, !splitCharacter is STRING)
+    !row = ARRAY()
+    !detailParts = !detail.Split(!splitCharacter)
+    !row.Append(!tool)
+    DO !index FROM 1 TO !detailParts.Size()
+      !row.Append(!detailParts[!index])
+    ENDDO
+    !row.Append(!severity)
+    this.logDataList.Append(!row)
+  endmethod
+
+  define method .addHeading(!heading is STRING)
+    this.headings.Append(!heading)
+  endmethod
+
+  define method .getMaximumLogSize() is REAL
+    !maximumSize = this.headings.Size()
+    DO !index FROM 1 TO this.logDataList.Size()
+      !row = this.logDataList[!index]
+      IF (!row.Size() GT !maximumSize) THEN
+        !maximumSize = !row.Size()
+      ENDIF
+    ENDDO
+    RETURN !maximumSize
+  endmethod
+
+  define method .getValidHeadingArrayFormat() is ARRAY
+    !headingArray = ARRAY()
+    !headingArray.AppendArray(this.headings)
+    !maximumSize = this.getMaximumLogSize()
+    DO !index FROM !headingArray.Size() + 1 TO !maximumSize
+      !headingArray.Append(| |)
+    ENDDO
+    RETURN !headingArray
+  endmethod
+
+  define method .getValidLogArrayFormat() is ARRAY
+    !logArray = ARRAY()
+    !maximumSize = this.getMaximumLogSize()
+    DO !rowIndex FROM 1 TO this.logDataList.Size()
+      !row = ARRAY()
+      !sourceRow = this.logDataList[!rowIndex]
+      !row.AppendArray(!sourceRow)
+      DO !columnIndex FROM !row.Size() + 1 TO !maximumSize
+        !row.Append(| |)
+      ENDDO
+      !logArray.Append(!row)
+    ENDDO
+    RETURN !logArray
+  endmethod
+
+  define method .writeErrorDataToExcel(!pathName is STRING, !isDisplayFile is BOOLEAN)
+    HANDLE ANY
+      this.fileWriter.writeErrorDataToExcel(!pathName, this.getValidHeadingArrayFormat(), this.getValidLogArrayFormat(), !isDisplayFile)
+    ENDHANDLE
+  endmethod
+
+  define method .writeErrorDataToTextFile(!pathName is STRING, !isDisplayFile is BOOLEAN)
+    HANDLE ANY
+      this.fileWriter.writeErrorDataToTextFile(!pathName, this.getValidHeadingArrayFormat(), this.getValidLogArrayFormat(), !isDisplayFile)
+    ENDHANDLE
+  endmethod
+
+endobject

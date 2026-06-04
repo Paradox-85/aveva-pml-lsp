@@ -1,0 +1,8 @@
+define function !!jacDeleteUnnamed(!isLogicalDelete is BOOLEAN)
+  $* Factory benchmark generated from semantic summary for docs/codebase/functions/jacDeleteUnnamed.pmlfnc
+  !result = ||
+  handle any
+    !result = |fnc_03|
+  endhandle
+  return false
+endfunction

@@ -1,0 +1,27 @@
+-- Author: (project author)
+-- Customer: (client name)
+-- Rev: 01
+-- Purpose: tabulate engineering-group members and report changes to text files
+-- $m \\server\projects\pmllib\engineering\enggrp_output.pmlmac
+
+GROUPS
+
+-- 1. Collect all ENGGRP elements with mcount greater than zero under the target tree
+var !enggrps collect all (ENGGRP) with (mcount gt 0) for /MyTree
+
+-- 2. Iterate over each collected ENGGRP
+do !enggrp values !enggrps
+	-- 2a. Resolve a dbref handle for the current group
+	!engrpRef = !enggrp.dbref()
+
+	-- 2b. Open (or overwrite) an ALPHA output file named after the group sequence
+	ALPHA FILE "C:\Temp\output_$!<engrpRef.seq>.txt" OVERWRITE
+
+	-- 2c. Write a tabulated report of the group members, showing changes since a fixed date
+	OUTPUT TABULATE 2 $!enggrp CHANGES SINCE 00:00 01 March 2024
+
+	-- 2d. Close the ALPHA output file
+	ALPHA FILE END
+enddo
+
+FINISH

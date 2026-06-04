@@ -1,0 +1,20 @@
+{
+  "fileId": "mac_42",
+  "status": "completed_from_artifacts_after_subagent_no_edit_failure",
+  "sourceFile": "docs/codebase/macros/pipe-3D-transfer.pmlmac",
+  "timestamp": "2026-06-03T22:33:32.713Z",
+  "artifacts": {
+    "benchmark": "docs/factory/benchmarks/mac_42_benchmark.pmlmac",
+    "gapReport": "docs/factory/gap-reports/mac_42_gap.json",
+    "kbPatch": null,
+    "summary": "docs/factory/logs/pml-worker-rerun/mac_42_summary.json"
+  },
+  "validation": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 102
+  },
+  "overallGapScore": 0.55,
+  "actionRequired": "manual_review",
+  "note": "pml-worker run 9c435541 step 7 was marked failed because no final edits were detected, but benchmark and gap report exist and benchmark validates clean; no KB patch was expected because actionRequired=manual_review and D7 newEntriesNeeded is empty."
+}

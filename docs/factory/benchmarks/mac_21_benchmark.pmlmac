@@ -1,0 +1,69 @@
+--$m "C:\Users\ADZV\OneDrive - Ramboll\AVEVA_SERVER\Addons\PMLLIB\RAM\Engineering\jackdow\JDE_dbView_extractor.pmlmac"
+
+!data  = object array()
+!dbViewList = !!CollectAllFor('DBVW', ||, world)
+
+do !dbView values !dbViewList
+	!dbViewName = !dbView.Udname
+
+	--element list
+	do !ele values !dbView.elel
+		!string = !dbViewName & |;1_ELEL;;| & !ele & |;;|
+		!data.append(!string.split(|;|))
+	enddo
+
+	--expression filters
+	!expList = !!CollectAllFor('EXPFIL', ||, $!dbView)
+	do !exp values !expList
+		!string = !dbViewName & |;2_EXPFIL;;| & !exp.Expression & |;| & !exp.ExpType & |;|
+		!data.append(!string.split(|;|))
+	enddo
+
+	--attribute filter
+	!attFilList = !!CollectAllFor('ATTFIL', ||, $!dbView)
+	do !att values !attFilList
+		!string = !dbViewName & |;2_ATTFIL;| & !att.DbAttribute & |;| & !att.FiltValue & |;| & !att.FiltOperator & |;|
+		!data.append(!string.split(|;|))
+	enddo
+
+	--expression column
+	!expColumnList = !!CollectAllFor('EXPCOL', ||, $!dbView)
+	do !expCol values !expColumnList
+		!string = !dbViewName + |;3_EXPCOL;| + !expCol.Udname + |;| + !expCol.Expression + |;| + !expCol.Utype + |;|
+		handle (2,442)
+			!string = !dbViewName + |;3_EXPCOL;| + !expCol.Udname + |;#expression error(too long);| + !expCol.Utype + |;|
+		endhandle
+		!data.append(!string.split(|;|))
+	enddo
+
+	--attribute column
+	!attList = !!CollectAllFor('ATTCOL', ||, $!dbView)
+	do !att values !attList
+		!udName = !att.Udname
+		if (!udName.unset() or !udName.empty()) then
+			var !attData ATTDEF $!<att.DbAttribute> NAME TYPE RPTX SIZE DEFI DTYP UNIT VISI QSET QTXT ITYP DESTEX
+			handle none
+				!udName = !attData[3]
+			endhandle
+		endif
+		!string = !dbViewName & |;4_ATTCOL;| & !udName & |;| & !att.DbAttribute & |;;| & !att.AtQualifier
+		!data.append(!string.split(|;|))
+	enddo
+
+enddo
+
+import 'GridControl'
+handle ANY
+endhandle
+using namespace |Aveva.Core.Presentation|
+
+!header = |dbViewName;Parameter;Name;Value;Data Type;Qualifier|
+!headerList = ARRAY()
+!headerList.appendArray(!header.split(|;|))
+
+!dataFile = object file('C:\Users\ADZV\OneDrive - Ramboll\Ramboll_Jackdaw - Admin Team\RDL\_Master\JDE_dbViewExtract_new.xlsx')
+!dataTable = object NETGRIDCONTROL()
+!dataTable.clearGrid()
+!source = object NETDATASOURCE('data', !headerList, !data)
+!dataTable.BindToDataSource(!source)
+!dataTable.saveGridToExcel(|$!dataFile|)

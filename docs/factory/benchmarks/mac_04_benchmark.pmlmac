@@ -1,0 +1,100 @@
+$* Benchmark macro generated from semantic description only for mac_04
+$* Routine Jackdaw/EIS style Engineering Tags export
+
+IMPORT |Aveva.Engineering.Tags.Pml|
+HANDLE ANY
+  $P Aveva.Engineering.Tags.Pml import skipped or already available
+ENDHANDLE
+
+!exportDateTime = DATETIME()
+!exportStamp = !exportDateTime.String()
+!exportFolder = |C:\Temp|
+!exportFile = !exportFolder & |\Jackdaw_EIS_Tags.xlsx|
+
+!MEASURE = |Metric|
+!UNIT = |mm|
+!defaultMeasure = !MEASURE
+!defaultUnit = !UNIT
+
+!tagStatusFilter = |STATUS EQ 'APPROVED'|
+!tagListFilter = |TAGTYPE NE 'DELETED'|
+!rdlSourceFilter = |RDL_SOURCE EQ 'Jackdaw'|
+!gridFilter = |GRID_SOURCE EQ 'EIS'|
+
+!tagRows = ARRAY()
+!gridRows = ARRAY()
+!exportRows = ARRAY()
+!errorRows = ARRAY()
+!headerRow = ARRAY()
+
+!headerRow.Append(|Tag Number|)
+!headerRow.Append(|Status|)
+!headerRow.Append(|RDL Source|)
+!headerRow.Append(|Grid Reference|)
+!headerRow.Append(|Measure|)
+!headerRow.Append(|Unit|)
+!headerRow.Append(|Exported At|)
+!exportRows.Append(!headerRow)
+
+!PMLTAGS = OBJECT PMLTAGS()
+!tagCollection = OBJECT COLLECTION()
+!tagCollection.scope(!!CE)
+!tagCollection.type(|TAG|)
+!tagExpression = OBJECT EXPRESSION(!tagStatusFilter & | AND | & !tagListFilter)
+!tagCollection.filter(!tagExpression)
+
+HANDLE ANY
+  !tagRows = !tagCollection.results()
+ELSEHANDLE
+  !err = ARRAY()
+  !err.Append(|TAG_QUERY|)
+  !err.Append($!!Error.Text)
+  !errorRows.Append(!err)
+ENDHANDLE
+
+!gridCollection = OBJECT COLLECTION()
+!gridCollection.scope(!!CE)
+!gridCollection.type(|GRID|)
+!gridExpression = OBJECT EXPRESSION(!rdlSourceFilter & | AND | & !gridFilter)
+!gridCollection.filter(!gridExpression)
+
+HANDLE ANY
+  !gridRows = !gridCollection.results()
+ELSEHANDLE
+  !err = ARRAY()
+  !err.Append(|GRID_QUERY|)
+  !err.Append($!!Error.Text)
+  !errorRows.Append(!err)
+ENDHANDLE
+
+DO !tagIndex FROM 1 TO !tagRows.Size()
+  !tagRef = !tagRows[!tagIndex]
+  !gridRef = ||
+  IF (!tagIndex LE !gridRows.Size()) THEN
+    !gridRef = !gridRows[!tagIndex]
+  ENDIF
+
+  !dataRow = ARRAY()
+  !dataRow.Append(!tagRef.String())
+  !dataRow.Append(|APPROVED|)
+  !dataRow.Append(|Jackdaw|)
+  !dataRow.Append(!gridRef.String())
+  !dataRow.Append(!defaultMeasure)
+  !dataRow.Append(!defaultUnit)
+  !dataRow.Append(!exportStamp)
+  !exportRows.Append(!dataRow)
+ENDDO
+
+HANDLE ANY
+  !PMLTAGS.exportasxls(!exportFile, !exportRows)
+ELSEHANDLE
+  !err = ARRAY()
+  !err.Append(|EXPORT_XLSX|)
+  !err.Append($!!Error.Text)
+  !errorRows.Append(!err)
+  HANDLE ANY
+    !PMLTAGS.writeErrorDataToExcel(!exportFile, !errorRows)
+  ENDHANDLE
+ENDHANDLE
+
+$P Jackdaw/EIS tag export complete: $!exportFile

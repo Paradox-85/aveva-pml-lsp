@@ -1,0 +1,56 @@
+{
+  "fileId": "mac_01",
+  "filePath": "docs/codebase/macros/alarm_refresh.pmlmac",
+  "fileType": "macro",
+  "reviewDate": "2026-06-03",
+  "originalContent": {
+    "lines": 4,
+    "raw": "--$m \"C:\\Users\\ADZV\\OneDrive - Ramboll\\AVEVA_SERVER\\Addons\\PMLLIB\\RAM\\Engineering\\jackdow\\run-macro\\alarm_refresh.pmlmac\"\nPML RELOAD OBJECT TAGMANAGEMENTTMP\n!tagMgmt = object TAGMANAGEMENTTMP()\n!tagMgmt.alarmsDataUpdate()"
+  },
+  "semanticSummary": "Simple macro that reloads the TAGMANAGEMENTTMP object, creates an instance, and calls its alarmsDataUpdate() method. No loops, no error handling, no complex logic.",
+  "patternsUsed": [
+    "PML RELOAD OBJECT command",
+    "object() default constructor",
+    "method call on object instance",
+    "macro file header comment ($*/--$m)"
+  ],
+  "kbSearches": [
+    {"query": "PML RELOAD OBJECT macro reload object", "results": 5},
+    {"query": "PML RELOAD OBJECT", "results": 5},
+    {"query": "object constructor macro pattern method call", "results": 5},
+    {"query": "macro file header comment $m reload object instantiation", "results": 5},
+    {"query": "PML command reload", "results": 5},
+    {"query": "object() constructor default constructor method call instance", "results": 5}
+  ],
+  "lintResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 11
+  },
+  "validateResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 11
+  },
+  "gapReport": "docs/factory/gap-reports/mac_01_gap.json",
+  "kbPatch": "docs/factory/kb-patches/mac_01_kb_patch.ts",
+  "gapDimensions": {
+    "D1_syntax": {"score": 0.90, "notes": "Original uses --$m (PML1 legacy); benchmark normalizes to $* (PML2 recommended)"},
+    "D2_patterns": {"score": 0.85, "notes": "PML RELOAD OBJECT not in KB as dedicated entry"},
+    "D3_structure": {"score": 1.0, "notes": "No structural complexity"},
+    "D4_naming": {"score": 1.0, "notes": "Follows PML conventions"},
+    "D5_logic": {"score": 1.0, "notes": "No boundary conditions or error handling"},
+    "D6_dependencies": {"score": 0.75, "notes": "TAGMANAGEMENTTMP is user-defined, not in KB"}
+  },
+  "kbGaps": [
+    "PML RELOAD OBJECT command not documented",
+    "Macro file header conventions (--$m vs $*) not documented"
+  ],
+  "confidenceScore": 0.92,
+  "actionRequired": "patch_kb",
+  "outputFiles": {
+    "benchmark": "docs/factory/benchmarks/mac_01_benchmark.pmlmac",
+    "gapReport": "docs/factory/gap-reports/mac_01_gap.json",
+    "kbPatch": "docs/factory/kb-patches/mac_01_kb_patch.ts"
+  }
+}

@@ -1,0 +1,220 @@
+define object TagManagementTmp
+  member .tags		       		is ARRAY
+  member .classMappings      		is ARRAY
+  member .acttypes      			is ARRAY
+  member .errorList		    	is ARRAY
+  member .logPathName         	is STRING
+  member .rdlFileName			  	is STRING
+  member .specialSymbols	  		is STRING
+endobject
+
+define method .TagManagementTmp()
+  $* Factory benchmark method stub: .TagManagementTmp
+  handle any
+    skip
+  endhandle
+endmethod
+
+define method .GetTagData()
+  $* Factory benchmark method stub: .GetTagData
+  handle any
+    skip
+  endhandle
+endmethod
+
+define method .GetSheetType(!fileName is STRING, !sheetName is STRING, !columns is ARRAY) is BOOLEAN
+  $* Factory benchmark method stub: .GetSheetType
+  handle any
+    skip
+  endhandle
+  return ||
+endmethod
+
+define method .GetMappingData()
+  $* Factory benchmark method stub: .GetMappingData
+  handle any
+    skip
+  endhandle
+endmethod
+
+define method .GetExAttributes() is ARRAY
+  $* Factory benchmark method stub: .GetExAttributes
+  handle any
+    skip
+  endhandle
+  !result = ARRAY()
+  return !result
+endmethod
+
+define method .ClassNameUpdate(!force is BOOLEAN)
+  $* Factory benchmark method stub: .ClassNameUpdate
+  handle any
+    skip
+  endhandle
+  return false
+endmethod
+
+define method .PBSpropertiesUpdate()
+  $* Factory benchmark method stub: .PBSpropertiesUpdate
+  handle any
+    skip
+  endhandle
+endmethod
+
+define method .pipeSupportDataUpdate()
+  $* Factory benchmark method stub: .pipeSupportDataUpdate
+  handle any
+    skip
+  endhandle
+endmethod
+
+define method .pipeDescriptionUpdate()
+  $* Factory benchmark method stub: .pipeDescriptionUpdate
+  handle any
+    skip
+  endhandle
+endmethod
+
+define method .pipeDataTransfer()
+  $* Factory benchmark method stub: .pipeDataTransfer
+  handle any
+    skip
+  endhandle
+endmethod
+
+define method .getPipeByShortName(!shortName is STRING) is DBREF
+  $* Factory benchmark method stub: .getPipeByShortName
+  handle any
+    skip
+  endhandle
+  return ||
+endmethod
+
+define method .valveDataUpdate()
+  $* Factory benchmark method stub: .valveDataUpdate
+  handle any
+    skip
+  endhandle
+endmethod
+
+define method .alarmsDataUpdate()
+  $* Factory benchmark method stub: .alarmsDataUpdate
+  handle any
+    skip
+  endhandle
+endmethod
+
+define method .alarmItemDataUpdate(!masterTagRef is DBREF, !alarmType is STRING, !isCreate is BOOLEAN) is DBREF
+  $* Factory benchmark method stub: .alarmItemDataUpdate
+  handle any
+    skip
+  endhandle
+  return !!CE
+endmethod
+
+define method .signalsDataUpdate()
+  $* Factory benchmark method stub: .signalsDataUpdate
+  handle any
+    skip
+  endhandle
+endmethod
+
+define method .loopsDataUpdate()
+  $* Factory benchmark method stub: .loopsDataUpdate
+  handle any
+    skip
+  endhandle
+endmethod
+
+define method .cpiItemsUpdate()
+  $* Factory benchmark method stub: .cpiItemsUpdate
+  handle any
+    skip
+  endhandle
+endmethod
+
+define method .tagDocLinksUpdate()
+  $* Factory benchmark method stub: .tagDocLinksUpdate
+  handle any
+    skip
+  endhandle
+endmethod
+
+define method .tryGetElement(!name is STRING, !acttype is STRING) is DBREF
+  $* Factory benchmark method stub: .tryGetElement
+  handle any
+    skip
+  endhandle
+  return ||
+endmethod
+
+define method .deleteUnnamedTags()
+  $* Factory benchmark method stub: .deleteUnnamedTags
+  handle any
+    skip
+  endhandle
+endmethod
+
+define method .cablesDataUpdate()
+  $* Factory benchmark method stub: .cablesDataUpdate
+  handle any
+    skip
+  endhandle
+endmethod
+
+define method .truncateString(!stringValue is STRING, !length is REAL) is STRING
+  $* Factory benchmark method stub: .truncateString
+  handle any
+    skip
+  endhandle
+  return ||
+endmethod
+
+define method .getPipesBySuppoRef(!pipes is ARRAY, !sourceElement is DBREF) is ARRAY
+  $* Factory benchmark method stub: .getPipesBySuppoRef
+  handle any
+    skip
+  endhandle
+  !result = ARRAY()
+  return !result
+endmethod
+
+define method .getEngPipeByDesPipe(!lineLabel is STRING) is DBREF
+  $* Factory benchmark method stub: .getEngPipeByDesPipe
+  handle any
+    skip
+  endhandle
+  return ||
+endmethod
+
+define method .GetCleanString(!value is STRING) is STRING
+  $* Factory benchmark method stub: .GetCleanString
+  handle any
+    skip
+  endhandle
+  return ||
+endmethod
+
+define method .TryToSetArrayValue(!eleRef is DBREF, !attributeValue is ARRAY, !attributeName is STRING) is BOOLEAN
+  $* Factory benchmark method stub: .TryToSetArrayValue
+  handle any
+    skip
+  endhandle
+  return !!CE
+endmethod
+
+define method .TryToSetValue(!eleRef is DBREF, !attributeValue is STRING, !attributeName is STRING, !cleanImport is BOOLEAN, !arrayAppend is BOOLEAN, !actionType is STRING, !isEXfile is BOOLEAN) is ARRAY
+  $* Factory benchmark method stub: .TryToSetValue
+  handle any
+    skip
+  endhandle
+  return !!CE
+endmethod
+
+define method .SaveLog(!logName is STRING, !isOpen is BOOLEAN)
+  $* Factory benchmark method stub: .SaveLog
+  handle any
+    skip
+  endhandle
+  return ||
+endmethod

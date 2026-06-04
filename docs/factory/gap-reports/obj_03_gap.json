@@ -1,0 +1,16 @@
+{
+  "fileId": "obj_03",
+  "filePath": "docs/codebase/objects/ramFileWriterClass.pmlobj",
+  "reviewDate": "2026-06-03",
+  "overallGapScore": 0.72,
+  "dimensions": {
+    "D1_syntax": {"score":0.3,"gaps":[{"pattern":"handle (code, severity)"},{"pattern":"OVERW vs OVERWRITE"},{"pattern":"import quote style"},{"pattern":"$!!Error.text in elsehandle"}]},
+    "D2_patterns": {"score":0.6,"gaps":[{"pattern":"!!pmlFileBrowser global function","suggestedKBId":"global-pmlfilebrowser-function"},{"pattern":"NetDataSource mode strings","suggestedKBId":"netdatasource-modes"},{"pattern":"do !i indices !dataList"}]},
+    "D3_structure": {"score":0.4,"gaps":[{"pattern":"Import placement inside object"},{"pattern":"Method reorganization"},{"pattern":"Null cleanup in Excel method"}]},
+    "D4_naming": {"score":0.2,"gaps":[{"pattern":"Variable naming changes"},{"pattern":"Separator changed from semicolon to tab"}]},
+    "D5_logic": {"score":0.85,"gaps":[{"pattern":"Removed AUTHUSER fallback"},{"pattern":"Removed isTable detection"},{"pattern":"Removed path detection"},{"pattern":"Removed logData.set() guard"},{"pattern":"syscom launch command difference"},{"pattern":"Empty row filtering removed"},{"pattern":"Extension handling removed"}]},
+    "D6_dependencies": {"score":0.5,"gaps":[{"pattern":"Aveva.Core.Presentation vs Aveva.Pdms.Presentation","suggestedKBId":"aveva-presentation-namespaces"},{"pattern":"AUTHUSER global object","suggestedKBId":"authuser-global-object"},{"pattern":"NETDATASOURCE casing"}]},
+    "D7_kbCompleteness": {"newEntriesNeeded":["global-pmlfilebrowser-function","netdatasource-modes","aveva-presentation-namespaces","handle-code-severity-syntax","authuser-global-object"]}
+  },
+  "actionRequired": "rerun_worker"
+}

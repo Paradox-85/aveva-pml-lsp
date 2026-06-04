@@ -1,0 +1,12 @@
+$* Factory benchmark generated from semantic source summary only for mac_15
+$* Source path: docs/codebase/macros/equipment-name-refresh.pmlmac
+$* Semantic description: Simple macro that reloads the TAGMANAGEMENTTMP object,
+$* creates an instance, and calls its EquipmentNameUpdate(false) method.
+
+$* $m "C:\Users\ADZV\OneDrive - Ramboll\AVEVA_SERVER\Addons\PMLLIB\RAM\Engineering\jackdow\run-macro\equipment-name-refresh.pmlmac"
+
+PML RELOAD OBJECT TAGMANAGEMENTTMP
+
+!tagMgmt = object TAGMANAGEMENTTMP()
+
+!tagMgmt.EquipmentNameUpdate(false)

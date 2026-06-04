@@ -1,0 +1,242 @@
+{
+  "fileId": "obj_06",
+  "filePath": "docs/codebase/objects/ramImportExcelElementLoader.pmlobj",
+  "reviewDate": "2026-06-03",
+  "overallGapScore": 0.15,
+  "dimensions": {
+    "D1_syntax": {
+      "score": 0.2,
+      "gaps": [
+        {
+          "id": "D1-01",
+          "description": "undefined() function not in KB — used to lazily initialize !!ramCommonLogger",
+          "originalSnippet": "if(undefined(!!ramCommonLogger)) then\n  !!ramCommonLogger = object RAMCOMMONLOGGER()\nendif",
+          "benchmarkCoverage": "correctly reproduced",
+          "kbEvidence": "KB search for 'undefined PML function' returned no dedicated entry; only generic variable naming docs",
+          "severity": "medium"
+        },
+        {
+          "id": "D1-02",
+          "description": "!!error.text global error variable inside handle/elsehandle — not in KB",
+          "originalSnippet": "handle any\n  !this.addErrorToList(!element.name, !attribute, 'ER13 - ' + !!error.text + !additionalMessage)",
+          "benchmarkCoverage": "correctly reproduced",
+          "kbEvidence": "KB search for 'error.text PML global error variable' returned no dedicated entry; best-practices.md mentions errors but not !!error.text",
+          "severity": "medium"
+        },
+        {
+          "id": "D1-03",
+          "description": "MEASURE, FORMAT, DATETIME, DATEFORMAT objects — unit conversion objects not in KB",
+          "originalSnippet": "!measure = object MEASURE(!unit)\n!dbUnit = !measure.dbunit()\n!format = object FORMAT()\n!format.units = !dbUnit.string()\n!format.TRAILZEROS = false\n!time = object DATETIME()\n!dateFormat = object DATEFORMAT('Y_M_D')",
+          "benchmarkCoverage": "correctly reproduced",
+          "kbEvidence": "aveva_pml_get_pml_objects_and_methods returns no MEASURE/FORMAT/DATETIME/DATEFORMAT entries; syntax reference lists only ARRAY/FILE/COLLECTION/UNDOABLE",
+          "severity": "high"
+        },
+        {
+          "id": "D1-04",
+          "description": "handle any ... elsehandle None ... endhandle construct — partial KB coverage",
+          "originalSnippet": "handle any\n  !this.addErrorToList(...)\nelsehandle None\n  !attributeType = !currentValue.objecttype()\nendhandle",
+          "benchmarkCoverage": "correctly reproduced",
+          "kbEvidence": "syntax reference lists 'handle', 'elsehandle', 'endhandle' as control flow keywords; UNDOABLE example shows similar pattern",
+          "severity": "low"
+        },
+        {
+          "id": "D1-05",
+          "description": "skip if(condition) construct — not explicitly documented in KB",
+          "originalSnippet": "skip if(!isPseudo)\nskip if(!isMasterUnmapped)",
+          "benchmarkCoverage": "correctly reproduced",
+          "kbEvidence": "syntax reference lists 'skip' as a keyword but no skip-if conditional example",
+          "severity": "low"
+        }
+      ]
+    },
+    "D2_patterns": {
+      "score": 0.1,
+      "gaps": [
+        {
+          "id": "D2-01",
+          "description": "Method overloading (addErrorToList 3-param and 4-param) — KB covers overloading with ANY but not same-name different-arity",
+          "originalSnippet": "define method .addErrorToList(!element is STRING, !detail is STRING, !errorDetail is STRING)\n  !this.addErrorToList(!element, !detail, !errorDetail, 2)\nendmethod\ndefine method .addErrorToList(!element is STRING, !detail is STRING, !errorDetail is STRING, !severityLevel is REAL)",
+          "benchmarkCoverage": "correctly reproduced both overloads",
+          "kbEvidence": "KB Methods on User-Defined Object Types.md covers 'Overloading with ANY' but not same-name different-parameter-count overloading",
+          "severity": "low"
+        },
+        {
+          "id": "D2-02",
+          "description": "displayProgress() global function — not in KB",
+          "originalSnippet": "!!displayProgress(1, 100)\n!!displayProgress(!index, !masterList.size())",
+          "benchmarkCoverage": "correctly reproduced",
+          "kbEvidence": "KB search for 'displayProgress' returned no results; FMSYS.setProgress exists but not displayProgress",
+          "severity": "low"
+        },
+        {
+          "id": "D2-03",
+          "description": "SHOW statement for form display — not in KB",
+          "originalSnippet": "SHOW !!ramimportExcelReclassificationForm",
+          "benchmarkCoverage": "correctly reproduced",
+          "kbEvidence": "KB search for 'SHOW form' returned no dedicated entry; FMSYS.show() is documented but not SHOW statement",
+          "severity": "low"
+        }
+      ]
+    },
+    "D3_structure": {
+      "score": 0.0,
+      "gaps": []
+    },
+    "D4_naming": {
+      "score": 0.0,
+      "gaps": []
+    },
+    "D5_logic": {
+      "score": 0.05,
+      "gaps": [
+        {
+          "id": "D5-01",
+          "description": "Original uses 'Reclassification' in isAllowed call for !isForceReclassifyAllowed, but the setting name is 'ForceReclassification' — this is a potential bug in the original, benchmark correctly preserves it",
+          "originalSnippet": "!isForceReclassifyAllowed = !this.isAllowed('ForceReclassification')",
+          "benchmarkCoverage": "correctly reproduced (preserving original intent)",
+          "kbEvidence": "N/A — this is a semantic preservation, not a gap",
+          "severity": "info"
+        }
+      ]
+    },
+    "D6_dependencies": {
+      "score": 0.1,
+      "gaps": [
+        {
+          "id": "D6-01",
+          "description": "Custom global object !!ramCommonLogger — not in KB",
+          "originalSnippet": "!!ramCommonLogger = object RAMCOMMONLOGGER()",
+          "benchmarkCoverage": "correctly reproduced",
+          "kbEvidence": "KB search found no entries for RAMCOMMONLOGGER or ramCommonLogger",
+          "severity": "medium"
+        },
+        {
+          "id": "D6-02",
+          "description": "Custom form !!ramimportExcelReclassificationForm — not in KB",
+          "originalSnippet": "SHOW !!ramimportExcelReclassificationForm\n!!ramimportExcelReclassificationForm.loadData(!this)",
+          "benchmarkCoverage": "correctly reproduced",
+          "kbEvidence": "KB search found no entries for ramimportExcelReclassificationForm",
+          "severity": "medium"
+        },
+        {
+          "id": "D6-03",
+          "description": "Custom objects RAMIMPORTEXCELDATALOADER, RAMTAGMANAGEMENT, RAMVALUECONVERTER — not in KB",
+          "originalSnippet": "member .dataLoader is RAMIMPORTEXCELDATALOADER\nmember .tagManagement is RAMTAGMANAGEMENT\nmember .valueConverter is RAMVALUECONVERTER",
+          "benchmarkCoverage": "correctly reproduced",
+          "kbEvidence": "KB search for 'RAMIMPORTEXCELDATALOADER' returned no results",
+          "severity": "medium"
+        }
+      ]
+    },
+    "D7_kbCompleteness": {
+      "newEntriesNeeded": [
+        {
+          "suggestedId": "pml-builtin-undefined",
+          "category": "builtin-functions",
+          "subcategory": "variable-check",
+          "title": "undefined() — Check if a global variable is uninitialized",
+          "principle": "Use undefined() to safely check whether a global variable (prefixed with !!) has been assigned before use. Prevents BADREF errors on first access.",
+          "rule": "Call undefined(!!globalVar) before accessing the variable. Returns BOOLEAN.",
+          "syntax": "if(undefined(!!globalVar)) then\n  !!globalVar = object CUSTOMTYPE()\nendif",
+          "exampleCanonical": "-- CB obj_06: lazy global initialization\nif(undefined(!!ramCommonLogger)) then\n  !!ramCommonLogger = object RAMCOMMONLOGGER()\nendif",
+          "exampleAntipattern": "!!ramCommonLogger.addLogDetails(...) -- may throw BADREF on first call",
+          "pitfalls": ["undefined() only works on global variables (!! prefix), not local variables"],
+          "relatedIds": ["pml-builtin-error-text", "pml-object-initialization"],
+          "sourcedoc": "obj_06 (ramImportExcelElementLoader.pmlobj)",
+          "sourcecodebase": "ramImportExcelElementLoader.pmlobj"
+        },
+        {
+          "suggestedId": "pml-builtin-error-text",
+          "category": "builtin-functions",
+          "subcategory": "error-handling",
+          "title": "!!error.text — Global error message in handle/elsehandle",
+          "principle": "Inside a handle/elsehandle block, !!error.text contains the human-readable error message from the last exception.",
+          "rule": "Access !!error.text only inside handle or elsehandle blocks. Contains string description of the error.",
+          "syntax": "handle any\n  !errorMsg = !!error.text\nelsehandle None\n  !result = !value\nendhandle",
+          "exampleCanonical": "-- CB obj_06: error message capture\nhandle any\n  !this.addErrorToList(!element.name, !attribute, 'ER13 - ' + !!error.text + !additionalMessage)\nelsehandle None\n  !attributeType = !currentValue.objecttype()\nendhandle",
+          "exampleAntipattern": "!msg = !!error.text -- outside handle block returns empty or undefined",
+          "pitfalls": ["Only available inside handle/elsehandle blocks", "PML is case-insensitive but !!Error.text and !!error.text are the same"],
+          "relatedIds": ["pml-control-handle", "pml-builtin-undefined"],
+          "sourcedoc": "obj_06 (ramImportExcelElementLoader.pmlobj)",
+          "sourcecodebase": "ramImportExcelElementLoader.pmlobj"
+        },
+        {
+          "suggestedId": "pml-object-measure-format",
+          "category": "system-objects",
+          "subcategory": "unit-conversion",
+          "title": "MEASURE and FORMAT objects — Unit conversion and formatting",
+          "principle": "MEASURE wraps a unit string and provides dbunit() for database unit conversion. FORMAT controls numeric string output including units and trailing zeros.",
+          "rule": "!measure = object MEASURE(!unitString)\n!dbUnit = !measure.dbunit()\n!format = object FORMAT()\n!format.units = !dbUnit.string()\n!format.TRAILZEROS = false",
+          "syntax": "!measure = object MEASURE(!unit)\n!dbUnit = !measure.dbunit()\n!format = object FORMAT()\n!format.units = !dbUnit.string()\n!format.TRAILZEROS = false\n!result = !realValue.string(!format)",
+          "exampleCanonical": "-- CB obj_06: unit conversion with formatting\n!measure = object MEASURE(!unit)\n!dbUnit = !measure.dbunit()\n!format = object FORMAT()\n!format.units = !dbUnit.string()\n!format.TRAILZEROS = false\n!realValue = object REAL(!tempValue)\n!result = !realValue.string(!format)",
+          "exampleAntipattern": "!result = !tempValue -- loses unit information",
+          "pitfalls": ["MEASURE requires a valid unit string", "FORMAT.TRAILZEROS controls trailing zero display"],
+          "relatedIds": ["pml-object-real", "pml-string-methods"],
+          "sourcedoc": "obj_06 (ramImportExcelElementLoader.pmlobj)",
+          "sourcecodebase": "ramImportExcelElementLoader.pmlobj"
+        },
+        {
+          "suggestedId": "pml-object-datetime-dateformat",
+          "category": "system-objects",
+          "subcategory": "datetime",
+          "title": "DATETIME and DATEFORMAT objects — Timestamp generation",
+          "principle": "DATETIME provides current date/time components. DATEFORMAT formats them into strings with configurable patterns.",
+          "rule": "!time = object DATETIME()\n!dateFormat = object DATEFORMAT('Y_M_D')\n!dateStr = !dateFormat.string(!time)\n!fileName = !dateFormat.string(!time) + '_' + !time.hour().string() + ...",
+          "syntax": "!time = object DATETIME()\n!dateFormat = object DATEFORMAT('Y_M_D')\n!dateStr = !dateFormat.string(!time)\n!fileName = !dateFormat.string(!time) + '_' + !time.hour().string() + !time.minute().string() + !time.second().string()",
+          "exampleCanonical": "-- CB obj_06: timestamp-based filename\n!time = object DATETIME()\n!dateFormat = object DATEFORMAT('Y_M_D')\n!dateStr = !dateFormat.string(!time)\n!fileName = !dateFormat.string(!time) + '_' + !time.hour().string() + !time.minute().string() + !time.second().string()",
+          "exampleAntipattern": "!fileName = !time.string() -- less control over format",
+          "pitfalls": ["DATEFORMAT pattern uses Y_M_D not YYYY-MM-DD", "hour()/minute()/second() return numeric values requiring .string()"],
+          "relatedIds": ["pml-object-measure-format", "pml-string-methods"],
+          "sourcedoc": "obj_06 (ramImportExcelElementLoader.pmlobj)",
+          "sourcecodebase": "ramImportExcelElementLoader.pmlobj"
+        },
+        {
+          "suggestedId": "pml-control-skip-if",
+          "category": "control-flow",
+          "subcategory": "conditional-skip",
+          "title": "skip if(condition) — Conditional early loop iteration",
+          "principle": "skip if(condition) skips the current iteration when the condition is true. It is a compound form of the skip statement.",
+          "rule": "skip if(!condition) — equivalent to 'if (!condition) then skip endif'",
+          "syntax": "do !i indices !array\n  skip if(!isInvalid)\n  !result = !array[!i]\nenddo",
+          "exampleCanonical": "-- CB obj_06: skip pseudo attributes and unmapped columns\nif(!isNameUpdate.not()) then\n  skip if(!isPseudo)\nendif\nskip if(!isMasterUnmapped)",
+          "exampleAntipattern": "if(!isPseudo) then skip endif -- more verbose than skip if(!isPseudo)",
+          "pitfalls": ["skip if() only works inside DO/ENDDO loops", "Condition must evaluate to BOOLEAN"],
+          "relatedIds": ["pml-control-do-enddo", "pml-control-handle"],
+          "sourcedoc": "obj_06 (ramImportExcelElementLoader.pmlobj)",
+          "sourcecodebase": "ramImportExcelElementLoader.pmlobj"
+        },
+        {
+          "suggestedId": "pml-statement-show",
+          "category": "statements",
+          "subcategory": "form-display",
+          "title": "SHOW — Display a form by global reference",
+          "principle": "SHOW statement displays a form identified by a global variable reference. Used to present user-facing dialogs from PML code.",
+          "rule": "SHOW !!formGlobalVar — displays the form referenced by the global variable",
+          "syntax": "SHOW !!ramimportExcelReclassificationForm\n!!ramimportExcelReclassificationForm.loadData(!this)",
+          "exampleCanonical": "-- CB obj_06: show reclassification form\nSHOW !!ramimportExcelReclassificationForm\n!!ramimportExcelReclassificationForm.loadData(!this)",
+          "exampleAntipattern": "show !localForm -- SHOW requires global variable reference",
+          "pitfalls": ["SHOW requires a global (!!) form reference, not a local variable", "Form must be previously loaded/imported"],
+          "relatedIds": ["pml-object-initialization", "pml-control-handle"],
+          "sourcedoc": "obj_06 (ramImportExcelElementLoader.pmlobj)",
+          "sourcecodebase": "ramImportExcelElementLoader.pmlobj"
+        },
+        {
+          "suggestedId": "pml-builtin-display-progress",
+          "category": "builtin-functions",
+          "subcategory": "ui-feedback",
+          "title": "displayProgress() — Show import progress bar",
+          "principle": "displayProgress(current, total) displays a progress indicator in the AVEVA UI. Used for long-running import loops.",
+          "rule": "Call with (current, total) parameters. PML is case-insensitive so !!displayProgress works.",
+          "syntax": "!!displayProgress(1, 100)\ndo !i from 1 to !total\n  if(!i.gt(!onePercent)) then\n    !!displayProgress(!i, !total)\n  endif\nenddo",
+          "exampleCanonical": "-- CB obj_06: progress tracking in import loop\n!!displayProgress(1, 100)\ndo !index indices !masterList\n  if(!index.gt(!onePercentValue)) then\n    !!displayProgress(!index, !masterList.size())\n  endif\nenddo",
+          "exampleAntipattern": "!!displayProgress(!i) -- requires two parameters (current, total)",
+          "pitfalls": ["Requires two parameters: current count and total", "Call sparingly to avoid UI flicker"],
+          "relatedIds": ["pml-control-do-enddo", "pml-builtin-undefined"],
+          "sourcedoc": "obj_06 (ramImportExcelElementLoader.pmlobj)",
+          "sourcecodebase": "ramImportExcelElementLoader.pmlobj"
+        }
+      ]
+    }
+  },
+  "actionRequired": "patch_kb"
+}

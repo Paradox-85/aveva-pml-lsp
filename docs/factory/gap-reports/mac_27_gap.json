@@ -1,0 +1,52 @@
+{
+  "fileId": "mac_27",
+  "filePath": "docs/codebase/macros/JDE_outputMacro.pmlmac",
+  "reviewDate": "2026-06-03",
+  "overallGapScore": 0.45,
+  "dimensions": {
+    "D1_syntax": {
+      "score": 0.3,
+      "gaps": [
+        "ALPHA FILE / OUTPUT TABULATE / CHANGES SINCE / ALPHA FILE END — PML1 report I/O chain is not documented in KB; only ALPHA REQUEST is referenced in commands-reference.md"
+      ]
+    },
+    "D2_patterns": {
+      "score": 0.4,
+      "gaps": [
+        {
+          "pattern": "COLLECT ALL with tree filter (for /tree)",
+          "suggestedKbId": "cb_mac_27_collect_all_tree"
+        },
+        {
+          "pattern": "ALPHA FILE / OUTPUT TABULATE / CHANGES SINCE / ALPHA FILE END report chain",
+          "suggestedKbId": "cb_mac_27_alpha_io_chain"
+        }
+      ]
+    },
+    "D3_structure": {
+      "score": 0.0,
+      "gaps": []
+    },
+    "D4_naming": {
+      "score": 0.0,
+      "gaps": []
+    },
+    "D5_logic": {
+      "score": 0.0,
+      "gaps": []
+    },
+    "D6_dependencies": {
+      "score": 0.15,
+      "gaps": [
+        "ENGGRP database object type not specifically documented in KB (DBREF type is documented but ENGGRP-specific members like .seq and mcount are not)"
+      ]
+    },
+    "D7_kbCompleteness": {
+      "newEntriesNeeded": [
+        "cb_mac_27_collect_all_tree",
+        "cb_mac_27_alpha_io_chain"
+      ]
+    }
+  },
+  "actionRequired": "patch_kb"
+}

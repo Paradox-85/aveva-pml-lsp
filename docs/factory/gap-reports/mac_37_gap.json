@@ -1,0 +1,102 @@
+{
+  "fileId": "mac_37",
+  "filePath": "docs/codebase/macros/JDE_tagProperties_upload.pmlmac",
+  "reviewDate": "2026-06-03",
+  "overallGapScore": 0.15,
+  "dimensions": {
+    "D1_syntax": {
+      "score": 0.1,
+      "gaps": [
+        "Original uses single-quote string delimiters for import ('GridControl') and file path; benchmark uses pipe-delimited strings. Both are valid PML, but single-quote import is a valid PML variant not explicitly documented in KB syntax reference."
+      ]
+    },
+    "D2_patterns": {
+      "score": 0.05,
+      "gaps": [
+        "NETDATASOURCE('Grid Table', filename) + NETGRIDCONTROL + bindToDataSource + getrows pattern is not found as a standalone KB entry. KB has GridControl import examples but not the data-source binding workflow."
+      ]
+    },
+    "D3_structure": {
+      "score": 0.05,
+      "gaps": [
+        "Original has nested handle blocks: outer handle/elsehandle for attribute read, inner handle/endif for assignment error. Benchmark simplifies to: handle any/elsehandle none for attribute read + no inner handle. This is a valid simplification but omits the original's inner error scope for assignment failures."
+      ]
+    },
+    "D4_naming": {
+      "score": 0.0,
+      "gaps": []
+    },
+    "D5_logic": {
+      "score": 0.05,
+      "gaps": [
+        "Original has typo in error message 'is not exis' which is a cosmetic issue, not a logic gap.",
+        "Original does NOT check for blank/UNSET rows before processing; benchmark adds this guard (improvement, not a gap)."
+      ]
+    },
+    "D6_dependencies": {
+      "score": 0.0,
+      "gaps": []
+    },
+    "D7_kbCompleteness": {
+      "newEntriesNeeded": [
+        {
+          "suggestedId": "net_grid_data_source_workflow",
+          "category": "dotnetinterop",
+          "subcategory": "GridControl",
+          "title": "NETDATASOURCE + NETGRIDCONTROL data-binding workflow",
+          "principle": "Use NETDATASOURCE to bind an external data file to a NETGRIDCONTROL, then retrieve rows via getrows() for iteration.",
+          "rule": "import |GridControl| with handle/elsehandle; create NETDATASOURCE with grid table name and file path; create NETGRIDCONTROL; call bindToDataSource then getrows; iterate with DO...VALUES.",
+          "syntax": "!dataSource = object NETDATASOURCE('Grid Table', !fileName)\n!dataTable = object NETGRIDCONTROL()\n!dataTable.bindToDataSource(!dataSource)\n!data = !dataTable.getrows()\ndo !row values !data\n  ... ENDDO",
+          "exampleCanonical": "-- CB JDE_tagProperties_upload.pmlmac\n!dataSource = object NETDATASOURCE('Grid Table', !fileName)\n!dataTable = object NETGRIDCONTROL()\n!dataTable.bindToDataSource(!dataSource)\n!data = !dataTable.getrows()\ndo !row values !data\n  !Tag = !row[1]\n  !EngCon = !row[2]\n  !InsCon = !row[3]\nenddo",
+          "exampleAntipattern": "",
+          "pitfalls": [
+            "NETDATASOURCE constructor first arg is the table/grid name, not the file path.",
+            "getrows() may return UNSET if the file is empty or unreadable — always check .Unset().",
+            "GridControl must be imported before use."
+          ],
+          "relatedIds": ["net_interfaces_overview", "pml_array_iteration"],
+          "sourcedoc": "NET Interfaces.md, test2form.pmlfrm",
+          "sourcecodebase": "JDE_tagProperties_upload.pmlmac"
+        },
+        {
+          "suggestedId": "dbref_attribute_access_assignment",
+          "category": "objects",
+          "subcategory": "dbref",
+          "title": "dbref tag reference with attribute read/write via .:AttributeName",
+          "principle": "Use |$!<var>| to build a tag reference string, resolve with .dbref(), then read/write attributes via .:AttributeName notation.",
+          "rule": "!tagName = |$!<Tag>|; !tagref = !tagName.dbref(); !tagref.:RAMTAGOWNER = !value",
+          "syntax": "!tagName = |$!<TagName>|\n!tagref = !tagName.dbref()\n!tagref.:RAMInstallationContractors = !newValue",
+          "exampleCanonical": "-- CB JDE_tagProperties_upload.pmlmac\n!tagName = |$!<Tag>|\n!tagref = !tagName.dbref()\n!tagref.:RAMTAGOWNER = !EngCon",
+          "exampleAntipattern": "!tagref = !Tag.dbref()  -- Tag must be a string reference, not a raw value",
+          "pitfalls": [
+            "dbref() requires a properly formatted tag reference string (e.g., |$!<Tag>|).",
+            "Attribute name after .: must be a valid system or UDA attribute.",
+            "Reading a non-existent attribute may raise an exception — wrap in handle/elsehandle."
+          ],
+          "relatedIds": ["pml_string_interpolation_dollar", "handle_any_elsehandle_none"],
+          "sourcedoc": "JDE_tagProperties_upload.pmlmac",
+          "sourcecodebase": "JDE_tagProperties_upload.pmlmac"
+        },
+        {
+          "suggestedId": "string_interpolation_dollar_var",
+          "category": "typeconversion",
+          "subcategory": "dollar",
+          "title": "Dollar-string interpolation $! and $< for tag references",
+          "principle": "Use $! for variable substitution and $< for tag/element reference construction within pipe-delimited strings.",
+          "rule": "|$!<variable>| expands variable value into a tag reference; $!!error.text accesses error object text.",
+          "syntax": "!tagName = |$!<Tag>|\n!errorText = $!!error.text",
+          "exampleCanonical": "-- CB JDE_tagProperties_upload.pmlmac\n!tagName = |$!<Tag>|\n!tagref = !tagName.dbref()\n!issueMsg = |$!<Tag>;$!!error.text|",
+          "exampleAntipattern": "",
+          "pitfalls": [
+            "$! and $< only work inside pipe-delimited strings.",
+            "$!!error.text must be accessed within a handle/elsehandle block."
+          ],
+          "relatedIds": ["pml_string_delimiters", "handle_any_elsehandle_none"],
+          "sourcedoc": "best-practices.md, commands-reference.md",
+          "sourcecodebase": "JDE_tagProperties_upload.pmlmac"
+        }
+      ]
+    }
+  },
+  "actionRequired": "patch_kb"
+}

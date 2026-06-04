@@ -1,0 +1,47 @@
+{
+  "fileId": "mac_11",
+  "filePath": "docs/codebase/macros/class-name-refresh.pmlmac",
+  "fileType": "macro",
+  "reviewDate": "2026-06-03",
+  "originalSummary": "Simple 4-line macro: reloads TAGMANAGEMENTTMP object, creates instance, calls GetMappingData() then ClassNameUpdate(true).",
+  "originalLineCount": 4,
+  "benchmarkLineCount": 13,
+  "benchmarkPath": "docs/factory/benchmarks/mac_11_benchmark.pmlmac",
+  "lintResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 17
+  },
+  "validateResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 17
+  },
+  "patternsUsed": [
+    "PML RELOAD OBJECT directive",
+    "object constructor",
+    "method call on object instance",
+    "method call with boolean argument"
+  ],
+  "kbGaps": [
+    "TAGMANAGEMENTTMP object not in KB (custom/external object)",
+    "TAGMANAGEMENTTMP.GetMappingData() method not documented",
+    "TAGMANAGEMENTTMP.ClassNameUpdate(boolean) method not documented",
+    "PML RELOAD OBJECT directive not in dedicated KB entry"
+  ],
+  "gapScore": 0.15,
+  "confidenceScore": 0.92,
+  "actionRequired": "patch_kb",
+  "kbPatchPath": "docs/factory/kb-patches/mac_11_kb_patch.ts",
+  "gapReportPath": "docs/factory/gap-reports/mac_11_gap.json",
+  "previousBenchmarkPath": "docs/factory/benchmarks/mac_11_benchmark.pmlmac",
+  "previousBenchmarkStatus": "INCORRECT - generated unrelated grid export utility instead of faithful reproduction",
+  "previousGapScore": 0.55,
+  "previousActionRequired": "manual_review",
+  "improvements": [
+    "Corrected benchmark to faithfully reproduce original semantics (reload → construct → 2 method calls)",
+    "Previous benchmark was completely wrong (grid export utility)",
+    "Reduced gap score from 0.55 to 0.15",
+    "Added 2 KB patch entries for TAGMANAGEMENTTMP object and PML RELOAD OBJECT directive"
+  ]
+}

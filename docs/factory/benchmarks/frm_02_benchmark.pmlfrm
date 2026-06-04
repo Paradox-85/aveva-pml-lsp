@@ -1,0 +1,218 @@
+-- Run path: show !!jackimform
+-- PML import data from xlsx to AVEVA
+-- Author: Andrei Aitzhanov
+-- Company Ramboll Energies
+-- Date: 15-09-2023
+-- pml reload form !!jackimform
+
+kill !!JACKIMFORM
+layout form !!JACKIMFORM
+
+import 'GridControl'
+handle any
+endhandle
+using namespace 'Aveva.Core.Presentation'
+
+import |Aveva.Engineering.Tags.Pml|
+handle any
+endhandle
+
+import 'PMLFileBrowser'
+handle any
+endhandle
+
+import |Aveva.Engineering.PMLElementManager|
+handle any
+endhandle
+
+path DOWN
+frame .overallFrame panel anchor all width 20 height 17
+	list .reports 'Templates' CALL || anchor b + l + t width 20 height 31
+exit
+path RIGHT
+frame .dataFrame panel anchor all width 40 height 16.5
+	Container .dataGrid PMLNETCONTROL '' at ymin+0.5 anchor t + b + r + l width 70 height 18.65
+exit
+path DOWN
+button .getdatabtn 'Get data' at xmin.dataGrid anchor b + l call |!this.getData()| width 9
+path RIGHT
+button .runimportbtn 'Run Update' anchor b + l call |!this.importdata()| width 9
+
+member .grid is NETGRIDCONTROL
+member .session is SESSION
+member .id is STRING
+member .type is STRING
+member .action is STRING
+member .log is FILE
+member .today is DATETIME
+member .logActions is ARRAY
+member .newTagList is ARRAY
+member .importFile is STRING
+member .specSymbols is STRING
+
+define method .jackimform()
+
+	using namespace 'Aveva.Core.Presentation'
+	!this.formTitle = |IM reports for Jackdaw|
+	!this.initCall = |!this.init()|
+	!this.session = current session
+	!this.grid = object NETGRIDCONTROL()
+	!this.dataGrid.control = !this.grid.handle()
+	!this.id = |NAME|
+	!this.type = |ACTTYPE|
+	!this.action = |Aveva status|
+	!this.specSymbols = |. , - ~ * : ; _ / \ ' " & ? ! # $ % ( )|
+
+endmethod
+
+define method .init()
+
+	!year = !this.today.year()
+	!month = !this.today.month().string('I2')
+	!date = !this.today.date().string('I2')
+	!hour = !this.today.hour().string('I2')
+	!minute = !this.today.minute().string('I2')
+
+	!reports = array()
+	!reports.append('01_LEIRVIK data import')
+	!reports.append('02_LEIRVIK tag2doc import')
+	!reports.append('03_LEIRVIK data export')
+	!reports.append('91_COMMON tag2doc import')
+	!this.reports.dText = !reports
+	!this.logActions.clear()
+	!this.newTagList.clear()
+
+endmethod
+
+define method .getData()
+	!report = !this.reports.dtext[!this.reports.val]
+	!this.grid.clearGrid()
+
+	if !report eq '01_LEIRVIK data import' then
+		!this.loadfromexcel()
+	endif
+endmethod
+
+define method .loadfromexcel()
+	using namespace 'Aveva.Core.Presentation'
+	!browser = object PMLFILEBROWSER('OPEN')
+	!browser.show('', '', 'Load data from excel', true, 'Microsoft Excel files (*.xlsx)|*.xlsx|Microsoft Excel files (*.xls)|*.xls', 1)
+	!dataSource = object NETDATASOURCE('Data for import', !browser.file())
+	!this.grid.bindToDataSource(!dataSource)
+	!this.grid.autoFitColumns()
+endmethod
+
+define method .importdata()
+
+	!year = !this.today.year()
+	!month = !this.today.month().string('I2')
+	!date = !this.today.date().string('I2')
+	!hour = !this.today.hour().string('I2')
+	!minute = !this.today.minute().string('I2')
+
+	!this.logActions.clear()
+	!this.logActions.append(|*** NEW log session date: $!<year>-$!<month>-$!<date>|)
+	!this.logActions.append(|Tag Name;Issue|)
+	!this.log = object FILE(|C:\Users\ADZV\OneDrive - Ramboll\AVEVA_SERVER\Reports\Jackdow\JDE_importData_log_$!<year>-$!<month>-$!<date>-$!<minute>.csv|)
+	!this.log.writeFile(|OVERWRITE|, !this.logActions)
+
+	if (!this.grid.getNumberRows() gt 0) then
+		!tagValid = true
+		!header = !this.grid.gettitles()
+		!rows = !this.grid.getrows()
+		!tagId = !header.findfirst(!this.id)
+		!typeId = !header.findfirst(!this.type)
+		if (!tagId.set() and !typeId.set()) then
+			do !row values !rows
+				!this.logActions.clear()
+				!rowIdx = !rows.findFirst(!row)
+
+				--initial step = tag & type definition
+				!tag = !row[!tagId]
+				if ((!tag.substring(1,1) neq |/|) or (!tag.substring(1,1) neq |=|)) then
+					!tag = |/$!<tag>|
+				endif
+				!tagRef = !tag.dbref()
+				handle any
+					!this.logActions.append(|$!tag;TAG is not exist in AVEVA|)
+					!tagValid = false
+				endhandle
+
+				!action = ||
+				!actionId = !header.findfirst(!this.action)
+				if (!actionId.set()) then
+					!action = !row[!actionId]
+				endif
+
+				--create
+				!type = !row[!typeId]
+				!cleanType = !this.clearstring(!type).UpCase()
+				if(!tagValid.not()) then
+					using namespace |Aveva.Engineering.PMLElementManager|
+					!elementNet = object CREATEELEMENT()
+					!elementNet.SetElementTypeByName(|:$!<cleanType>|)
+					handle any
+						!this.logActions.append(|$!tag;Class [:$!cleanType] is not valid in AVEVA. Tag will not be created|)
+						skip
+					endhandle
+					!elementNet.AddAttributeValue(|NAME|, !tag)
+					!elementNet.Execute()
+					!errors = !elementNet.GetErrors()
+					do !error values !errors
+						!errorMsg = !error.GetError()
+						!this.logActions.append(|$!tag;$!errorMsg|)
+					enddo
+					!this.logActions.append(|$!tag;Tag [$!tag] has been created with type :$!<cleanType>|)
+
+					--double check
+					!tagRef = !tag.dbref()
+					handle any
+						!tagValid = false
+					elsehandle none
+						!tagValid = true
+					endhandle
+				endif
+
+				--second step = property update
+				if (!tagValid) then
+					--current type check
+					if (!tagRef.acttype.UpCase() neq |:$!cleanType|) then
+						!this.logActions.append(|$!tag;Current class [$!<tagRef.acttype>] in AVEVA is not aligned with new class [:$!cleanType] from file!|)
+					endif
+					do !col values !header
+						!colIdx = !header.findFirst(!col)
+						!attribute = object ATTRIBUTE(!col)
+						if (!attribute.valid()) then
+							!tagValue = !tagRef.attribute(!attribute.name())
+							handle any
+								!this.logActions.append(|$!tag;Attribute [$!col] is not associated to the tag [$!tag] with type [:$!cleanType]. Value will not be populated|)
+							elsehandle none
+								!fileValue = !row[!colIdx]
+								!this.logActions.append(|$!tag;Attribute [$!col] Value from file vs Value from AVEVA = [$!fileValue] / [$!tagValue]|)
+								if (!tagValue neq !fileValue) then
+									-- continue
+								endif
+							endhandle
+						else
+							!this.logActions.append(|$!tag;There are not applicable attribute for column [$!col] in AVEVA. Value will not be populated|)
+						endif
+					enddo
+				endif
+
+				!this.log.writeFile(|APPEND|, !this.logActions)
+			enddo
+		else
+			!!alert.error(|Uploaded excel has not field [$!<this.id>]! Data can't be loaded|)
+		endif
+	endif
+
+endmethod
+
+define method .clearstring(!text is STRING) is STRING
+	!symbols = !this.specSymbols.split()
+	!symbols.append(| |)
+	do !symb values !symbols
+		!text = !text.replace(!symb, '')
+	enddo
+	return !text
+endmethod

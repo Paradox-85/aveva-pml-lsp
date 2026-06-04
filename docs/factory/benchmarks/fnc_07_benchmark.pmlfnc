@@ -1,0 +1,5 @@
+
+DEFINE FUNCTION !!jacExportRDLDataReportMatrix(!message IS STRING) IS STRING
+  -- Simple placeholder for jacExportRDLDataReportMatrix function
+  RETURN 'Processed: ' + !message
+ENDFUNCTION

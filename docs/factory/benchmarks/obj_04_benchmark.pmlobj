@@ -1,0 +1,307 @@
+------------------------------------------------------------------------
+--
+-- File:        RAMIMPORTEXCELCONFIGLOADER
+-- Description: Factory benchmark — Object to import and parse Excel config data
+-- Type:        PML Object
+-- Patterns:    ARRAY, EVALUATE BLOCK, FINDFIRST, UPCase, EQNoCase, TRIM,
+--              SORTEXPR, REINDEX, REMOVE, APPEND, HANDLE ANY,
+--              USING NAMESPACE, OBJECT CONSTRUCTOR, GLOBAL VARIABLE,
+--              OBJECTTYPE, UNDEFINED
+--
+------------------------------------------------------------------------
+import 'RamAEPMLExcelReader'
+handle any
+endhandle
+
+define object RAMIMPORTEXCELCONFIGLOADER
+
+  member .classMappingList             is ARRAY
+  member .attributeMappingList         is ARRAY
+  member .uomMappingList               is ARRAY
+  member .pathMappingList              is ARRAY
+  member .priorityList                 is ARRAY
+  member .settings                     is ARRAY
+  
+endobject
+
+------------------------------------------------------------------------
+--
+-- Method:     ramImportExcelConfigLoader
+-- Description: Constructor method (stub)
+--
+------------------------------------------------------------------------
+define method .ramImportExcelConfigLoader()
+  
+endmethod
+
+------------------------------------------------------------------------
+--
+-- Method:     clearData
+-- Description: Initialize all mapping arrays to empty
+--
+------------------------------------------------------------------------
+define method .clearData()
+  !this.classMappingList             = object ARRAY()
+  !this.attributeMappingList         = object ARRAY()
+  !this.uomMappingList               = object ARRAY()
+  !this.pathMappingList              = object ARRAY()
+  !this.priorityList                 = object ARRAY()
+  !this.settings                     = object ARRAY()
+endmethod
+
+------------------------------------------------------------------------
+--
+-- Method:     loadConfigDetails
+-- Description: Load configuration from Excel file sheets
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R        STRING      Full path to Excel file
+--
+------------------------------------------------------------------------
+define method .loadConfigDetails(!excelFullPath is STRING)
+  
+  !this.clearData()
+  
+  using namespace 'RamAEPMLExcelReader'
+  !excelReader                  = object RamPMLExcelReaderClass()
+  !excelTables                  = !excelReader.ReadExcel(!excelFullPath)
+  !excelSheetNames              = !excelTables.evaluate(object BLOCK(|!excelTables[!evalIndex][1]|))
+  
+  !sheetIndex                   = !excelSheetNames.findFirst(|class-mapping|)
+  if(!sheetIndex.set()) then
+    !this.classMappingList      = !excelTables[!sheetIndex][2]
+  endif
+  
+  !sheetIndex                   = !excelSheetNames.findFirst(|attribute-mapping|)
+  if(!sheetIndex.set()) then
+    !this.attributeMappingList  = !excelTables[!sheetIndex][2]
+  endif
+  
+  !sheetIndex                   = !excelSheetNames.findFirst(|uom-mapping|)
+  if(!sheetIndex.set()) then
+    !this.uomMappingList        = !excelTables[!sheetIndex][2]
+  endif
+  
+  !sheetIndex                   = !excelSheetNames.findFirst(|paths|)
+  if(!sheetIndex.set()) then
+    !this.pathMappingList       = !excelTables[!sheetIndex][2]
+  endif
+  
+  !sheetIndex                   = !excelSheetNames.findFirst(|priority|)
+  if(!sheetIndex.set()) then
+    !this.priorityList          = !excelTables[!sheetIndex][2]
+  endif
+   
+  !sheetIndex                   = !excelSheetNames.findFirst(|general|)
+  if(!sheetIndex.set()) then
+    !this.settings              = !excelTables[!sheetIndex][2]
+  endif
+  
+endmethod
+
+----------------------------------------------------------------------
+-- Method:     getClassName
+--
+-- Description: Get class name from excel class name
+--
+-- Method Type: Function
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--     1    R        STRING      Excel class name
+--     2    R        STRING      Option ('parameter' for parameter detail)
+-- Return:
+--   [STRING]      Class or parameter name
+----------------------------------------------------------------------
+define method .getClassName(!excelClassName is STRING, !option is STRING) is STRING
+  
+  !classDetails           = object STRING()
+  !excelClassNames        = !this.classMappingList.evaluate(object BLOCK(|!this.classMappingList[!evalIndex][1].upcase()|))
+  !index                  = !excelClassNames.findFirst(!excelClassName.upcase())
+  if(!index.set()) then
+    if(!option.eqNocase('parameter')) then
+      !parameterDetail    = !this.classMappingList[!index][3].upcase()
+      if(!parameterDetail.set() AND !parameterDetail.trim().neq('')) then
+        !classDetails     = !parameterDetail
+      endif
+    else
+      !classDetails       = !this.classMappingList[!index][2].upcase()
+    endif
+  endif
+  
+  return !classDetails
+  
+endmethod
+
+----------------------------------------------------------------------
+-- Method:     getAttributeName
+--
+-- Description: Get attribute name from excel attribute name
+--
+-- Method Type: Function
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--     1    R        STRING      Excel attribute name
+--     2    R        STRING      Option ('parameter' for parameter detail)
+-- Return:
+--   [STRING]      Attribute or parameter name
+----------------------------------------------------------------------
+define method .getAttributeName(!excelAttributeName is STRING, !option is STRING) is STRING
+  
+  !attributeDetail        = object STRING()
+  !excelAttributeNames    = !this.attributeMappingList.evaluate(object BLOCK(|!this.attributeMappingList[!evalIndex][1].upcase()|))
+  !index                  = !excelAttributeNames.findFirst(!excelAttributeName.upcase())
+  if(!index.set()) then
+    if(!option.eqNocase('parameter')) then
+      !parameterDetail    = !this.attributeMappingList[!index][3]
+      if(!parameterDetail.set() AND !parameterDetail.trim().neq('')) then
+        !attributeDetail  = !parameterDetail
+      endif
+    else
+      !attributeDetail    = !this.attributeMappingList[!index][2].upcase()
+    endif
+  endif
+  
+  return !attributeDetail
+  
+endmethod
+
+----------------------------------------------------------------------
+-- Method:     getUOMName
+--
+-- Description: Get UOM name from excel UOM name
+--
+-- Method Type: Function
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--     1    R        STRING      Excel UOM name
+-- Return:
+--   [STRING]      UOM name in upper case
+----------------------------------------------------------------------
+define method .getUOMName(!excelUOMName is STRING) is STRING
+  
+  !UOMName              = object STRING()
+  !excelUOMNames        = !this.uomMappingList.evaluate(object BLOCK(|!this.uomMappingList[!evalIndex][1]|))
+  !index                = !excelUOMNames.findFirst(!excelUOMName)
+  if(!index.set()) then
+    !UOMName            = !this.uomMappingList[!index][2].upcase()
+  endif
+  
+  return !UOMName
+  
+endmethod
+
+----------------------------------------------------------------------
+-- Method:     getPathName
+--
+-- Description: Get path from file name
+--
+-- Method Type: Function
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--     1    R        STRING      File name
+-- Return:
+--   [STRING]      File path
+----------------------------------------------------------------------
+define method .getPathName(!fileName is STRING) is STRING
+  
+  !filePath             = object STRING()
+  !excelFileNames       = !this.pathMappingList.evaluate(object BLOCK(|!this.pathMappingList[!evalIndex][1]|))
+  !index                = !excelFileNames.findFirst(!fileName)
+  if(!index.set()) then
+    !filePath           = !this.pathMappingList[!index][3]
+  endif
+  
+  return !filePath
+  
+endmethod
+
+----------------------------------------------------------------------
+-- Method:     getPriorityOrder
+--
+-- Description: Get priority order for an action, sorted by priority value
+--
+-- Method Type: Function
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--     1    R        STRING      Action name to look up
+-- Return:
+--   [ARRAY]       Array of [ordered values, parameters]
+----------------------------------------------------------------------
+define method .getPriorityOrder(!actionName is STRING) is ARRAY
+  
+  !priorityList              = !this.priorityList
+  !priorityList.remove(1)
+  !priorityDetails           = object ARRAY()
+  !priorityOrder             = object ARRAY()
+  !paramters                 = object ARRAY()
+  !actionNames               = !priorityList.evaluate(object BLOCK(|!priorityList[!evalIndex][1]|))
+  
+  !indices                   = !actionNames.find(!actionName)
+  if(!indices.set()) then
+    !actionList              = !priorityList.reIndex(!indices)
+    !orderList               = !actionList.evaluate(object BLOCK(|!actionList[!evalIndex][2]|))
+    !sortOrder               = !orderList.sortedIndices()
+    
+    !finalList               = !actionList.reIndex(!sortOrder)
+    
+    !priorityOrder           = !finalList.evaluate(object BLOCK(|!finalList[!evalIndex][3]|))
+    !paramters               = !finalList.evaluate(object BLOCK(|!finalList[!evalIndex][4]|))
+  endif
+  
+  !priorityDetails.append(!priorityOrder)
+  !priorityDetails.append(!paramters)
+  
+  return !priorityDetails
+  
+endmethod
+
+----------------------------------------------------------------------
+-- Method:     getSettingDetail
+--
+-- Description: Get setting value by setting name
+--
+-- Method Type: Function
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--     1    R        STRING      Setting name
+-- Return:
+--   [STRING]      Setting value
+----------------------------------------------------------------------
+define method .getSettingDetail(!settingName is STRING) is STRING
+  
+  !settingValue              = object STRING()
+  !settingNames              = !this.settings.evaluate(object BLOCK(|!this.settings[!evalIndex][1].trim().upcase()|))
+  !index                     = !settingNames.findFirst(!settingName.trim().upcase())
+  
+  if(!index.set()) then
+    !settingValue            = !this.settings[!index][2]
+  endif
+  
+  return !settingValue
+  
+endmethod
+
+------------------------------------------------------------------------
+--
+-- Method:     addErrorToList
+-- Description: Log error to shared common logger
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--     1    R        STRING      Element identifier
+--     2    R        STRING      Attribute name
+--     3    R        STRING      Error details
+--
+------------------------------------------------------------------------
+define method .addErrorToList(!element is STRING, !detail is STRING, !error is STRING)
+
+  if(undefined(!!ramCommonLogger)) then
+    !!ramCommonLogger = object RAMCOMMONLOGGER()
+  endif
+
+  !errorList          = object ARRAY()
+  !errorList.append(!element)
+  !errorList.append(!detail)
+  !errorList.append(!error)
+  !!ramCommonLogger.addLogDetails(!this.objecttype(), !errorList)
+  
+endmethod

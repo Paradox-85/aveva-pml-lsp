@@ -1,0 +1,39 @@
+$* Factory benchmark generated from semantic source summary only for mac_17
+$* Source path: docs/codebase/macros/JDE_class-mapping-rename.pmlmac
+$* Run path: $m "C:\Users\ADZV\OneDrive - Ramboll\AVEVA_SERVER\Addons\PMLLIB\RAM\Engineering\jackdow\JDE_class-mapping-rename.pmlmac"
+$* PML rename group class - attribute mapping
+$* Author: Andrei Aitzhanov
+$* Company Ramboll Energies
+$* Date: 23-01-2025
+
+
+handle any
+endhandle
+
+
+-- Collect all ShellClassAttributeMapping objects with filter:
+-- valid class group ref, valid attribute mapping ref, and not yet named
+var !classAttributeList collect all :ShellClassAttributeMapping with (not(badref(:MappingRefToClassGroup)) and not(badref(:MappingRefToAttributeMapping)) and not(ISNAMED))
+
+-- Iterate over each collected item by value
+do !classAttributeItem values !classAttributeList
+	-- Obtain a database reference from the collected item
+	!classAttributeItemRef = !classAttributeItem.dbref()
+	-- Dynamic property access via colon syntax to read linked class group name
+	!classGroupName = !classAttributeItemRef.:MappingRefToClassGroup.namn
+	-- Dynamic property access via colon syntax to read linked attribute name
+	!attributeName = !classAttributeItemRef.:MappingRefToAttributeMapping.namn
+	-- String interpolation: build composite name from class group and attribute
+	!name = |/$!<classGroupName>/$!<attributeName>|
+	-- Get the length of the constructed name
+	!len = !name.length()
+	-- Issue PML NAME command to rename the element (pre-truncation)
+	$P $!classAttributeItem NAME $!name
+	-- Truncate to 50 characters if name is too long
+	if (!len GT 50) then
+		!name = !name.Substring(1,50)
+	endif
+	
+	-- Assign the (possibly truncated) name back to the object via dbref
+	!classAttributeItemRef.name = !name
+enddo

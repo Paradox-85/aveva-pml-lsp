@@ -1,0 +1,80 @@
+{
+  "fileId": "mac_47",
+  "filePath": "docs/codebase/macros/unnamed-tag-delete.pmlmac",
+  "reviewDate": "2026-06-03",
+  "overallGapScore": 0.15,
+  "dimensions": {
+    "D1_syntax": {
+      "score": 0.05,
+      "gaps": [
+        "PML RELOAD OBJECT command not explicitly documented in KB syntax reference (only $M macro execution is documented)"
+      ]
+    },
+    "D2_patterns": {
+      "score": 0.0,
+      "gaps": []
+    },
+    "D3_structure": {
+      "score": 0.0,
+      "gaps": []
+    },
+    "D4_naming": {
+      "score": 0.0,
+      "gaps": []
+    },
+    "D5_logic": {
+      "score": 0.05,
+      "gaps": [
+        "deleteUnnamedTags() method logic not documented — no KB entry describes what constitutes 'unnamed' tags or the delete behavior"
+      ]
+    },
+    "D6_dependencies": {
+      "score": 0.1,
+      "gaps": [
+        "TAGMANAGEMENTTMP object is a customer-specific .pmlobj — no KB coverage for its methods or construction",
+        "deleteUnnamedTags() is a customer-defined method with no KB signature or behavior documentation"
+      ]
+    },
+    "D7_kbCompleteness": {
+      "newEntriesNeeded": [
+        {
+          "suggestedId": "cmd_pml_reload_object",
+          "category": "macros",
+          "subcategory": "reload",
+          "title": "PML RELOAD OBJECT command",
+          "principle": "PML RELOAD OBJECT reloads a previously compiled PML object into the current session, ensuring the latest definition is active.",
+          "rule": "Use PML RELOAD OBJECT <ObjectName> to reload an object after its source has been modified. The object must already exist in the session.",
+          "syntax": "PML RELOAD OBJECT <ObjectName>",
+          "exampleCanonical": "-- Reload TAGMANAGEMENTTMP before using it\nPML RELOAD OBJECT TAGMANAGEMENTTMP\n!tagMgmt = object TAGMANAGEMENTTMP()\n!tagMgmt.deleteUnnamedTags()",
+          "exampleAntipattern": "",
+          "pitfalls": [
+            "Reloading a non-existent object will cause a runtime error",
+            "Reloaded objects replace the previous instance in memory — existing references may become stale"
+          ],
+          "relatedIds": ["cmd_pml_reload_macro", "obj_object_constructor"],
+          "sourcedoc": "AVEVA PML Customization Guide — Macros section",
+          "sourcecodebase": "unnamed-tag-delete.pmlmac"
+        },
+        {
+          "suggestedId": "obj_tagmanagementtmp",
+          "category": "objects",
+          "subcategory": "customer-specific",
+          "title": "TAGMANAGEMENTTMP customer object",
+          "principle": "TAGMANAGEMENTTMP is a project-specific PML object providing tag management utilities including deletion of unnamed tags.",
+          "rule": "Construct with object TAGMANAGEMENTTMP() and call deleteUnnamedTags() to remove unnamed tags from the current database context.",
+          "syntax": "!obj = object TAGMANAGEMENTTMP()\n!obj.deleteUnnamedTags()",
+          "exampleCanonical": "PML RELOAD OBJECT TAGMANAGEMENTTMP\n!tagMgmt = object TAGMANAGEMENTTMP()\n!tagMgmt.deleteUnnamedTags()",
+          "exampleAntipattern": "",
+          "pitfalls": [
+            "Object must be reloaded after source changes",
+            "deleteUnnamedTags() operates on the current database session context"
+          ],
+          "relatedIds": ["cmd_pml_reload_object", "obj_object_constructor"],
+          "sourcedoc": "Customer codebase — unnamed-tag-delete.pmlmac",
+          "sourcecodebase": "unnamed-tag-delete.pmlmac"
+        }
+      ]
+    }
+  },
+  "actionRequired": "patch_kb"
+}

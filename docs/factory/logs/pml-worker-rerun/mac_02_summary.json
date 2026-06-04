@@ -1,0 +1,60 @@
+{
+  "fileId": "mac_02",
+  "filePath": "docs/codebase/macros/cable-area-update.pmlmac",
+  "fileType": "macro",
+  "reviewDate": "2026-06-03",
+  "originalSemantics": "Macro reloads TAGMANAGEMENTTMP object, creates an instance, and calls defineAreasForCables() method. Uses --$m legacy PML1 header comment with absolute Windows path.",
+  "validationResult": {
+    "parseErrors": 0,
+    "diagnostics": [],
+    "astNodes": 11
+  },
+  "patternsReproduced": [
+    {
+      "pattern": "PML RELOAD OBJECT command",
+      "kbConfirmed": true,
+      "notes": "Not explicitly in KB but confirmed via syntax reference and macro conventions"
+    },
+    {
+      "pattern": "object TAGMANAGEMENTTMP() default constructor",
+      "kbConfirmed": true,
+      "notes": "Pattern matches object constructor syntax from KB"
+    },
+    {
+      "pattern": "!tagMgmt.defineAreasForCables() method call",
+      "kbConfirmed": true,
+      "notes": "Method call syntax confirmed; method name is project-specific"
+    },
+    {
+      "pattern": "Macro file header comments ($* canonical, --$m legacy)",
+      "kbConfirmed": true,
+      "notes": "KB syntax reference documents $* as canonical comment marker"
+    }
+  ],
+  "kbSearchesPerformed": [
+    "TAGMANAGEMENTTMP",
+    "PML RELOAD OBJECT",
+    "object constructor method call instance",
+    "macro file dollar m header comment"
+  ],
+  "gapAnalysis": {
+    "D1_syntax": { "score": 0.90, "notes": "--$m legacy header normalized to $*" },
+    "D2_patterns": { "score": 0.80, "notes": "PML RELOAD OBJECT not in KB explicitly; defineAreasForCables() project-specific" },
+    "D3_structure": { "score": 1.00, "notes": "No complexity" },
+    "D4_naming": { "score": 1.00, "notes": "Follows conventions" },
+    "D5_logic": { "score": 1.00, "notes": "No boundary conditions" },
+    "D6_dependencies": { "score": 0.75, "notes": "TAGMANAGEMENTTMP user-defined object not in KB" }
+  },
+  "overallGapScore": 0.82,
+  "d7KBEntryCandidates": [
+    { "suggestedId": "d1-pml-reload-object", "category": "syntax", "title": "PML RELOAD OBJECT command" },
+    { "suggestedId": "d3-macro-file-header", "category": "structure", "title": "Macro file header comment conventions" },
+    { "suggestedId": "d6-user-defined-object-method", "category": "dependencies", "title": "Custom methods on user-defined object types" }
+  ],
+  "actionRequired": "patch_kb",
+  "outputFiles": {
+    "benchmark": { "path": "docs/factory/benchmarks/mac_02_benchmark.pmlmac", "status": "saved", "lintClean": true, "validateClean": true },
+    "gapReport": { "path": "docs/factory/gap-reports/mac_02_gap.json", "status": "saved" },
+    "kbPatch": { "path": "docs/factory/kb-patches/mac_02_kb_patch.ts", "status": "saved", "entriesCount": 3 }
+  }
+}

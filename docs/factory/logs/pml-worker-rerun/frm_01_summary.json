@@ -1,0 +1,96 @@
+{
+  "fileId": "frm_01",
+  "originalFile": "docs/codebase/forms/jacEISDeliveryForm.pmlfrm",
+  "fileType": "form",
+  "runDate": "2026-06-03",
+  "runType": "rerun",
+  "benchmarkPath": "docs/factory/benchmarks/frm_01_benchmark.pmlfrm",
+  "gapReportPath": "docs/factory/gap-reports/frm_01_gap.json",
+  "kbPatchPath": "docs/factory/kb-patches/frm_01_kb_patch.ts",
+  "patternsUsed": [
+    "form_setup_dialog_resizable",
+    "import_handle_endhandle",
+    "using_namespace",
+    "tabset_frame_anchor_all",
+    "frame_list_container_para_text_button",
+    "anchor_layout_patterns",
+    "member_is_declaration",
+    "define_method_callback",
+    "initCall_callback_pattern",
+    "bar_menu_add_newMenu",
+    "object_instantiation",
+    "NETGRIDCONTROL_properties",
+    "NETDATASOURCE_bindToDataSource",
+    "container_PMLNETCONTROL_control",
+    "defined_global_form_check",
+    "file_set_exists_pattern",
+    "do_values_iteration",
+    "string_comparison_methods",
+    "alert_warning_method",
+    "PMLFolderBrowser_show_selectedPath",
+    "twoPhaseFormLifecycle"
+  ],
+  "lintResult": {
+    "diagnostics": [
+      {
+        "code": "array-index-zero",
+        "message": "Array indices in PML start at 1, not 0. Accessing [0] will cause a runtime error.",
+        "severity": "warning",
+        "line": 119
+      },
+      {
+        "code": "unknown-form-member",
+        "message": "Unknown form member or gadget references (bar, newMenu, defPopUp, liReportList).",
+        "severity": "info",
+        "count": 11
+      }
+    ],
+    "parseErrorCount": 0,
+    "status": "pass"
+  },
+  "validateResult": {
+    "diagnostics": [
+      {
+        "code": "array-index-zero",
+        "message": "Array indices in PML start at 1, not 0. Accessing [0] will cause a runtime error.",
+        "severity": "warning",
+        "line": 119
+      },
+      {
+        "code": "unknown-form-member",
+        "message": "Unknown form member or gadget references.",
+        "severity": "info",
+        "count": 11
+      }
+    ],
+    "parseErrorCount": 0,
+    "status": "pass"
+  },
+  "kbGaps": [
+    "Dynamic menu creation via !this.newMenu() not in KB",
+    "DO VALUES iteration pattern not in KB (only DO FROM/TO)",
+    "defined() check for global forms not in KB",
+    "FILE .set() + .exists() combined pattern not in KB",
+    "NETGRIDCONTROL + NETDATASOURCE binding pattern not in KB",
+    "PMLNETCONTROL container sub-type pattern not in KB",
+    "PMLFolderBrowser object not in KB",
+    "!!alert.warning() method not in KB",
+    "Custom objects JACEISDELIVERYMANAGER, RAMFILEWRITERCLASS, RAMCOMMONLOGGER not in KB",
+    "Custom form RAMCOMMONLOGGERFORM not in KB"
+  ],
+  "gapScore": 0.35,
+  "confidenceScore": 0.85,
+  "newKbEntriesCount": 8,
+  "totalLines": 272,
+  "benchmarkLines": 272,
+  "methodCount": 9,
+  "dependencies": {
+    "imports": ["GridControl", "PMLFileBrowser"],
+    "namespaces": ["Aveva.core.presentation", "Aveva.Core.Presentation"],
+    "customObjects": ["JACEISDELIVERYMANAGER", "RAMFILEWRITERCLASS", "RAMCOMMONLOGGER"],
+    "customForms": ["RAMCOMMONLOGGERFORM"],
+    "netAddins": ["NETGRIDCONTROL", "NETDATASOURCE", "PMLFOLDERBROWSER"],
+    "systemObjects": ["!!alert", "FILE", "ARRAY"]
+  },
+  "actionRequired": "rerun_worker"
+}

@@ -1,0 +1,104 @@
+{
+  "fileId": "mac_34",
+  "filePath": "docs/codebase/macros/JDE_tag2sece_import.pmlmac",
+  "reviewDate": "2026-06-03",
+  "overallGapScore": 0.83,
+  "dimensions": {
+    "D1_syntax": {
+      "score": 0.5,
+      "gaps": [
+        "Source has 0 definitions and 0 members; generated benchmark validated with parseErrorCount=0"
+      ]
+    },
+    "D2_patterns": {
+      "score": 0.75,
+      "gaps": [
+        {
+          "pattern": "DO ",
+          "suggestedKbId": "cb_mac_34_do"
+        },
+        {
+          "pattern": "do ",
+          "suggestedKbId": "cb_mac_34_do"
+        },
+        {
+          "pattern": "handle",
+          "suggestedKbId": "cb_mac_34_handle"
+        },
+        {
+          "pattern": "NETGRIDCONTROL",
+          "suggestedKbId": "cb_mac_34_netgridcontrol"
+        },
+        {
+          "pattern": "NETDATASOURCE",
+          "suggestedKbId": "cb_mac_34_netdatasource"
+        },
+        {
+          "pattern": "!!",
+          "suggestedKbId": "cb_mac_34_"
+        },
+        {
+          "pattern": "DBREF",
+          "suggestedKbId": "cb_mac_34_dbref"
+        },
+        {
+          "pattern": "ARRAY",
+          "suggestedKbId": "cb_mac_34_array"
+        },
+        {
+          "pattern": "FILE",
+          "suggestedKbId": "cb_mac_34_file"
+        },
+        {
+          "pattern": "writeFile",
+          "suggestedKbId": "cb_mac_34_writefile"
+        },
+        {
+          "pattern": "GridControl",
+          "suggestedKbId": "cb_mac_34_gridcontrol"
+        }
+      ]
+    },
+    "D3_structure": {
+      "score": 0.7,
+      "gaps": [
+        "Benchmark preserves signatures/major declarations where possible but does not copy implementation bodies."
+      ]
+    },
+    "D4_naming": {
+      "score": 0.55,
+      "gaps": [
+        "Project naming extracted from JDE_tag2sece_import.pmlmac; benchmark may simplify local variable names."
+      ]
+    },
+    "D5_logic": {
+      "score": 0.8,
+      "gaps": [
+        "Original operational logic is intentionally not copied; rerun_worker may improve semantic fidelity for complex files."
+      ]
+    },
+    "D6_dependencies": {
+      "score": 0.85,
+      "gaps": [
+        "NETGRIDCONTROL",
+        "DBREF",
+        "FILE",
+        "writeFile",
+        "GridControl"
+      ]
+    },
+    "D7_kbCompleteness": {
+      "newEntriesNeeded": [
+        "cb_mac_34_do",
+        "cb_mac_34_do",
+        "cb_mac_34_handle",
+        "cb_mac_34_netgridcontrol",
+        "cb_mac_34_netdatasource",
+        "cb_mac_34_",
+        "cb_mac_34_dbref",
+        "cb_mac_34_array"
+      ]
+    }
+  },
+  "actionRequired": "patch_kb"
+}

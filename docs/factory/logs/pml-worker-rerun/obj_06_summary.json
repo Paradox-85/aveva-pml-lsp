@@ -1,0 +1,54 @@
+{
+  "fileId": "obj_06",
+  "fileName": "ramImportExcelElementLoader.pmlobj",
+  "filePath": "docs/codebase/objects/ramImportExcelElementLoader.pmlobj",
+  "runDate": "2026-06-03",
+  "runType": "FACTORY-RERUN-SINGLE",
+  "benchmarkPath": "docs/factory/benchmarks/obj_06_benchmark.pmlobj",
+  "gapReportPath": "docs/factory/gap-reports/obj_06_gap.json",
+  "kbPatchPath": "docs/factory/kb-patches/obj_06_kb_patch.ts",
+  "validation": {
+    "parseErrorCount": 0,
+    "diagnostics": [],
+    "astNodeCount": 1637,
+    "status": "clean"
+  },
+  "semanticDiff": {
+    "status": "clean",
+    "notes": "diff -w shows no semantic differences between original and benchmark after fixing two bugs in initial benchmark generation"
+  },
+  "fixesApplied": [
+    {
+      "description": "Added missing !errorList.append(!detail) line in 4-parameter addErrorToList method",
+      "location": "addErrorToList(4-param) method",
+      "originalBehavior": "Skipped appending the detail string to error list",
+      "fixedBehavior": "Correctly appends element, detail, then splits errorDetail by '#' into array"
+    },
+    {
+      "description": "Restored !validName.subString(1,1).neq('=') check in validateName method",
+      "location": "validateName method, line ~626",
+      "originalBehavior": "Checked for / prefix AND space, but not = prefix",
+      "fixedBehavior": "Checks for / prefix AND = prefix AND space — matching original semantics"
+    }
+  ],
+  "gapSummary": {
+    "D1_syntax": { "score": 0.2, "gapCount": 5 },
+    "D2_patterns": { "score": 0.1, "gapCount": 3 },
+    "D3_structure": { "score": 0.0, "gapCount": 0 },
+    "D4_naming": { "score": 0.0, "gapCount": 0 },
+    "D5_logic": { "score": 0.05, "gapCount": 1 },
+    "D6_dependencies": { "score": 0.1, "gapCount": 3 },
+    "D7_kbCompleteness": { "newEntriesNeeded": 7 }
+  },
+  "overallGapScore": 0.15,
+  "actionRequired": "patch_kb",
+  "kbEntriesDrafted": [
+    "pml-builtin-undefined",
+    "pml-builtin-error-text",
+    "pml-object-measure-format",
+    "pml-object-datetime-dateformat",
+    "pml-control-skip-if",
+    "pml-statement-show",
+    "pml-builtin-display-progress"
+  ]
+}

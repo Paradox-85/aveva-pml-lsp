@@ -1,0 +1,89 @@
+-- Run path: $M "path_to_EIS_data_update.pmlmac"
+-- Run set of routine macro for update data in Jackdaw (JDE)
+-- Author: pml-worker reconstruction
+-- Company: Ramboll Energies
+-- Date: 2026-06-03
+
+-- ONERROR GOLABEL /Error
+
+-- Define common variables
+!!ramCommonLogger = object RAMCOMMONLOGGER()
+!headings = |Tag Name;Attribute Name;Error Text|
+!!ramCommonLogger.addHeading(!headings.split(|;|))
+!rdlMasterFile = |C:\path\RDL-Master-File.xlsx|
+!session = current session
+!userName = !session.login.upcase()
+
+$P --- STEP 1: DELETE UNTAGGED ITEMS ---
+!tagMgmt = object TAGMANAGEMENTTMP()
+!tagMgmt.deleteUnnamedTags()
+!tagMgmt.cpiItemsUpdate()
+
+$P --- STEP 2: UPDATE CLASS NAME AS PER SHELL RDL MAPPING ---
+!!jacUpdateClassDetails(!rdlMasterFile, |Class-mapping|, |NA|, |(unset(:TagRefToClass) or badref(:TagRefToClass) or ACTTYPE neq (:RDLDabaconExpression of :TagRefToClass) or unset(:TagRefToClass) or unset(:TagClassName)) and :TagStatus inset ('ACTIVE', 'ASB', 'AFC', 'AFD', 'Future') and ISNAMED|, |:RDLSource of :ClassMappingRefToClass eq 'AKSO_Tag Properties Templates_Rev6'|, true)
+
+$P --- STEP 3: UPDATE TAG NAME ---
+!replaceArray = array()
+!!jacUpdateTagName(|NAMN|, |:TagName|, !replaceArray, |ISNAMED and (:TagName neq NAMN) and not(LOWCASE(:TagClassName) inset ('pipeline', 'pipe'))|, true)
+
+$P --- STEP 4: UPDATE LINE NAME ---
+-- pipes with inches
+!replace[1] = |_|
+!replace[2] = | |
+!replaceArray.append(!replace)
+!!jacUpdateTagName(|NAMN|, |:TagName|, !replaceArray, |ISNAMED and (matchwild(name, '*"-*')) and (:TagName neq NAMN) and (LOWCASE(:TagClassName) inset ('pipeline', 'pipe'))|, true)
+-- pipes with mm
+!!jacUpdateTagNameWithBore(!rdlMasterFile, |DN_mapping|, |NAMN|, |:TagName|, | |, |ISNAMED and :TagStatus inset ('ACTIVE', 'ASB', 'AFC', 'AFD') and not(matchwild(name, '*"-*')) and :TagClassName inset('pipeline', 'pipe')|, true)
+
+$P --- STEP 5: 3D PIPE DATA TRANSFER ---
+!tagMgmt.pipeDataTransfer()
+
+$P --- STEP 6: MANUAL VALVE UPDATE ---
+!tagMgmt.valveDataUpdate()
+
+$P --- STEP 7: ALARM LIST UPDATE ---
+!tagMgmt.alarmsDataUpdate()
+
+$P --- STEP 8: SIGNAL LIST UPDATE ---
+!tagMgmt.signalsDataUpdate()
+
+$P --- STEP 9: LOOP LIST UPDATE ---
+!tagMgmt.loopsDataUpdate()
+
+$P --- STEP 10: CABLE LIST UPDATE ---
+!tagMgmt.cablesDataUpdate()
+
+$P --- STEP 11: TAG-DOC DATA UPDATE ---
+-- !tagMgmt.tagDocLinksUpdate()
+
+$P --- STEP 12: PIPE SUPPORT DATA UPDATE ---
+!tagMgmt.pipeSupportDataUpdate()
+
+$P --- STEP 13: PBS PROPERTIES DATA UPDATE ---
+!tagMgmt.PBSpropertiesUpdate()
+
+$P --- STEP 14: CPI ITEMS DATA UPDATE ---
+!tagMgmt.cpiItemsUpdate()
+
+$P --- LOGGING ---
+!dt = object DATETIME()
+!year = !dt.year()
+!month = !dt.month().string('I2')
+!date = !dt.date().string('I2')
+!hour = !dt.hour().string('I2')
+!minute = !dt.minute().string('I2')
+!!ramCommonLogger.writeErrorDataToExcel(|C:\path\Users-run\$!<userName>_log_$!<year>-$!<month>-$!<date>-$!<hour>.xlsx|, false)
+
+LABEL /Error
+handle any
+    SAVEWORK
+    UNCLAIM ALL
+    !dt = object DATETIME()
+    !year = !dt.year()
+    !month = !dt.month().string('I2')
+    !date = !dt.date().string('I2')
+    !hour = !dt.hour().string('I2')
+    !minute = !dt.minute().string('I2')
+    !!ramCommonLogger.writeErrorDataToExcel(|C:\path\Users-run\$!<userName>_log_$!<year>-$!<month>-$!<date>-$!<hour>.xlsx|, false)
+    -- FINISH
+endhandle

@@ -1,0 +1,137 @@
+{
+  "fileId": "mac_12",
+  "filePath": "docs/codebase/macros/EBA_full_tag_export.pmlmac",
+  "reviewDate": "2026-06-03",
+  "overallGapScore": 0.35,
+  "dimensions": {
+    "D1_syntax": {
+      "score": 0.3,
+      "gaps": [
+        "namn attribute (PDMS name pseudo-attribute) used as 'namn of site of $!item' — not explicitly documented in KB (only 'name' appears in examples)",
+        "dtxr attribute (PDMS description-text pseudo-attribute) used as 'dtxr of $!item' — not documented in KB",
+        "collect all with multiple class names '(EQUI SUBE STRUC ...)' — syntax confirmed by KB but multi-class variant lacks dedicated example",
+        "string('I2') format specifier on datetime method return values — KB has String(REAL,FORMAT) but not datetime.format(FORMAT) usage",
+        "$!<itemRef.namn> substitute expression with attribute access inside pipe-delimited string — confirmed working by lint, not in KB examples"
+      ]
+    },
+    "D2_patterns": {
+      "score": 0.4,
+      "gaps": [
+        "NETGRIDCONTROL object construction via 'object NETGRIDCONTROL()' — imported from GridControl .NET add-in, limited KB coverage",
+        "NETDATASOURCE object with 'data' mode: 'object NETDATASOURCE('data', !headerList, !dataList)' — not in KB",
+        "NETGRIDCONTROL methods: clearGrid(), BindToDataSource(!source), saveGridToExcel(!path) — not in KB",
+        "FINISH directive at macro end — not explicitly documented in KB keyword list",
+        "import 'GridControl' with 'handle any' pattern — seen in KB example (test2form.pmlfrm) but no dedicated KB entry"
+      ]
+    },
+    "D3_structure": {
+      "score": 0.1,
+      "gaps": [
+        "Linear macro flow (datetime → arrays → query → loop → export → FINISH) — standard for export macros, no structural gap"
+      ]
+    },
+    "D4_naming": {
+      "score": 0.2,
+      "gaps": [
+        "Customer-specific path 'C:\\Users\\ADZV\\OneDrive - Ramboll\\Digital Deliveries\\LCI\\04_3D-tags\\_export\\' — hardcoded, not parameterized",
+        "Variable naming convention (!dataFileNameDated, !dataFileName) uses camelCase — consistent with other macros in codebase"
+      ]
+    },
+    "D5_logic": {
+      "score": 0.3,
+      "gaps": [
+        "handle any / skip pattern for site and zone attribute access — 'skip' in handle does not abort the loop iteration; fallback is implicit (variable remains UNSET)",
+        "Description fallback: first tries 'desc of $!item', then falls back to 'dtxr of $!item' — logic confirmed by original, not in KB",
+        "No explicit UNSET check before using !site / !zone / !desc in message string — potential empty fields in output"
+      ]
+    },
+    "D6_dependencies": {
+      "score": 0.5,
+      "gaps": [
+        "GridControl .NET add-in import — 'import GridControl' loads a .NET assembly; no KB entry documents the GridControl DLL path or assembly name",
+        "Aveva.Core.Presentation namespace — used with 'using namespace', contains NETGRIDCONTROL and NETDATASOURCE; not in KB objects list",
+        "PDMS object types (EQUI, SUBE, STRUC, FRMW, SBFR, PIPE, HVAC, CWAY, SUPPO, BRAN, MEM) — used in 'collect all'; individual types not documented in KB"
+      ]
+    },
+    "D7_kbCompleteness": {
+      "newEntriesNeeded": [
+        {
+          "suggestedId": "pdms_namn_attribute",
+          "category": "pdmsinteraction",
+          "subcategory": "attributes",
+          "title": "namn — PDMS object name pseudo-attribute",
+          "principle": "The 'namn' pseudo-attribute returns the PDMS name of an object. It is accessed as 'namn of $!ref' or via substitute expression '$!ref.namn'.",
+          "rule": "Use 'var !name namn of $!ref' or '$!ref.namn' in pipe strings. Alias for 'name' in some PDMS versions.",
+          "syntax": "var !name namn of $!objectRef",
+          "exampleCanonical": "-- CB EBA_full_tag_export.pmlmac\nvar !itemRef = !item.dbref()\n!name = $!<itemRef.namn>",
+          "exampleAntipattern": "",
+          "pitfalls": ["'namn' is a PDMS-specific spelling; E3D may use 'name' instead. Use '$!ref.namn' for maximum compatibility."],
+          "relatedIds": ["pdms_dtxr_attribute", "pdms_isnamed_filter"],
+          "sourcedoc": "AVEVA E3D/PDMS Attribute Reference",
+          "sourcecodebase": "EBA_full_tag_export.pmlmac"
+        },
+        {
+          "suggestedId": "pdms_dtxr_attribute",
+          "category": "pdmsinteraction",
+          "subcategory": "attributes",
+          "title": "dtxr — PDMS description-text pseudo-attribute",
+          "principle": "The 'dtxr' pseudo-attribute returns the description text of a PDMS object. Used as a fallback when 'desc' is unavailable.",
+          "rule": "Use 'var !desc dtxr of $!ref' to retrieve the description text. Typically used as a fallback after 'desc of $!ref' fails.",
+          "syntax": "var !desc dtxr of $!objectRef",
+          "exampleCanonical": "-- CB EBA_full_tag_export.pmlmac\nvar !desc desc of $!item\nhandle any\n    var !desc dtxr of $!item\nendhandle",
+          "exampleAntipattern": "",
+          "pitfalls": ["'dtxr' may be empty if no description is set. Always check UNSET before using."],
+          "relatedIds": ["pdms_namn_attribute", "pdms_desc_attribute"],
+          "sourcedoc": "AVEVA E3D/PDMS Attribute Reference",
+          "sourcecodebase": "EBA_full_tag_export.pmlmac"
+        },
+        {
+          "suggestedId": "dotnet_gridcontrol_export",
+          "category": "dotnetinterop",
+          "subcategory": "GridControl",
+          "title": "GridControl .NET add-in for Excel export",
+          "principle": "The GridControl add-in provides NETGRIDCONTROL and NETDATASOURCE objects for building tabular data and exporting to Excel.",
+          "rule": "Import GridControl, use 'handle any' for the import, create NETDATASOURCE with header/data arrays, bind to NETGRIDCONTROL, then call saveGridToExcel().",
+          "syntax": "import 'GridControl'\nhandle any\nendhandle\n!source = object NETDATASOURCE('data', !headers, !data)\n!grid = object NETGRIDCONTROL()\n!grid.BindToDataSource(!source)\n!grid.saveGridToExcel(!path)",
+          "exampleCanonical": "-- CB EBA_full_tag_export.pmlmac\nusing namespace |Aveva.Core.Presentation|\n!dataTable = object NETGRIDCONTROL()\n!dataTable.clearGrid()\n!source = object NETDATASOURCE('data', !headerList, !dataList)\n!dataTable.BindToDataSource(!source)\n!dataTable.saveGridToExcel(|$!<publishPath>$!<dataFileName>|)",
+          "exampleAntipattern": "",
+          "pitfalls": ["NETDATASOURCE 'data' mode requires header array as second argument.", "saveGridToExcel accepts a full file path including extension.", "Namespace may be 'Aveva.Core.Presentation' or 'Aveva.Pdms.Presentation' depending on E3D version."],
+          "relatedIds": ["dotnet_namespace_using", "dotnet_object_construction"],
+          "sourcedoc": "AVEVA E3D .NET Add-in Reference",
+          "sourcecodebase": "EBA_full_tag_export.pmlmac"
+        },
+        {
+          "suggestedId": "pdms_collect_all_multi_class",
+          "category": "pdmsinteraction",
+          "subcategory": "queries",
+          "title": "collect all with multiple PDMS class names and filters",
+          "principle": "The 'collect all' query can target multiple PDMS class names in one expression, optionally with a filter clause.",
+          "rule": "Use 'var !items collect all (CLASS1 CLASS2 CLASS3) with (FILTER)' to collect objects across multiple types in a single query.",
+          "syntax": "var !items collect all (CLASS_A CLASS_B) with (EXPRESSION)",
+          "exampleCanonical": "-- CB EBA_full_tag_export.pmlmac\nvar !items collect all (EQUI SUBE STRUC FRMW SBFR PIPE HVAC CWAY SUPPO BRAN MEM) with (ISNAMED)",
+          "exampleAntipattern": "",
+          "pitfalls": ["ISNAMED filter excludes unnamed objects.", "Large class sets can be slow; consider restricting scope with site/zone filters."],
+          "relatedIds": ["pdms_namn_attribute", "pdms_isnamed_filter"],
+          "sourcedoc": "AVEVA E3D/PDMS Query Reference",
+          "sourcecodebase": "EBA_full_tag_export.pmlmac"
+        },
+        {
+          "suggestedId": "macro_finish_directive",
+          "category": "macros",
+          "subcategory": "lifecycle",
+          "title": "FINISH directive — macro termination",
+          "principle": "The FINISH directive explicitly terminates a PML macro execution and returns control to the calling context.",
+          "rule": "Place FINISH at the end of a macro to signal clean completion. Equivalent to implicit end-of-file termination but makes intent explicit.",
+          "syntax": "FINISH",
+          "exampleCanonical": "-- CB EBA_full_tag_export.pmlmac\n!dataTable.saveGridToExcel(|$!<publishPath>$!<dataFileName>|)\n\nFINISH",
+          "exampleAntipattern": "",
+          "pitfalls": ["FINISH in a macro is optional — the macro ends at EOF. Use it to clarify intent."],
+          "relatedIds": ["macro_import_handle"],
+          "sourcedoc": "AVEVA E3D PML Macros Reference",
+          "sourcecodebase": "EBA_full_tag_export.pmlmac"
+        }
+      ]
+    }
+  },
+  "actionRequired": "patch_kb"
+}

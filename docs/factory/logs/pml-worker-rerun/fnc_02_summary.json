@@ -1,0 +1,8 @@
+{
+  "file": "fnc_02",
+  "status": "generated",
+  "benchmarkPath": "docs/factory/benchmarks/fnc_02_benchmark.pmlfnc",
+  "gapReportPath": "docs/factory/gap-reports/fnc_02_gap.json",
+  "lintErrors": [],
+  "validationErrors": []
+}

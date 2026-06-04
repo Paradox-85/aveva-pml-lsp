@@ -1,0 +1,26 @@
+{
+  "fileId": "mac_15",
+  "taskDescription": "Simple macro that reloads the TAGMANAGEMENTTMP object, creates an instance, and calls its EquipmentNameUpdate(false) method.",
+  "originalPath": "docs/codebase/macros/equipment-name-refresh.pmlmac",
+  "originalLines": 4,
+  "benchmarkPath": "docs/factory/benchmarks/mac_15_benchmark.pmlmac",
+  "benchmarkLines": 14,
+  "lintResult": { "diagnostics": [], "parseErrorCount": 0 },
+  "validateResult": { "diagnostics": [], "parseErrorCount": 0 },
+  "patternsUsed": [
+    "mac_file_path_pattern",
+    "pml_reload_object",
+    "pml_object_constructor",
+    "pml_method_call_with_bool_arg"
+  ],
+  "kbGaps": [
+    "$m metadata comment pattern in macro headers",
+    "TAGMANAGEMENTTMP.EquipmentNameUpdate(boolean) method documentation"
+  ],
+  "gapReportPath": "docs/factory/gap-reports/mac_15_gap.json",
+  "kbPatchPath": "docs/factory/kb-patches/mac_15_kb_patch.ts",
+  "newKbEntriesNeeded": 2,
+  "gapScore": 0.1,
+  "confidenceScore": 0.95,
+  "notes": "Previous benchmark (mac_15_benchmark.pmlmac) was incorrectly generated from a different semantic source (grid export pattern). Regenerated from correct original. Original is a 4-line macro: $m metadata comment + PML RELOAD OBJECT + object constructor + method call with boolean arg. Benchmark correctly includes $* $m metadata line for traceability."
+}

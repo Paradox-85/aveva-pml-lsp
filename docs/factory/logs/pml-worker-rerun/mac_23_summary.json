@@ -1,0 +1,53 @@
+{
+  "fileId": "mac_23",
+  "filePath": "docs/codebase/macros/JDE_exData_import.pmlmac",
+  "fileType": "macro",
+  "runDate": "2026-06-03",
+  "semanticSummary": "Macro imports tag data from an Excel file using GridControl NET add-in, builds a tabular results grid with NETGRIDCONTROL and NETDATASOURCE, and exports issues back to Excel. Uses ARRAY manipulation, STRING.Replace/STRING.Split, handle blocks, PML RELOAD OBJECT, and SAVEWORK.",
+  "benchmarkPath": "docs/factory/benchmarks/mac_23_benchmark.pmlmac",
+  "lintResult": {
+    "diagnostics": [],
+    "astNodeCount": 231,
+    "parseErrorCount": 0
+  },
+  "validateResult": {
+    "diagnostics": [],
+    "astNodeCount": 231,
+    "parseErrorCount": 0
+  },
+  "gapReportPath": "docs/factory/gap-reports/mac_23_gap.json",
+  "overallGapScore": 0.82,
+  "kbPatchPath": "docs/factory/kb-patches/mac_23_kb_patch.ts",
+  "kbEntriesAdded": [
+    "cb_mac_23_reload_object",
+    "cb_mac_23_createObjectsFromExcelSheet"
+  ],
+  "patternsInOriginal": [
+    "import GridControl + handle any/endhandle",
+    "PML RELOAD OBJECT TAGMANAGEMENTTMP",
+    "using namespace |Aveva.Core.Presentation|",
+    "ARRAY() + .Append()",
+    "!!createObjectsFromExcelSheet()",
+    "STRING.replace()",
+    "STRING.split()",
+    "ARRAY.size() gt 0",
+    "NETGRIDCONTROL + .clearGrid() + .BindToDataSource() + .saveGridToExcel()",
+    "NETDATASOURCE constructor",
+    "SAVEWORK"
+  ],
+  "patternsInBenchmark": [
+    "import GridControl + handle any/endhandle",
+    "using namespace |Aveva.Core.Presentation|",
+    "ARRAY() + .Append() + .Size() + .String()",
+    "STRING.Replace()",
+    "STRING.Split()",
+    "NETGRIDCONTROL + .clearGrid() + .BindToDataSource() + .saveGridToExcel()",
+    "NETDATASOURCE constructor",
+    "SAVEWORK"
+  ],
+  "patternsMissingInBenchmark": [
+    "PML RELOAD OBJECT TAGMANAGEMENTTMP",
+    "!!createObjectsFromExcelSheet()"
+  ],
+  "status": "clean"
+}

@@ -1,0 +1,79 @@
+--$M "TB terminal correction macro"
+
+-- Collect all CE elements in current world context
+!ces = !!collectallfor(|CE|, ||, world)
+
+do !ce values !ces
+  !!ce = !ce
+
+  -- Access terminal and channel collections via DBREF attribute notation
+  !terminals = !!ce.:HavePartTerminals
+  !channels  = !!ce.:HavePartChannels
+
+  -- Iterate over terminal indices
+  do !idx indices !terminals
+    !terminal = !terminals[!idx]
+    !channel  = !channels[!idx]
+
+    -- Retrieve propagated signals and outgoing connections
+    !signals    = !terminal.:refPropagatedSignals
+    !outConn    = !terminal.:HavePartOutGoingConnections
+
+    -- Verify signals exist and outgoing connection count equals 2
+    if (!signals.unset().not() AND !outConn.size().eq(2)) then
+      -- Check whether the first outgoing connection is an incoming connection
+      !isIncomConn = !outConn[1].:RefConnectionsOut.acttype.eqnocase(|:IncomingConnection|)
+
+      if (!isIncomConn) then
+        -- Remove the first outgoing connection for reassignment
+        !tempOutConn = !outConn.remove(1)
+
+        -- Retrieve channel terminal collection and evaluate markings
+        !channelTerminals = !channel.:HavePartChannelTerminals
+        !marking          = !idx.string() + |C|
+        !markings         = !channelTerminals.evaluate(object BLOCK(|!channelTerminals[!evalIndex].:marking[1]|))
+
+        -- Print diagnostic information
+        $P Terminal: $!terminal.name -> OUT connection: $!outConn[1].name -> Channel: $!channel.name -> Marking: $!marking
+
+        -- Find the matching channel terminal by marking
+        !i = !markings.findFirst(!marking)
+        !CHTerminal = !channelTerminals[!i]
+
+        -- Retrieve incoming connections on the channel terminal
+        !incConn = !CHTerminal.:HavePartIncomingConnections
+
+        if (!incConn.set()) then
+          -- Iterate over incoming connections and remove those without references
+          do !d indices !incConn
+            !ele     = !incConn[!d]
+            !refCon  = !ele.:RefConnectionsIn
+
+            if (!refCon.unset()) then
+              !tempIncomConnection = !incConn.remove(!d)
+
+              -- Update outgoing terminals on the channel terminal
+              !tempTerminals = !CHTerminal.:HavePartOutGoingConnections
+              !tempTerminals.append(!tempOutConn)
+              !CHTerminal.:HavePartOutGoingConnections = !tempTerminals
+
+              -- Update outgoing terminals on the main terminal
+              !terminal.:HavePartOutGoingConnections = !outConn
+
+              -- Update incoming terminals on the channel terminal
+              !tempTerminals = !CHTerminal.:HavePartIncomingConnections
+              !tempTerminals.append(!tempIncomConnection)
+              !CHTerminal.:HavePartIncomingConnections = !tempTerminals
+
+              -- Update incoming terminals on the main terminal
+              !terminal.:HavePartIncomingConnections = !tempTerminals
+            else
+              -- No reference found; stop processing this terminal
+              break
+            endif
+          enddo
+        endif
+      endif
+    endif
+  enddo
+enddo

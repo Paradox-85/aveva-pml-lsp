@@ -1,0 +1,173 @@
+$* Factory benchmark generated from semantic source summary only for mac_09
+$* Source path: docs/codebase/macros/JDE_newtag_import.pmlmac
+$* Semantic: Excel-driven tag import macro for AVEVA Elements.
+$*   Reads source data from an Excel workbook via NETGRIDCONTROL/NETDATASOURCE,
+$*   identifies column indices for NAME, ACTTYPE, and ACTTYPE (action/type).
+$*   Iterates rows, cleans tag names (replace dashes, en-dashes, spaces with underscores),
+$*   strips special characters from type names, creates element tags via CREATEELEMENT,
+$*   sets attributes with type-gated conversion (REAL/DBREF/STRING),
+$*   writes issue/feedback Excel report, calls SAVEWORK and UNCLAIM ALL.
+
+import |Aveva.Engineering.PMLElementManager|
+handle any
+endhandle
+
+import 'GridControl'
+handle any
+endhandle
+using namespace |Aveva.Core.Presentation|
+using namespace |Aveva.Engineering.PMLElementManager|
+
+-- 1. Open Excel source file via NETGRIDCONTROL
+!grid = object NETGRIDCONTROL()
+!dataSource = object NETDATASOURCE('Grid Table', !fileName)
+!grid.bindToDataSource(!dataSource)
+!data = !grid.getrows()
+!heading = !grid.gettitles()
+
+-- 2. Locate column indices for NAME, ACTION, TYPE
+!nameCol = |NAME|
+!actionCol = |:RAMACTION|
+!typeCol = |ACTTYPE|
+!nameIdx = !heading.findfirst(!nameCol)
+!actionIdx = !heading.findfirst(!actionCol)
+!typeIdx = !heading.findfirst(!typeCol)
+
+if (!nameIdx.set() and !actionIdx.set() and !typeIdx.set()) then
+
+  -- 3. Prepare issue/feedback arrays
+  !issueData = ARRAY()
+  !issueHeader = ARRAY()
+  !issueHeader.appendArray(!msg.split(|;|))
+
+  -- 4. Iterate each row
+  DO !row values !data
+    !rowIdx = !data.findFirst(!row)
+    !!displayProgress(!rowIdx, !data.size())
+
+    -- 4a. Clean tag name: replace dashes, en-dashes, spaces -> underscores
+    !tagRaw = !row[!nameIdx]
+    !tag = !tagRaw.replace(|-|, |-|).replace(|‐|, |-|).replace(| |, |_|).trim()
+    !tag = |/$!<Tag>|
+
+    -- 4b. Clean type: strip special characters
+    !typeRaw = !row[!typeIdx]
+    !sym = |. , - ~ * : ; _ / \ ' " & ? ! # $ % ( )|
+    !symList = !sym.split()
+    !symList.append(| |)
+    !symList.append('|')
+    DO !symb values !symList
+      !typeRaw = !typeRaw.replace(!symb, '')
+    ENDDO
+    !typeRaw = !typeRaw.trim()
+
+    -- 4c. Determine action (lowercase)
+    !action = !row[!actionIdx].lowcase()
+
+    -- 5. Attempt element creation
+    !tagRef = !tag.dbref()
+    handle any
+      !elem = object CREATEELEMENT()
+      !et = object ELEMENTTYPE(|:$!<TypeRaw>|)
+      if (!et.name() neq |UNKNOWN|) then
+        !elem.SetElementTypeByName(|:$!<TypeRaw>|)
+        handle any
+          !err = |$!tag;NA;Class [:$!TypeRaw] is not valid in AVEVA. Tag will not be created|
+          !issueData.append(!err.split(|;|))
+        elsehandle none
+          !elem.AddAttributeValue(|NAME|, !tag)
+          !elem.Execute()
+          !errors = !elem.GetErrors()
+          DO !error values !errors
+            !err = |$!tag;NA;NA;$!error|
+            !issueData.append(!err.split(|;|))
+          ENDDO
+        endhandle
+      else
+        !err = |$!tag;NA;NA;Class [:$!TypeRaw] is not valid in AVEVA. Tag will not be created|
+        !issueData.append(!err.split(|;|))
+      endif
+    elsehandle none
+    endhandle
+
+    -- 6. Set attributes with type-gated conversion
+    !tagRef = !tag.dbref()
+    handle none
+      DO !col values !heading
+        var !attrValue DELETE
+        var !currentValue DELETE
+        !col = !col.trim()
+        if (!col.upcase() neq |NAME| and !col.upcase() neq |ACTTYPE|) then
+          !colIdx = !heading.findfirst(!col)
+          !fileVal = !row[!colIdx]
+          !attr = object ATTRIBUTE(|$!col|)
+          if (!attr.hash() gt 0) then
+            if (!fileVal.empty().not()) then
+              !currentValue = !tagRef.attribute(!attr.name())
+              handle none
+                !isError = false
+                !valType = !currentValue.objecttype()
+
+                -- Special handling for EXCLASS column
+                if (!col eq |:pcsEXCLASS| and (!fileVal.upcase() eq |NON-EX| or !fileVal.upcase() eq |NA| or !fileVal.upcase() eq |NON EX|)) then
+                  !fileVal = |N/A|
+                endif
+
+                -- Type-gated attribute assignment
+                if (!valType eq 'REAL') then
+                  !tagRef.attribute(!attr.name()) = !fileVal.real()
+                  handle any
+                    !isError = true
+                    !err = |$!tag;$!col;$!fileVal;$!!error.text|
+                    !issueData.append(!err.split(|;|))
+                  endhandle
+                endif
+                if (!valType eq 'DBREF') then
+                  !fileVal = |/$!fileVal|
+                  !tagRef.attribute(!attr.name()) = !fileVal.dbref()
+                  handle any
+                    !isError = true
+                    !err = |$!tag;$!col;$!fileVal;$!!error.text|
+                    !issueData.append(!err.split(|;|))
+                  endhandle
+                endif
+                if (!valType eq 'STRING') then
+                  !tagRef.attribute(!attr.name()) = !fileVal.string()
+                  handle any
+                    !isError = true
+                    !err = |$!tag;$!col;$!fileVal;$!!error.text|
+                    !issueData.append(!err.split(|;|))
+                  endhandle
+                endif
+                if (!valType eq 'ARRAY') then
+                  skip
+                endif
+                if !isError then
+                  $p error: $!tag type: $!valType attribute: $!col value: $!fileVal
+                endif
+              elsehandle any
+                !err = |$!tag;$!col;$!fileVal;$!!error.text|
+                !issueData.append(!err.replace(|'|,||).split(|;|))
+              endhandle
+            endif
+          else
+            !err = |$!tag;$!col;$!fileVal;Attribute [$!col] is not valid in AVEVA for this item. Attribute value will not be uploaded|
+            !issueData.append(!err.split(|;|))
+          endif
+        endif
+      ENDDO
+    elsehandle any
+    endhandle
+  ENDDO
+endif
+
+-- 7. Write feedback Excel report
+!feedbackFile = !fileName.replace(|.xlsx|, |_RAMfeedback.xlsx|)
+!reportGrid = object NETGRIDCONTROL()
+!reportGrid.clearGrid()
+!reportSource = object NETDATASOURCE('data', !issueHeader, !issueData)
+!reportGrid.BindToDataSource(!reportSource)
+!reportGrid.saveGridToExcel(!feedbackFile, |data|)
+
+SAVEWORK
+UNCLAIM ALL

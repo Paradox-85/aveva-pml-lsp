@@ -1,0 +1,85 @@
+{
+  "fileId": "mac_41",
+  "filePath": "docs/codebase/macros/manual-valve-description.pmlmac",
+  "reviewDate": "2026-06-03",
+  "overallGapScore": 0.25,
+  "dimensions": {
+    "D1_syntax": {
+      "score": 0.2,
+      "gaps": [
+        "PML RELOAD OBJECT — command-style PML statement used to reload object definitions from the library. Not explicitly documented in the syntax KB reference (syntax reference covers VAR, IF/ENDIF, DO/ENDDO, DEFINE, etc. but not RELOAD).",
+        "Comment prefix --$m — the original uses --$m as a comment line starting with -- followed by $m path reference. KB documents $* for inline comments and -- for full-line comments, but does not mention the --$m convention used in project macros for source-path annotations."
+      ]
+    },
+    "D2_patterns": {
+      "score": 0.3,
+      "gaps": [
+        "TAGMANAGEMENTTMP custom object — not documented in KB. The object() constructor pattern with a custom type name is KB-confirmed (object LIFE(40) example in Methods on User-Defined Object Types), but TAGMANAGEMENTTMP itself is a project-specific object.",
+        "manualValveDescriptionUpdate method — custom method on TAGMANAGEMENTTMP with a query-expression string argument. KB has method call patterns (object.Method(!argument)) but no entry for this specific method."
+      ]
+    },
+    "D3_structure": {
+      "score": 0.0,
+      "gaps": []
+    },
+    "D4_naming": {
+      "score": 0.0,
+      "gaps": []
+    },
+    "D5_logic": {
+      "score": 0.3,
+      "gaps": [
+        "No error handling — the original macro has no HANDLE/ENDHANDLE block around the object instantiation or method call. If TAGMANAGEMENTTMP fails to load or the method throws, the macro continues silently.",
+        "No BADREF/UNSET check after object() — the benchmark reproduces this gap faithfully."
+      ]
+    },
+    "D6_dependencies": {
+      "score": 0.3,
+      "gaps": [
+        "TAGMANAGEMENTTMP is a project-specific PML object (likely defined in a .pmlobj file). No KB coverage for custom object dependencies. The PML RELOAD OBJECT statement implies a dependency on the object being available in the PMLLIB library path."
+      ]
+    },
+    "D7_kbCompleteness": {
+      "newEntriesNeeded": [
+        {
+          "suggestedId": "cmd_pml_reload_object",
+          "category": "macros",
+          "subcategory": "library_management",
+          "title": "PML RELOAD OBJECT command",
+          "principle": "Use PML RELOAD OBJECT to reload a PML object definition from the library before creating instances, ensuring the latest version is loaded.",
+          "rule": "Place PML RELOAD OBJECT <ObjectName> before object <ObjectName>() in macros that depend on custom object definitions. This is necessary when the object may have been updated in the library without a server restart.",
+          "syntax": "PML RELOAD OBJECT <objectName>",
+          "exampleCanonical": "-- CB manual-valve-description.pmlmac\nPML RELOAD OBJECT TAGMANAGEMENTTMP\n!tagMgmt = object TAGMANAGEMENTTMP()\n!tagMgmt.manualValveDescriptionUpdate(':RAMTAGOWNER INSET(|RAM|, |AKSO|)')",
+          "exampleAntipattern": "!tagMgmt = object TAGMANAGEMENTTMP()  -- may use stale object definition",
+          "pitfalls": [
+            "PML RELOAD OBJECT is a command, not a PML statement — it does not use = assignment.",
+            "The object must exist in the PMLLIB library path; otherwise the reload silently succeeds but object() may fail.",
+            "In production macros, wrap object() and method calls in HANDLE/ENDHANDLE for safety."
+          ],
+          "relatedIds": ["obj_object_constructor", "cmd_pml_command_stream"],
+          "sourcedoc": "AVEVA E3D PML Customization Guide — Macro Programming",
+          "sourcecodebase": "manual-valve-description.pmlmac"
+        },
+        {
+          "suggestedId": "err_macro_no_error_handling",
+          "category": "errorhandling",
+          "subcategory": "macro",
+          "title": "Macro error handling pattern — HANDLE/ENDHANDLE around object operations",
+          "principle": "Wrap object instantiation and method calls in HANDLE/ENDHANDLE blocks to prevent silent failures.",
+          "rule": "After object() construction and before calling methods on custom objects, use: handle any ... endhandle to catch and report errors.",
+          "syntax": "handle any\n  -- error recovery or logging\nendhandle",
+          "exampleCanonical": "PML RELOAD OBJECT TAGMANAGEMENTTMP\nhandle any\n  !tagMgmt = object TAGMANAGEMENTTMP()\n  handle any\n    !tagMgmt.manualValveDescriptionUpdate(':RAMTAGOWNER INSET(|RAM|, |AKSO|)')\n  endhandle\nendhandle",
+          "exampleAntipattern": "!tagMgmt = object TAGMANAGEMENTTMP()\n!tagMgmt.manualValveDescriptionUpdate(':RAMTAGOWNER INSET(|RAM|, |AKSO|)')  -- no error handling",
+          "pitfalls": [
+            "Nested HANDLE/ENDHANDLE blocks can mask errors from inner blocks if the outer handler catches 'any'.",
+            "Using HANDLE ANY on object() may hide library-load issues; consider checking the result before method calls."
+          ],
+          "relatedIds": ["cmd_pml_reload_object", "obj_object_constructor"],
+          "sourcedoc": "AVEVA E3D PML Customization Guide — Error Handling",
+          "sourcecodebase": "manual-valve-description.pmlmac"
+        }
+      ]
+    }
+  },
+  "actionRequired": "patch_kb"
+}

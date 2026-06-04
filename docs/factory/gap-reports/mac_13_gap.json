@@ -1,0 +1,139 @@
+{
+  "fileId": "mac_13",
+  "filePath": "docs/codebase/macros/EBE_assetRegister_import.pmlmac",
+  "reviewDate": "2026-06-03",
+  "overallGapScore": 0.30,
+  "dimensions": {
+    "D1_syntax": {
+      "score": 0.15,
+      "gaps": [
+        "!class neq || (empty pipe-string comparison) — valid PML but not explicitly in KB syntax reference",
+        "$!!error.text (double-dollar global error variable) — mentioned in syntax reference but no usage example"
+      ]
+    },
+    "D2_patterns": {
+      "score": 0.35,
+      "gaps": [
+        "NETGRIDCONTROL() constructor — no KB entry with canonical usage pattern",
+        "NETDATASOURCE('Grid Table', !fileName) constructor — no KB entry",
+        "!dataTable.bindToDataSource(!dataSource) — .NET interop method not in KB",
+        "!dataTable.getrows() / gettitles() — .NET interop methods not in KB",
+        "!heading.findfirst(|NAME|) — STRING findfirst method not in KB",
+        "!row[!nameId].replace(|-|, |-|).trim() — chained STRING methods not in KB"
+      ]
+    },
+    "D3_structure": {
+      "score": 0.25,
+      "gaps": [
+        "Original has nested 'handle any' inside 'if/then' block within outer 'handle any' — benchmark consolidates to single 'handle any' per if-block (semantically equivalent but structural difference)",
+        "Original uses '$()' block-comment preprocessor directives to conditionally include lines — benchmark omits these (correct for pure PML, but original semantics include conditional compilation)"
+      ]
+    },
+    "D4_naming": {
+      "score": 0.05,
+      "gaps": [
+        "Customer prefix 'EBE_' replaced with generic naming (correct for blind benchmark)",
+        "Customer OneDrive path replaced with generic path (correct for blind benchmark)"
+      ]
+    },
+    "D5_logic": {
+      "score": 0.20,
+      "gaps": [
+        "Original inner 'handle any' for SetElementTypeByName errors — consolidated into outer handler in benchmark (semantically equivalent)",
+        "!class.neq || (empty string) and .lowcase() neq |unset| — boundary checks preserved",
+        "!tagref.desc = |$!<tagref.desc>#to be deleted| — pseudo-attribute desc with substitution preserved"
+      ]
+    },
+    "D6_dependencies": {
+      "score": 0.45,
+      "gaps": [
+        "GridControl .NET add-in — partial KB coverage in NET Interfaces.md but no method/constructor examples",
+        "Aveva.Engineering.PMLElementManager namespace — imported but CREATEELEMENT/ELEMENTTYPE methods not fully documented",
+        "Aveva.Core.Presentation namespace — used with using namespace but no KB entry",
+        "NETGRIDCONTROL / NETDATASOURCE — .NET objects without KB entries",
+        "CREATEELEMENT / ELEMENTTYPE / ATTRIBUTE objects — partially documented in KB but method signatures not complete",
+        "FINISH directive — confirmed KB entry from mac_12 but not cross-referenced in macro-specific KB"
+      ]
+    },
+    "D7_kbCompleteness": {
+      "newEntriesNeeded": [
+        {
+          "suggestedId": "pml_dotnet_netgridcontrol",
+          "category": "dotnetinterop",
+          "subcategory": "gridcontrol",
+          "title": "NETGRIDCONTROL and NETDATASOURCE for Excel/CSV data import",
+          "principle": "Use NETGRIDCONTROL with NETDATASOURCE to import spreadsheet data into PML macros. GridControl add-in must be imported before use.",
+          "rule": "Always import 'GridControl' with error handling before creating NETGRIDCONTROL instances.",
+          "syntax": "!grid = object NETGRIDCONTROL()\n!source = object NETDATASOURCE('Grid Table', !filePath)\n!grid.bindToDataSource(!source)\n!rows = !grid.getrows()\n!titles = !grid.gettitles()",
+          "exampleCanonical": "-- Import Excel data into PML\nimport 'GridControl'\nhandle any\nendhandle\nusing namespace |Aveva.Core.Presentation|\n!dataTable = object NETGRIDCONTROL()\n!dataSource = object NETDATASOURCE('Grid Table', !filePath)\n!dataTable.bindToDataSource(!dataSource)\n!data = !dataTable.getrows()\n!heading = !dataTable.gettitles()",
+          "exampleAntipattern": "!dataTable = object NETGRIDCONTROL()  -- GridControl not imported",
+          "pitfalls": ["GridControl add-in must be installed and accessible in the AVEVA environment", "NETDATASource constructor varies by add-in version", "Aveva.Core.Presentation namespace required for NETGRIDCONTROL"],
+          "relatedIds": ["pml_dotnet_gridcontrol_addin", "pml_string_findfirst"],
+          "sourcedoc": "NET Interfaces.md",
+          "sourcecodebase": "EBE_assetRegister_import.pmlmac"
+        },
+        {
+          "suggestedId": "pml_element_createelement",
+          "category": "pdmsinteraction",
+          "subcategory": "elementmanager",
+          "title": "CREATEELEMENT and ELEMENTTYPE for programmatic element creation",
+          "principle": "Use CREATEELEMENT to create new PDMS/E3D elements programmatically. Set the element type via ELEMENTTYPE or SetElementTypeByName before adding attributes and executing.",
+          "rule": "Always validate ELEMENTTYPE before calling SetElementTypeByName. Check GetErrors() after Execute().",
+          "syntax": "!elem = object CREATEELEMENT()\n!etype = object ELEMENTTYPE('|<typeName>|')\nif (!etype.valid()) then\n  !elem.SetElementTypeByName('|<typeName>|')\n  !elem.AddAttributeValue('|NAME|', !name)\n  !elem.Execute()\n  !errors = !elem.GetErrors()\nendif",
+          "exampleCanonical": "!elementNet = object CREATEELEMENT()\n!etype = object ELEMENTTYPE('|$!<class>|)\nif (!etype.valid()) then\n  !elementNet.SetElementTypeByName('|$!<class>|)\n  !elementNet.AddAttributeValue(|NAME|, !tagName)\n  !elementNet.Execute()\n  !errors = !elementNet.GetErrors()\n  do !error values !errors\n    !msg = |$!tag;$!error|\n  enddo\nendif",
+          "exampleAntipattern": "!elem = object CREATEELEMENT()\n!elem.AddAttributeValue('|NAME|', !name)\n!elem.Execute()  -- No element type set",
+          "pitfalls": ["ELEMENTTYPE must match a valid AVEVA class name", "SetElementTypeByName by string name is more forgiving than ELEMENTTYPE constructor", "GetErrors() returns an array that must be iterated"],
+          "relatedIds": ["pml_element_dbref", "pml_attribute_object"],
+          "sourcedoc": "Aveva.Engineering.PMLElementManager namespace",
+          "sourcecodebase": "EBE_assetRegister_import.pmlmac"
+        },
+        {
+          "suggestedId": "pml_string_chained_methods",
+          "category": "pml2",
+          "subcategory": "string",
+          "title": "Chained STRING methods: replace().trim(), findfirst(), lowcase()",
+          "principle": "STRING objects support method chaining in PML2. Common patterns include replace().trim() for data cleaning and findfirst() for array searching.",
+          "rule": "Chain .replace().trim() for cleaning input strings. Use .findfirst() to search ARRAY of strings.",
+          "syntax": "!clean = !raw.replace(|search|, |replace|).trim()\n!idx = !array.findfirst(|value|)\n!lower = !text.lowcase()",
+          "exampleCanonical": "!tag = !row[!nameId].replace(|-|, |-|).trim()\n!class = !row[!classId].replace(|-|, |-|).trim()\n!nameId = !heading.findfirst(|NAME|)\nif (!class.lowcase() neq |unset|) then",
+          "exampleAntipattern": "!tag = trim(!row[!nameId])  -- trim is method, not function",
+          "pitfalls": ["findfirst returns an index value, not a boolean — use .set() to test validity", "replace takes two pipe-delimited strings: search pattern and replacement", "lowcase() returns a copy, does not modify in place"],
+          "relatedIds": ["pml_string_object", "pml_array_findfirst"],
+          "sourcedoc": "string object.md, ARRAY object.md",
+          "sourcecodebase": "EBE_assetRegister_import.pmlmac"
+        },
+        {
+          "suggestedId": "pml_handle_nested_scoping",
+          "category": "pml2",
+          "subcategory": "error_handling",
+          "title": "Nested handle blocks and scoping in PML",
+          "principle": "PML handle blocks can be nested. Inner handle blocks take precedence for errors within their scope. elsehandle must match its corresponding handle.",
+          "rule": "Each handle must have a matching endhandle. Nested handles should be clearly indented. elsehandle none catches no errors (acts as pass-through).",
+          "syntax": "handle any\n  -- operations that may fail\n  handle any\n    -- inner operations\n  endhandle\nelsehandle none\n  -- inner failure recovery\nendhandle\nendhandle",
+          "exampleCanonical": "handle any\n  !elem = object CREATEELEMENT()\n  if (!etype.valid()) then\n    !elem.SetElementTypeByName('|TYPE|')\n  else\n    !msg = |Error: invalid type|\n  endif\nendhandle",
+          "exampleAntipattern": "handle any\n  !elem = object CREATEELEMENT()  -- missing endhandle\nelsehandle any  -- orphaned elsehandle",
+          "pitfalls": ["elsehandle none catches zero errors — it is not the same as elsehandle any", "Nested handle scoping can be confusing — prefer flattening when possible", "Using namespace inside handle block may not persist after handle ends"],
+          "relatedIds": ["pml_syntax_handle", "pml_using_namespace"],
+          "sourcedoc": "PML1 Syntax.md, PML_LANGUAGE_VARIANTS.md",
+          "sourcecodebase": "EBE_assetRegister_import.pmlmac"
+        },
+        {
+          "suggestedId": "pml_macro_finish_directive",
+          "category": "macros",
+          "subcategory": "execution",
+          "title": "FINISH directive to terminate macro execution",
+          "principle": "FINISH is a macro directive that immediately terminates execution of the current macro. It is the equivalent of exit in a form context.",
+          "rule": "Use FINISH at the end of macros that have completed their work or encountered a fatal error.",
+          "syntax": "-- cleanup operations\n!file.Close()\nFINISH",
+          "exampleCanonical": "!IssueFile.Close()\nFINISH",
+          "exampleAntipattern": "!IssueFile.Close()  -- macro continues executing after this",
+          "pitfalls": ["FINISH terminates the entire macro, not just the current block", "Do not use FINISH in form methods — use RETURN or exit instead", "FINISH is macro-specific, not available in all PML contexts"],
+          "relatedIds": ["pml_macro_file_close"],
+          "sourcedoc": "macros.md",
+          "sourcecodebase": "EBE_assetRegister_import.pmlmac"
+        }
+      ]
+    }
+  },
+  "actionRequired": "patch_kb"
+}

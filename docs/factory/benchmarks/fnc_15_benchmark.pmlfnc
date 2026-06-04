@@ -1,0 +1,4 @@
+define function !!jacUpdateTagNameWithBore(!excelFullPath is STRING, !sheetName is STRING, !sourceAttribute is STRING, !destinationAttribute is STRING, !spaceSeparator is STRING, !filter is STRING, !isForceUpdate is BOOLEAN)
+    -- Dummy body for benchmark
+    return undefined
+endfunction

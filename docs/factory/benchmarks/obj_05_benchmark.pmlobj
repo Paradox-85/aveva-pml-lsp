@@ -1,0 +1,209 @@
+$* RAMIMPORTEXCELDATALOADER.pmlobj — PML object for loading/importing Excel data into AVEVA engineering objects
+
+define object RAMIMPORTEXCELDATALOADER
+
+    member .masterList is ARRAY
+    member .classMapping is ARRAY
+    member .attributeMapping is ARRAY
+    member .attributeParameter is ARRAY
+    member .uomMapping is ARRAY
+    member .configDetail is RAMIMPORTEXCELCONFIGLOADER
+    member .sheetCount is REAL
+
+    define method .ramImportExcelDataLoader()
+        !this.masterList = object ARRAY()
+        !this.classMapping = object ARRAY()
+        !this.attributeMapping = object ARRAY()
+        !this.attributeParameter = object ARRAY()
+        !this.uomMapping = object ARRAY()
+        !this.configDetail = object RAMIMPORTEXCELCONFIGLOADER()
+        !this.sheetCount = 0
+    endmethod
+
+    define method .clearMappings()
+        !this.masterList.Clear()
+        !this.classMapping.Clear()
+        !this.attributeMapping.Clear()
+        !this.attributeParameter.Clear()
+        !this.uomMapping.Clear()
+    endmethod
+
+    define method .loadExcelData(!excelFilePaths is ARRAY, !isTransposeList is ARRAY)
+        !localSheetCount = 0
+        DO !fileIndex FROM 1 TO !excelFilePaths.Size()
+            !filePath = !excelFilePaths[!fileIndex]
+            !isTranspose = FALSE
+            IF (!isTransposeList.Size() GT 0) THEN
+                IF (!fileIndex LE !isTransposeList.Size()) THEN
+                    !isTranspose = !isTransposeList[!fileIndex]
+                ENDIF
+            ENDIF
+            !this.loadExcelData(!filePath, !isTranspose)
+            !localSheetCount = !localSheetCount + 1
+        ENDDO
+        !this.sheetCount = !localSheetCount
+    endmethod
+
+    define method .loadExcelData(!excelFilePath is STRING, !isTransposeExcel is BOOLEAN)
+        !excelReader = object EXCELREADERHELPER()
+        handle any
+            return
+        endhandle
+        !excelReader.open(!excelFilePath)
+        !sheetCount = !excelReader.sheetCount()
+        IF (!isTransposeExcel) THEN
+            !this.extractTransposeTable(!excelReader)
+        ELSE
+            !this.extractNormalTable(!excelReader)
+        ENDIF
+        !excelReader.close()
+    endmethod
+
+    define method .extractTransposeTable(!excelReader is DBREF)
+        !rawTable = !excelReader.getData()
+        !transposedTable = object ARRAY()
+        DO !colIndex FROM 1 TO !rawTable.Size()
+            !colData = !rawTable[!colIndex]
+            !newRow = object ARRAY()
+            DO !rowIndex FROM 1 TO !colData.Size()
+                !cellValue = !colData[rowIndex]
+                !newRow.Append(!cellValue)
+            ENDDO
+            !transposedTable.Append(!newRow)
+        ENDDO
+        !this.processClassMapping(!transposedTable)
+        !this.processAttributeMapping(!transposedTable)
+        !this.processUomMapping(!transposedTable)
+    endmethod
+
+    define method .extractNormalTable(!excelReader is DBREF)
+        !rawTable = !excelReader.getData()
+        !this.processClassMapping(!rawTable)
+        !this.processAttributeMapping(!rawTable)
+        !this.processUomMapping(!rawTable)
+    endmethod
+
+    define method .processClassMapping(!tableData is ARRAY)
+        DO !rowIndex FROM 2 TO !tableData.Size()
+            !row = !tableData[rowIndex]
+            IF (!row.Size() LT 1) THEN
+                CONTINUE
+            ENDIF
+            !classValue = !row[1]
+            IF (!classValue.Empty()) THEN
+                !this.classMapping.Append(!classValue)
+                !this.masterList.Append(!classValue)
+            ENDIF
+        ENDDO
+        !this.masterList.Unique()
+    endmethod
+
+    define method .processAttributeMapping(!tableData is ARRAY)
+        DO !rowIndex FROM 2 TO !tableData.Size()
+            !row = !tableData[rowIndex]
+            IF (!row.Size() LT 2) THEN
+                CONTINUE
+            ENDIF
+            !attributeValue = !row[2]
+            !parameterValue = ||
+            IF (!row.Size() GT 2) THEN
+                !parameterValue = !row[3]
+            ENDIF
+            IF (!attributeValue.Empty()) THEN
+                !this.attributeMapping.Append(!attributeValue)
+                !this.attributeParameter.Append(!parameterValue)
+                !this.masterList.Append(!attributeValue)
+            ENDIF
+        ENDDO
+        !this.masterList.Unique()
+    endmethod
+
+    define method .processUomMapping(!tableData is ARRAY)
+        DO !rowIndex FROM 2 TO !tableData.Size()
+            !row = !tableData[rowIndex]
+            IF (!row.Size() LT 3) THEN
+                CONTINUE
+            ENDIF
+            !uomValue = !row[3]
+            IF (!uomValue.Empty()) THEN
+                !this.uomMapping.Append(!uomValue)
+                !this.masterList.Append(!uomValue)
+            ENDIF
+        ENDDO
+        !this.masterList.Unique()
+    endmethod
+
+    define method .getPriorityOrder(!sheetName is STRING) is REAL
+        !priority = 999
+        DO !idx FROM 1 TO !this.masterList.Size()
+            !item = !this.masterList[idx]
+            IF (!item.EQNoCase(!sheetName)) THEN
+                !priority = !idx
+                break
+            ENDIF
+        ENDDO
+        return !priority
+    endmethod
+
+    define method .getSettingDetail(!sheetName is STRING, !colIndex is REAL)
+        IF (!sheetName.Empty()) THEN
+            return ||
+        ENDIF
+        IF (!colIndex LT 1) THEN
+            return ||
+        ENDIF
+        !result = ||
+        handle any
+            !result = !this.configDetail.Evaluate(|!this.configDetail.getSetting(!sheetName, !colIndex)|)
+        endhandle
+        return !result
+    endmethod
+
+    define method .getSettingValue(!sheetName is STRING, !colIndex is REAL)
+        IF (!sheetName.Empty()) THEN
+            return ||
+        ENDIF
+        IF (!colIndex LT 1) THEN
+            return ||
+        ENDIF
+        !result = ||
+        handle any
+            !result = !this.configDetail.getSettingValue(!sheetName, !colIndex)
+        endhandle
+        return !result
+    endmethod
+
+    define method .getProcessedValue(!sheetName is STRING, !colIndex is REAL, !removeSpecialChars is BOOLEAN) is STRING
+        !rawValue = !this.getSettingValue(!sheetName, !colIndex)
+        IF (!rawValue.Empty()) THEN
+            IF (!removeSpecialChars) THEN
+                return !rawValue
+            ELSE
+                !cleanValue = !rawValue.Replace(| |, ||)
+                !cleanValue = !cleanValue.Replace(|\t|, ||)
+                return !cleanValue.Trim()
+            ENDIF
+        ENDIF
+        return ||
+    endmethod
+
+    define method .processClassStorageAttribute(!element is DBREF, !attribute is STRING, !paramName is STRING)
+        !storageAttr = !element.StorageAttribute()
+        IF (!storageAttr.Empty()) THEN
+            IF (!paramName.Empty()) THEN
+                !paramValue = !element.query(!paramName)
+                IF (!paramValue.Empty()) THEN
+                    !element.Attribute(!attribute, !paramValue)
+                ENDIF
+            ELSE
+                !attrValue = !element.Attribute(!attribute)
+            ENDIF
+        ENDIF
+    endmethod
+
+    define method .addErrorToList(!element is STRING, !detail is STRING, !error is STRING)
+        !errorMsg = |Element: | & !element & | Detail: | & !detail & | Error: | & !error
+        !this.masterList.Append(!errorMsg)
+    endmethod
+
+endobject

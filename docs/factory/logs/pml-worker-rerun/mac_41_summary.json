@@ -1,0 +1,39 @@
+{
+  "fileId": "mac_41",
+  "filePath": "docs/codebase/macros/manual-valve-description.pmlmac",
+  "fileType": "macro",
+  "runDate": "2026-06-03",
+  "runType": "rerun",
+  "benchmarkPath": "docs/factory/benchmarks/mac_41_benchmark.pmlmac",
+  "gapReportPath": "docs/factory/gap-reports/mac_41_gap.json",
+  "kbPatchPath": "docs/factory/kb-patches/mac_41_kb_patch.ts",
+  "lintResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 12
+  },
+  "validateResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 12
+  },
+  "patternsUsed": [
+    "obj_object_constructor",
+    "cmd_pml_command_stream",
+    "str_pipe_delimited_strings",
+    "method_call_dot_notation"
+  ],
+  "kbGaps": [
+    "PML RELOAD OBJECT command not documented in syntax KB",
+    "TAGMANAGEMENTTMP custom object not in KB",
+    "manualValveDescriptionUpdate custom method not in KB",
+    "Macro error handling (HANDLE/ENDHANDLE) pattern not in KB",
+    "--$m comment prefix convention not documented"
+  ],
+  "gapScore": 0.25,
+  "confidenceScore": 0.85,
+  "originalLines": 4,
+  "benchmarkLines": 12,
+  "actionRequired": "patch_kb",
+  "notes": "Benchmark faithfully reproduces the original 4-line macro structure: PML RELOAD OBJECT, object() instantiation, and method call with query string. Two KB patch entries drafted: cmd_pml_reload_object and err_macro_no_error_handling."
+}

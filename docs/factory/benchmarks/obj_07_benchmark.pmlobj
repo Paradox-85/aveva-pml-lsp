@@ -1,0 +1,1174 @@
+------------------------------------------------------------------------
+--
+-- File:        RAMTAGMANAGEMENT
+-- Description: Object to manage the tag item updates
+--
+------------------------------------------------------------------------
+import 'RamAEUpdateElement'
+handle any
+endhandle
+
+define object RAMTAGMANAGEMENT
+
+  member .valueConverter is RAMVALUECONVERTER
+
+endobject
+
+------------------------------------------------------------------------
+--
+-- Method:     ramTagManagement
+-- Description: constructor method
+--
+------------------------------------------------------------------------
+define method .ramTagManagement()
+
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     getModificationFormat
+-- Description: Get attribute modification format for modifyElementDetails method
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      DBREF      Element Name
+--   2    R      STRING     Attribute Name
+--   3    R      ANY        Attribute Value
+--   4    R      BOOLEAN    Update only if attribute current value empty flag
+--   5    R      BOOLEAN    Append value to the array attribute flag
+-- Return:
+--   [Data Type] [Description]
+--    ARRAY       Formatted array
+------------------------------------------------------------------------
+define method .getModificationFormat(!elementRefe is DBREF, !attributeName is STRING, !AttributeValue is ANY, !isOnlyEmptyUpdate is BOOLEAN, !isArrayAppend is BOOLEAN) is ARRAY
+  
+  !modificationDetail           = object ARRAY()
+  !isUpdated                    = false
+  !isUpdatable                  = !this.doBasicCheck(!elementRefe, !attributeName)
+
+  if(!isUpdatable) then
+    !currentValue               = !elementRefe.attribute(!attributeName)
+
+    !isEmptyValue               = !this.checkIfAttributeEmpty(!elementRefe, !attributeName)
+    if((!isOnlyEmptyUpdate.and(!isEmptyValue)).or(!isOnlyEmptyUpdate.not())) then
+      !outputType               = !currentValue.objecttype()
+      !output                   = object $!outputType()
+      !isConvertedSuccessfully  = !this.convertValue(!elementRefe, !attributeName, !AttributeValue, !output)
+      if(!isConvertedSuccessfully) then
+
+        !isArray                = !outputType.eqNocase('ARRAY')
+        if(!isArray.and(!isArrayAppend)) then
+          !output.appendArray(!currentValue)
+          !output.sortUnique()
+        endif
+
+        !this.valueConverter.setLogInformation(!elementRefe.namn, !attributeName)
+
+        if(!outputType.eqNocase('REAL')) then
+          !dbAttribute       = object ATTRIBUTE(!attributeName)
+          !unit              = !dbAttribute.units()
+          !measure         = object MEASURE(!unit)
+          !dbUnit          = !measure.dbunit()
+          !format          = object FORMAT()
+          !format.units    = !dbUnit.string()
+          !format.TRAILZEROS    = false
+          !this.valueConverter.setRealFormat(!format, true, false)
+        endif
+
+        !outputString           = !this.valueConverter.convertToString(!output)
+        if(!this.valueConverter.isError().not()) then
+          !modificationDetail.append(!elementRefe)
+          !modificationDetail.append(!attributeName)
+          !modificationDetail.append(!outputString)
+        else
+          !this.addErrorToList(!elementRefe.name, !attributeName, 'Value conversion failed')
+        endif
+
+        !this.valueConverter.clearFormat()
+      endif
+    else
+      !this.addErrorToList(!elementRefe.name, !attributeName, 'Value already set for attribute, clean import rejects new value')
+    endif
+  endif
+
+  return !modificationDetail
+
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     TryToSetValueAsync
+-- Description: Try to set value of attribute using csharp
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      DBREF      Element Name
+--   2    R      STRING     Attribute Name
+--   3    R      ANY        Attribute Value
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .TryToSetValueAsync(!elementRefe is DBREF, !attributeName is STRING, !AttributeValue is ANY)
+
+  !this.TryToSetValueAsync(!elementRefe, !attributeName, !AttributeValue, false, false)
+
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     TryToSetValueAsync
+-- Description: Try to set value of attribute using csharp
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      DBREF      Element Name
+--   2    R      STRING     Attribute Name
+--   3    R      ANY        Attribute Value
+--   4    R      BOOLEAN    Update only if attribute current value empty flag
+--   5    R      BOOLEAN    Append value to the array attribute flag
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .TryToSetValueAsync(!elementRefe is DBREF, !attributeName is STRING, !AttributeValue is ANY, !isOnlyEmptyUpdate is BOOLEAN, !isArrayAppend is BOOLEAN)
+
+  !modificationDetails = object ARRAY()
+  !modificationDetail  = !this.getModificationFormat(!elementRefe, !attributeName, !AttributeValue, !isOnlyEmptyUpdate, !isArrayAppend)
+  if(!modificationDetail.set()) then
+    !modificationDetails.append(!modificationDetail)
+  endif
+
+  !this.modifyElementDetails(!modificationDetails)
+
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     TryToSetValue
+-- Description: Try to set value of attribute using pml
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      DBREF      Element Name
+--   2    R      STRING     Attribute Name
+--   3    R      ANY        Attribute Value
+-- Return:
+--   [Data Type] [Description]
+--    BOOLEAN     Update status
+------------------------------------------------------------------------
+define method .TryToSetValue(!elementRefe is DBREF, !attributeName is STRING, !AttributeValue is ANY) is BOOLEAN
+  
+  !isUpdated = !this.TryToSetValue(!elementRefe, !attributeName, !AttributeValue, false, false)
+
+  return !isUpdated
+
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     TryToSetValue
+-- Description: Try to set value of attribute using pml
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      DBREF      Element Name
+--   2    R      STRING     Attribute Name
+--   3    R      ANY        Attribute Value
+--   4    R      BOOLEAN    Update only if attribute current value empty flag
+--   5    R      BOOLEAN    Append value to the array attribute flag
+-- Return:
+--   [Data Type] [Description]
+--    BOOLEAN     Update status
+------------------------------------------------------------------------
+define method .TryToSetValue(!elementRefe is DBREF, !attributeName is STRING, !AttributeValue is ANY, !isOnlyEmptyUpdate is BOOLEAN, !isArrayAppend is BOOLEAN) is BOOLEAN
+  
+  !isUpdated                                     = false
+  !isUpdatable                                   = !this.doBasicCheck(!elementRefe, !attributeName)
+
+  if(!isUpdatable) then
+    !currentValue                                = !elementRefe.attribute(!attributeName)
+
+    !isEmptyValue                                = !this.checkIfAttributeEmpty(!elementRefe, !attributeName)
+    if((!isOnlyEmptyUpdate.and(!isEmptyValue)).or(!isOnlyEmptyUpdate.not())) then
+      !outputType                                = !currentValue.objecttype()
+      !output                                    = object $!outputType()
+      !isConvertedSuccessfully                   = !this.convertValue(!elementRefe, !attributeName, !AttributeValue, !output)
+      if(!isConvertedSuccessfully) then
+
+        !isArray                                 = !outputType.eqNocase('ARRAY')
+        if(!isArray.and(!isArrayAppend)) then
+          !output.appendArray(!currentValue)
+          !output.sortUnique()
+        endif
+
+        if(!output.set()) then
+          !elementRefe.attribute(!attributeName) = !output
+          handle any
+            !this.addErrorToList(!elementRefe.name, !attributeName, 'Failed attribute setting - ' + !!error.text)
+          elsehandle none
+            !isUpdated                           = true
+          endhandle
+        else
+          !!ce                                   = !elementRefe
+          $!attributeName DEFAULT
+          handle any
+            !this.addErrorToList(!elementRefe.name, !attributeName, 'Failed attribute setting - ' + !!error.text)
+          elsehandle none
+            !isUpdated                           = true
+          endhandle
+        endif
+      endif
+    else
+      !this.addErrorToList(!elementRefe.name, !attributeName, 'Value already set for attribute, clean import rejects new value')
+    endif
+  endif
+
+  return !isUpdated
+
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     doBasicCheck
+-- Description: Do basic checks before update attribute value
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      DBREF      Element Name
+--   2    R      STRING     Attribute Name
+-- Return:
+--   [Data Type] [Description]
+--    BOOLEAN     Check status
+------------------------------------------------------------------------
+define method .doBasicCheck(!elementRefe is DBREF, !attributeName is STRING) is BOOLEAN
+
+  !isUpdatable   = false
+
+  -- Check if the element and attribute available in database
+  if(!elementRefe.badRef()) then
+    !this.addErrorToList('', !attributeName, 'Element not exist in AVEVA')
+
+  -- Check if attribute available for the element
+  elseif(!this.isAttributeAvailable(!elementRefe, !attributeName).not()) then
+    !this.addErrorToList(!elementRefe.name, !attributeName, 'Attribute not available for the element')
+
+  -- Check if attribute have write access
+  elseif(!this.isAttributeUpdatable(!elementRefe, !attributeName).not()) then
+    !this.addErrorToList(!elementRefe.name, !attributeName, 'Attribute not updatable/have write access for the element')
+
+  else
+    !isUpdatable = true
+  endif
+
+  return !isUpdatable
+
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     convertValue
+-- Description: Convert the value to output format
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      DBREF      Element Name
+--   2    R      STRING     Attribute Name
+--   3    R      ANY        Attribute Value
+--   4    RW     ANY        Ouput Value
+-- Return:
+--   [Data Type] [Description]
+--    BOOLEAN     Conversion status
+------------------------------------------------------------------------
+define method .convertValue(!elementRefe is DBREF, !attributeName is STRING, !AttributeValue is ANY, !output is ANY) is BOOLEAN
+
+  !isConverted                        = false
+
+  !attribute                          = object ATTRIBUTE(!attributeName)
+  !attributeType                      = !attribute.type()
+  !type                               = !this.valueConverter.convertDBTypeToType(!attributeType)
+  !isArrayType                        = !output.objectType().eq('ARRAY')
+
+  !currentValue                       = !elementRefe.attribute(!attributeName)
+  !currentValueType                   = !currentValue.objecttype()
+  !isValidOutputFormatSupplied        = !currentValueType.eq(!output.objectType())
+
+  if(!isValidOutputFormatSupplied) then
+
+    if(!type.set()) then
+
+      !recievedValueSubType           = !type
+      !recievedValueType              = !attributeValue.objecttype()
+      if(!recievedValueType.eq('ARRAY')) then
+        if(!attributeValue.set()) then
+          !recievedValueSubType       = !attributeValue.first().objecttype()
+        endif
+      endif
+
+      !isAlreadyCorrectFormat         = (!isArrayType.not().and(!recievedValueType.eqNocase(!type))).or($
+                                        (!isArrayType.and(!recievedValueType.eq('ARRAY')).and(!recievedValueSubType.eqNocase(!type).not())))
+      
+      !isStringToArrayConversion      = !isArrayType.and(!recievedValueType.eq('STRING'))
+      !isStringArrayToArrayConversion = !isArrayType.and(!recievedValueType.eq('ARRAY')).and(!recievedValueSubType.eqNocase(!type).not())
+      !isValueConversion              = !isArrayType.not().and(!recievedValueType.eqNocase(!type).not())
+      !this.valueConverter.setLogInformation(!elementRefe.name, !attributeName)
+
+      if(!isStringToArrayConversion) then
+        !output                       = !this.valueConverter.convertStringToArray(!attributeValue, !type)
+        if(!this.valueConverter.isError().not()) then
+          !isConverted                = true
+        endif
+      
+      elseif(!isStringArrayToArrayConversion) then
+        !output                       = !this.valueConverter.convertArrayValue(!attributeValue, !type)
+        if(!this.valueConverter.isError().not()) then
+          !isConverted                = true
+        endif
+
+      elseif(!isValueConversion) then
+        !output                       = !this.valueConverter.convertValue(!attributeValue, !type)
+        if(!this.valueConverter.isError().not()) then
+          !isConverted                = true
+        endif
+
+      elseif(!isAlreadyCorrectFormat) then
+        !output                       = !AttributeValue
+        !isConverted                  = true
+
+      else
+        !this.addErrorToList(!elementRefe.name, !attributeName, 'value format not able to process by tag manager')
+      endif
+
+    else
+      !this.addErrorToList(!elementRefe.name, !attributeName, 'UDA type not recoginzed by tag manager')
+    endif
+  else
+    !this.addErrorToList(!elementRefe.name, !attributeName, 'Passed output not in correct format')
+  endif
+
+  return !isConverted
+
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     getUDAReference
+-- Description: Get UDA element reference
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      STRING     Attribute Name
+-- Return:
+--   [Data Type] [Description]
+--    DBREF       Element Reference
+------------------------------------------------------------------------
+define method .getUDAReference(!attributeName is STRING) is DBREF
+
+  !attributeRefe      = object DBREF()
+  !nameWithoutColon   = object STRING()
+  if(!attributeName.matchWild(':*')) then
+    !nameWithoutColon = !attributeName.substring(2)
+  endif
+
+  if(!nameWithoutColon.set()) then
+    !udaList          = !!collectAllFor(|UDA|, |UPCASE(UDNAME) EQ UPCASE('$!nameWithoutColon')|, WORL)
+    if(!udaList.set()) then
+      !attributeRefe  = !udaList.first()
+    endif
+  endif
+
+  return !attributeRefe
+
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     checkSameValue
+-- Description: Check if the value is the same as current
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      DBREF      Element Name
+--   2    R      STRING     Attribute Name
+--   3    R      ANY        Attribute Value
+-- Return:
+--   [Data Type] [Description]
+--    BOOLEAN     Availability status
+------------------------------------------------------------------------
+define method .checkSameValue(!elementRefe is DBREF, !attributeName is STRING, !attributeValue is ANY) is BOOLEAN
+
+  !isSameValue          = false
+  !isAttributeAvailable = !this.isAttributeAvailable(!elementRefe, !attributeName)
+  if(!isAttributeAvailable) then
+    !currentValue       = !elementRefe.attribute(!attributeName)
+    !isSameType         = !currentValue.objectType().eqNoCase(!attributeValue.objectType())
+    if(!isSameType) then
+      !isSameValue      = !currentValue.eq(!attributeValue)
+    endif
+  endif
+
+  return !isSameValue
+
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     checkSameValueAfterConversion
+-- Description: Check if the value is the same after conversion
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      DBREF      Element Name
+--   2    R      STRING     Attribute Name
+--   3    R      STRING     Attribute Value
+--   4    R      STRING    Excel Value (output)
+--   5    R      STRING    Database Value (output)
+-- Return:
+--   [Data Type] [Description]
+--    BOOLEAN     Availability status
+------------------------------------------------------------------------
+define method .checkSameValueAfterConversion(!elementRefe is DBREF, !attributeName is STRING, !attributeValue is ANY, !excelValue is STRING, !databaseValue is STRING) is BOOLEAN
+
+  !isSameValue    = false
+  !currentValue   = !elementRefe.attribute(!attributeName)
+  handle any
+  elsehandle none
+    !outputType   = !currentValue.objecttype()
+    !output       = object $!outputType()
+    !this.convertValue(!elementRefe, !attributeName, !attributeValue, !output)
+    if(!outputType.eq('STRING')) then
+      !isSameValue  = !currentValue.eqNocase(!output)
+    else
+      !isSameValue  = !currentValue.eq(!output)
+    endif
+    !databaseValue = !this.valueConverter.convertToString(!currentValue)
+    !excelValue = !this.valueConverter.convertToString(!output)
+  endhandle
+
+  return !isSameValue
+
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     checkValidLOV
+-- Description: Check if the value is within LOV values
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      DBREF      Element Name
+--   2    R      STRING     Attribute Name
+--   3    R      STRING     Attribute Value
+-- Return:
+--   [Data Type] [Description]
+--    BOOLEAN     Availability status
+------------------------------------------------------------------------
+define method .checkValidLOV(!elementRefe is DBREF, !attributeName is STRING, !attributeValue is STRING) is BOOLEAN
+
+  !isValidAttributeValue     = true
+  !attribute                 = object ATTRIBUTE(!attributeName)
+  !attributeType             = !attribute.type()
+  !type                      = !this.valueConverter.convertDBTypeToType(!attributeType)
+  if(!type.eqNocase('STRING').not()) then
+    !validValues             = !attribute.validValues(!elementRefe)
+    if(!validValues.set()) then
+      !isValidAttributeValue = !validValues.findFirst(!attributeValue).set()
+    endif
+  endif
+
+  return !isValidAttributeValue
+
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     getAttributeLength
+-- Description: Get attribute length detail
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      STRING     Attribute Name
+-- Return:
+--   [Data Type] [Description]
+--    REAL        Attribute Length
+------------------------------------------------------------------------
+define method .getAttributeLength(!attributeName is STRING) is REAL
+
+  !length     = object REAL()
+  !attribute  = object ATTRIBUTE(!attributeName)
+  !length     = !attribute.length()
+  if(!attributeName.eqNoCase('NAME')) then
+    !length   = 50
+  endif
+
+  return !length
+
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     removeAttributeDuplicates
+-- Description: Remove duplicate value from the array attribute
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      DBREF       Element
+--   2    R      STRING      Attribute Name
+-- Return:
+--   [Data Type] [Description]
+--    BOOLEAN     Update status
+------------------------------------------------------------------------
+define method .removeAttributeDuplicates(!elementRefe is DBREF, !attributeName is STRING) is BOOLEAN
+  
+  !isUpdated           = true
+  !isAvailable         = !this.isAttributeAvailable(!elementRefe, !attributeName)
+  if(!isAvailable) then
+    !isArray           = !elementRefe.attribute(!attributeName).objectType().eqNoCase('DBARRATT')
+    if(!isArray) then
+      !valueList       = !elementRefe.attribute(!attributeName)
+      if (!valueList.size() gt 1) then
+        !valueUniqueList = !valueList
+        !valueUniqueList.unique()
+        if (!valueUniqueList.neq(!valueList)) then
+          !isUpdated   = !this.TryToSetValue(!elementRefe, !attributeName, !valueUniqueList)
+        endif
+      endif
+    else
+      !isUpdated       = false
+      !this.addErrorToList(!elementRefe.name, !attributeName, 'Attribute is not array type')
+    endif
+  else
+    !isUpdated         = false
+    !this.addErrorToList(!elementRefe.name, !attributeName, 'Attribute not available')
+  endif
+
+  return !isUpdated
+
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     truncateString
+-- Description: Trim the string to passed length
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      STRING     Attribute Value
+--   2    R      REAL       Trim Length
+-- Return:
+--   [Data Type] [Description]
+--    STRING      Truncated value
+------------------------------------------------------------------------
+define method .truncateString(!stringValue is STRING, !length is REAL) is STRING
+
+  !result   = !stringValue
+  
+  if (!stringValue.length() gt !length) then
+    !result = !stringValue.substring(1, !length)
+  endif
+
+  return !result
+
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     checkLength
+-- Description: Check if the value is within length allowed
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      DBREF      Element Reference
+--   2    R      STRING     Attribute Name
+--   3    R      ANY        Attribute Value
+-- Return:
+--   [Data Type] [Description]
+--    BOOLEAN     Check status
+------------------------------------------------------------------------
+define method .checkLength(!elementRefe is DBREF, !attributeName is STRING, !attributeValue is ANY) is BOOLEAN
+
+  !isValidAttributeValue      = true
+  !attribute                  = object ATTRIBUTE(!attributeName)
+  !attributeType              = !attribute.type()
+  !type                       = !this.valueConverter.convertDBTypeToType(!attributeType)
+  !isArray                    = !elementRefe.attribute(!attribute.name()).objectType().eq('DBARRATT')
+  !valueObjectType            = !attributeValue.objectType()
+
+  if(!type.eq(!valueObjectType).or(!valueObjectType.eq('ARRAY').and(!isArray))) then
+    !length                   = !attribute.length()
+    if(!attributeName.eqNoCase('NAME')) then
+      !length                 = 50
+    endif
+
+    if(!isArray) then
+      !isValidAttributeValue  = !attributeValue.size().leq(!length)
+    elseif(!type.eq('STRING')) then
+      !isValidAttributeValue  = !attributeValue.length().leq(!length)
+    endif
+  else
+    !isValidAttributeValue    = false
+  endif
+
+  return !isValidAttributeValue
+
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     isAttributeAvailable
+-- Description: Check if the attribute available in the project
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--    1    R     STRING       Attribute Name
+-- Return:
+--   [Data Type] [Description]
+--    BOOLEAN     Availability status
+------------------------------------------------------------------------
+define method .isAttributeAvailable(!attributeName is STRING) is BOOLEAN
+
+  !isAttributeAvailable   = false
+  !attribute              = object ATTRIBUTE(!attributeName)
+  if(!attribute.name().neq('')) then
+    !isAttributeAvailable = true
+  endif
+
+  return !isAttributeAvailable
+
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     getAllAttributes
+-- Description: Get all the attributes from element
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      DBREF      Element Name
+-- Return:
+--   [Data Type] [Description]
+--    ARRAY       Attribute List
+------------------------------------------------------------------------
+define method .getAllAttributes(!elementRefe is DBREF) is ARRAY
+
+  !attributeList    = object ARRAY()
+
+  !attributeList.appendArray(!this.getDirectAttributes(!elementRefe))
+  !attributeList.appendArray(!this.getDistributedAttributes(!elementRefe))
+
+  return !attributeList
+
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     getDistributedAttributes
+-- Description: Get all the distributed attributes from element
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      DBREF      Element Name
+-- Return:
+--   [Data Type] [Description]
+--    ARRAY       Attribute List
+------------------------------------------------------------------------
+define method .getDistributedAttributes(!elementRefe is DBREF) is ARRAY
+
+  !attributeList    = object ARRAY()
+  
+  !dlist            = !elementRefe.DList
+  do !discipline values !dlist
+    !elementType    = object ELEMENTTYPE(!discipline)
+    !udaAttributes  = !elementType.udas()
+    !udaNames       = !udaAttributes.evaluate(object block(|!udaAttributes[!evalIndex].name()|))
+    !attributeList.appendArray(!udaNames)
+  enddo
+
+  return !attributeList
+
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     getDirectAttributes
+-- Description: Get all the direct attributes from element
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      DBREF      Element Name
+-- Return:
+--   [Data Type] [Description]
+--    ARRAY       Attribute List
+------------------------------------------------------------------------
+define method .getDirectAttributes(!elementRefe is DBREF) is ARRAY
+
+  !attributeList  = !elementRefe.attributes()
+
+  return !attributeList
+
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     isAttributeAvailable
+-- Description: Check if the attribute available for the element
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      DBREF      Element Name
+--   2    R      STRING     Attribute Name
+-- Return:
+--   [Data Type] [Description]
+--    BOOLEAN     Availability status
+------------------------------------------------------------------------
+define method .isAttributeAvailable(!elementRefe is DBREF, !attributeName is STRING) is BOOLEAN
+
+  !attributeList        = !this.getAllAttributes(!elementRefe)
+
+  !attributeList        = !attributeList.evaluate(object block(|!attributeList[!evalIndex].upcase()|))
+  !isAttributeAvailable = !attributeList.findFirst(!attributeName.upcase()).set()
+  
+  return !isAttributeAvailable
+
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     isAttributeUpdatable
+-- Description: Check if the attribute updatable for the element
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      DBREF      Element Name
+--   2    R      STRING     Attribute Name
+-- Return:
+--   [Data Type] [Description]
+--    BOOLEAN     Check Editable status
+------------------------------------------------------------------------
+define method .isAttributeUpdatable(!elementRefe is DBREF, !attributeName is STRING) is BOOLEAN
+
+  !isUpdatable           = false
+  !attribute             = object ATTRIBUTE(!attributeName)
+  if(!attribute.isPseudo().not().or(!attributeName.eqNoCase('NAME'))) then
+    !directAttributes      = !elementRefe.attributes()
+    !directAttributes      = !directAttributes.evaluate(object block(|!directAttributes[!evalIndex].upcase()|))
+    !isDirectAttribute     = !directAttributes.findFirst(!attributeName.upcase()).set()
+    if(!isDirectAttribute) then
+      !isUpdatable         = !this.isElementUpdatable(!elementRefe)
+    else
+      !attElementTypes     = !attribute.elementTypes()
+      !attElementTypeNames = !attElementTypes.evaluate(object block(|!attElementTypes[!evalIndex].name().upcase()|))
+      !disciplineList      = !elementRefe.DList
+      do !disciplineType values !disciplineList
+        !isFound           = !attElementTypeNames.findFirst(!disciplineType.upcase()).set()
+        skip if(!isFound.not())
+        !isUpdatable       = !this.isXpiItemUpdatable(!elementRefe, !disciplineType)
+      enddo
+    endif
+  endif
+
+  return !isUpdatable
+
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     isElementTypeAvailable
+-- Description: Check if the element type available in the project
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--    1    R     STRING       Element Type Name
+-- Return:
+--   [Data Type] [Description]
+--    BOOLEAN     Availability status
+------------------------------------------------------------------------
+define method .isElementTypeAvailable(!elementTypeName is STRING) is BOOLEAN
+  
+  !isValidType   = false
+  !elementType   = object ELEMENTTYPE(!elementTypeName)
+  if(!elementType.name().eqNoCase('UNKNOWN').not()) then
+    !isValidType = true
+  endif
+
+  return !isValidType
+
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     isXpiItemUpdatable
+-- Description: Check if distributed element type editable
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--    1    R     DBREF       Element Reference
+--    2    R     STRING      Distributed Element Type Name
+-- Return:
+--   [Data Type] [Description]
+--    BOOLEAN     Check Editable status
+------------------------------------------------------------------------
+define method .isXpiItemUpdatable(!elementRefe is DBREF, !xpiItemTypeName is STRING) is BOOLEAN
+  
+  !isUpdatable                  = true
+  !isSameType                   = !elementRefe.ActType.eqNoCase(!xpiItemTypeName)
+  if(!isSameType.not()) then
+    var !backRefNoDetails backref(attname XRPNTR) of $!elementRefe
+    if(!backRefNoDetails.set().and(!backRefNoDetails.eqNoCase('UNSET').not())) then
+      !backRefNos               = !backRefNoDetails.split()
+      do !backRefNo values !backRefNos
+        !backRefe               = !backRefNo.dbref()
+        !isValidationDiscipline = !backRefe.ActType.eqNoCase(!xpiItemTypeName)
+        if(!isValidationDiscipline) then
+          !isUpdatable          = !this.isElementUpdatable(!backRefe)
+        endif
+      enddo
+    endif
+  elseif(!isSameType) then
+    !isUpdatable                = !this.isElementUpdatable(!elementRefe)
+  endif
+
+  return !isUpdatable
+
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     checkIfAttributeEmpty
+-- Description: Check if the attribute is empty
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      DBREF      Element Reference
+--   2    R      STRING     Attribute Name
+-- Return:
+--   [Data Type] [Description]
+--    BOOLEAN     Check status
+------------------------------------------------------------------------
+define method .checkIfAttributeEmpty(!elementRefe is DBREF, !attributeName is STRING) is BOOLEAN
+
+  !isEmptyValue       = object BOOLEAN()
+
+  !currentValue       = !elementRefe.attribute(!attributeName)
+  handle any
+  elsehandle none
+    if(!currentValue.set()) then
+      !type           = !currentValue.objecttype()
+
+      if(!type.eq('STRING')) then
+        !isEmptyValue = !currentValue.trim().eq('')
+
+      elseif(!type.eq('REAL')) then
+        !isEmptyValue = !currentValue.eq(0)
+
+      elseif(!type.eq('DBREF')) then
+        !isEmptyValue = !currentValue.badRef()
+      endif
+    else
+      !isEmptyValue   = true
+    endif
+  endhandle
+
+  return !isEmptyValue
+  
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     checkIfAttributeEmpty
+-- Description: Check if the attribute is empty
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      DBREF      Element Reference
+--   2    R      STRING     Attribute Name
+--   3    R      STRING     Value (output)
+-- Return:
+--   [Data Type] [Description]
+--    BOOLEAN     Check status
+------------------------------------------------------------------------
+define method .checkIfAttributeEmpty(!elementRefe is DBREF, !attributeName is STRING, !value is STRING) is BOOLEAN
+
+  !isEmptyValue       = object BOOLEAN()
+  !value              = ''
+  !currentValue       = !elementRefe.attribute(!attributeName)
+  handle any
+  elsehandle none
+    if(!currentValue.set()) then
+      !type           = !currentValue.objecttype()
+
+      if(!type.eq('STRING')) then
+        !isEmptyValue = !currentValue.trim().eq('')
+
+      elseif(!type.eq('REAL')) then
+        !isEmptyValue = !currentValue.eq(0)
+
+      elseif(!type.eq('DBREF')) then
+        !isEmptyValue = !currentValue.badRef()
+      endif
+    else
+      !isEmptyValue   = true
+    endif
+  endhandle
+
+  if(!isEmptyValue.not()) then
+    !value            = !this.valueConverter.convertToString(!currentValue)
+  endif
+
+  return !isEmptyValue
+  
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     isElementUpdatable
+-- Description: Check if the element is updatable
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      DBREF      Element Reference
+-- Return:
+--   [Data Type] [Description]
+--    BOOLEAN     Update status
+------------------------------------------------------------------------
+define method .isElementUpdatable(!elementRefe is DBREF) is BOOLEAN
+
+  !isUpdatable     = false
+  if(!elementRefe.badRef().not()) then
+    if(!elementRefe.dbWrite.and(!elementRefe.lock.not()).and(!elementRefe.okClaim.or(!elementRefe.lclm))) then
+      !isUpdatable = true
+    endif
+  endif
+
+  return !isUpdatable
+
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     createElement
+-- Description: Create the element in database
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      STRING     Element Name
+--   2    R      STRING     Element Type
+-- Return:
+--   [Data Type] [Description]
+--    DBREF      Created Element
+------------------------------------------------------------------------
+define method .createElement(!name is STRING, !type is STRING) is DBREF
+  
+  !isError       = false
+  !dbRefe          = object DBREF()
+  !validName       = !this.valueConverter.convertStringToValidNameString(!name)
+  !isAlreadyExists = !!exists(!validName, '', '')
+  handle any
+    !isError       = true
+  endhandle
+
+  if(!validName.set().and(!isAlreadyExists.not()).and(!isError.not())) then
+
+    using namespace 'RamAEUpdateElement'
+    !elementNet    = object CREATEELEMENT()
+    !elementNet.setElementTypeByName(|$!<type>|)
+    handle any
+      !this.addErrorToList(!name, 'NAME', !!error.text)
+
+    elsehandle none
+      !elementNet.addAttributeValue(|NAME|, !validName)
+      !elementNet.executeSync()
+      !errors      = !elementNet.getErrorDetails()
+    endhandle
+    
+    do !error values !errors
+      !this.addErrorToList(!error)
+    enddo
+    
+    !dbRefe        = !validName.dbRef()
+    handle any
+    endhandle
+
+  elseif(!isAlreadyExists.and(!isError.not())) then
+    !this.addErrorToList(!name, 'NAME', 'Element already exists can not create')
+
+  else
+    !this.addErrorToList(!name, 'NAME', 'Name is not in valid format, so creation failed')
+  endif
+  
+  return !dbRefe
+  
+endmethod
+
+----------------------------------------------------------------------
+-- Method:      .deleteElements
+-- Description: Method to delete the element and relevant XPIITEM
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--    1   R      ARRAY       Element Reference List
+--    2   R      BOOLEAN     Logical delete flag
+-- Return:
+--   [Data Type] [Description]
+----------------------------------------------------------------------
+define method .deleteElements(!elementRefes is ARRAY, !isLogicalDelete is BOOLEAN)
+
+  using namespace 'RamAEUpdateElement'
+  !tagRefNos          = object ARRAY()
+  do !i indices !elementRefes
+    !tagRefNos.append(!elementRefes[!i].string())
+  enddo
+
+  if(undefined(!!ramCommonLogger)) then
+    !!ramCommonLogger = object RAMCOMMONLOGGER()
+  endif
+
+  !deleteElement      = object DELETEELEMENT()
+  !deleteElement.addElements(!tagRefNos)
+  !isLoggingNeeded    = true
+  !deleteElement.executeSync(!isLogicalDelete, !isLoggingNeeded)
+  
+endmethod
+
+----------------------------------------------------------------------
+-- Method:      .reclassifyElement
+-- Description: Method to reclassify the element to relevant class
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--    1   R      ARRAY       Element Reference List
+--    2   R      STRING      Change Type
+--    3   R      STRING      Method to execute after reclassification
+--                           (Async process)
+-- Return:
+--   [Data Type] [Description]
+----------------------------------------------------------------------
+define method .reclassifyElement(!elementRefes is ARRAY, !type is STRING, !asyncFunction is STRING)
+
+  using namespace 'RamAEUpdateElement'
+  !tagRefNos           = object ARRAY()
+  do !i indices !elementRefes
+    !tagRefNos.append(!elementRefes[!i].string())
+  enddo
+
+  if(undefined(!!ramCommonLogger)) then
+    !!ramCommonLogger = object RAMCOMMONLOGGER()
+  endif
+
+  !reclassifyElements  = object RECLASSIFYELEMENT()
+  !isLoggingNeeded = true
+  !reclassifyElements.executeAsync(!type, !tagRefNos, !asyncFunction, !isLoggingNeeded)
+  
+endmethod
+
+----------------------------------------------------------------------
+-- Method:      .modifyElementDetails
+-- Description: Method to modify the element attribute
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      DBREF      Element Reference
+--   2    R      STRING     Attribute Name
+--   3    R      STRING     Attribute Value
+-- Return:
+--   [Data Type] [Description]
+----------------------------------------------------------------------
+define method .modifyElementDetails(!elementRefe is DBREF, !attributeName is STRING, !attributeValue is STRING)
+
+  !updateDetails = object ARRAY()
+  !updateDetail  = object ARRAY()
+  !updateDetail.append(!elementRefe)
+  !updateDetail.append(!attributeName)
+  !updateDetail.append(!attributeValue)
+  !updateDetails.append(!updateDetail)
+  !this.modifyElementDetails(!updateDetails)
+
+endmethod
+
+----------------------------------------------------------------------
+-- Method:      .modifyElementDetails
+-- Description: Method to modify the element attribute
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      ARRAY       Element Update Details
+-- Return:
+--   [Data Type] [Description]
+----------------------------------------------------------------------
+define method .modifyElementDetails(!updateDetails is ARRAY)
+  !this.modifyElementDetails(!updateDetails, true)
+endmethod
+
+----------------------------------------------------------------------
+-- Method:      .modifyElementDetails
+-- Description: Method to modify the element attribute
+--
+-- Method Type: Function/Procedure
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R      ARRAY       Element Update Details
+--   2    R      BOOLEAN     Preserve name flag
+-- Return:
+--   [Data Type] [Description]
+----------------------------------------------------------------------
+define method .modifyElementDetails(!updateDetails is ARRAY, !isNamePreserved is BOOLEAN)
+
+  using namespace 'RamAEUpdateElement'
+  !updateAttribute    = object UPDATEATTRIBUTE()
+  do !i indices !updateDetails
+    !elementRefe      = !updateDetails[!i][1]
+    !attributeName    = !updateDetails[!i][2]
+    !attributeValue   = !updateDetails[!i][3]
+    if(!attributeValue.set().and(!attributeValue.neq(''))) then
+      !updateAttribute.addAttributeValue(!elementRefe.string(), !attributeName, !attributeValue)
+      handle any
+        !this.addErrorToList(!elementRefe.name, !attributeName, !!error.text)
+      endhandle
+    else
+      !updateAttribute.unsetElement(!elementRefe.string(), !attributeName)
+      handle any
+        !this.addErrorToList(!elementRefe.name, !attributeName, !!error.text)
+      endhandle
+    endif
+  enddo
+
+  !isLogNeeded        = true
+  if(undefined(!!ramCommonLogger)) then
+    !!ramCommonLogger = object RAMCOMMONLOGGER()
+  endif
+
+  !updateAttribute.executeAsync(!isNamePreserved, !isLogNeeded)
+  
+endmethod
+
+------------------------------------------------------------------------
+-- Method:     addErrorToList
+-- Description: Method to add errors to common logger
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--   1    R     STRING       Error Data
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .addErrorToList(!errorData is STRING)
+
+  if(undefined(!!ramCommonLogger)) then
+    !!ramCommonLogger = object RAMCOMMONLOGGER()
+  endif
+
+  !errorList          = !errorData.split('#')
+  !!ramCommonLogger.addLogDetails(!this.objectType(), !errorList)
+
+endmethod
+
+------------------------------------------------------------------------
+--
+-- Method:     addErrorToList
+-- Description: Method to add errors to common logger
+-- Arguments:
+--   [#] [R/RW] [Data Type] [Description]
+--     1    R          STRING         Element
+--     2    R          STRING       Attribute Name
+--     3    R          STRING       Error Details
+-- Return:
+--   [Data Type] [Description]
+------------------------------------------------------------------------
+define method .addErrorToList(!element is STRING, !detail is STRING, !error is STRING)
+
+  if(undefined(!!ramCommonLogger)) then
+    !!ramCommonLogger = object RAMCOMMONLOGGER()
+  endif
+
+  !errorList          = object ARRAY()
+  !errorList.append(!element)
+  !errorList.append(!detail)
+  !errorList.append(!error)
+  !!ramCommonLogger.addLogDetails(!this.objectType(), !errorList)
+  
+endmethod

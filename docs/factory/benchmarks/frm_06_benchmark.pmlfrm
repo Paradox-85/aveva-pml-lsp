@@ -1,0 +1,63 @@
+import 'GridControl'
+handle any
+endhandle
+
+
+
+setup form !!ramImportExcelValidationForm resize
+  member .items is ARRAY
+exit
+
+define method .ramImportExcelValidationForm()
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+endmethod
+
+define method .init()
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+endmethod
+
+define method .clearData()
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+endmethod
+
+define method .loadData(!dataLoader is RAMIMPORTEXCELDATALOADER)
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+endmethod
+
+define method .loadSelectedClass() is ARRAY
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+  !result = ARRAY()
+  return !result
+endmethod
+
+define method .getClassImportDetail(!tableIndex is STRING) is ARRAY
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+  return ||
+endmethod
+
+define method .loadGridData(!headings is ARRAY, !rows is ARRAY)
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+  !result = ARRAY()
+  return !result
+endmethod

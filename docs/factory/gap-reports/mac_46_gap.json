@@ -1,0 +1,223 @@
+{
+  "fileId": "mac_46",
+  "filePath": "docs/codebase/macros/TB terminal correction macro.pmlmac",
+  "reviewDate": "2026-06-03",
+  "overallGapScore": 0.38,
+  "dimensions": {
+    "D1_syntax": {
+      "score": 0.35,
+      "gaps": [
+        {
+          "description": "$M dollar directive for macro file path in .pmlmac header — KB lists $M in dollar-command table but provides no example of $M as a macro header declaration.",
+          "severity": "low",
+          "originalRef": "line 1: --$M \"...\""
+        },
+        {
+          "description": "object BLOCK(...) constructor syntax for evaluate() — KB documents Evaluate(BLOCK command) method but never shows the object BLOCK(...) constructor form.",
+          "severity": "medium",
+          "originalRef": "line 25: !channelTerminals.evaluate(object BLOCK(|...|))"
+        },
+        {
+          "description": ".:  attribute access syntax from DBREF — KB shows DBREF examples via .query() and .qreal() but does not document the .:  notation for direct PDMS object attribute access.",
+          "severity": "medium",
+          "originalRef": "multiple lines: !!ce.:HavePartTerminals, !terminal.:refPropagatedSignals"
+        },
+        {
+          "description": "$! variable substitution inside $P print command — KB mentions $! as a substitution symbol but lacks examples in macro print contexts.",
+          "severity": "low",
+          "originalRef": "line 27: $P Terminal: $!terminal.name -> ..."
+        },
+        {
+          "description": "eqnocase() method for case-insensitive comparison — KB documents .eq() but does not cover .eqnocase() for case-insensitive string comparison.",
+          "severity": "low",
+          "originalRef": "line 21: .acttype.eqnocase(|:IncomingConnection|)"
+        }
+      ]
+    },
+    "D2_patterns": {
+      "score": 0.40,
+      "gaps": [
+        {
+          "description": "DBREF-to-PDMS-attribute navigation via .:  — no KB pattern covers using !!ce as a DBREF context then accessing PDMS-specific attributes like HavePartTerminals, refPropagatedSignals, HavePartOutGoingConnections via .:  syntax.",
+          "severity": "high",
+          "suggestedKBId": "pdl_dbref_attr_access"
+        },
+        {
+          "description": "collectallfor with empty condition || for world-wide collection — KB has collectallfor examples but not the empty-condition world-scope pattern.",
+          "severity": "low",
+          "suggestedKBId": "pml_collectallfor_world_scope"
+        },
+        {
+          "description": "Nested DO/ENDDO with indices iteration and conditional collection.remove() — KB has simple DO/ENDDO examples but not nested index-based iteration with in-place collection mutation.",
+          "severity": "medium",
+          "suggestedKBId": "pml_nested_loop_collection_mutation"
+        }
+      ]
+    },
+    "D3_structure": {
+      "score": 0.25,
+      "gaps": [
+        {
+          "description": "No HANDLE/ENDHANDLE error wrapping in either original or benchmark — PDMS macro operations on DBREFs should be wrapped in error handlers to gracefully handle missing elements.",
+          "severity": "medium"
+        },
+        {
+          "description": "No UNDOABLE transaction wrapping — modifying PDMS object attributes (HavePartOutGoingConnections, HavePartIncomingConnections) should be wrapped in an undoable block.",
+          "severity": "medium"
+        }
+      ]
+    },
+    "D4_naming": {
+      "score": 0.30,
+      "gaps": [
+        {
+          "description": "Inconsistent attribute casing in original: HavePartTerminals vs havepartchannelTerminals vs Havepartoutgoingconnections vs HavePartOutGoingConnections vs HavePartChannelTerminals vs HavePartOutGoingConnections vs HavePartIncomingConnections. No KB entry documents canonical AVEVA PDMS attribute names.",
+          "severity": "high",
+          "suggestedKBId": "pdms_terminal_attribute_names"
+        }
+      ]
+    },
+    "D5_logic": {
+      "score": 0.45,
+      "gaps": [
+        {
+          "description": "!outConn[1] accessed after !outConn.remove(1) — the first element is removed then the (now-second) element at index 1 is accessed without checking if the array still has elements.",
+          "severity": "high",
+          "originalRef": "lines 20-27"
+        },
+        {
+          "description": "!markings.findFirst(!marking) result !i used as index without checking !i > 0 — findFirst returns 0 if not found, which would cause an invalid index access.",
+          "severity": "high",
+          "originalRef": "lines 29-30"
+        },
+        {
+          "description": "break statement in inner loop stops processing ALL remaining incoming connections — semantically questionable for a terminal-correction macro.",
+          "severity": "medium",
+          "originalRef": "line 48: break"
+        },
+        {
+          "description": "Double assignment: !terminal.:HavePartOutGoingConnections = !outConn reassigns the original array reference after removing element 1, potentially causing inconsistency with !tempOutConn already removed.",
+          "severity": "medium",
+          "originalRef": "line 42"
+        }
+      ]
+    },
+    "D6_dependencies": {
+      "score": 0.50,
+      "gaps": [
+        {
+          "description": "PDMS-specific attributes refPropagatedSignals, HavePartOutGoingConnections, HavePartIncomingConnections, HavePartChannelTerminals, RefConnectionsOut, RefConnectionsIn are not documented in KB.",
+          "severity": "high"
+        },
+        {
+          "description": "RefConnectionsOut.acttype returning :IncomingConnection string — no KB entry covers connection type enumeration.",
+          "severity": "medium"
+        },
+        {
+          "description": "Macro depends on running PDMS session with CE elements loaded — no KB entry documents macro runtime prerequisites for PDMS-dependent macros.",
+          "severity": "low"
+        }
+      ]
+    },
+    "D7_kbCompleteness": {
+      "newEntriesNeeded": [
+        {
+          "suggestedId": "pdl_dbref_attr_access",
+          "category": "pdmsinteraction",
+          "subcategory": "dbref",
+          "title": "DBREF-to-PDMS-Object Attribute Access via .:  Syntax",
+          "principle": "Use .:  (dot-colon) notation to access PDMS object attributes from a PML DBREF variable. Unlike .query() which returns attribute values as strings, .:  provides direct object reference access for nested attribute chains.",
+          "rule": "After assigning a DBREF to a PML variable, use !dbref.:AttributeName to access any PDMS object attribute. Nested attributes chain with additional .: , e.g., !obj.:HavePartOutGoingConnections.[1].:RefConnectionsOut.",
+          "syntax": "!dbref = !name.dbref()\n!attr = !dbref.:AttributeName\n!nested = !dbref.:Parent.:Child",
+          "exampleCanonical": "-- CB mac_46\n!ces = !!collectallfor(|CE|, ||, world)\ndo !ce values !ces\n  !!ce = !ce\n  !terminals = !!ce.:HavePartTerminals\n  !outConn   = !terminal.:HavePartOutGoingConnections\nenddo",
+          "exampleAntipattern": "-- BAD: Using .query() for nested attributes\n!attr = !ce.query(|HavePartOutGoingConnections|)\n-- .query() returns a string, not a collection reference",
+          "pitfalls": [
+            ".:  requires a valid PDMS object reference; a BADREF will throw an error",
+            "Unlike .query(), .:  returns the actual object/collection, not a string value",
+            "Attribute names are case-insensitive in PML but should follow AVEVA canonical casing"
+          ],
+          "relatedIds": ["pml_dbref_creation", "pml_query_vs_attr_access"],
+          "sourcedoc": "AVEVA PDMS Customization Guide — Object Attribute Access",
+          "sourcecodebase": "TB terminal correction macro.pmlmac"
+        },
+        {
+          "suggestedId": "pml_block_constructor",
+          "category": "datatypes",
+          "subcategory": "block",
+          "title": "object BLOCK(...) Constructor for Collection Evaluation",
+          "principle": "Use object BLOCK(...) to create an inline code block that can be passed to collection methods like evaluate(). The block is evaluated once per collection element with the element referenced by the loop variable.",
+          "rule": "Wrap a PML expression in object BLOCK(|expression|) to pass it as a block argument. Inside the block, use the loop variable name (e.g., !evalIndex) to access the current collection element.",
+          "syntax": "!result = !collection.evaluate(object BLOCK(|!loopVar.:Attribute|))",
+          "exampleCanonical": "-- CB mac_46\n!markings = !channelTerminals.evaluate(\n  object BLOCK(|!channelTerminals[!evalIndex].:marking[1]|)\n)",
+          "exampleAntipattern": "-- BAD: Passing a string instead of a block\n!markings = !channelTerminals.evaluate('|!channelTerminals[!evalIndex].:marking[1]|')",
+          "pitfalls": [
+            "The variable name inside object BLOCK must match the implicit iteration variable of the collection",
+            "object BLOCK(...) is not the same as a string expression — it creates a PML code block",
+            "Block variables are scoped to the evaluate() call"
+          ],
+          "relatedIds": ["array_evaluate_method", "collection_iteration"],
+          "sourcedoc": "AVEVA PML Reference — Collection Methods",
+          "sourcecodebase": "TB terminal correction macro.pmlmac"
+        },
+        {
+          "suggestedId": "pdms_terminal_attribute_names",
+          "category": "pdmsinteraction",
+          "subcategory": "terminals",
+          "title": "Canonical AVEVA PDMS Terminal and Connection Attribute Names",
+          "principle": "PDMS objects use specific PascalCased attribute names for terminal and connection management. These attributes are case-insensitive in PML but should be referenced with canonical casing for consistency.",
+          "rule": "Use the canonical attribute names listed below when accessing terminal and connection data on PDMS objects. Do not mix casing within a single codebase.",
+          "syntax": "!terminals = !ce.:HavePartTerminals\n!channels  = !ce.:HavePartChannels\n!outConn   = !terminal.:HavePartOutGoingConnections\n!inConn    = !terminal.:HavePartIncomingConnections\n!chanTerms = !channel.:HavePartChannelTerminals\n!refOut    = !conn.:RefConnectionsOut\n!refIn     = !conn.:RefConnectionsIn\n!actType   = !conn.:acttype",
+          "exampleCanonical": "-- CB mac_46\n!terminals = !!ce.:HavePartTerminals\n!channels  = !!ce.:HavePartChannels\ndo !idx indices !terminals\n  !terminal = !terminals[!idx]\n  !channel  = !channels[!idx]\n  !signals  = !terminal.:refPropagatedSignals\n  !outConn  = !terminal.:HavePartOutGoingConnections\nenddo",
+          "exampleAntipattern": "-- BAD: Inconsistent casing in same file\n!terminals = !!ce.:HavePartTerminals\n!chanTerms = !channel.:havepartchannelTerminals  -- should be HavePartChannelTerminals\n!outConn   = !terminal.:Havepartoutgoingconnections  -- should be HavePartOutGoingConnections",
+          "pitfalls": [
+            "Attribute names are case-insensitive in PML but inconsistent casing causes maintenance issues",
+            "Some attributes return collections (ARRAY/COLLECTION), others return single values",
+            "refPropagatedSignals may be unset() for terminals with no propagated signals"
+          ],
+          "relatedIds": ["pdl_dbref_attr_access", "array_remove_method", "collection_set_unset"],
+          "sourcedoc": "AVEVA PDMS Object Reference — Terminal and Connection Attributes",
+          "sourcecodebase": "TB terminal correction macro.pmlmac"
+        },
+        {
+          "suggestedId": "pml_eqnocase_method",
+          "category": "typeconversion",
+          "subcategory": "string",
+          "title": "Case-Insensitive String Comparison with eqnocase()",
+          "principle": "Use .eqnocase() method for case-insensitive string comparison. This is equivalent to .eq() but ignores letter case differences.",
+          "rule": "Call .eqnocase(|value|) on a STRING object to compare against another string ignoring case. Returns TRUE if strings match regardless of case.",
+          "syntax": "!isMatch = !str1.eqnocase(|value|)",
+          "exampleCanonical": "-- CB mac_46\n!isIncomConn = !outConn[1].:RefConnectionsOut.acttype.eqnocase(|:IncomingConnection|)",
+          "exampleAntipattern": "-- BAD: Using .eq() for case-insensitive comparison\n!isMatch = !str1.eq(|:incomingconnection|)  -- fails if case differs",
+          "pitfalls": [
+            "eqnocase() is a STRING method; ensure the receiver is a STRING",
+            "Not available on non-string PML types",
+            "Use .eq() for case-sensitive comparison when needed"
+          ],
+          "relatedIds": ["string_equality_methods", "pml_operators"],
+          "sourcedoc": "AVEVA PML Reference — String Methods",
+          "sourcecodebase": "TB terminal correction macro.pmlmac"
+        },
+        {
+          "suggestedId": "pml_nested_loop_collection_mutation",
+          "category": "controlflow",
+          "subcategory": "nested_loops",
+          "title": "Nested DO/ENDDO with Indices Iteration and Collection.remove()",
+          "principle": "When iterating over a collection by indices and conditionally removing elements, the loop index must account for shifting indices after removal. Using 'indices' in the DO clause captures the index set at loop entry time, but removing elements shifts subsequent indices.",
+          "rule": "When using DO !idx indices !collection with conditional .remove(), be aware that removing element at !idx shifts all higher indices down by 1. Consider iterating in reverse or using a while loop with manual index control.",
+          "syntax": "do !idx indices !collection\n  !ele = !collection[!idx]\n  if (shouldRemove(!ele)) then\n    !collection.remove(!idx)\n    -- Note: higher indices have shifted!\n  endif\nenddo",
+          "exampleCanonical": "-- CB mac_46\ndo !d indices !incConn\n  !ele = !incConn[!d]\n  if (!refCon.unset()) then\n    !incConn.remove(!d)\n  else\n    break\n  endif\nenddo",
+          "exampleAntipattern": "-- BAD: Assuming indices are stable after remove\n-- This loop may skip elements or access invalid indices",
+          "pitfalls": [
+            "remove() shifts all higher indices — elements may be skipped",
+            "Using 'indices' captures the index set at loop start; removed elements still have valid index values but point to different elements",
+            "break exits the entire loop, potentially leaving unprocessed elements"
+          ],
+          "relatedIds": ["array_remove_method", "do_indices_vs_values", "pml_break_continue"],
+          "sourcedoc": "AVEVA PML Reference — Control Flow",
+          "sourcecodebase": "TB terminal correction macro.pmlmac"
+        }
+      ]
+    }
+  },
+  "actionRequired": "patch_kb"
+}

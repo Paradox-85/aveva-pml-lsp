@@ -1,0 +1,16 @@
+{
+  "fileId": "obj_01",
+  "filePath": "docs/codebase/objects/ramCommonLogger.pmlobj",
+  "reviewDate": "2026-06-03",
+  "overallGapScore": 0.82,
+  "dimensions": {
+    "D1_syntax": {"score":0.55,"gaps":[{"name":"standalone-object-method-definitions","originalLines":"21-306","suggestedKbId":"object-standalone-method-definitions"},{"name":"block-evaluate-array-size-expression","originalLines":"203-207","suggestedKbId":"array-block-evaluate-size-expression"}]},
+    "D2_patterns": {"score":0.9,"gaps":[{"name":"overloaded-logger-api-with-default-severity-delegation","originalLines":"48-170","suggestedKbId":"object-logger-overload-default-severity"},{"name":"array-row-normalisation-for-tabular-output","originalLines":"199-270","suggestedKbId":"array-tabular-normalisation-defined-set"},{"name":"form-refresh-side-effect-on-log-add","originalLines":"160-164","suggestedKbId":"logger-form-refresh-side-effect"}]},
+    "D3_structure": {"score":0.86,"gaps":[{"name":"constructor-clear-writer-lifecycle"},{"name":"public-api-order-and-overload-family"},{"name":"writer-method-delegation-flow"}]},
+    "D4_naming": {"score":0.72,"gaps":[{"name":"ram-prefix-custom-object-and-form-naming"},{"name":"domain-specific-column-names"},{"name":"method-name-external-api-contract"}]},
+    "D5_logic": {"score":0.92,"gaps":[{"name":"severity-level-type-and-position"},{"name":"split-detail-appendarray-delegation"},{"name":"defined-and-set-guards-for-sparse-arrays"},{"name":"maximum-size-empty-list-boundary"},{"name":"text-output-includes-heading-row"}]},
+    "D6_dependencies": {"score":0.88,"gaps":[{"name":"RAMFILEWRITERCLASS","suggestedKbId":"custom-file-writer-dependency-ramfilewriterclass"},{"name":"ramCommonLoggerForm","suggestedKbId":"logger-form-refresh-side-effect"}]},
+    "D7_kbCompleteness": {"newEntriesNeeded":["object-logger-overload-default-severity","array-tabular-normalisation-defined-set","custom-file-writer-dependency-ramfilewriterclass","logger-form-refresh-side-effect"]}
+  },
+  "actionRequired": "patch_kb"
+}

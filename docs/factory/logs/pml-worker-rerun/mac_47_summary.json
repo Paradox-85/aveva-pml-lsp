@@ -1,0 +1,50 @@
+{
+  "fileId": "mac_47",
+  "filePath": "docs/codebase/macros/unnamed-tag-delete.pmlmac",
+  "fileType": "macro",
+  "runDate": "2026-06-03",
+  "runMode": "rerun",
+  "benchmarkPath": "docs/factory/benchmarks/mac_47_benchmark.pmlmac",
+  "gapReportPath": "docs/factory/gap-reports/mac_47_gap.json",
+  "kbPatchPath": "docs/factory/kb-patches/mac_47_kb_patch.ts",
+  "kbSearches": [
+    "unnamed tag delete",
+    "deleteUnnamedTags TAGMANAGEMENTTMP object method",
+    "PML RELOAD OBJECT macro execute object() construct",
+    "PML RELOAD MACRO macro file execution",
+    "object() constructor method call",
+    "$M macro execute run file",
+    "PML RELOAD OBJECT TAGMANAGEMENT",
+    "macro .pmlmac file format",
+    "PML RELOAD OBJECT unload reload"
+  ],
+  "kbEntriesUsed": [
+    "syntax_reference",
+    "objects_and_methods",
+    "code-examples-corpus"
+  ],
+  "patternsUsed": [
+    "$M macro execution directive",
+    "PML RELOAD OBJECT command",
+    "object() constructor",
+    "method call on object"
+  ],
+  "lintResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 11
+  },
+  "validateResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 11
+  },
+  "gapScore": 0.15,
+  "kbGaps": [
+    "PML RELOAD OBJECT command not in KB syntax reference",
+    "TAGMANAGEMENTTMP object is customer-specific, no KB coverage",
+    "deleteUnnamedTags() method behavior undocumented"
+  ],
+  "confidenceScore": 0.85,
+  "actionRequired": "patch_kb"
+}

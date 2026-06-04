@@ -1,0 +1,101 @@
+{
+  "fileId": "mac_24",
+  "filePath": "docs/codebase/macros/JDE_fullDataProperties-export.pmlmac",
+  "reviewDate": "2026-06-03",
+  "overallGapScore": 0.15,
+  "dimensions": {
+    "D1_syntax": {
+      "score": 0.1,
+      "gaps": [
+        "All syntax constructs lint clean. The --$m metadata comment on line 1 is treated as a comment line by the parser."
+      ]
+    },
+    "D2_patterns": {
+      "score": 0.35,
+      "gaps": [
+        "Original line 13: $!<var> variable interpolation in pipe-delimited string — absent from benchmark (benchmark uses $!name per syntax reference but original uses $!<var>). Verified: $!<var> pattern exists in codebase (forms/jackimform.pmlfrm, objects/LoopData.pmlobj).",
+        "Original line 16: !!jacExportFullDataReport global macro function call — absent from benchmark. Function defined externally (.pmlfnc or loaded macro).",
+        "Original line 7: !minute variable assigned but not used in path string — absent from benchmark."
+      ]
+    },
+    "D3_structure": {
+      "score": 0.0,
+      "gaps": []
+    },
+    "D4_naming": {
+      "score": 0.05,
+      "gaps": [
+        "No naming gaps. Variables follow standard !local convention. Function uses !!global prefix."
+      ]
+    },
+    "D5_logic": {
+      "score": 0.0,
+      "gaps": []
+    },
+    "D6_dependencies": {
+      "score": 0.2,
+      "gaps": [
+        "!!jacExportFullDataReport — external macro function not defined in KB or codebase. Likely in a .pmlfnc file (e.g., jacExportFullDataReport.pmlfnc). No KB entry for this function."
+      ]
+    },
+    "D7_kbCompleteness": {
+      "newEntriesNeeded": [
+        {
+          "suggestedId": "datetime_object_methods",
+          "category": "datetime",
+          "subcategory": "system_objects",
+          "title": "DATETIME system object — year(), month(), date(), hour(), minute() methods",
+          "principle": "The DATETIME object provides date/time component extraction via method calls on an OBJECT DATETIME() instance.",
+          "rule": "Always create via OBJECT DATETIME(), then chain component methods. Use .string('I2') for zero-padded 2-digit formatting.",
+          "syntax": "!dt = OBJECT DATETIME()\n!year = !dt.year()\n!month = !dt.month().string('I2')",
+          "exampleCanonical": "-- CB JDE_fullDataProperties-export.pmlmac\n!dt = OBJECT DATETIME()\n!year = !dt.year()\n!month = !dt.month().string('I2')\n!date = !dt.date().string('I2')\n!hour = !dt.hour().string('I2')\n!minute = !dt.minute().string('I2')",
+          "exampleAntipattern": "",
+          "pitfalls": [
+            "DATETIME object not documented in official KB. Methods must be confirmed against AVEVA docs or real source.",
+            ".string('I2') format specifier not in official syntax reference but confirmed in codebase."
+          ],
+          "relatedIds": ["string_object_methods", "variable_interpolation_dollar"],
+          "sourcedoc": "AVEVA PML Customization — System Objects",
+          "sourcecodebase": "JDE_fullDataProperties-export.pmlmac"
+        },
+        {
+          "suggestedId": "variable_interpolation_dollar",
+          "category": "datatypes",
+          "subcategory": "string",
+          "title": "$!<var> variable interpolation in pipe-delimited strings",
+          "principle": "PML supports $!<variable> syntax for interpolating local/global variable values into pipe-delimited strings at macro execution time.",
+          "rule": "Use $!<varname> inside |...| strings to embed variable values. For attribute references use $!/attribute.",
+          "syntax": "!publishPath = |C:\\path\\file_$!<year>-$!<month>-$!<date>.xlsx|",
+          "exampleCanonical": "-- CB JDE_fullDataProperties-export.pmlmac\n!publishPath = |C:\\...\\TagPropertyValue_full_extract_$!<year>-$!<month>-$!<date>-$!<hour>.xlsx|\n-- CB LoopData.pmlobj\n!logFile = |$!<this.pathName>\\$!logName|",
+          "exampleAntipattern": "",
+          "pitfalls": [
+            "$!<var> vs $!var: angle brackets are used for local variables in some contexts; $!name per syntax reference is for command substitution.",
+            "Mixing $!<var> and $!name in the same string is valid but may cause confusion."
+          ],
+          "relatedIds": ["datetime_object_methods", "pipe_delimited_strings"],
+          "sourcedoc": "AVEVA PML Syntax — Dollar special symbols",
+          "sourcecodebase": "JDE_fullDataProperties-export.pmlmac"
+        },
+        {
+          "suggestedId": "macro_metadata_comment_dollar_m",
+          "category": "macros",
+          "subcategory": "metadata",
+          "title": "--$m macro metadata comment — source path tracking",
+          "principle": "The --$m comment on line 1 of a macro file records the full source path of the macro, typically for development tracking and debugging.",
+          "rule": "Place --$m with the full quoted path as the first line of any macro file. This is a comment, not an executable directive.",
+          "syntax": "--$m \"C:\\path\\to\\macro.pmlmac\"",
+          "exampleCanonical": "-- CB JDE_fullDataProperties-export.pmlmac\n--$m \"C:\\Users\\ADZV\\OneDrive - Ramboll\\AVEVA_SERVER\\Addons\\PMLLIB\\RAM\\Engineering\\jackdow\\_publish\\macro\\JDE_fullDataProperties-export.pmlmac\"",
+          "exampleAntipattern": "$M \"C:\\path\\to\\macro.pmlmac\"",
+          "pitfalls": [
+            "Do not confuse --$m (comment) with $M (macro execution command).",
+            "The $M command executes a macro file; --$m is purely a metadata comment."
+          ],
+          "relatedIds": ["datetime_object_methods", "variable_interpolation_dollar"],
+          "sourcedoc": "AVEVA PML Syntax — Dollar special symbols",
+          "sourcecodebase": "JDE_fullDataProperties-export.pmlmac"
+        }
+      ]
+    }
+  },
+  "actionRequired": "patch_kb"
+}

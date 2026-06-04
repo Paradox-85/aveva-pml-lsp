@@ -1,0 +1,15 @@
+{
+  "fileId": "mac_26",
+  "fileName": "JDE_leirvik_tag_export.pmlmac",
+  "fileType": "macro",
+  "semanticSummary": "Макрос авто-экспорта данных тегов из EBE-проекта (Leirvik). Извлекает текущую дату/время для именования файлов, загружает .NET-аддоны (Aveva.Engineering.Tags.Pml, GridControl) с обработкой ошибок, создаёт PMLTAGS-объект, находит определительные сетки по описанию, итерирует по ним, строит пути с timestamp-меткой, создаёт директории через Syscom MKDIR, экспортирует сетки в XLSX через PMLTAGS.exportasxls.",
+  "benchmarkPath": "docs/factory/benchmarks/mac_26_benchmark.pmlmac",
+  "gapReportPath": "docs/factory/gap-reports/mac_26_gap.json",
+  "kbPatchPath": "docs/factory/kb-patches/mac_26_kb_patch.ts",
+  "lintResult": { "diagnostics": [], "parseErrorCount": 0, "astNodeCount": 119 },
+  "validateResult": { "diagnostics": [], "parseErrorCount": 0, "astNodeCount": 119 },
+  "gapScores": { "D1_structure": 0.0, "D2_syntax": 0.0, "D3_semantics": 0.0, "D4_edgeCases": 0.0, "D5_naming": 0.0, "D6_comments": 0.0, "D7_kbCoverage": 1 },
+  "overallGap": 0.03,
+  "newKBEntries": 1,
+  "status": "clean"
+}

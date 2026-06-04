@@ -1,0 +1,42 @@
+import type { KBEntry } from '../../../../src/knowledge/schemas/kb-entry';
+
+export const mac_01_kb_patches: KBEntry[] = [
+  {
+    id: 'd1-pml-reload-object-command',
+    category: 'syscom',
+    subcategory: 'object-lifecycle',
+    title: 'PML RELOAD OBJECT command',
+    principle: 'Reload a previously-defined PML object before creating instances to ensure the latest code is loaded.',
+    rule: 'Use `PML RELOAD OBJECT <name>` before `!var = object <name>()` when the object may have been updated since the session started.',
+    syntax: 'PML RELOAD OBJECT <objectName>',
+    exampleCanonical: `$* Factory benchmark generated from semantic source summary only for mac_01\n$* Source path: docs/codebase/macros/alarm_refresh.pmlmac\n\nPML RELOAD OBJECT TAGMANAGEMENTTMP\n\n!tagMgmt = object TAGMANAGEMENTTMP()\n\n!tagMgmt.alarmsDataUpdate()`,
+    exampleAntipattern: '!tagMgmt = object TAGMANAGEMENTTMP()\n!tagMgmt.alarmsDataUpdate()',
+    pitfalls: [
+      "RELOAD only works for objects previously defined in the current session (via .pmlobj file loaded earlier).",
+      "RELOAD does not work for system objects.",
+      "If the object has been modified externally, RELOAD is necessary to pick up changes without restarting AVEVA."
+    ],
+    relatedIds: ['d2-object-constructor-pattern', 'd3-macro-file-header'],
+    sourcedoc: 'AVEVA PML Customization Guide',
+    sourcecodebase: 'alarm_refresh.pmlmac'
+  },
+  {
+    id: 'd3-macro-file-header',
+    category: 'macros',
+    subcategory: 'header-conventions',
+    title: 'PML macro file header comment patterns',
+    principle: 'Macros use comment headers to record source path and metadata. PML1 uses `--$m` with path; PML2 recommends `$*` comments.',
+    rule: 'Prefer `$*` for inline-safe comments. Use `--$m "path"` in legacy macros for path tracking.',
+    syntax: "$* comment text\n--$m \"original file path\"",
+    exampleCanonical: `$* Factory benchmark generated from semantic source summary only for mac_01\n$* Source path: docs/codebase/macros/alarm_refresh.pmlmac\n\nPML RELOAD OBJECT TAGMANAGEMENTTMP`,
+    exampleAntipattern: '--$m "C:\\Users\\ADZV\\OneDrive - Ramboll\\AVEVA_SERVER\\Addons\\PMLLIB\\RAM\\Engineering\\jackdow\\run-macro\\alarm_refresh.pmlmac"',
+    pitfalls: [
+      "`--$m` is a PML1 legacy pattern; `$*` is preferred in new code.",
+      "Path comments in `--$m` format may contain OneDrive/cloud-sync paths that break in production environments.",
+      "Do not copy absolute OneDrive paths into shared benchmarks."
+    ],
+    relatedIds: ['d1-pml-reload-object-command'],
+    sourcedoc: 'AVEVA PML Language Reference',
+    sourcecodebase: 'alarm_refresh.pmlmac'
+  }
+];

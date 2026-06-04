@@ -1,0 +1,22 @@
+{
+  "batchSize": 3,
+  "priorityOrder": ["critical", "high", "medium", "low"],
+  "gapScoreThreshold": 0.4,
+  "autoApplyPatch": false,
+  "mcpServer": "aveva-pml-lsp",
+  "pmlWorkerAgent": ".pi/agents/pml-worker.md",
+  "smokeTestRequired": true,
+  "workerPromptFile": "docs/factory/prompts/worker-generate.md",
+  "reviewerPromptFile": "docs/factory/prompts/reviewer-compare.md",
+  "outputPaths": {
+    "benchmarks": "docs/factory/benchmarks/",
+    "gapReports": "docs/factory/gap-reports/",
+    "kbPatches": "docs/factory/kb-patches/",
+    "log": "docs/factory/logs/pipeline.log.md",
+    "state": "docs/factory/logs/run-state.json"
+  },
+  "runMode": "sequential",
+  "resumeEnabled": true,
+  "lintBeforeSave": true,
+  "validateBeforeSave": true
+}

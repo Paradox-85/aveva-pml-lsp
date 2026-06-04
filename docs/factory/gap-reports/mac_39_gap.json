@@ -1,0 +1,66 @@
+{
+  "fileId": "mac_39",
+  "filePath": "docs/codebase/macros/loop-create.pmlmac",
+  "reviewDate": "2026-06-03",
+  "overallGapScore": 0.35,
+  "dimensions": {
+    "D1_syntax": {
+      "score": 0.1,
+      "gaps": [
+        "PML RELOAD OBJECT — syntax validated clean (parseErrorCount=0); no gap in parser support"
+      ]
+    },
+    "D2_patterns": {
+      "score": 0.3,
+      "gaps": [
+        "LOOPDATA object and its methods (GetData, LoopCreate, SaveLog) are not present in KB; confirmed by aveva_pml_search_pml_kb returning 0 direct hits"
+      ]
+    },
+    "D3_structure": {
+      "score": 0.1,
+      "gaps": [
+        "Benchmark adds handle/any blocks around each operation (improvement); original has zero error handling. This is a deliberate best-practice enhancement, not a gap."
+      ]
+    },
+    "D4_naming": {
+      "score": 0.0,
+      "gaps": []
+    },
+    "D5_logic": {
+      "score": 0.2,
+      "gaps": [
+        "Original uses a specific Ramboll/Jackdaw path; benchmark uses generic C:\\Temp path. The path substitution is intentional (blind-run rule) and does not affect PML semantics."
+      ]
+    },
+    "D6_dependencies": {
+      "score": 0.6,
+      "gaps": [
+        "LOOPDATA is a RAM-specific custom object not covered by any KB entry; no .pmlobj or .pmlfnc dependency documented in KB"
+      ]
+    },
+    "D7_kbCompleteness": {
+      "newEntriesNeeded": [
+        {
+          "suggestedId": "mac_loopdata_object_usage",
+          "category": "macros",
+          "subcategory": "custom-object",
+          "title": "Custom LOOPDATA object usage pattern",
+          "principle": "Custom user-defined objects (e.g. LOOPDATA) are reloaded via PML RELOAD OBJECT, instantiated with object(), and used via method chaining. Path assignment and SaveLog are typical property/method patterns.",
+          "rule": "Use PML RELOAD OBJECT <Name> before instantiating a custom object. Wrap method calls in handle/any blocks for error resilience.",
+          "syntax": "handle any\n  PML RELOAD OBJECT <ObjectName>\nendhandle\n!obj = object <ObjectName>()\nhandle any\n  !obj.Method()\nendhandle\n!obj.property = |value|\nhandle any\n  !obj.SaveLog(|filename.xlsx|, false)\nendhandle",
+          "exampleCanonical": "$* loop-create.pmlmac\nhandle any\n  PML RELOAD OBJECT LOOPDATA\nendhandle\n!loop = object LOOPDATA()\nhandle any\n  !loop.GetData()\nendhandle\nhandle any\n  !loop.LoopCreate()\nendhandle\n!loop.pathName = |C:\\Temp\\loop-create-log|\nhandle any\n  !loop.SaveLog(|loop-create-log.xlsx|, false)\nendhandle\nexit",
+          "exampleAntipattern": "!loop = object LOOPDATA()\n!loop.GetData()\n!loop.LoopCreate()\n!loop.pathName = |C:\\Temp\\test|\n!loop.SaveLog(|test.xlsx|, false)",
+          "pitfalls": [
+            "LOOPDATA is a RAM-specific custom object; not a built-in PML type",
+            "PML RELOAD OBJECT is required before object() instantiation for custom types",
+            "SaveLog second argument (false) controls overwrite behavior — must match caller intent"
+          ],
+          "relatedIds": ["mac_basic_structure", "obj_handle_any_pattern"],
+          "sourcedoc": "docs/codebase/macros/loop-create.pmlmac",
+          "sourcecodebase": "loop-create.pmlmac"
+        }
+      ]
+    }
+  },
+  "actionRequired": "patch_kb"
+}

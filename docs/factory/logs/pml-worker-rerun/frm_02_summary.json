@@ -1,0 +1,63 @@
+{
+  "fileId": "frm_02",
+  "filePath": "docs/codebase/forms/jackimform.pmlfrm",
+  "fileType": "form",
+  "runType": "rerun",
+  "runDate": "2026-06-03",
+  "benchmarkPath": "docs/factory/benchmarks/frm_02_benchmark.pmlfrm",
+  "gapReportPath": "docs/factory/gap-reports/frm_02_gap.json",
+  "kbPatchPath": "docs/factory/kb-patches/frm_02_kb_patch.ts",
+  "summary": {
+    "originalLines": 200,
+    "benchmarkLines": 178,
+    "methodsReproduced": [".jackimform()", ".init()", ".getData()", ".loadfromexcel()", ".importdata()", ".clearstring(!text is STRING)"],
+    "gadgetsReproduced": [".overallFrame (panel)", ".reports (list)", ".dataFrame (panel)", ".dataGrid (PMLNETCONTROL)", ".getdatabtn (button)", ".runimportbtn (button)"],
+    "membersReproduced": ["NETGRIDCONTROL", "SESSION", "STRING", "FILE", "DATETIME", "ARRAY"],
+    "importsReproduced": ["GridControl", "Aveva.Engineering.Tags.Pml", "PMLFileBrowser", "Aveva.Engineering.PMLElementManager"],
+    "namespacesReproduced": ["Aveva.Core.Presentation", "Aveva.Engineering.PMLElementManager"],
+    "patternsUsed": [
+      "forms_layout_frames",
+      "forms_layout_containers",
+      "forms_layout_buttons",
+      "forms_members_declared",
+      "forms_method_definitions",
+      "forms_net_grid_control",
+      "forms_net_file_browser",
+      "forms_net_data_source",
+      "forms_array_operations",
+      "forms_datetime_methods",
+      "forms_string_operations",
+      "forms_file_write_append",
+      "forms_handle_any_endhandle",
+      "forms_do_loop_values",
+      "forms_if_elseif_endif",
+      "forms_using_namespace",
+      "forms_kill_layout"
+    ],
+    "lintResult": {
+      "parseErrorCount": 0,
+      "warningCount": 3,
+      "warnings": ["unknown-form-member for !this.reports (severity 2, linter limitation for gadget references)"]
+    },
+    "validateResult": {
+      "parseErrorCount": 0,
+      "diagnostics": ["3 warnings (severity 2) — valid PML gadget references"],
+      "astNodeCount": 702
+    },
+    "kbGapsIdentified": [
+      "forms_layout_gadget_method_access",
+      "forms_conditional_comment_syntax",
+      "forms_net_grid_bind_datasource",
+      "forms_element_manager_create_tag"
+    ],
+    "confidenceScore": 0.92,
+    "notes": [
+      "Benchmark faithfully reproduces original source with all methods, gadgets, members, imports, and namespaces.",
+      "Commented-out code blocks preserved as comments in benchmark.",
+      "Linter warnings about !this.reports are valid PML — layout gadgets accessed via !this.gadgetName.",
+      "Form name normalized to UPPERCASE (JACKIMFORM) consistent with PML convention.",
+      "Original lowercase 'jackimform' in form path comment preserved.",
+      "4 new KB entries drafted for gap analysis."
+    ]
+  }
+}

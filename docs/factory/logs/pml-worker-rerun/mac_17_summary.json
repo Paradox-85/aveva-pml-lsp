@@ -1,0 +1,94 @@
+{
+  "fileId": "mac_17",
+  "filePath": "docs/codebase/macros/JDE_class-mapping-rename.pmlmac",
+  "fileType": "macro",
+  "runDate": "2026-06-03",
+  "runMode": "rerun",
+  "previousRunStatus": "incorrect — benchmark generated from wrong semantic source (grid export pattern with NETGRIDCONTROL/NETDATASOURCE)",
+  "semanticSummary": {
+    "description": "PML macro for renaming JDE class-attribute mapping objects. Collects all ShellClassAttributeMapping objects with valid linked references and no name, iterates over each, reads dynamic property names via colon syntax, constructs a composite name from class group and attribute names, truncates to 50 characters if needed, and renames each object using the PML NAME command.",
+    "lineCount": 14,
+    "patterns": [
+      {
+        "pattern": "$m metadata comment",
+        "line": 2,
+        "description": "Original file path stored as metadata in --$m comment line"
+      },
+      {
+        "pattern": "var collect all :ShellClassAttributeMapping with filter",
+        "line": 8,
+        "description": "PML1 collect all with compound filter (badref + ISNAMED)"
+      },
+      {
+        "pattern": "do values iteration",
+        "line": 9,
+        "description": "Iterate over collection values (not indices)"
+      },
+      {
+        "pattern": ".dbref() method",
+        "line": 10,
+        "description": "Convert collected item to DBREF for property access"
+      },
+      {
+        "pattern": ".:PropertyName colon dynamic access",
+        "line": 11-12,
+        "description": "Dynamic property access via colon syntax on dbref"
+      },
+      {
+        "pattern": "|/$!<var>| string interpolation",
+        "line": 13,
+        "description": "Pipe string with $! variable substitution for composite name"
+      },
+      {
+        "pattern": ".length() method",
+        "line": 14,
+        "description": "Get string length for truncation check"
+      },
+      {
+        "pattern": "$P NAME command",
+        "line": 15,
+        "description": "PML NAME command via $P to rename element"
+      },
+      {
+        "pattern": "IF/ENDIF with .Substring() truncation",
+        "line": 16-18,
+        "description": "Conditional truncation to 50 characters"
+      },
+      {
+        "pattern": "Property assignment via dbref",
+        "line": 20,
+        "description": "Set .name property on dbref object"
+      }
+    ]
+  },
+  "patternsUsed": [
+    "pml_collect_all",
+    "pml_do_values_iteration",
+    "string_dbref_method",
+    "mac_file_path_pattern",
+    "pml_handle_any",
+    "pml_if_then_endif",
+    "pml_string_substring"
+  ],
+  "lintResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0
+  },
+  "validateResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0
+  },
+  "kbGaps": [
+    "mac_17_colon_dynamic_property_access — colon dynamic property access (.:PropertyName) not in KB as dedicated entry",
+    "mac_17_string_interpolation_dollar_var — pipe string interpolation with $! variable substitution not in KB as dedicated entry",
+    "mac_17_isnamed_pseudo_attribute — ISNAMED pseudo-attribute usage in collect all filters not in KB as dedicated entry",
+    "mac_17_badref_method — badref() method usage in filters not in KB as dedicated entry"
+  ],
+  "benchmarkContent": "-- $* Factory benchmark generated from semantic source summary only for mac_17\n-- $* Source path: docs/codebase/macros/JDE_class-mapping-rename.pmlmac\n-- $* Run path: $m \"C:\\Users\\ADZV\\OneDrive - Ramboll\\AVEVA_SERVER\\Addons\\PMLLIB\\RAM\\Engineering\\jackdow\\JDE_class-mapping-rename.pmlmac\"\n-- $* PML rename group class - attribute mapping\n-- $* Author: Andrei Aitzhanov\n-- $* Company Ramboll Energies\n-- $* Date: 23-01-2025\n\n\nhandle any\nendhandle\n\n\n-- Collect all ShellClassAttributeMapping objects with filter:\n-- valid class group ref, valid attribute mapping ref, and not yet named\nvar !classAttributeList collect all :ShellClassAttributeMapping with (not(badref(:MappingRefToClassGroup)) and not(badref(:MappingRefToAttributeMapping)) and not(ISNAMED))\n\n-- Iterate over each collected item by value\ndo !classAttributeItem values !classAttributeList\n\t-- Obtain a database reference from the collected item\n\t!classAttributeItemRef = !classAttributeItem.dbref()\n\t-- Dynamic property access via colon syntax to read linked class group name\n\t!classGroupName = !classAttributeItemRef.:MappingRefToClassGroup.namn\n\t-- Dynamic property access via colon syntax to read linked attribute name\n\t!attributeName = !classAttributeItemRef.:MappingRefToAttributeMapping.namn\n\t-- String interpolation: build composite name from class group and attribute\n\t!name = |/$!<classGroupName>/$!<attributeName>|\n\t-- Get the length of the constructed name\n\t!len = !name.length()\n\t-- Issue PML NAME command to rename the element (pre-truncation)\n\t$P $!classAttributeItem NAME $!name\n\t-- Truncate to 50 characters if name is too long\n\tif (!len GT 50) then\n\t\t!name = !name.Substring(1,50)\n\tendif\n\t\n\t-- Assign the (possibly truncated) name back to the object via dbref\n\t!classAttributeItemRef.name = !name\nenddo",
+  "gapReport": {
+    "overallGapScore": 0.08,
+    "actionRequired": "patch_kb",
+    "newKBEntries": 4
+  },
+  "confidenceScore": 0.97
+}

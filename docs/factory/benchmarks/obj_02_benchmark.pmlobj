@@ -1,0 +1,204 @@
+-- ============================================================================
+-- RAMEXCELREADERCLASS — PML Object
+-- Reads Excel workbooks through RamAEPMLExcelReader / RamPMLExcelReaderClass.
+-- ============================================================================
+
+define object RAMEXCELREADERCLASS
+
+    -- -----------------------------------------------------------------------
+    -- Members
+    -- -----------------------------------------------------------------------
+    member .excelTables is ARRAY
+    member .errors      is ARRAY
+    member .lastFilePath is STRING
+    member .reader       is OBJECT
+
+    -- -----------------------------------------------------------------------
+    -- Constructor
+    -- -----------------------------------------------------------------------
+    define method .ramExcelReaderClass()
+        !this.excelTables = object ARRAY()
+        !this.errors      = object ARRAY()
+        !this.lastFilePath = | |
+        !this.reader       = | |
+    endmethod
+
+    define method .clearData()
+        !this.excelTables.Clear()
+        !this.errors.Clear()
+        !this.lastFilePath = | |
+        !this.reader       = | |
+    endmethod
+
+    define method .browseFile() is STRING
+        !filePath = | |
+        handle any
+            $P [RAMEXCELREADERCLASS] Opening file browser…
+            !filePath = PMLFileBrowser.ShowOpen(|Excel Files|, |*.xlsx;*.xls|)
+        elsehandle
+            $P [RAMEXCELREADERCLASS] File browser failed: $!!Error.text
+            !filePath = | |
+        endhandle
+        return !filePath
+    endmethod
+
+    define method .browseAndLoad() is BOOLEAN
+        !filePath = !this.browseFile()
+        if (!filePath eq | |) THEN
+            $P [RAMEXCELREADERCLASS] No file selected.
+            return false
+        ENDIF
+        return !this.loadExcelData(!filePath)
+    endmethod
+
+    define method .loadExcelData(!excelFullPath is STRING) is BOOLEAN
+        return !this.loadExcelData(!excelFullPath, | |)
+    endmethod
+
+    define method .loadExcelData(!excelFullPath is STRING, !sheetName is STRING) is BOOLEAN
+        !success = false
+        handle any
+            $P [RAMEXCELREADERCLASS] Loading: $excelFullPath
+            !this.reader = object RamAEPMLExcelReader()
+            if (!sheetName ne | |) THEN
+                !table = !this.reader.GetSheetData(!excelFullPath, !sheetName)
+            else
+                !table = !this.reader.GetSheetData(!excelFullPath)
+            endif
+            !this.excelTables.Append(!table)
+            !this.lastFilePath = !excelFullPath
+            !success = true
+        elsehandle
+            !errorMsg = |Error loading Excel file: | & !excelFullPath & | — | & !!Error.text
+            !this.addErrorToList(!errorMsg)
+            !success = false
+        endhandle
+        return !success
+    endmethod
+
+    define method .getSheetNames(!excelFullPath is STRING) is ARRAY
+        !sheetNames = object ARRAY()
+        handle any
+            if (!this.reader eq | |) THEN
+                !this.reader = object RamAEPMLExcelReader()
+            endif
+            !names = !this.reader.GetSheetNames(!excelFullPath)
+            do !idx FROM 1 TO !names.Size()
+                !sheetNames.Append(!names[!idx])
+            enddo
+        elsehandle
+            !errorMsg = |Error retrieving sheet names from: | & !excelFullPath & | — | & !!Error.text
+            !this.addErrorToList(!errorMsg)
+        endhandle
+        return !sheetNames
+    endmethod
+
+    define method .getHeadings(!excelFullPath is STRING, !sheetIndex is REAL) is ARRAY
+        !headings = object ARRAY()
+        handle any
+            if (!this.reader eq | |) THEN
+                !this.reader = object RamAEPMLExcelReader()
+            endif
+            !data = !this.reader.GetSheetData(!excelFullPath, !sheetIndex.string())
+            if (!data ne | |) THEN
+                !headings = !data.GetHeadings()
+            endif
+        elsehandle
+            !this.addErrorToList(|Error retrieving headings|)
+        endhandle
+        return !headings
+    endmethod
+
+    define method .getRows(!excelFullPath is STRING, !sheetIndex is REAL) is ARRAY
+        !rows = object ARRAY()
+        handle any
+            if (!this.reader eq | |) THEN
+                !this.reader = object RamAEPMLExcelReader()
+            endif
+            !data = !this.reader.GetSheetData(!excelFullPath, !sheetIndex.string())
+            if (!data ne | |) THEN
+                !rows = !data.GetRows()
+            endif
+        elsehandle
+            !this.addErrorToList(|Error retrieving rows|)
+        endhandle
+        return !rows
+    endmethod
+
+    define method .getRow(!excelFullPath is STRING, !sheetIndex is REAL, !rowIndex is REAL) is STRING
+        !rowString = | |
+        handle any
+            if (!this.reader eq | |) THEN
+                !this.reader = object RamAEPMLExcelReader()
+            endif
+            !data = !this.reader.GetSheetData(!excelFullPath, !sheetIndex.string())
+            if (!data ne | |) THEN
+                !rowData = !data.GetRow(!rowIndex)
+                !rowString = !rowData.Join(| |)
+            endif
+        elsehandle
+            !this.addErrorToList(|Error retrieving row|)
+        endhandle
+        return !rowString
+    endmethod
+
+    define method .getColumn(!excelFullPath is STRING, !sheetIndex is REAL, !colIndex is REAL) is ARRAY
+        !column = object ARRAY()
+        handle any
+            if (!this.reader eq | |) THEN
+                !this.reader = object RamAEPMLExcelReader()
+            endif
+            !data = !this.reader.GetSheetData(!excelFullPath, !sheetIndex.string())
+            if (!data ne | |) THEN
+                !colData = !data.GetColumn(!colIndex)
+                do !i FROM 1 TO !colData.Size()
+                    !column.Append(!colData[!i])
+                enddo
+            endif
+        elsehandle
+            !this.addErrorToList(|Error retrieving column|)
+        endhandle
+        return !column
+    endmethod
+
+    define method .addErrorToList(!errorData is STRING)
+        !this.errors.Append(!errorData)
+        handle any
+            $P [RAMEXCELREADERCLASS] ERROR: $!errorData
+            RAMCOMMONLOGGER.AddMessage(|RAMEXCELREADERCLASS|, !errorData)
+        elsehandle
+            $P [RAMEXCELREADERCLASS] RAMCOMMONLOGGER unavailable — error recorded in .errors only.
+        endhandle
+    endmethod
+
+    define method .getTableCount() is REAL
+        return !this.excelTables.Size()
+    endmethod
+
+    define method .getErrorCount() is REAL
+        return !this.errors.Size()
+    endmethod
+
+    define method .getErrors() is ARRAY
+        return !this.errors
+    endmethod
+
+    define method .getLastError() is STRING
+        !lastError = | |
+        if (!this.errors.Size() gt 0) THEN
+            !lastIdx = !this.errors.Size()
+            !lastError = !this.errors[!lastIdx]
+        endif
+        return !lastError
+    endmethod
+
+    define method .clearErrors()
+        !this.errors.Clear()
+    endmethod
+
+    define method .getLastFilePath() is STRING
+        return !this.lastFilePath
+    endmethod
+
+endobject
+-- End of RAMEXCELREADERCLASS definition

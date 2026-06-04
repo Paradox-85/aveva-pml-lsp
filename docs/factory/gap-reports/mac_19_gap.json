@@ -1,0 +1,66 @@
+{
+  "fileId": "mac_19",
+  "filePath": "docs/codebase/macros/JDE_data-import.pmlmac",
+  "reviewDate": "2026-06-03",
+  "overallGapScore": 0.42,
+  "dimensions": {
+    "D1_syntax": {
+      "score": 0.4,
+      "gaps": [
+        "PML RELOAD OBJECT command — not documented in KB parser/reference",
+        "string('I2') zero-padded integer format specifier — not documented in STRING object KB (only generic String(REAL,FORMAT) exists)",
+        "SAVEWORK keyword (standalone at end of macro) — not in KB keyword list"
+      ]
+    },
+    "D2_patterns": {
+      "score": 0.4,
+      "gaps": [
+        "import 'module' with handle any/endhandle for external add-in loading — pattern partially in KB (GridControl example exists) but RamPMLExcelReader is custom",
+        "matchwild() as a standalone function call (not collect expression) — KB has MatchWild() STRING method and PML1 collect usage but not function-call form",
+        "!!createObjectsFromExcelSheet() 9-parameter global function — not in KB"
+      ]
+    },
+    "D3_structure": {
+      "score": 0.3,
+      "gaps": [
+        "Macro top-level procedural flow (no form/object wrapper) — KB examples are mostly form-based",
+        "PML RELOAD OBJECT at macro top-level before object instantiation"
+      ]
+    },
+    "D4_naming": {
+      "score": 0.2,
+      "gaps": [
+        "!!createObjectsFromExcelSheet — custom global function with !! prefix follows PML2 naming but not documented as pattern"
+      ]
+    },
+    "D5_logic": {
+      "score": 0.3,
+      "gaps": [
+        "Using DATETIME object methods (year(), month(), date(), hour(), minute()) for filename generation — DATETIME object not in KB objects list",
+        "matchwild() function call for file extension detection — differs from PML1 collect-style usage"
+      ]
+    },
+    "D6_dependencies": {
+      "score": 0.4,
+      "gaps": [
+        "RamPMLExcelReader custom add-in — not in KB",
+        "TAGMANAGEMENTTMP object — custom external object, not in KB",
+        "NETGRIDCONTROL/NETDATASOURCE with Aveva.Core.Presentation namespace — KB has Aveva.Pdms.Presentation example but not Core.Presentation variant",
+        "clearGrid(), saveGridToExcel() methods on NETGRIDCONTROL — not documented in KB"
+      ]
+    },
+    "D7_kbCompleteness": {
+      "newEntriesNeeded": [
+        "macro_reload_object_command",
+        "string_format_specifier_I2",
+        "macro_savework_keyword",
+        "datetime_object_methods",
+        "matchwild_function_call",
+        "using_namespace_directive",
+        "netgridcontrol_core_presentation",
+        "import_module_handle_any_pattern"
+      ]
+    }
+  },
+  "actionRequired": "patch_kb"
+}

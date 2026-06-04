@@ -1,0 +1,65 @@
+{
+  "fileId": "mac_44",
+  "filePath": "docs/codebase/macros/RAMBiReportExport.pmlmac",
+  "fileType": "macro",
+  "runDate": "2026-06-03",
+  "runMode": "rerun",
+  "benchmarkPath": "docs/factory/benchmarks/mac_44_benchmark.pmlmac",
+  "gapReportPath": "docs/factory/gap-reports/mac_44_gap.json",
+  "kbPatchPath": "docs/factory/kb-patches/mac_44_kb_patch.ts",
+  "summary": {
+    "originalFileAnalysis": "Stub-only macro with TAGS/FINISH markers. No executable PML code in original.",
+    "benchmarkGenerated": true,
+    "benchmarkSizeBytes": 8904,
+    "kbSearchesPerformed": 4,
+    "kbSearchQueries": [
+      "RAMBiReportExport macro",
+      "Power BI report export PML macro",
+      "macro TAGS FINISH PML",
+      "PMLTAGS exportasxls tags object"
+    ],
+    "patternsUsed": [
+      "macro TAGS/FINISH shell",
+      "import/handle any/endhandle",
+      "using namespace",
+      "OBJECT DATETIME() for timestamping",
+      "ARRAY() with append() for lists",
+      "string .split()/.append() for pattern arrays",
+      "var !grid collect all LSTDEF with (…)",
+      "if/then/endif for conditional checks",
+      "SYSCOM for file copy and external tool calls",
+      "LABEL/handle any/endhandle for error handling",
+      "SAVEWORK/UNCLAIM ALL cleanup",
+      "$S-/$S+ command echo suppression"
+    ],
+    "lintResult": {
+      "diagnostics": [],
+      "parseErrorCount": 0,
+      "astNodeCount": 755
+    },
+    "validateResult": {
+      "diagnostics": [],
+      "parseErrorCount": 0,
+      "astNodeCount": 755
+    },
+    "kbGaps": [
+      "PMLTAGS object with exportasxls() method not in KB",
+      "RAMCOMMONLOGGER custom logging object not in KB",
+      "MEASURE and UNIT system objects not in KB",
+      "LSTDEF collection query pattern not in KB",
+      "jacExportRDLDataReport / jacExportRDLDataReportMatrix custom functions not in KB",
+      "Aveva.Engineering.Tags.Pml add-in not in KB"
+    ],
+    "newKBEntries": 4,
+    "newKBEntryIds": [
+      "obj_ptmltags_export",
+      "obj_ramcommonlogger",
+      "obj_measure_unit",
+      "pml1_lstdef_query"
+    ],
+    "confidenceScore": 0.75,
+    "confidenceRationale": "Original file is a stub with no executable code. Benchmark reconstructed from similar macros (JDE_BI_tagRegister-export.pmlmac) and KB-confirmed patterns. Confidence reduced because original structure was empty and reconstruction relied heavily on pattern-matching from related macros.",
+    "actionRequired": "patch_kb",
+    "reviewRequired": true
+  }
+}

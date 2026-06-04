@@ -1,0 +1,17 @@
+{
+  "fileId": "obj_05",
+  "filePath": "docs/codebase/objects/ramImportExcelDataLoader.pmlobj",
+  "reviewDate": "2026-06-03",
+  "overallGapScore": 0.72,
+  "dimensions": {
+    "D1_syntax": {"score":0.25,"gaps":["Original parse errors around clock command", "STRING.Empty/EQNoCase/substring not documented", "BOOLEAN.NOT casing", "DO indices vs DO FROM"]},
+    "D2_patterns": {"score":0.65,"gaps":["do indices / do values patterns not reproduced", "BLOCK.Evaluate with !evalIndex", "$!function variable indirection", "STRING.matchwild", "#PML/#TEXT/#PREFIX/#SUFFIX parameter processing", "undefined(!!ramCommonLogger)"]},
+    "D3_structure": {"score":0.7,"gaps":["constructor lifecycle differs", "transpose/sort/dedup logic simplified", "createDataTable missing", "initiateMappings missing", "class/attribute/uom mapping orchestration simplified", "addErrorToList logger behavior missing"]},
+    "D4_naming": {"score":0.15,"gaps":["!!ramCommonLogger global naming", "!evalIndex BLOCK naming", "RAM prefix project naming", "method naming inconsistency"]},
+    "D5_logic": {"score":0.75,"gaps":["empty sheet guard missing", "set/unset handling differs", "auto-mapping fallback missing", "#PML/#TEXT/#PREFIX/#SUFFIX missing", "ELEMENTTYPE/ATTRIBUTE validation missing", "master/non-master branching missing", "validateAttribute overload omitted"]},
+    "D6_dependencies": {"score":0.8,"gaps":["RamAEPMLExcelReader namespace", "PMLExcelHelper", "RAMIMPORTEXCELCONFIGLOADER", "RAMCOMMONLOGGER", "ELEMENTTYPE", "ATTRIBUTE", "CLOCK commands"]},
+    "D7_kbCompleteness": {"newEntriesNeeded":["pml-obj-ramimportexcelconfigloader","pml-obj-pmlexcelhelper","pml-obj-ramcommonlogger","pml-str-matchwild","pml-str-substring","pml-param-prefix-suffix","pml-elementtype-meta","pml-attribute-meta","pml-var-indirection","pml-clock-timing"]}
+  },
+  "actionRequired": "rerun_worker",
+  "summary": "Benchmark significantly simplifies original; lint passes, but reviewer recommends rerun_worker rather than patch_kb."
+}

@@ -1,0 +1,107 @@
+import 'GridControl'
+Import 'pmlfilebrowser'
+import 'RamAEPMLExcelReader'
+handle any
+endhandle
+
+
+
+setup form !!ramImportExcelProcessor dialog resizable
+  member .items is ARRAY
+exit
+
+define method .ramImportExcelProcessor()
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+endmethod
+
+define method .init()
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+endmethod
+
+define method .clearLog()
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+endmethod
+
+define method .clearData()
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+endmethod
+
+define method .addToList()
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+endmethod
+
+define method .removeFromList()
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+endmethod
+
+define method .browseConfigFile()
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+endmethod
+
+define method .browseExcel(!isMultiSelection is BOOLEAN) is ARRAY
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+  return false
+endmethod
+
+define method .getExcelPathList() is ARRAY
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+  !result = ARRAY()
+  return !result
+endmethod
+
+define method .getExcelTransposeList() is ARRAY
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+  !result = ARRAY()
+  return !result
+endmethod
+
+define method .initiateLoader()
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+endmethod
+
+define method .importData()
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+endmethod
+
+define method .showValidationForm()
+  $* Factory benchmark callback/method stub
+  handle any
+    skip
+  endhandle
+endmethod

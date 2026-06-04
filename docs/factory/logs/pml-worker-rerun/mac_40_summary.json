@@ -1,0 +1,43 @@
+{
+  "fileId": "mac_40",
+  "filePath": "docs/codebase/macros/loop-data-update.pmlmac",
+  "fileType": "macro",
+  "runTimestamp": "2026-06-03T00:00:00Z",
+  "runMode": "rerun",
+  "benchmarkSaved": "docs/factory/benchmarks/mac_40_benchmark.pmlmac",
+  "gapReportSaved": "docs/factory/gap-reports/mac_40_gap.json",
+  "kbPatchSaved": "docs/factory/kb-patches/mac_40_kb_patch.ts",
+  "lintResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 30
+  },
+  "validateResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 30
+  },
+  "kbSearches": [
+    "LOOPDATA object GetData InstrumentFieldDataTransfer pathName SaveLog",
+    "LOOPDATA macro RELOAD OBJECT",
+    "macro .pmlmac export data Excel"
+  ],
+  "kbEntriesUsed": [],
+  "kbGaps": [
+    "LOOPDATA object class not in KB",
+    "LOOPDATA methods GetData(), InstrumentFieldDataTransfer(), SaveLog() not in KB",
+    "LOOPDATA pathName attribute not in KB",
+    "PML RELOAD OBJECT for LOOPDATA not in KB examples"
+  ],
+  "patternsUsed": [
+    "PML RELOAD OBJECT",
+    "object constructor",
+    "method call chain",
+    "attribute assignment",
+    "pipe-delimited strings"
+  ],
+  "confidenceScore": 0.85,
+  "reviewGapScore": 0.55,
+  "actionRequired": "patch_kb",
+  "notes": "Benchmark faithfully reproduces original macro logic. LOOPDATA object and its methods are AVEVA system features not yet documented in KB. KB patch entry loopdata_object drafted for D7."
+}

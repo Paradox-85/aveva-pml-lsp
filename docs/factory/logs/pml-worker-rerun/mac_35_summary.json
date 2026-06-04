@@ -1,0 +1,20 @@
+{
+  "fileId": "mac_35",
+  "status": "completed_from_recovered_artifacts",
+  "recoveredFromAsyncRun": "a0480db1-602c-4668-b6b5-73ccfe52d025",
+  "timestamp": "2026-06-03T22:12:09.261Z",
+  "artifacts": {
+    "benchmark": "docs/factory/benchmarks/mac_35_benchmark.pmlmac",
+    "gapReport": "docs/factory/gap-reports/mac_35_gap.json",
+    "kbPatch": "docs/factory/kb-patches/mac_35_kb_patch.ts",
+    "summary": "docs/factory/logs/pml-worker-rerun/mac_35_summary.json"
+  },
+  "validation": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "note": "Validated by orchestrator after async runner stale failure"
+  },
+  "overallGapScore": 0.83,
+  "actionRequired": "patch_kb",
+  "note": "Async runner failed before writing final subagent result, but pml-worker produced benchmark/gap/patch artifacts; summary was reconstructed by orchestrator."
+}

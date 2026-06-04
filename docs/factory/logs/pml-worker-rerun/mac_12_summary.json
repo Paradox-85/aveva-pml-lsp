@@ -1,0 +1,61 @@
+{
+  "fileId": "mac_12",
+  "fileName": "EBA_full_tag_export.pmlmac",
+  "fileType": "macro",
+  "customer": "Ramboll",
+  "author": "Andrei Aitzhanov",
+  "originalSemantics": "Auto-extract 3D PDMS tag data (EQUI, SUBE, STRUC, FRMW, SBFR, PIPE, HVAC, CWAY, SUPPO, BRAN, MEM) with Site/Zone/Description attributes into Excel via .NET GridControl. Queries named objects, iterates with error-handled attribute access (namn, site, zone, desc/dtxr fallback), builds semicolon-delimited CSV rows, and exports to two Excel files (dated + undated).",
+  "patternsUsed": [
+    "import GridControl with handle any",
+    "OBJECT DATETIME() with year/month/date/hour/minute methods",
+    "STRING.string(FORMAT) for I2 zero-padded formatting",
+    "ARRAY() construction and appendArray()",
+    "STRING.split(delim) for field separation",
+    "collect all with multiple class names + ISNAMED filter",
+    "do !item values !items iteration",
+    "item.dbref() for database reference",
+    "namn of site of / namn of zone of attribute access",
+    "desc of / dtxr of with handle any / skip fallback",
+    "$!<var.attr> substitute expression in pipe strings",
+    "using namespace Aveva.Core.Presentation",
+    "object NETGRIDCONTROL() / object NETDATASOURCE()",
+    "NETGRIDCONTROL.clearGrid() / BindToDataSource() / saveGridToExcel()",
+    "FINISH directive"
+  ],
+  "lintResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 141
+  },
+  "validateResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 141
+  },
+  "gapScore": 0.35,
+  "gapDimensions": {
+    "D1_syntax": { "score": 0.3, "gapCount": 5 },
+    "D2_patterns": { "score": 0.4, "gapCount": 5 },
+    "D3_structure": { "score": 0.1, "gapCount": 1 },
+    "D4_naming": { "score": 0.2, "gapCount": 2 },
+    "D5_logic": { "score": 0.3, "gapCount": 3 },
+    "D6_dependencies": { "score": 0.5, "gapCount": 3 }
+  },
+  "kbGaps": [
+    "namn pseudo-attribute (PDMS name)",
+    "dtxr pseudo-attribute (description text)",
+    "collect all multi-class syntax",
+    "NETGRIDCONTROL / NETDATASOURCE .NET objects",
+    "GridControl import pattern",
+    "FINISH directive",
+    "Aveva.Core.Presentation namespace"
+  ],
+  "kbPatchEntries": 5,
+  "confidenceScore": 0.88,
+  "artifacts": {
+    "benchmark": "docs/factory/benchmarks/mac_12_benchmark.pmlmac",
+    "gapReport": "docs/factory/gap-reports/mac_12_gap.json",
+    "kbPatch": "docs/factory/kb-patches/mac_12_kb_patch.ts"
+  },
+  "status": "complete"
+}

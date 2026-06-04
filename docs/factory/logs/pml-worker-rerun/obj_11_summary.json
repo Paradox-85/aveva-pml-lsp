@@ -1,0 +1,20 @@
+{
+  "fileId": "obj_11",
+  "status": "completed_from_artifacts_after_subagent_no_edit_failure",
+  "sourceFile": "docs/codebase/objects/TagManagementTmp.pmlobj",
+  "timestamp": "2026-06-03T23:06:51.645Z",
+  "artifacts": {
+    "benchmark": "docs/factory/benchmarks/obj_11_benchmark.pmlobj",
+    "gapReport": "docs/factory/gap-reports/obj_11_gap.json",
+    "kbPatch": "docs/factory/kb-patches/obj_11_kb_patch.ts",
+    "summary": "docs/factory/logs/pml-worker-rerun/obj_11_summary.json"
+  },
+  "validation": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 146
+  },
+  "overallGapScore": 0.95,
+  "actionRequired": "patch_kb",
+  "note": "pml-worker run b333a51c step 5 was marked failed because no final edits were detected, but benchmark/gap/patch artifacts exist and benchmark validates clean; summary reconstructed by orchestrator."
+}

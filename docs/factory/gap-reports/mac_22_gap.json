@@ -1,0 +1,179 @@
+{
+  "fileId": "mac_22",
+  "filePath": "docs/codebase/macros/JDE_delta_tag_export.pmlmac",
+  "reviewDate": "2026-06-03",
+  "overallGapScore": 0.52,
+  "dimensions": {
+    "D1_syntax": {
+      "score": 0.5,
+      "gaps": [
+        "SetDate of pseudo-attribute access via PML1 syntax (var !stampDate SetDate of $!latestStamp) — not covered in KB parser reference",
+        "OLD prefix on collect all for delta queries (OLD collect all) — PML1-specific syntax not documented in KB",
+        "Chained method calls on session.login.upcase() — multi-hop property access pattern",
+        "String split + array indexing chain (!expressionStr.split(|;|)[2]) — not explicitly covered",
+        "!!error.text — global error object text property access pattern"
+      ]
+    },
+    "D2_patterns": {
+      "score": 0.45,
+      "gaps": [
+        "PMLTAGS() object construction — not found in KB",
+        "GetListDefinition('listName', gridName) method — not in KB",
+        "DbViewName() method on grid definition — not in KB",
+        "ATTCOL/EXPCOL sub-object types with .udname and .DbAttribute access — not in KB",
+        "LSTDEF collect with LstDsc filter — not in KB",
+        "STAMP collect all — not in KB",
+        "MODIFIED(), DELETED(), CREATED() predicates on ENGITEM — not in KB",
+        "SETCOMPDATE STAMP command — not in KB"
+      ]
+    },
+    "D3_structure": {
+      "score": 0.4,
+      "gaps": [
+        "Multi-scope traversal: world→STAMP/LSTDEF→DbView→ATTCOL/EXPCOL sub-objects",
+        "Nested DO loops: outer loop over changedTags, inner loop over expressions",
+        "Error recovery with elsehandle none inside inner loop body",
+        "Conditional expression evaluation: switching between OLD and non-OLD based on action type"
+      ]
+    },
+    "D4_naming": {
+      "score": 0.2,
+      "gaps": [
+        "Tag-domain types (ENGITEM, STAMP, LSTDEF) not in naming convention KB",
+        "String literal parameter names ('15.2.3 Tags to Leirvik Export') — project-specific convention"
+      ]
+    },
+    "D5_logic": {
+      "score": 0.5,
+      "gaps": [
+        "!stamps[2] — index 2 to skip first stamp (not 1-based first)",
+        "!date.unset() guard — conditional assignment pattern",
+        "Fallback from .DbAttribute to .expression on (2,201) error",
+        "OLD prefix used for DELETED items evaluation in expression",
+        "findfirst().set() pattern for membership testing",
+        "sortUnique() for deduplication of changed tags"
+      ]
+    },
+    "D6_dependencies": {
+      "score": 0.55,
+      "gaps": [
+        "Aveva.Engineering.Tags.Pml namespace import — not explicitly in KB",
+        "Aveva.Core.Presentation namespace (GridControl) — partially covered",
+        "NetDataSource 3-arg constructor (name, headers, data) — not documented",
+        "saveGridToExcel 3-arg form (path, format, description) — not documented",
+        "SETCOMPDATE system command — not in KB",
+        "Syscom MKDIR — file system command not in KB"
+      ]
+    },
+    "D7_kbCompleteness": {
+      "newEntriesNeeded": [
+        {
+          "suggestedId": "pmltags_object",
+          "category": "engineering_tags",
+          "subcategory": "pmltags",
+          "title": "PMLTAGS object and GetListDefinition",
+          "principle": "PMLTAGS is the entry point for AVEVA Engineering Tags API. GetListDefinition retrieves a list definition by name and grid reference.",
+          "rule": "Use !!tags = object PMLTAGS() then !!tags.GetListDefinition(listName, gridName) to access list metadata.",
+          "syntax": "!!tags = object PMLTAGS()\n!gridDef = !!tags.GetListDefinition('|listName|', !gridName)",
+          "exampleCanonical": "-- CB mac_22\n!!tags = object PMLTAGS()\n!gridDef = !!tags.GetListDefinition('15.2 Leirvik Data Export', !listName)\n!sourceDbView = !gridDef.DbViewName()",
+          "exampleAntipattern": "!!tags.GetListDefinition without creating object first",
+          "pitfalls": ["GetListDefinition requires valid list name and grid reference", "DbViewName() returns the DbView reference, not a string"],
+          "relatedIds": ["array_object", "dbref_object"],
+          "sourcedoc": "AVEVA Engineering Tags PML API",
+          "sourcecodebase": "JDE_delta_tag_export.pmlmac"
+        },
+        {
+          "suggestedId": "dbview_sub_object_types",
+          "category": "engineering_tags",
+          "subcategory": "dbview",
+          "title": "DbView sub-object types: ATTCOL and EXPCOL",
+          "principle": "ATTCOL (attribute column) and EXPCOL (expression column) are sub-objects within a DbView. Access via .dbref() to get .udname or .DbAttribute.",
+          "rule": "var !fields collect all (ATTCOL EXPCOL) for $!dbView, then iterate with do !field values !fields.",
+          "syntax": "var !fields collect all (ATTCOL EXPCOL) for $!sourceDbView\ndo !field values !fields\n  !udname = !field.dbref().udname\n  !expression = !field.dbref().DbAttribute\nenddo",
+          "exampleCanonical": "-- CB mac_22\n!fields = collect all (ATTCOL EXPCOL) for $!sourceDbView\ndo !field values !fields\n  !udname = !field.dbref().udname\n  !expression = !field.dbref().DbAttribute\nenddo",
+          "exampleAntipattern": "Collecting ATTCOL without DbView scope",
+          "pitfalls": [".DbAttribute may throw (2,201) if attribute is not directly accessible — fall back to .expression", ".udname is always available on ATTCOL/EXPCOL"],
+          "relatedIds": ["pmltags_object", "dbref_object"],
+          "sourcedoc": "AVEVA Engineering Tags PML API",
+          "sourcecodebase": "JDE_delta_tag_export.pmlmac"
+        },
+        {
+          "suggestedId": "old_collect_delta_query",
+          "category": "engineering_tags",
+          "subcategory": "delta",
+          "title": "OLD prefix for delta queries on ENGITEM",
+          "principle": "The OLD keyword before 'collect all' queries the delta (deleted/modified) state of ENGITEM objects. Combined with MODIFIED(), DELETED(), CREATED() predicates.",
+          "rule": "var !deletedTags OLD collect all (ENGITEM) with ( DELETED() ) to get deleted tags.",
+          "syntax": "var !modifiedTags OLD collect all (ENGITEM) with ( MODIFIED() )\nvar !deletedTags OLD collect all (ENGITEM) with ( DELETED() )\nvar !createdTags collect all (ENGITEM) with ( CREATED() )",
+          "exampleCanonical": "-- CB mac_22\nvar !modifiedTags OLD collect all (ENGITEM) with ( MODIFIED() )\nvar !deletedTags OLD collect all (ENGITEM) with ( DELETED() )\nvar !createdTags collect all (ENGITEM) with ( CREATED() )",
+          "exampleAntipattern": "Using OLD without predicate — returns all items, not just delta",
+          "pitfalls": ["MODIFIED() and DELETED() require OLD prefix; CREATED() does not", "OLD queries the comparison state set by SETCOMPDATE"],
+          "relatedIds": ["setcompdate_command", "sortunique_method"],
+          "sourcedoc": "AVEVA Engineering Tags PML API",
+          "sourcecodebase": "JDE_delta_tag_export.pmlmac"
+        },
+        {
+          "suggestedId": "setcompdate_stamp_command",
+          "category": "engineering_tags",
+          "subcategory": "comparison",
+          "title": "SETCOMPDATE STAMP for tag comparison context",
+          "principle": "SETCOMPDATE STAMP sets the comparison date context so that OLD collect queries return delta data relative to a specific stamp.",
+          "rule": "SETCOMPDATE STAMP $!latestStamp where !latestStamp is a STAMP object reference.",
+          "syntax": "var !stamps collect all STAMP\n!latestStamp = !stamps[2]\nSETCOMPDATE STAMP $!latestStamp",
+          "exampleCanonical": "-- CB mac_22\nvar !stamps collect all STAMP\n!latestStamp = !stamps[2]\nSETCOMPDATE STAMP $!latestStamp",
+          "exampleAntipattern": "Using SETCOMPDATE without prior STAMP collection",
+          "pitfalls": ["Index 2 skips the most recent stamp (index 1)", "SETCOMPDATE affects all subsequent OLD collect queries"],
+          "relatedIds": ["stamp_object", "old_collect_delta_query"],
+          "sourcedoc": "AVEVA Engineering Tags PML API",
+          "sourcecodebase": "JDE_delta_tag_export.pmlmac"
+        },
+        {
+          "suggestedId": "netdatasource_3arg_constructor",
+          "category": "grid_controls",
+          "subcategory": "datasource",
+          "title": "NetDataSource 3-argument constructor with headers and data",
+          "principle": "NetDataSource accepts (name, headers, data) where headers is an array of column names and data is a 2D array of rows.",
+          "rule": "!source = object NetDataSource('$!<gridName>', !headerList, !dataList) where !dataList is ARRAY of ARRAY.",
+          "syntax": "!source = object NetDataSource('|gridName|', !headers, !rows)",
+          "exampleCanonical": "-- CB mac_22\n!source = object NetDataSource('$!<gridName>', !headerList, !dataList)",
+          "exampleAntipattern": "Passing flat array as data — causes column misalignment",
+          "pitfalls": ["Data must be ARRAY of ARRAY (each row is an ARRAY)", "Header count must match column count in each row"],
+          "relatedIds": ["netgridcontrol_methods", "array_object"],
+          "sourcedoc": "AVEVA Core.Presentation GridControl",
+          "sourcecodebase": "JDE_delta_tag_export.pmlmac"
+        },
+        {
+          "suggestedId": "findfirst_set_membership",
+          "category": "array",
+          "subcategory": "search",
+          "title": "findfirst().set() pattern for array membership testing",
+          "principle": "Array.findfirst(item) returns the first matching element; .set() checks if a value was assigned, confirming membership.",
+          "rule": "Use (!deletedTags.findfirst(!tag).set()) to test if a tag exists in the deleted array.",
+          "syntax": "if (!deletedTags.findfirst(!tag).set()) then\n  !action = |DELETE|\nendif",
+          "exampleCanonical": "-- CB mac_22\nif (!deletedTags.findfirst(!tag).set()) then\n  !action = |DELETE|\nelseif (!createdTags.findfirst(!tag).set()) then\n  !action = |NEW|\nendif",
+          "exampleAntipattern": "Using findfirst() without .set() — always truthy even if no match",
+          "pitfalls": ["findfirst returns the matched element or UNSET; .set() distinguishes these"],
+          "relatedIds": ["array_object", "sortunique_method"],
+          "sourcedoc": "AVEVA PML ARRAY object",
+          "sourcecodebase": "JDE_delta_tag_export.pmlmac"
+        },
+        {
+          "suggestedId": "syscom_mkdir_command",
+          "category": "file_operations",
+          "subcategory": "system_commands",
+          "title": "Syscom MKDIR for directory creation",
+          "principle": "Syscom executes system commands. MKDIR creates directories. Use with variable substitution for dynamic paths.",
+          "rule": "Syscom |MKDIR \"$!publishPath\"| to create a directory from a PML variable path.",
+          "syntax": "Syscom |MKDIR \"$!path\"|",
+          "exampleCanonical": "-- CB mac_22\n!publishPath = '$!<folder>$!year-$!month\\'\nSyscom |MKDIR \"$!publishPath\"|",
+          "exampleAntipattern": "Using MKDIR without quotes around variable path",
+          "pitfalls": ["Syscom MKDIR may fail silently if directory already exists", "Use !!mkdir() function as alternative in PML2"],
+          "relatedIds": ["file_object", "string_substitution"],
+          "sourcedoc": "AVEVA PML System Commands",
+          "sourcecodebase": "JDE_delta_tag_export.pmlmac"
+        }
+      ]
+    }
+  },
+  "actionRequired": "patch_kb"
+}

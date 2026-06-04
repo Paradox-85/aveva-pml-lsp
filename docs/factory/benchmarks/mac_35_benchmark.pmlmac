@@ -1,0 +1,50 @@
+$* Factory benchmark generated from semantic source summary only for mac_35
+$* Source path: docs/codebase/macros/JDE_tagProperties_export.pmlmac
+$* Author: Andrei Aitzhanov
+$* Customer: Ramboll
+$* Rev: 01
+$* Purpose: export tags properties for Shell
+$* $m "C:\Users\ADZV\OneDrive - Ramboll\AVEVA_SERVER\Addons\PMLLIB\RAM\Engineering\jackdow\JDE_tagProperties_export.pmlmac"
+
+import 'GridControl'
+handle any
+endhandle
+using namespace |Aveva.Core.Presentation|
+
+!headers = ARRAY()
+!rows = ARRAY()
+!headers.Append(|Source File|)
+!headers.Append(|Pattern|)
+!headers.Append(|Value|)
+
+!patterns = ARRAY()
+!patterns.Append(|COLL ALL|)
+!patterns.Append(|DO |)
+!patterns.Append(|do |)
+!patterns.Append(|handle|)
+!patterns.Append(|NETGRIDCONTROL|)
+!patterns.Append(|NETDATASOURCE|)
+!patterns.Append(|ATTRIBUTE|)
+!patterns.Append(|!!|)
+!patterns.Append(|DBREF|)
+!patterns.Append(|ARRAY|)
+!patterns.Append(|GridControl|)
+
+DO !i FROM 1 TO !patterns.Size()
+  !row = ARRAY()
+  !row.Append(|JDE_tagProperties_export.pmlmac|)
+  !row.Append(!patterns[!i])
+  !row.Append(!i.String())
+  !rows.Append(!row)
+ENDDO
+
+handle any
+  import 'GridControl'
+endhandle
+using namespace |Aveva.Core.Presentation|
+!grid = object NETGRIDCONTROL()
+!grid.clearGrid()
+!source = object NETDATASOURCE('data', !headers, !rows)
+!grid.BindToDataSource(!source)
+!out = |C:\Temp\mac_35_benchmark.xlsx|
+!grid.saveGridToExcel(!out, |data|)

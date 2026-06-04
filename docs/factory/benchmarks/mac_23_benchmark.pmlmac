@@ -1,0 +1,92 @@
+$* Factory benchmark generated from semantic source summary only for mac_23
+$* Source path: docs/codebase/macros/JDE_exData_import.pmlmac
+$* Semantic summary: Macro imports data from an Excel file into AVEVA using
+$*   GridControl NET add-in, builds a tabular results grid with NETGRIDCONTROL
+$*   and NETDATASOURCE, then exports the grid back to Excel. Uses ARRAY
+$*   manipulation, STRING.Replace/STRING.Split, PML handle blocks, and
+$*   PML RELOAD OBJECT.
+$* Author: pml-worker
+$* Date: 2026-06-03
+
+-- ============================================================
+$* Demonstrates PML patterns from JDE_exData_import.pmlmac:
+$*   import GridControl + handle/any/endhandle
+$*   using namespace Aveva.Core.Presentation
+$*   ARRAY() .Append() .Size() .String()
+$*   STRING.Replace() STRING.Split()
+$*   NETGRIDCONTROL .clearGrid() .BindToDataSource() .saveGridToExcel()
+$*   NETDATASOURCE constructor
+$*   SAVEWORK
+$* ============================================================
+
+import 'GridControl'
+handle any
+endhandle
+
+using namespace |Aveva.Core.Presentation|
+
+-- Build header row (equivalent of original headerList.Append logic)
+!hdr = ARRAY()
+!hdr.Append(|Tag Number|)
+!hdr.Append(|Attribute|)
+!hdr.Append(|Value|)
+!hdr.Append(|Issue|)
+
+-- Build data rows from a known set (demonstrates ARRAY + ARRAY Append)
+!rows = ARRAY()
+
+!r1 = ARRAY()
+!r1.Append(|100-PV-001|)
+!r1.Append(|TAGNO|)
+!r1.Append(|100-PV-001|)
+!r1.Append(|OK|)
+!rows.Append(!r1)
+
+!r2 = ARRAY()
+!r2.Append(|100-PT-002|)
+!r2.Append(|DESC|)
+!r2.Append(|Pressure Transmitter|)
+!r2.Append(|Missing class|)
+!rows.Append(!r2)
+
+!r3 = ARRAY()
+!r3.Append(|100-TT-003|)
+!r3.Append(|LOC|)
+!r3.Append(|Field|)
+!r3.Append(|OK|)
+!rows.Append(!r3)
+
+-- Demonstrate STRING.Replace (from original !fileName.replace pattern)
+!template = |C:\Temp\tag_issues_template.xlsx|
+!outputFile = !template.Replace(|_template|, |_output|)
+
+-- Demonstrate STRING.Split (from original !msg.split pattern)
+!csvLine = |Tag No;Attribute;Value|
+!csvParts = !csvLine.Split(|;|)
+
+-- Build a summary row from split results
+!summary = ARRAY()
+!summary.Append(|Processed|)
+!summary.Append(!csvParts.Size().String())
+!summary.Append(|fields parsed|)
+!rows.Append(!summary)
+
+-- Iterate over rows and log count (equivalent to original size > 0 guard)
+!rowCount = !rows.Size()
+
+DO !idx FROM 1 TO !rowCount
+  !curRow = !rows[!idx]
+  !firstCol = !curRow[1]
+  -- In a real scenario this would be processed further
+ENDDO
+
+-- Create NETGRIDCONTROL and populate it (from original pattern)
+!grid = object NETGRIDCONTROL()
+!grid.clearGrid()
+
+!source = object NETDATASOURCE('issues', !hdr, !rows)
+!grid.BindToDataSource(!source)
+
+!grid.saveGridToExcel(!outputFile, |issues|)
+
+SAVEWORK

@@ -1,0 +1,138 @@
+{
+  "fileId": "mac_44",
+  "filePath": "docs/codebase/macros/RAMBiReportExport.pmlmac",
+  "reviewDate": "2026-06-03",
+  "overallGapScore": 0.85,
+  "dimensions": {
+    "D1_syntax": {
+      "score": 0.85,
+      "gaps": [
+        "Original file contains only TAGS/FINISH markers with zero PML syntax. Benchmark adds: import/handle, using namespace, OBJECT DATETIME(), ARRAY(), string .split()/.append(), var/collect/with/if/then/endif, SYSCOM, LABEL, SAVEWORK/UNCLAIM. All syntax constructs verified against KB syntax reference.",
+        "Dollar-command sequences ($S-, $S+, $!, $<var>, $!var) present in benchmark — confirmed by syntax reference KB entry."
+      ]
+    },
+    "D2_patterns": {
+      "score": 0.9,
+      "gaps": [
+        "Pattern 'PMLTAGS.exportasxls' — not found in KB (KB has COLLECTION, ARRAY, FILE objects but not PMLTAGS). Added to benchmark based on original file context (JDE_BI_tagRegister-export.pmlmac reference).",
+        "Pattern 'RAMCOMMONLOGGER' object — not in KB. Custom project object for error logging. Benchmark uses it based on original codebase reference.",
+        "Pattern 'jacExportRDLDataReport' / 'jacExportRDLDataReportMatrix' — custom PML functions, not in KB.",
+        "Pattern 'var !grid collect all LSTDEF with (…)' — PML1 collection query syntax, partially covered by KB COLLECTION docs but LSTDEF-specific not explicitly documented."
+      ]
+    },
+    "D3_structure": {
+      "score": 0.0,
+      "gaps": [
+        "Original is an empty shell (TAGS/FINISH only) — no structure to compare. Benchmark establishes a logical section-based structure: imports → setup → exports (MTR, RDL, DOC, ALL, 3D, RDL-dataset) → sync → error handling."
+      ]
+    },
+    "D4_naming": {
+      "score": 0.0,
+      "gaps": [
+        "Original file is a stub — no naming conventions to evaluate. Benchmark uses consistent RAM/Project-specific naming: !!ramCommonLogger, !!tags, !pathName, !timestamp, !commonAttributes."
+      ]
+    },
+    "D5_logic": {
+      "score": 0.7,
+      "gaps": [
+        "Pattern 'grid.lstflt = !realUnset' to clear filters before export — not in KB, verified from original codebase pattern.",
+        "Pattern 'CATNAM of LSTGRP of $!gridRef' — LSTDEF query substitution, not in KB syntax reference.",
+        "Pattern 'Upcase(LSTNAM) eq …' — case-insensitive comparison, covered by KB operators but Upcase() function not explicitly in KB.",
+        "Empty-value normalization via !emptyPatternList.split()/.append() — covered by KB ARRAY patterns."
+      ]
+    },
+    "D6_dependencies": {
+      "score": 0.8,
+      "gaps": [
+        "External .NET add-in 'Aveva.Engineering.Tags.Pml' — KB has PML Add-ins page but no specific coverage of this add-in.",
+        "Custom object 'RAMCOMMONLOGGER' — not in KB, project-specific.",
+        "Custom functions 'jacExportRDLDataReport' / 'jacExportRDLDataReportMatrix' — not in KB, project-specific.",
+        "External tool 'rclone-v1.72.1' via SYSCOM call — not in KB.",
+        "Object 'PMLTAGS' — not in KB (confirmed gap).",
+        "Object 'MEASURE' and 'UNIT' — not in KB (confirmed gap)."
+      ]
+    },
+    "D7_kbCompleteness": {
+      "newEntriesNeeded": [
+        {
+          "suggestedId": "obj_ptmltags_export",
+          "category": "objects",
+          "subcategory": "PMLTAGS",
+          "title": "PMLTAGS Object for Engineering Tag Export",
+          "principle": "PMLTAGS is a system object providing methods to export engineering tag data to XLSX format via GridControl integration.",
+          "rule": "Create via object PMLTAGS(), then call exportasxls(groupName, listName, filePath) to export a list definition's data.",
+          "syntax": "!!tags = object PMLTAGS()\n!!tags.exportasxls(!groupName, !listName, !filePath)",
+          "exampleCanonical": "-- CB RAMBiReportExport.pmlmac\n!!tags = object PMLTAGS()\n!!tags.exportasxls(!gridGroupName, '$!<gridRef.LSTNAM>', '$!filepath')",
+          "exampleAntipattern": "!tags = PMLTAGS()  -- missing OBJECT keyword\n!!tags.exportxls(...)  -- wrong method name",
+          "pitfalls": [
+            "Must use OBJECT keyword before PMLTAGS()",
+            "exportasxls requires valid LSTDEF groupName, listName, and writable file path",
+            "File path must include .xlsx extension for correct export format"
+          ],
+          "relatedIds": ["obj_collection_scope", "obj_gridcontrol_export"],
+          "sourcedoc": "AVEVA Engineering PML Add-ins documentation",
+          "sourcecodebase": "RAMBiReportExport.pmlmac"
+        },
+        {
+          "suggestedId": "obj_ramcommonlogger",
+          "category": "objects",
+          "subcategory": "custom-logging",
+          "title": "RAMCOMMONLOGGER Custom Error Logger Object",
+          "principle": "RAMCOMMONLOGGER is a project-specific PML object for logging macro errors and warnings to Excel files.",
+          "rule": "Create via object RAMCOMMONLOGGER(), use addHeading() to set column headers, writeErrorDataToExcel() to dump log data.",
+          "syntax": "!!ramCommonLogger = object RAMCOMMONLOGGER()\n!!ramCommonLogger.addHeading(!headings)\n!!ramCommonLogger.writeErrorDataToExcel(!logFile, false)",
+          "exampleCanonical": "-- CB JDE_BI_tagRegister-export.pmlmac\n!!ramCommonLogger = object RAMCOMMONLOGGER()\n!headings = |Tag Name;Attribute Name;Error Text|\n!!ramCommonLogger.addHeading(!headings.split(|;|))",
+          "exampleAntipattern": "!rc = object RAMCOMMONLOGGER()  -- use !! for global\n!!ramCommonLogger.writeErrorDataToExcel(!logFile, true)  -- second arg is append flag",
+          "pitfalls": [
+            "Must be declared as global (!!) for cross-method access",
+            "addHeading expects semicolon-separated string that is split()",
+            "writeErrorDataToExcel second parameter controls append mode"
+          ],
+          "relatedIds": ["log_error_handling_basic"],
+          "sourcedoc": "Ramboll Jackdaw project macros",
+          "sourcecodebase": "JDE_BI_tagRegister-export.pmlmac"
+        },
+        {
+          "suggestedId": "obj_measure_unit",
+          "category": "objects",
+          "subcategory": "measure-unit",
+          "title": "MEASURE and UNIT Objects for Unit Conversion",
+          "principle": "MEASURE and UNIT are PML system objects for working with engineering units and conversions.",
+          "rule": "Create MEASURE('name') to get a measure object, then setunits(unit) to configure. Create UNIT('name') to get a unit reference.",
+          "syntax": "!measure = object MEASURE('AngularFrequency')\n!unit = object UNIT(|rpm|)\n!measure.setunits(!unit)",
+          "exampleCanonical": "-- CB JDE_BI_tagRegister-export.pmlmac\n!AngularFrequencyDimension = object MEASURE('AngularFrequency')\n!rpmUnit = object UNIT(|rpm|)\n!AngularFrequencyDimension.setunits(!rpmUnit)",
+          "exampleAntipattern": "!measure = MEASURE('AngularFrequency')  -- missing OBJECT\n!unit = UNIT('rpm')  -- missing OBJECT",
+          "pitfalls": [
+            "Both MEASURE and UNIT require OBJECT keyword",
+            "setunits() may fail silently if unit is not valid for the measure",
+            "Unit names are case-sensitive"
+          ],
+          "relatedIds": ["typeconversion_unit_systems"],
+          "sourcedoc": "AVEVA Engineering measurement documentation",
+          "sourcecodebase": "JDE_BI_tagRegister-export.pmlmac"
+        },
+        {
+          "suggestedId": "pml1_lstdef_query",
+          "category": "controlflow",
+          "subcategory": "list-definition-queries",
+          "title": "LSTDEF Collection Query Pattern",
+          "principle": "PML1 'var !name collect all LSTDEF with (expression)' queries list definitions by name and returns a GRID collection.",
+          "rule": "Use 'var !grid collect all LSTDEF with (LSTNAM eq |listName|)' to find a single list definition. Access via !grid.first().dbref() and !grid.size().",
+          "syntax": "var !grid collect all LSTDEF with (LSTNAM eq |IM-tag-dataset|)\nif (!grid.size() eq 1) then\n  !gridRef = !grid.first().dbref()\n  !gridRef.lstflt = !realUnset\nendif",
+          "exampleCanonical": "-- CB RAMBiReportExport.pmlmac\nvar !grid collect all LSTDEF with (LSTNAM eq |IM-tag-dataset|)\nif (!grid.size() eq 1) then\n  !gridRef = !grid.first().dbref()\n  !gridRef.lstflt = !realUnset\nendif",
+          "exampleAntipattern": "var !grid collect all LSTDEF  -- missing 'with' filter\nif (!grid.size() gt 0) then  -- should check eq 1 for uniqueness",
+          "pitfalls": [
+            "LSTDEF query returns a GRID, not a single DBREF",
+            "Always check !grid.size() eq 1 before accessing first()",
+            "CATNAM of LSTGRP of $!gridRef extracts the list group name for export",
+            "$!gridRef uses query substitution, not direct method call"
+          ],
+          "relatedIds": ["obj_collection_scope", "pml1_query_substitution"],
+          "sourcedoc": "AVEVA PDMS/E3D list definition documentation",
+          "sourcecodebase": "RAMBiReportExport.pmlmac"
+        }
+      ]
+    }
+  },
+  "actionRequired": "patch_kb"
+}

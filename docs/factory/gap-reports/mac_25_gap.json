@@ -1,0 +1,67 @@
+{
+  "fileId": "mac_25",
+  "filePath": "docs/codebase/macros/JDE_getTagInfo.pmlmac",
+  "reviewDate": "2026-06-03",
+  "overallGapScore": 0.05,
+  "dimensions": {
+    "D1_syntax": {
+      "score": 0.0,
+      "gaps": [
+        "No syntax gaps. All constructs (!var = !!ce, dot-notation attribute access) are standard PML1 confirmed in KB."
+      ]
+    },
+    "D2_patterns": {
+      "score": 0.0,
+      "gaps": [
+        "All patterns found in KB: !!ce pseudo variable (PML1 Syntax.md), !local variables (best-practices.md), dot-notation attribute access (PML1 Syntax.md §Dot Notation)."
+      ]
+    },
+    "D3_structure": {
+      "score": 0.0,
+      "gaps": [
+        "Macro has no lifecycle/method structure — purely sequential assignments. No structural gaps relative to original intent."
+      ]
+    },
+    "D4_naming": {
+      "score": 0.0,
+      "gaps": [
+        "JDE_ prefix consistent with project naming. Local variable names (!tag, !tagName, !tagDescription, !tagActtype) follow !local convention."
+      ]
+    },
+    "D5_logic": {
+      "score": 0.0,
+      "gaps": [
+        "Original has no error handling (BADREF/UNSET checks). Benchmark reproduces this faithfully — no logic gaps."
+      ]
+    },
+    "D6_dependencies": {
+      "score": 0.0,
+      "gaps": [
+        "No external dependencies. Only built-in PML pseudo variables and attribute access."
+      ]
+    },
+    "D7_kbCompleteness": {
+      "newEntriesNeeded": [
+        {
+          "suggestedId": "macro-ce-property-extract",
+          "category": "macro",
+          "subcategory": "pseudo-variables",
+          "title": "Extracting tag/element properties via !!ce dot notation",
+          "principle": "Macros that need tag metadata should use !!ce as the current-element reference and access attributes via dot notation (.name, .desc, .acttype).",
+          "rule": "Always assign !!ce to a local !var first to avoid repeated pseudo-variable lookups. Use !local naming for all extracted properties.",
+          "syntax": "!ref = !!ce\n!prop = !ref.attr",
+          "exampleCanonical": "!tag = !!ce\n!tagName = !tag.name\n!tagDescription = !tag.desc\n!tagActtype = !tag.acttype",
+          "exampleAntipattern": "!!ce.name -- accessing !!ce directly multiple times without caching",
+          "pitfalls": [
+            "If the current element is not a tag type, .desc or .acttype may return empty or error.",
+            "Consider adding BADREF checks if the macro may run on non-tag elements."
+          ],
+          "relatedIds": ["pseudo-attr-ce", "dot-notation-attr-access", "local-var-scope"],
+          "sourcedoc": "PML1 Syntax.md, best-practices.md",
+          "sourcecodebase": "JDE_getTagInfo.pmlmac"
+        }
+      ]
+    }
+  },
+  "actionRequired": "patch_kb"
+}

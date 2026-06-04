@@ -1,0 +1,74 @@
+{
+  "fileId": "mac_23",
+  "filePath": "docs/codebase/macros/JDE_exData_import.pmlmac",
+  "reviewDate": "2026-06-03",
+  "overallGapScore": 0.82,
+  "dimensions": {
+    "D1_syntax": {
+      "score": 0.8,
+      "gaps": [
+        "Original has 0 definitions and 0 members; benchmark also has 0 definitions/members.",
+        "Benchmark validated with parseErrorCount=0, astNodeCount=231 — clean PML macro syntax."
+      ]
+    },
+    "D2_patterns": {
+      "score": 0.75,
+      "gaps": [
+        {
+          "pattern": "PML RELOAD OBJECT TAGMANAGEMENTTMP",
+          "suggestedKbId": "cb_mac_23_reload_object",
+          "note": "Original reloads a named PML object; benchmark omits this pattern entirely."
+        },
+        {
+          "pattern": "!!createObjectsFromExcelSheet",
+          "suggestedKbId": "cb_mac_23_createObjectsFromExcelSheet",
+          "note": "Global function for Excel import present in original but absent from benchmark."
+        }
+      ],
+      "present": [
+        "import GridControl + handle any/endhandle",
+        "using namespace |Aveva.Core.Presentation|",
+        "ARRAY() + .Append() + .Size()",
+        "STRING.Replace()",
+        "STRING.Split()",
+        "NETGRIDCONTROL + .clearGrid() + .BindToDataSource() + .saveGridToExcel()",
+        "NETDATASOURCE constructor",
+        "SAVEWORK"
+      ]
+    },
+    "D3_structure": {
+      "score": 0.85,
+      "gaps": [
+        "Benchmark preserves the macro flow: import → setup → build data → create grid → export → SAVEWORK."
+      ]
+    },
+    "D4_naming": {
+      "score": 0.7,
+      "gaps": [
+        "Benchmark uses simplified names (!hdr, !rows, !r1–!r3, !grid, !source); original uses project-specific names (!issueData, !headerList, !dataTable)."
+      ]
+    },
+    "D5_logic": {
+      "score": 0.8,
+      "gaps": [
+        "Original reads real Excel data via !!createObjectsFromExcelSheet and conditionally exports issues; benchmark uses hardcoded ARRAY rows for demonstration."
+      ]
+    },
+    "D6_dependencies": {
+      "score": 0.85,
+      "gaps": [
+        "GridControl import ✓",
+        "NETGRIDCONTROL + NETDATASOURCE ✓",
+        "Aveva.Core.Presentation namespace ✓",
+        "SAVEWORK ✓"
+      ]
+    },
+    "D7_kbCompleteness": {
+      "newEntriesNeeded": [
+        "cb_mac_23_reload_object",
+        "cb_mac_23_createObjectsFromExcelSheet"
+      ]
+    }
+  },
+  "actionRequired": "patch_kb"
+}

@@ -1,0 +1,47 @@
+{
+  "fileId": "mac_18",
+  "taskDescription": "Macro that runs commissioning package data to Excel. Uses ONERROR/GOLABEL error trap, imports GridControl and Aveva.Engineering.Tags.Pml, initializes a logger, builds empty-pattern and replacement-data arrays, collects all named RAMCommissioningPackages via COLLECT ALL, iterates with DO/ENDDO, runs nested COLLECT ALL with $! variable substitution, calls external export function, handles errors with SAVEWORK/UNCLAIM ALL and error logging, finishes with FINISH.",
+  "patternsUsed": [
+    "onerror_golabel_error_trap",
+    "handle_block_syntax",
+    "import_statement",
+    "using_namespace",
+    "array_object_methods",
+    "datetime_object",
+    "string_split",
+    "string_append",
+    "collect_all_iteration",
+    "collect_all_variable_substitution",
+    "2d_array_initialization",
+    "pml1_inset_operator",
+    "pml1_matchwild_function",
+    "savework_unclaim_all",
+    "macro_finish_keyword",
+    "label_syntax"
+  ],
+  "lintResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0
+  },
+  "validateResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0
+  },
+  "kbGaps": [
+    "ONERROR/GOLABEL error trap pattern not in KB",
+    "LABEL syntax not in KB",
+    "SAVEWORK/UNCLAIM ALL commands not in KB",
+    "inset operator not in KB operator table",
+    "matchwild function not in KB operator table",
+    "2D array initialization not in KB",
+    "COLLECT ALL with $! variable substitution not in KB",
+    "FINISH keyword placement not in KB"
+  ],
+  "benchmarkContent": "-- Benchmark: comm package data export to Excel\n-- Demonstrates: error handling, imports, namespaces, ARRAY, DATETIME,\n--   COLLECT ALL iteration, 2D array attributes, string manipulation,\n--   file path construction, FINISH\n-- Patterns confirmed via KB: controlflow, objects, arrays, macros\n\nONERROR GOLABEL /Error\n\nimport 'GridControl'\nhandle any\nendhandle\n\nimport 'Aveva.Engineering.Tags.Pml'\nhandle any\nendhandle\n\nusing namespace 'Aveva.Core.Presentation'\nusing namespace 'Aveva.Engineering.Tags'\n\n-- Initialise logging heading via logger object\n!!ramCommonLogger = object RAMCOMMONLOGGER()\n!headings = |Tag Name;Attribute Name;Error Text|\n!!ramCommonLogger.addHeading(!headings.split(|;|))\n\n-- Configuration path and data structures\n!pathName = |C:\\Data\\Exports\\commReports|\n!realUnset = ARRAY()\n!dt = OBJECT DATETIME()\n!year = !dt.year()\n!month = !dt.month().string('I2')\n!date = !dt.date().string('I2')\n!hour = !dt.hour().string('I2')\n!minute = !dt.minute().string('I2')\n\n-- Build list of empty / placeholder value patterns to detect\n!emptyPatternString = |Unset unset UNSET|\n!emptyPatternList = !emptyPatternString.split()\n!emptyPatternList.append(| |)\n!emptyPatternList.append(||)\n!emptyPatternList.append(|0ampere|)\n\n-- Replacement map: large numeric sentinel values → 'NA'\n!isErrorReport = false\n!replaceData = object ARRAY()\n!replaceData.append('999999999ampere;NA')\n!replaceData.append('999999999deg/s;NA')\n!replaceData.append('999999999degC;NA')\n!replaceData.append('999999999kg;NA')\n!replaceData.append('999999kg;NA')\n!replaceData.append('99999kg;NA')\n!replaceData.append('999999999kg/m3;NA')\n!replaceData.append('999999999kg/s;NA')\n!replaceData.append('999999999kW;NA')\n!replaceData.append('999999999m/s;NA')\n!replaceData.append('9999999993m/s;NA')\n!replaceData.append('999999999m3/s;NA')\n!replaceData.append('999999999mm;NA')\n!replaceData.append('999999999mm2;NA')\n!replaceData.append('999999999Pa.s;NA')\n!replaceData.append('999999999pascal;NA')\n!replaceData.append('999999999Ratio;NA')\n!replaceData.append('999999999second;NA')\n!replaceData.append('999999999volt;NA')\n!replaceData.append('999999999;NA')\n!replaceData.append('999999999N/m;NA')\n!replaceData.append('9999999mm;NA')\n!replaceData.append('9999999;NA')\n!replaceData.append('999999;NA')\n!replaceData.append('99999;NA')\n!replaceData.append('9999999000;NA')\n!replaceData.append('9999999993;NA')\n!replaceData.append('9999999000ampere;NA')\n!replaceData.append('999999ampere;NA')\n!replaceData.append('N/A;NA')\n!replaceData.append('N.A;NA')\n!replaceData.append('N.A.;NA')\n!replaceData.append('Area-NA;NA')\n!replaceData.append('PU-NA;NA')\n!replaceData.append('PO-NA;NA')\n!replaceData.append('SECE-NA;NA')\n!replaceData.append('01/01/1990 00:00:00;NA')\n\n-- 2D array: common attributes (column 1 = attribute expression, column 2 = display label)\n!commonAttributes = object ARRAY()\n!commonAttributes[1][1] = ':RAMTagOwner'\n!commonAttributes[1][2] = 'Tag Owner'\n!commonAttributes[2][1] = ':TagStatus'\n!commonAttributes[2][2] = 'Tag Status'\n!commonAttributes[3][1] = 'NAMN of :TagRefToPurchaseOrder'\n!commonAttributes[3][2] = 'PO Number'\n!commonAttributes[4][1] = ':RAMPackageNumber of :TagRefToPurchaseOrder'\n!commonAttributes[4][2] = 'Package'\n!commonAttributes[5][1] = ':TagClassName'\n!commonAttributes[5][2] = 'Shell Class'\n!commonAttributes[6][1] = 'NAMN of :TagRefToMCPackage'\n!commonAttributes[6][2] = 'MC Package'\n!commonAttributes[7][1] = 'NAMN of :MCPackageToCommissioningPackageRef of :TagRefToMCPackage'\n!commonAttributes[7][2] = 'Comm Package'\n!commonAttributes[8][1] = 'NAMN of :TagRefToArea'\n!commonAttributes[8][2] = 'Area'\n!commonAttributes[9][1] = ':RambollTagStatus'\n!commonAttributes[9][2] = 'Maturity'\n!commonAttributes[10][1] = 'NAMN of :TagRefToProcessUnit'\n!commonAttributes[10][2] = 'Process Unit'\n!commonAttributes[11][1] = ':RAMInstallationContractors'\n!commonAttributes[11][2] = 'Install By'\n!commonAttributes[12][1] = 'REPLACE(IFT(:TagName of :TagRefToParentTag neq NAMN of :TagRefToParentTag and (not(unset(:TagName of :TagRefToParentTag)) and not(empty(:TagName of :TagRefToParentTag))), :TagName of :TagRefToParentTag, NAMN of :TagRefToParentTag), |‐|, |-|)'\n!commonAttributes[12][2] = 'Parent Tag'\n\n-- Collect commissioning packages and iterate\nvar !commPckgList collect all (:RAMCommissioningPackage) with (isnamed)\ndo !commPckgName values !commPckgList\n    !commPckg = !commPckgName.dbref()\n    !tagFilter = 'NOT(:TagStatus inset (|VOID|, |Future|)) and ISNAMED and NOT(EMPTY(:RAMTAGOWNER)) and matchwild(namn of :TagRefToMCPackage, |*$!<commPckg.namn>*|)'\n    var !tagList collect all (ENGITE) with ($!tagFilter)\n    !size = !tagList.size()\n    if (!size gt 0) then\n        !rdlFilter = |:RDLSource eq 'AKSO_Tag Properties Templates_Rev6'|\n        !filePathRam = |$!pathName\\_master\\data\\comm_data\\commReport-$!<commPckg.namn>.xlsx|\n        !!jacExportRDLDataReportMatrix(!filePathRam, !rdlFilter, !tagFilter, !emptyPatternList, !commonAttributes, !replaceData, !isErrorReport)\n    endif\nenddo\n\n-- Error handler label\nLABEL /Error\nhandle any\n    SAVEWORK\n    UNCLAIM ALL\n    !dt = OBJECT DATETIME()\n    !year = !dt.year()\n    !month = !dt.month().string('I2')\n    !date = !dt.date().string('I2')\n    !hour = !dt.hour().string('I2')\n    !minute = !dt.minute().string('I2')\n    !!ramCommonLogger.writeErrorDataToExcel(|C:\\Data\\Exports\\Logs\\commisioningReport-log_$!<year>-$!<month>-$!<date>-$!<hour>.xlsx|, false)\nendhandle\n\nFINISH",
+  "confidenceScore": 0.85,
+  "originalSemantics": "Macro that collects all named RAMCommissioningPackages, iterates through them, collects ENGITE tags matching a per-package filter, and exports tag properties to individual Excel files via an external function jacExportRDLDataReportMatrix. Uses ONERROR/GOLABEL error trap with SAVEWORK/UNCLAIM ALL cleanup and error logging to Excel.",
+  "originalLineCount": 108,
+  "benchmarkLineCount": 104,
+  "kbEntriesAdded": 6,
+  "reviewAction": "patch_kb"
+}

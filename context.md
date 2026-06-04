@@ -1,60 +1,48 @@
-
 # Code Context
 
 ## Files Retrieved
 
-### Functions (.pmlfnc)
-1. `C:/Work/Development/projects/bami/bami-tech/aveva-automation/clients/bami/rnd/pml-lsp/docs/codebase/createObjectsFromExcelSheet.pmlfnc` - Legacy function for creating objects from Excel.
-2. `C:/Work/Development/projects/bami/bami-tech/aveva-automation/clients/bami/rnd/pml-lsp/docs/codebase/ew1/function/mlpGetDescLabel.pmlfnc` - Function to get description label. `define function !!mlpGetDescLabel(!element is STRING) is STRING`
-3. `C:/Work/Development/projects/bami/bami-tech/aveva-automation/clients/bami/rnd/pml-lsp/docs/codebase/ew1/function/ramGetBackRef.pmlfnc` - Function to get back reference. `define function !!ramGetBackRef(!element is STRING, !backAttribute is STRING, !attribute is STRING) is STRING`
-4. `C:/Work/Development/projects/bami/bami-tech/aveva-automation/clients/bami/rnd/pml-lsp/docs/codebase/jackdow/_publish/functions/jacCheckForceUpdate.pmlfnc` - Published function.
-5. `C:/Work/Development/projects/bami/bami-tech/aveva-automation/clients/bami/rnd/pml-lsp/docs/codebase/jackdow/_publish/functions/jacDeleteUnnamed.pmlfnc` - Published function for deleting unnamed elements.
-6. `C:/Work/Development/projects/bami/bami-tech/aveva-automation/clients/bami/rnd/pml-lsp/docs/codebase/jackdow/_publish/functions/jacExportFullDataReport.pmlfnc` - Published function for exporting full data report.
-7. `C:/Work/Development/projects/bami/bami-tech/aveva-automation/clients/bami/rnd/pml-lsp/docs/codebase/jackdow/_publish/functions/jacExportLinks.pmlfnc` - Published function for exporting links.
-8. `C:/Work/Development/projects/bami/bami-tech/aveva-automation/clients/bami/rnd/pml-lsp/docs/codebase/jackdow/_publish/functions/jacExportRDLDataReport.pmlfnc` - Published function for exporting RDL data report.
-9. `C:/Work/Development/projects/bami/bami-tech/aveva-automation/clients/bami/rnd/pml-lsp/docs/codebase/jackdow/_publish/functions/jacExportRDLDataReportMatrix.pmlfnc` - Published function for exporting RDL data report matrix.
-10. `C:/Work/Development/projects/bami/bami-tech/aveva-automation/clients/bami/rnd/pml-lsp/docs/codebase/jackdow/_publish/functions/jacNameRegExValidatorTTY.pmlfnc` - Published function for name validation using regex.
-1al/function/mlpGetDescLabel.pmlfnc` - Function to get description label. `define function !!mlpGetDescLabel(!element is STRING) is STRING`
-11. `C:/Work/Development/projects/bami/bami-tech/aveva-automation/clients/bami/rnd/pml-lsp/docs/codebase/ew1/function/ramGetBackRef.pmlfnc` - Function to get back reference. `define function !!ramGetBackRef(!element is STRING, !backAttribute is STRING, !attribute is STRING) is STRING`
-
-### Macros (.pmlmac)
-... (list of .pmlmac files)
-
-### Objects (.pmlobj)
-... (list of .pmlobj files)
-
-### Forms (.pmlfrm)
-... (list of .pmlfrm files)
+1.  `package.json` - показывает основные команды для сборки и запуска, а также зависимости.
+2.  `docs/examples/t1_collection_xlsx_export.pmlmac` и `t2_sessionHistory_xlsx_export.pmlmac` - примеры PML макросов.
+3.  `src/core/data/code-examples-corpus.json` - содержит примеры кода PML, которые могут быть использованы для тестирования.
+4.  `dist/mcp/pml-kb-tools.js` - скомпилированный код инструментов, имеющих отношение к PML.
 
 ## Key Code
 
-### Function
-- `mlpGetDescLabel`: `define function !!mlpGetDescLabel(!element is STRING) is STRING`
-- `ramGetBackRef`: `define function !!ramGetBackRef(!element is STRING, !backAttribute is STRING, !attribute is STRING) is STRING`
+Из `package.json`:
 
-### Macro
-- Many macros appear to be for data import/export (`JDE_data-import`, `EBE_full_tag_export`, etc.).
-- Several have user-specific or machine-specific suffixes (`-DK-NEUWDSTA515`, `_KTKNGR`, `_LEIR`).
+```json
+"scripts": {
+    "build": "tsc --noEmit false",
+    "start": "node dist/server.js",
+    "start:http": "node dist/server.js --http-stream",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "validate:kb": "npm run build -- --pretty false && node dist/knowledge/validation/validate-kb.js"
+}
+```
 
-### Object
-- `LoopData`: Object for loop data management, with versioned variants.
-- `TagManagementTmp`: Object for tag management, with multiple versioned variants.
-- `ramImportExcel...`: A suite of objects for handling Excel import.
-
-### Form
-- `ramImportExcel...`: Forms for user interaction during Excel import.
-- `jacEISDeliveryForm`: Form related to EIS delivery.
+Это основные команды для работы с проектом.
 
 ## Architecture
 
-The codebase seems to be a collection of PML scripts for AVEVA E3D, with a focus on data management, import/export, and reporting. There is a clear distinction between different types of PML files (.pmlfnc, .pmlmac, .pmlobj, .pmlfrm).
-
-A significant portion of the code is under the `jackdow` directory, which appears to be a specific project or module. The `_publish` subdirectory suggests a release or deployment structure.
-
-There is a heavy use of versioning suffixes in filenames, indicating a manual version control system. This suggests a risk of using outdated or incorrect versions of scripts.
-
-The `ew1` directory seems to be another module or project, smaller than `jackdow`.
+- Это TypeScript проект, который компилируется в JavaScript.
+- `tsc` используется для сборки, результат помещается в `dist`.
+- Запуск осуществляется командой `node dist/server.js`.
+- Проект содержит инструменты для работы с PML, включая базу знаний и примеры кода.
+- MCP-инструменты, по всей видимости, находятся в `dist/mcp`.
 
 ## Start Here
 
-Start by examining the `jackdow/_publish` directory. This directory likely contains the most recent and stable versions of the scripts. The `ramImportExcel` suite of files (`.pmlobj` and `.pmlfrm`) seems to be a good starting point to understand the data import functionality, which appears to be a core feature of this codebase. Specifically, `ramImportExcelProcessor.pmlfrm` could be the main entry point for the Excel import process.
+Начать стоит с `package.json`, чтобы понять, как собирать и запускать проект. Далее, изучить `docs/examples` и `src/core/data/code-examples-corpus.json` для получения примеров PML кода для тестирования.
+
+## Supervisor coordination
+
+### Риски
+- Проект является сервером. Запуск `npm start` или `npm run start:http` может привести к запуску сетевого сервиса. Это нужно делать с осторожностью.
+- Не до конца понятно, как именно MCP инструменты интегрируются с AVEVA.
+
+### Что нужно уточнить у пользователя
+1.  Каким образом локальный сервер (`pml-lsp-mcp-server`) должен взаимодействовать с AVEVA?
+2.  Есть ли какие-то конкретные сценарии PML, которые нужно протестировать в первую очередь?
+3.  Можно ли безопасно запускать `npm run build` и `npm start` в текущем окружении?

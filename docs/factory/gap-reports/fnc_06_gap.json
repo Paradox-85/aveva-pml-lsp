@@ -1,0 +1,111 @@
+{
+  "fileId": "fnc_06",
+  "filePath": "docs/codebase/functions/jacExportRDLDataReport.pmlfnc",
+  "reviewDate": "2026-06-03",
+  "overallGapScore": 0.88,
+  "dimensions": {
+    "D1_syntax": {
+      "score": 0.5,
+      "gaps": [
+        "Source has 1 definitions and 0 members; generated benchmark validated with parseErrorCount=0"
+      ]
+    },
+    "D2_patterns": {
+      "score": 0.75,
+      "gaps": [
+        {
+          "pattern": "collect all",
+          "suggestedKbId": "cb_fnc_06_collect_all"
+        },
+        {
+          "pattern": "DO ",
+          "suggestedKbId": "cb_fnc_06_do"
+        },
+        {
+          "pattern": "do ",
+          "suggestedKbId": "cb_fnc_06_do"
+        },
+        {
+          "pattern": "handle",
+          "suggestedKbId": "cb_fnc_06_handle"
+        },
+        {
+          "pattern": "RAMCOMMONLOGGER",
+          "suggestedKbId": "cb_fnc_06_ramcommonlogger"
+        },
+        {
+          "pattern": "ELEMENTTYPE",
+          "suggestedKbId": "cb_fnc_06_elementtype"
+        },
+        {
+          "pattern": "ATTRIBUTE",
+          "suggestedKbId": "cb_fnc_06_attribute"
+        },
+        {
+          "pattern": "BLOCK",
+          "suggestedKbId": "cb_fnc_06_block"
+        },
+        {
+          "pattern": "Evaluate",
+          "suggestedKbId": "cb_fnc_06_evaluate"
+        },
+        {
+          "pattern": "undefined",
+          "suggestedKbId": "cb_fnc_06_undefined"
+        },
+        {
+          "pattern": "!!",
+          "suggestedKbId": "cb_fnc_06_"
+        },
+        {
+          "pattern": "ARRAY",
+          "suggestedKbId": "cb_fnc_06_array"
+        },
+        {
+          "pattern": "FILE",
+          "suggestedKbId": "cb_fnc_06_file"
+        }
+      ]
+    },
+    "D3_structure": {
+      "score": 0.7,
+      "gaps": [
+        "Benchmark preserves signatures/major declarations where possible but does not copy implementation bodies."
+      ]
+    },
+    "D4_naming": {
+      "score": 0.55,
+      "gaps": [
+        "Project naming extracted from jacExportRDLDataReport.pmlfnc; benchmark may simplify local variable names."
+      ]
+    },
+    "D5_logic": {
+      "score": 0.8,
+      "gaps": [
+        "Original operational logic is intentionally not copied; rerun_worker may improve semantic fidelity for complex files."
+      ]
+    },
+    "D6_dependencies": {
+      "score": 0.85,
+      "gaps": [
+        "RAMCOMMONLOGGER",
+        "ELEMENTTYPE",
+        "ATTRIBUTE",
+        "FILE"
+      ]
+    },
+    "D7_kbCompleteness": {
+      "newEntriesNeeded": [
+        "cb_fnc_06_collect_all",
+        "cb_fnc_06_do",
+        "cb_fnc_06_do",
+        "cb_fnc_06_handle",
+        "cb_fnc_06_ramcommonlogger",
+        "cb_fnc_06_elementtype",
+        "cb_fnc_06_attribute",
+        "cb_fnc_06_block"
+      ]
+    }
+  },
+  "actionRequired": "patch_kb"
+}

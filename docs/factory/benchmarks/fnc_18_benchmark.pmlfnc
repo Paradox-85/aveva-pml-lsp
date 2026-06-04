@@ -1,0 +1,20 @@
+-- PML benchmark for function ramGetBackRef
+
+-- Define a simple function to demonstrate PML function syntax
+-- This function is a placeholder based on the name "ramGetBackRef"
+-- It's assumed to take a database reference and return a back reference.
+
+define function !!ramGetBackRef(!ref is dbref) return dbref
+
+    -- Placeholder for function logic.
+    -- In a real scenario, this would contain logic to find
+    -- the back reference of the input object.
+    -- For demonstration, we'll return the input itself or DBREF NULL.
+
+    if !ref.isnull eq false then
+        return !ref -- Example: return the same object as a "back reference" for simplicity
+    else
+        return dbref null
+    endif
+
+endfunction

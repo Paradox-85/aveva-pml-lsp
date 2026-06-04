@@ -1,0 +1,59 @@
+{
+  "fileId": "mac_38",
+  "fileName": "JDE_vendorPackage-reports.pmlmac",
+  "fileType": "macro",
+  "taskDescription": "Run path data to Excel by vendor package — generates vendor-specific Excel reports from PDMS/E3D tag data using RDL templates",
+  "runDate": "2026-06-03",
+  "kbResearch": {
+    "patternsConfirmed": [
+      "import GridControl with handle/any",
+      "import Aveva.Engineering.Tags.Pml with handle/any",
+      "using namespace Aveva.Core.Presentation",
+      "using namespace Aveva.Engineering.Tags",
+      "STRING.split() → ARRAY of strings",
+      "ARRAY.append() method",
+      "object ARRAY() 2D indexing [row][col]",
+      "DATETIME() object: year(), month(), date(), hour(), minute(), string('I2')",
+      "var VAR eval (...) for all TAG",
+      "ARRAY.unique() method",
+      "DO VAR values ARRAY loop",
+      "var VAR collect all (TYPE) with (FILTER)",
+      "ARRAY.size() method",
+      "IF condition THEN ... ENDIF",
+      "LABEL /Error with handle any",
+      "SAVEWORK and UNCLAIM ALL",
+      "matchwild() with $! variable substitution",
+      "NOT(EMPTY(...)) and not(unset(...))",
+      "REPLACE(IFT(...)) nested expression",
+      "FINISH statement"
+    ],
+    "kbSearchesPerformed": 6
+  },
+  "lintResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 322
+  },
+  "validateResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 322
+  },
+  "benchmarkPath": "docs/factory/benchmarks/mac_38_benchmark.pmlmac",
+  "gapReportPath": "docs/factory/gap-reports/mac_38_gap.json",
+  "kbPatchPath": "docs/factory/kb-patches/mac_38_kb_patch.ts",
+  "kbGaps": [
+    "FINISH inside error handler should be a real statement, not commented out",
+    "String delimiters required for paths in error handler function calls"
+  ],
+  "confidenceScore": 0.85,
+  "changesFromOriginal": [
+    "Fixed typo: !commonAttribiutes → !commonAttributes",
+    "Fixed: --FINISH comment replaced with actual FINISH statement inside error handler",
+    "Fixed: Added pipe delimiters to error handler Excel path argument",
+    "Replaced hardcoded Windows paths with generic /project/output/ placeholder",
+    "Normalized Unicode en-dash |‐| → |&#8211;|",
+    "Added section headers for readability",
+    "Removed unreachable standalone FINISH after endhandle"
+  ]
+}

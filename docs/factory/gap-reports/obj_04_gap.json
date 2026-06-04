@@ -1,0 +1,91 @@
+{
+  "fileId": "obj_04",
+  "filePath": "docs/codebase/objects/ramImportExcelConfigLoader.pmlobj",
+  "reviewDate": "2026-06-03",
+  "overallGapScore": 0.25,
+  "dimensions": {
+    "D1_syntax": {
+      "score": 0.9,
+      "gaps": [
+        {
+          "pattern": "STRING.neq() PML2 method form",
+          "detail": "Original uses !parameterDetail.neq('') as PML2 method; KB documents .eq(), .lt(), .gt() but .neq() method form not explicitly listed"
+        }
+      ]
+    },
+    "D2_patterns": {
+      "score": 0.6,
+      "gaps": [
+        {
+          "pattern": "RamPMLExcelReaderClass() object constructor",
+          "detail": "Customer-specific Excel reader class not in KB",
+          "suggestedKBId": "customer-ram-pml-excel-reader-class"
+        },
+        {
+          "pattern": "RamAEPMLExcelReader import namespace",
+          "detail": "Customer-specific import namespace not in KB",
+          "suggestedKBId": "customer-ram-aepml-excel-reader-namespace"
+        },
+        {
+          "pattern": "ExcelReader.ReadExcel() method",
+          "detail": "Customer-specific method on ExcelReader object not in KB",
+          "suggestedKBId": "customer-excel-reader-readexcel-method"
+        }
+      ]
+    },
+    "D3_structure": {
+      "score": 0.95,
+      "gaps": [
+        {
+          "pattern": "Import placed inside object definition block",
+          "detail": "Original has import/handle inside define object/endobject block; benchmark places import before object definition (standard PML layout)"
+        }
+      ]
+    },
+    "D4_naming": {
+      "score": 0.9,
+      "gaps": [
+        {
+          "pattern": "Typo: !paramters",
+          "detail": "Original benchmark preserves typo !paramters (missing 'a') from original source"
+        }
+      ]
+    },
+    "D5_logic": {
+      "score": 0.95,
+      "gaps": [
+        {
+          "pattern": "Lazy global logger initialization",
+          "detail": "addErrorToList uses undefined(!!ramCommonLogger) check to lazily initialize global logger; this lazy-initialization pattern is not explicitly documented in KB"
+        }
+      ]
+    },
+    "D6_dependencies": {
+      "score": 0.5,
+      "gaps": [
+        {
+          "pattern": "!!ramCommonLogger global variable",
+          "detail": "Customer-specific global logger object; RAMCOMMONLOGGER object methods not in KB",
+          "suggestedKBId": "customer-ram-common-logger-global"
+        },
+        {
+          "pattern": "RAMCOMMONLOGGER.addLogDetails() method",
+          "detail": "Customer-specific method on RAMCOMMONLOGGER object not in KB",
+          "suggestedKBId": "customer-ram-common-logger-addlogdetails"
+        }
+      ]
+    },
+    "D7_kbCompleteness": {
+      "newEntriesNeeded": [
+        "customer-ram-pml-excel-reader-class",
+        "customer-ram-aepml-excel-reader-namespace",
+        "customer-excel-reader-readexcel-method",
+        "customer-ram-common-logger-global",
+        "customer-ram-common-logger-addlogdetails",
+        "string-neq-method",
+        "lazy-global-initialization-pattern"
+      ]
+    }
+  },
+  "actionRequired": "patch_kb"
+}

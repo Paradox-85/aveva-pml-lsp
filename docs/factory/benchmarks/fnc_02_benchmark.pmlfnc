@@ -1,0 +1,22 @@
+define function !!jacCheckForceUpdate(!objectName is STRING, !elementRefe is DBREF, !attributeName is STRING, !value is ANY, !isForceUpdate is BOOLEAN) is BOOLEAN
+
+  !isUpdated         = false
+  !valueConverter    = object RAMVALUECONVERTER()
+  !tagManagement     = object RAMTAGMANAGEMENT()
+
+  !isEmptyValue      = !tagManagement.checkIfAttributeEmpty(!elementRefe, !attributeName)
+  !isSameValue       = !tagManagement.checkSameValue(!elementRefe, !attributeName, !value)
+  if((!isForceUpdate.not() AND !isEmptyValue) OR !isForceUpdate) then
+    !isUpdated       = !tagManagement.TryToSetValue(!elementRefe, !attributeName, !value)
+  elseif(!isSameValue.not()) then
+    !oldData         = !valueConverter.convertToString(!elementRefe.attribute(!attributeName))
+    !newData         = !valueConverter.convertToString(!value)
+    !oldData         = IFT(UNSET(!oldData), '', !oldData)
+    !newData         = IFT(UNSET(!newData), '', !newData)
+    !compareMessage  = 'Old value - ' + !oldData + ' new value - ' + !newData + ' - Not a force update'
+    !!ramCommonLogger.addLogDetails(!objectName, !elementRefe.namn, !attributeName, !compareMessage, 1)
+  endif
+
+  return !isUpdated
+
+endfunction

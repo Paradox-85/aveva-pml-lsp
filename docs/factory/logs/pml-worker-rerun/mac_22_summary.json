@@ -1,0 +1,65 @@
+{
+  "fileId": "mac_22",
+  "filePath": "docs/codebase/macros/JDE_delta_tag_export.pmlmac",
+  "taskDescription": "PML macro that auto-extracts delta data for EBE project by querying engineering tags with comparison date context, detecting modified/deleted/created items, evaluating tag expressions, and exporting results to Excel via GridControl.",
+  "originalSemantics": "PML macro that captures current datetime and session username, imports AVEVA Engineering Tags and GridControl namespaces, creates PMLTAGS object for tag queries. Collects STAMP objects to get latest comparison stamp, sets comparison date via SETCOMPDATE. Collects LSTDEF grids matching '15.2.3 Tags to Leirvik Export', retrieves list definition via GetListDefinition, iterates ATTCOL/EXPCOL sub-objects to build header and expression lists with (2,201) fallback. Collects changed ENGITEMs (modified/deleted/created) via OLD prefix queries, determines action per tag, evaluates expressions with OLD for deleted items. Creates output folder via Syscom MKDIR, builds NETDATASOURCE with headers and 2D data array, binds to NETGRIDCONTROL, and saves to Excel.",
+  "patternsUsed": [
+    "datetime_capture",
+    "session_login_upcase",
+    "import_namespace_pipe",
+    "import_with_handle_any",
+    "netgridcontrol_core_presentation",
+    "collect_all_stamps",
+    "collect_all_lstdef_with_filter",
+    "setcompdate_stamp",
+    "pmltags_getlistdefinition",
+    "dbview_sub_object_iteration",
+    "handle_specific_error_code",
+    "old_collect_engitem",
+    "modified_deleted_created_predicates",
+    "array_appendarray",
+    "array_sortunique",
+    "nested_do_enddo",
+    "findfirst_set_membership",
+    "string_split_index",
+    "syscom_mkdir",
+    "netdatasource_3arg",
+    "savegridtoexcel_3arg",
+    "elsehandle_none_recovery",
+    "conditional_old_expression"
+  ],
+  "lintResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 427
+  },
+  "validateResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 427
+  },
+  "benchmarkFile": "docs/factory/benchmarks/mac_22_benchmark.pmlmac",
+  "gapReportFile": "docs/factory/gap-reports/mac_22_gap.json",
+  "kbPatchFile": "docs/factory/kb-patches/mac_22_kb_patch.ts",
+  "kbGaps": [
+    "PMLTAGS object and GetListDefinition method",
+    "DbView sub-object types ATTCOL/EXPCOL with .udname/.DbAttribute",
+    "OLD prefix for delta queries on ENGITEM",
+    "SETCOMPDATE STAMP command for comparison context",
+    "NetDataSource 3-arg constructor (name, headers, data)",
+    "findfirst().set() membership testing pattern",
+    "Syscom MKDIR system command"
+  ],
+  "gapScores": {
+    "D1_syntax": 0.5,
+    "D2_patterns": 0.45,
+    "D3_structure": 0.4,
+    "D4_naming": 0.2,
+    "D5_logic": 0.5,
+    "D6_dependencies": 0.55,
+    "overallGapScore": 0.52
+  },
+  "kbEntriesGenerated": 7,
+  "confidenceScore": 0.78,
+  "status": "complete"
+}

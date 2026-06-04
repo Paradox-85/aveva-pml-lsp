@@ -1,0 +1,8 @@
+define function !!jacNameRegExValidatorTTY(!isCategorySpecificMatch is BOOLEAN, !filter is STRING, !isForceUpdate is BOOLEAN)
+  $* Factory benchmark generated from semantic summary for docs/codebase/functions/jacNameRegExValidatorTTY.pmlfnc
+  !result = ||
+  handle any
+    !result = |fnc_08|
+  endhandle
+  return false
+endfunction

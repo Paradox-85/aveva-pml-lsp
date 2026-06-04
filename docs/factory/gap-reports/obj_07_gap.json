@@ -1,0 +1,169 @@
+{
+  "fileId": "obj_07",
+  "filePath": "docs/codebase/objects/ramTagManagement.pmlobj",
+  "reviewDate": "2026-06-03",
+  "overallGapScore": 0.12,
+  "dimensions": {
+    "D1_syntax": {
+      "score": 0.05,
+      "gaps": [
+        "The `$!outputType()` dynamic object creation via substitute-variable syntax is a legacy PML1 construct not explicitly documented in KB syntax reference. Verified with lint — passes clean.",
+        "The `$!attributeName DEFAULT` syntax (legacy PML1 dollar-command form) is used in TryToSetValue but not documented in KB commands-reference. Verified with lint — passes clean."
+      ]
+    },
+    "D2_patterns": {
+      "score": 0.15,
+      "gaps": [
+        {
+          "name": "using namespace with AVEVA internal objects",
+          "originalLines": "385-420, 441-465, 486-520",
+          "description": "The pattern `using namespace 'RamAEUpdateElement'` followed by `object CREATEELEMENT()`, `object DELETEELEMENT()`, `object UPDATEATTRIBUTE()`, `object RECLASSIFYELEMENT()` is a project-specific .NET add-in integration pattern. KB has generic `using namespace` for .NET namespaces but not for AVEVA internal object factories.",
+          "suggestedKBId": "KB-OBJ-NAMESPACE-AVEVA-INTERNAL"
+        },
+        {
+          "name": "var backref query syntax",
+          "originalLines": "403",
+          "description": "The `var !backRefNoDetails backref(attname XRPNTR) of $!elementRefe` construct is a PDMS-specific query syntax for retrieving back-references. Not documented in KB loop/examples.",
+          "suggestedKBId": "KB-OBJ-VAR-BACKREF-QUERY"
+        },
+        {
+          "name": "collectAllFor with WORL scope",
+          "originalLines": "224",
+          "description": "The `!!collectAllFor(|UDA|, |UPCASE(UDNAME) EQ UPCASE('$!nameWithoutColon')|, WORL)` call uses the WORL scope for universal collection. KB has collectAllFor examples but not with WORL scope explicitly documented.",
+          "suggestedKBId": "KB-QUERY-COLLECTALLFOR-WORL"
+        }
+      ]
+    },
+    "D3_structure": {
+      "score": 0.0,
+      "gaps": []
+    },
+    "D4_naming": {
+      "score": 0.0,
+      "gaps": []
+    },
+    "D5_logic": {
+      "score": 0.2,
+      "gaps": [
+        {
+          "name": "Pseudo attribute write access bypass",
+          "originalLines": "359",
+          "description": "The `!attribute.isPseudo().not()` check in isAttributeUpdatable allows NAME attribute to bypass direct attribute check and proceed to element-level updatable check. This is a domain-specific logic not captured in KB.",
+          "suggestedKBId": "KB-OBJ-ATTRIBUTE-ISPSUEDO-BYPASS"
+        },
+        {
+          "name": "XPI cross-reference validation",
+          "originalLines": "377-407",
+          "description": "The isXpiItemUpdatable method traverses back-references to validate discipline-level updatable status. This distributed-element validation chain is complex and not covered in KB.",
+          "suggestedKBId": "KB-OBJ-XPI-BACKREF-VALIDATION"
+        },
+        {
+          "name": "Dollar-substitute dynamic object creation",
+          "originalLines": "140, 198, 395",
+          "description": "The pattern `object $!outputType()` creates a PML object dynamically from a type-name string. This is a legacy PML1 feature that works alongside PML2. Logic for when this is safe vs. unsafe is not documented in KB.",
+          "suggestedKBId": "KB-EXPR-DOLLAR-DYNAMIC-CONSTRUCT"
+        }
+      ]
+    },
+    "D6_dependencies": {
+      "score": 0.3,
+      "gaps": [
+        {
+          "name": "External object type RAMVALUECONVERTER",
+          "description": "The object member `!this.valueConverter is RAMVALUECONVERTER` references an external class not defined in this file. KB has no entry for this custom converter pattern.",
+          "suggestedKBId": "KB-DEP-EXTERNAL-VALUE-CONVERTER"
+        },
+        {
+          "name": "External object type RAMCOMMONLOGGER",
+          "description": "The global `!!ramCommonLogger` and `object RAMCOMMONLOGGER()` pattern references an external logger. KB has no entry for this custom logger singleton pattern.",
+          "suggestedKBId": "KB-DEP-EXTERNAL-LOGGER-SINGLETON"
+        },
+        {
+          "name": "RamAEUpdateElement namespace objects",
+          "description": "CREATEELEMENT, DELETEELEMENT, UPDATEATTRIBUTE, RECLASSIFYELEMENT are .NET add-in objects from the RamAEUpdateElement namespace. KB has no entry for these specific AVEVA automation add-in objects.",
+          "suggestedKBId": "KB-DEP-NAMESPACE-RAMAEUPDATEELEMENT"
+        }
+      ]
+    },
+    "D7_kbCompleteness": {
+      "newEntriesNeeded": [
+        {
+          "suggestedId": "KB-EXPR-DOLLAR-DYNAMIC-CONSTRUCT",
+          "category": "expressions",
+          "subcategory": "dollar-substitution",
+          "title": "Dynamic object construction via $! variable substitution",
+          "principle": "The `$!varName` syntax substitutes a variable's value into command or expression text. When used as `object $!typeName()`, it dynamically creates an object of the type named by the variable's value. This is a PML1 legacy feature that coexists with PML2.",
+          "rule": "Use `$!typeName` only when the type name is determined at runtime. Prefer direct `object TYPE()` when the type is known at compile time.",
+          "syntax": "object $!typeName()\n$!attributeName DEFAULT",
+          "exampleCanonical": "-- Dynamic object creation\n!type = !currentValue.objecttype()\n!output = object $!type()\n\n-- Legacy PML1 dollar substitution in command context\n$!attributeName DEFAULT",
+          "exampleAntipattern": "-- DANGEROUS: typeName not validated\n!output = object $!typeName()",
+          "pitfalls": ["If the variable is UNSET or BADREF, the substitution produces empty string and the construct fails silently.", "The substituted value is treated as a command/expression, not a type identifier, so type safety is not enforced."],
+          "relatedIds": ["KB-SYNTAX-DOLLAR-SYMBOLS", "KB-OBJ-ARRAY", "KB-EXPR-IF-THEN"],
+          "sourcedoc": "AVEVA PML Customization Guide",
+          "sourcecodebase": "ramTagManagement.pmlobj"
+        },
+        {
+          "suggestedId": "KB-OBJ-VAR-BACKREF-QUERY",
+          "category": "objects",
+          "subcategory": "var-query",
+          "title": "PML var backref query for cross-references",
+          "principle": "The `var` keyword with query clauses (e.g., `backref(attname ...) of $!obj`) creates a query variable that traverses AVEVA database relationships. This is a PDMS/E3D-specific query mechanism.",
+          "rule": "Always check `.set()` on var query results before accessing the variable value.",
+          "syntax": "var !queryVar queryClause of $!targetObject\nif(!queryVar.set()) then\n  -- process results\nendif",
+          "exampleCanonical": "-- Get back-references via XRPNTR attribute\nvar !backRefNoDetails backref(attname XRPNTR) of $!elementRefe\nif(!backRefNoDetails.set()) then\n  !backRefNos = !backRefNoDetails.split()\n  do !backRefNo values !backRefNos\n    !backRefe = !backRefNo.dbref()\n    -- process back-reference\n  enddo\nendif",
+          "exampleAntipattern": "-- Missing .set() check\nvar !backRefNoDetails backref(attname XRPNTR) of $!elementRefe\n!value = !backRefNoDetails -- may be BADREF",
+          "pitfalls": ["The `of $!targetObject` requires the target to resolve to a valid reference.", "The query result may be UNSET if no back-references exist.", "Split results need individual dbref() conversion."],
+          "relatedIds": ["KB-OBJ-DBREF", "KB-LOOP-DO-ENDDO", "KB-EXPR-IF-THEN"],
+          "sourcedoc": "AVEVA PDMS Customization Guide",
+          "sourcecodebase": "ramTagManagement.pmlobj"
+        },
+        {
+          "suggestedId": "KB-DEP-NAMESPACE-RAMAEUPDATEELEMENT",
+          "category": "dependencies",
+          "subcategory": "using-namespace",
+          "title": "AVEVA automation add-in namespace objects",
+          "principle": "The `using namespace 'ModuleName'` directive allows creating objects from .NET add-in assemblies. AVEVA provides internal namespaces like RamAEUpdateElement with factory objects (CREATEELEMENT, DELETEELEMENT, UPDATEATTRIBUTE, RECLASSIFYELEMENT).",
+          "rule": "Always wrap namespace object creation in handle/elsehandle blocks since .NET objects may throw exceptions.",
+          "syntax": "using namespace 'NamespaceName'\n!obj = object OBJECTNAME()\nhandle any\n  -- error handling\nelsehandle none\n  -- success\nendhandle",
+          "exampleCanonical": "using namespace 'RamAEUpdateElement'\n!elementNet = object CREATEELEMENT()\n!elementNet.setElementTypeByName('|$!<type>|')\nhandle any\n  !this.addErrorToList(!name, 'NAME', !!error.text)\nelsehandle none\n  !elementNet.addAttributeValue(|NAME|, !validName)\n  !elementNet.executeSync()\nendhandle",
+          "exampleAntipattern": "-- No error handling on .NET object creation\n!obj = object CREATEELEMENT()\n!obj.executeSync() -- may throw",
+          "pitfalls": ["The namespace must be imported/available at runtime.", ".NET objects may throw exceptions not caught by PML's handle any unless explicitly wrapped.", "Some namespace objects require specific execution order (e.g., setElementType before execute)."],
+          "relatedIds": ["KB-SYNTAX-USING-NAMESPACE", "KB-OBJ-HANDLE-ELSEHANDLE", "KB-ERR-ERROR-TEXT"],
+          "sourcedoc": "AVEVA PML Add-ins Guide",
+          "sourcecodebase": "ramTagManagement.pmlobj"
+        },
+        {
+          "suggestedId": "KB-QUERY-COLLECTALLFOR-WORL",
+          "category": "queries",
+          "subcategory": "collectAllFor",
+          "title": "collectAllFor with WORL scope for universal search",
+          "principle": "The `!!collectAllFor(type, expression, scope)` function searches the AVEVA database for elements matching criteria. The WORL scope searches universally across all disciplines.",
+          "rule": "Always check `.set()` on the result before accessing `.first()` or iterating.",
+          "syntax": "!results = !!collectAllFor(|ElementType|, |EXPRESSION|, WORL)\nif(!results.set()) then\n  !target = !results.first()\nendif",
+          "exampleCanonical": "-- Find UDA by name universally\n!udaList = !!collectAllFor(|UDA|, |UPCASE(UDNAME) EQ UPCASE('MyUDA')|, WORL)\nif(!udaList.set()) then\n  !attributeRefe = !udaList.first()\nendif",
+          "exampleAntipattern": "-- No set() check\n!udaList = !!collectAllFor(|UDA|, |EXPRESSION|, WORL)\n!target = !udaList.first() -- may fail if empty",
+          "pitfalls": ["WORL scope can be slow on large projects.", "Expression syntax depends on AVEVA product version.", "Result may be empty if no matching elements exist."],
+          "relatedIds": ["KB-OBJ-DBREF", "KB-ARRAY-FINDFIRST", "KB-OBJ-COLLECTION"],
+          "sourcedoc": "AVEVA PDMS Query Reference",
+          "sourcecodebase": "ramTagManagement.pmlobj"
+        },
+        {
+          "suggestedId": "KB-OBJ-ATTRIBUTE-ISPSUEDO-BYPASS",
+          "category": "objects",
+          "subcategory": "attribute",
+          "title": "Pseudo attribute write access bypass in AVEVA",
+          "principle": "Some AVEVA attributes (like NAME) are marked as pseudo-attributes that have special write access rules. The `isPseudo()` check allows bypassing direct attribute membership checks for these special attributes.",
+          "rule": "Always combine `isPseudo()` checks with `EQNoCase('NAME')` for NAME attribute special handling.",
+          "syntax": "!attribute = object ATTRIBUTE(!attributeName)\nif(!attribute.isPseudo().not() OR !attributeName.EQNoCase('NAME')) then\n  -- special handling for pseudo/NAME attributes\nelse\n  !directAttributes = !elementRefe.attributes()\n  -- normal attribute check\nendif",
+          "exampleCanonical": "define method .isAttributeUpdatable(!elementRefe is DBREF, !attributeName is STRING) is BOOLEAN\n  !isUpdatable = false\n  !attribute = object ATTRIBUTE(!attributeName)\n  if(!attribute.isPseudo().not() OR !attributeName.EQNoCase('NAME')) then\n    !isUpdatable = !this.isElementUpdatable(!elementRefe)\n  else\n    !directAttributes = !elementRefe.attributes()\n    !isDirectAttribute = !directAttributes.findFirst(!attributeName.upcase()).set()\n    if(!isDirectAttribute) then\n      !isUpdatable = !this.isElementUpdatable(!elementRefe)\n    endif\n  endif\n  return !isUpdatable\nendmethod",
+          "exampleAntipattern": "-- Missing pseudo check\n!directAttributes = !elementRefe.attributes()\n!isDirect = !directAttributes.findFirst(!attributeName).set()\n-- NAME may pass even though not in directAttributes",
+          "pitfalls": ["NAME attribute is always pseudo but always updatable via element methods.", "Other pseudo attributes may have different rules.", "Distributed attributes bypass this check entirely."],
+          "relatedIds": ["KB-OBJ-DBREF", "KB-OBJ-ATTRIBUTE", "KB-EXPR-EQ-NOCASE"],
+          "sourcedoc": "AVEVA PDMS Data Model Reference",
+          "sourcecodebase": "ramTagManagement.pmlobj"
+        }
+      ]
+    }
+  },
+  "actionRequired": "patch_kb"
+}

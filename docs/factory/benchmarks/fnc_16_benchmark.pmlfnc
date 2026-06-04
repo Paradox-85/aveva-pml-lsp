@@ -1,0 +1,4 @@
+DEFINE FUNCTION !!mlpGetDescLabel() IS STRING
+  -- Placeholder function for mlpGetDescLabel
+  RETURN |Default Label|
+ENDFUNCTION

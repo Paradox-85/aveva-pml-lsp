@@ -1,0 +1,29 @@
+{
+  "fileId": "mac_04",
+  "filePath": "docs/codebase/macros/EIS_data_export.pmlmac",
+  "reviewDate": "2026-06-03",
+  "overallGapScore": 0.78,
+  "dimensions": {
+    "D1_syntax": {
+      "score": 0.65,
+      "gaps": [
+        {"name":"PML macro lifecycle commands LABEL/SAVEWORK/UNCLAIM with HANDLE","originalLines":"114-120","benchmarkStatus":"absent","suggestedKbId":"macro-error-label-savework-unclaim"},
+        {"name":"SYSCOM shell command with variable interpolation and quoted Windows paths","originalLines":"107,110","benchmarkStatus":"underrepresented","suggestedKbId":"syscom-windows-copy-call-quoted-paths"},
+        {"name":"MEASURE/UNIT object construction and setunits","originalLines":"30-32","benchmarkStatus":"incorrectly simplified as strings","suggestedKbId":"measure-unit-setunits-defaults"},
+        {"name":"Multidimensional ARRAY assignment for attribute/export column maps","originalLines":"34-58","benchmarkStatus":"absent","suggestedKbId":"array-two-dimensional-column-map"}
+      ]
+    },
+    "D2_patterns": {"score":0.86,"gaps":[
+      {"name":"RDL-driven Engineering Tags export wrapper","originalLines":"98-106","benchmarkStatus":"not reproduced","suggestedKbId":"engineering-tags-rdl-export-wrapper"},
+      {"name":"Common attribute mapping table with AVEVA expression strings","originalLines":"34-58","benchmarkStatus":"absent","suggestedKbId":"engineering-tags-common-attribute-map"},
+      {"name":"Replacement/sentinel normalization list for exported engineering data","originalLines":"60-90","benchmarkStatus":"absent","suggestedKbId":"export-data-sentinel-replacement-list"},
+      {"name":"Empty/unset pattern list for export display logic","originalLines":"20-24,104","benchmarkStatus":"absent","suggestedKbId":"export-empty-pattern-list"}
+    ]},
+    "D3_structure": {"score":0.82,"gaps":[{"name":"Original setup/export/finalize/error structure","originalLines":"1-120","benchmarkStatus":"major structural mismatch"},{"name":"Commented matrix-export alternative preserved as operational context","originalLines":"92-96","benchmarkStatus":"absent"}]},
+    "D4_naming": {"score":0.7,"gaps":[{"name":"Project/customer prefixes and domain names","originalLines":"16,34-58,98-106,116","benchmarkStatus":"partially absent"},{"name":"Attribute naming conventions with colon-prefixed UDAs and relationship names","originalLines":"35-58","benchmarkStatus":"absent"}]},
+    "D5_logic": {"score":0.9,"gaps":[{"name":"Exact RDL and tag filters","originalLines":"98-101","benchmarkStatus":"incorrect"},{"name":"Empty value and unset normalization","originalLines":"20-24,104","benchmarkStatus":"absent"},{"name":"Sentinel data replacement logic","originalLines":"60-90,104","benchmarkStatus":"absent"},{"name":"Post-export master/history copy and external sync","originalLines":"102-110","benchmarkStatus":"absent"},{"name":"Error recovery side effects","originalLines":"114-120","benchmarkStatus":"underrepresented"}]},
+    "D6_dependencies": {"score":0.88,"gaps":[{"name":"Aveva.Engineering.Tags.Pml add-in and namespaces","originalLines":"8-13","benchmarkStatus":"partially represented","suggestedKbId":"aveva-engineering-tags-pml-import-namespaces"},{"name":"Custom global export functions","originalLines":"96,104","benchmarkStatus":"absent","suggestedKbId":"custom-global-jac-rdl-export-functions"},{"name":"Custom global logger","originalLines":"116","benchmarkStatus":"absent","suggestedKbId":"custom-global-ram-common-logger"},{"name":"External Windows/rclone operational dependencies","originalLines":"16,102-110,115","benchmarkStatus":"absent","suggestedKbId":"external-sync-dependency-syscom-rclone"}]},
+    "D7_kbCompleteness": {"newEntriesNeeded":["engineering-tags-rdl-export-wrapper","engineering-tags-common-attribute-map","export-data-sentinel-replacement-list","measure-unit-setunits-defaults","macro-error-label-savework-unclaim"]}
+  },
+  "actionRequired": "patch_kb"
+}

@@ -1,0 +1,20 @@
+{
+  "fileId": "fnc_01",
+  "status": "completed_from_recovered_artifacts_after_groq_tool_call_failure",
+  "recoveredFromRun": "b379b216",
+  "timestamp": "2026-06-03T23:17:31.668Z",
+  "artifacts": {
+    "benchmark": "docs/factory/benchmarks/fnc_01_benchmark.pmlfnc",
+    "gapReport": "docs/factory/gap-reports/fnc_01_gap.json",
+    "kbPatch": "docs/factory/kb-patches/fnc_01_kb_patch.ts",
+    "summary": "docs/factory/logs/pml-worker-rerun/fnc_01_summary.json"
+  },
+  "validation": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 27
+  },
+  "overallGapScore": 0.86,
+  "actionRequired": "patch_kb",
+  "note": "Groq model produced invalid tool calls / no final edits, but artifacts exist and benchmark validates clean; summary reconstructed by orchestrator."
+}

@@ -1,0 +1,195 @@
+--$m "JDE_BI_tagRegister-export.pmlmac" -- Benchmark
+-- Purpose: Export tag register data for Power BI consumption.
+--          Multiple data domains: MTR, RDL, DOC, ALL, 3D, RDL-dataset.
+--          Syncs results with PVE via external tool.
+-- Semantic summary:
+--   1. Initialize error handling, namespaces, datetime, empty-value patterns.
+--   2. Configure RAMCOMMONLOGGER for error reporting.
+--   3. Define common attribute mappings (path → display name).
+--   4. Define data-replacement patterns for sanitising null/placeholder values.
+--   5. For each data domain: locate LSTDEF grid, clear filter, export to Excel,
+--      back up to origin, append timestamped history copy.
+--   6. Call external rclone sync batch for PVE.
+--   7. On error: write RAMCOMMONLOGGER data to Excel log, save work, unclaim.
+
+--ONERROR GOLABEL /Error
+
+import 'Aveva.Engineering.Tags.Pml'
+handle any
+endhandle
+
+using namespace 'Aveva.Core.Presentation'
+using namespace 'Aveva.Engineering.Tags'
+
+--=== 1. DateTime and path setup ===
+!pathName = |C:\Path\To\JDE-Power-BI|
+!realUnset = ARRAY()
+!dt = OBJECT DATETIME()
+!year = !dt.year()
+!month = !dt.month().string('I2')
+!date = !dt.date().string('I2')
+!hour = !dt.hour().string('I2')
+!minute = !dt.minute().string('I2')
+
+--=== 2. Empty-value patterns for filtering ===
+!emptyPatternString = |Unset unset UNSET|
+!emptyPatternList = !emptyPatternString.split()
+!emptyPatternList.append(| |)
+!emptyPatternList.append(||)
+!emptyPatternList.append(|0ampere|)
+
+--=== 3. Logging configuration ===
+!!ramCommonLogger = object RAMCOMMONLOGGER()
+!headings = |Tag Name;Attribute Name;Error Text|
+!!ramCommonLogger.addHeading(!headings.split(|;|))
+
+--=== 4. Unit configuration ===
+!AngularFrequencyDimension = object MEASURE('AngularFrequency')
+!rpmUnit = object UNIT(|rpm|)
+!AngularFrequencyDimension.setunits(!rpmUnit)
+
+--=== 5. Common attribute mappings (attributePath → displayName) ===
+!commonAttributes = object ARRAY()
+!commonAttributes[1][1] = ':RAMTagOwner'
+!commonAttributes[1][2] = 'Tag Owner'
+!commonAttributes[2][1] = ':TagStatus'
+!commonAttributes[2][2] = 'Tag Status'
+!commonAttributes[3][1] = 'NAMN of :TagRefToPurchaseOrder'
+!commonAttributes[3][2] = 'PO Number'
+!commonAttributes[4][1] = ':RAMPackageNumber of :TagRefToPurchaseOrder'
+!commonAttributes[4][2] = 'Package'
+!commonAttributes[5][1] = ':TagClassName'
+!commonAttributes[5][2] = 'Shell Class'
+!commonAttributes[6][1] = 'NAMN of :TagRefToMCPackage'
+!commonAttributes[6][2] = 'MC Package'
+!commonAttributes[7][1] = 'NAMN of :MCPackageToCommissioningPackageRef of :TagRefToMCPackage'
+!commonAttributes[7][2] = 'Comm Package'
+!commonAttributes[8][1] = 'NAMN of :TagRefToArea'
+!commonAttributes[8][2] = 'Area'
+!commonAttributes[9][1] = ':RambollTagStatus'
+!commonAttributes[9][2] = 'Maturity'
+!commonAttributes[10][1] = 'NAMN of :TagRefToProcessUnit'
+!commonAttributes[10][2] = 'Process Unit'
+!commonAttributes[11][1] = ':RAMInstallationContractors'
+!commonAttributes[11][2] = 'Install By'
+!commonAttributes[12][1] = 'REPLACE(IFT(:TagName of :TagRefToParentTag neq NAMN of :TagRefToParentTag and (not(unset(:TagName of :TagRefToParentTag)) and not(empty(:TagName of :TagRefToParentTag))), :TagName of :TagRefToParentTag, NAMN of :TagRefToParentTag), |‐|, |-|)'
+!commonAttributes[12][2] = 'Parent Tag'
+
+--=== 6. Data-replacement patterns (value → replacement) ===
+!replaceData = object ARRAY()
+!replaceData.append('999999999ampere;NA')
+!replaceData.append('999999999deg/s;NA')
+!replaceData.append('999999999degC;NA')
+!replaceData.append('999999999kg;NA')
+!replaceData.append('999999kg;NA')
+!replaceData.append('99999kg;NA')
+!replaceData.append('999999999kg/m3;NA')
+!replaceData.append('999999999kg/s;NA')
+!replaceData.append('999999999kW;NA')
+!replaceData.append('999999999m/s;NA')
+!replaceData.append('9999999993m/s;NA')
+!replaceData.append('999999999m3/s;NA')
+!replaceData.append('999999999mm;NA')
+!replaceData.append('999999999mm2;NA')
+!replaceData.append('999999999Pa.s;NA')
+!replaceData.append('999999999pascal;NA')
+!replaceData.append('999999999Ratio;NA')
+!replaceData.append('999999999second;NA')
+!replaceData.append('999999999volt;NA')
+!replaceData.append('999999999;NA')
+!replaceData.append('999999999N/m;NA')
+!replaceData.append('9999999mm;NA')
+!replaceData.append('9999999;NA')
+!replaceData.append('999999;NA')
+!replaceData.append('99999;NA')
+!replaceData.append('9999999000;NA')
+!replaceData.append('9999999993;NA')
+!replaceData.append('9999999000ampere;NA')
+!replaceData.append('999999ampere;NA')
+!replaceData.append('N/A;NA')
+!replaceData.append('N.A;NA')
+!replaceData.append('N.A.;NA')
+!replaceData.append('Area-NA;NA')
+!replaceData.append('PU-NA;NA')
+!replaceData.append('PO-NA;NA')
+!replaceData.append('SECE-NA;NA')
+!replaceData.append('01/01/1990 00:00:00;NA')
+!replaceData.append('-;NA')
+
+--=== 7. Export MTR dataset ===
+!!tags = object PMLTAGS()
+var !grid collect all LSTDEF with (LSTNAM eq |IM-tag-dataset|)
+if (!grid.size() eq 1) then
+	!gridRef = !grid.first().dbref()
+	!gridRef.lstflt = !realUnset
+	!filePathOrigin = |$!pathName\_master\data\MTR-dataset.xlsx|
+	!filePath = |$!pathName\_master\data\_history\MTR-dataset-$!<year>-$!<month>-$!<date>_$!<hour>.xlsx|
+	var !gridGroupName CATNAM of LSTGRP of $!gridRef
+	!!tags.exportasxls(!gridGroupName, '$!<gridRef.LSTNAM>', '$!filepath')
+	SYSCOM |copy /y "$!<filePath>" "$!<filePathOrigin>"|
+endif
+
+--=== 8. Export RDL tag properties ===
+!rdlFilter = |(:RDLSource eq 'AKSO_Tag Properties Templates_Rev6' or :RDLSource eq 'JDAW-PT-D-JA-7880-00001_A05')|
+!tagFilter = ':TagStatus inset (|ACTIVE|, |ASB|, |AFC|, |AFD|) and ISNAMED'
+!isDisplayEmpty = true
+!filePathOrigin = |$!pathName\_master\data\TagProperties-rdl.xlsx|
+!filePath = |$!pathName\_master\data\_history\TagProperties-rdl-$!<year>-$!<month>-$!<date>_$!<hour>.xlsx|
+!!jacExportRDLDataReport(!filePath, !rdlFilter, !tagFilter, !emptyPatternList, !replaceData, !isDisplayEmpty)
+SYSCOM |copy /y "$!<filePath>" "$!<filePathOrigin>"|
+
+--=== 9. Export DOC (document) data ===
+var !grid collect all LSTDEF with (LSTNAM eq |403-DOCUMENT|)
+if (!grid.size() eq 1) then
+	!gridRef = !grid.first().dbref()
+	!gridRef.lstflt = !realUnset
+	!filePathOrigin = |$!pathName\_master\data\MDR.xlsx|
+	!filePath = |$!pathName\_master\data\_history\MDR-$!<year>-$!<month>-$!<date>_$!<hour>.xlsx|
+	var !gridGroupName CATNAM of LSTGRP of $!gridRef
+	!!tags.exportasxls(!gridGroupName, '$!<gridRef.LSTNAM>', '$!filepath')
+	SYSCOM |copy /y "$!<filePath>" "$!<filePathOrigin>"|
+endif
+
+--=== 10. Export ALL comprehensive tag properties ===
+!tagFilter = ':tagStatus neq |VOID| and ISNAMED and NOT(EMPTY(:RAMTAGOWNER))'
+!rdlFilter = |:RDLSource eq 'AKSO_Tag Properties Templates_Rev6'|
+!filePathRam = |$!pathName\_master\data\TagProperties-rdl-matrix.xlsx|
+!!jacExportRDLDataReportMatrix(!filePathRam, !rdlFilter, !tagFilter, !emptyPatternList, !commonAttributes, !replaceData, false)
+
+--=== 11. Export 3D dataset ===
+var !grid collect all LSTDEF with (LSTNAM eq |0_IM_3D_ITEMS|)
+if (!grid.size() eq 1) then
+	!gridRef = !grid.first().dbref()
+	!gridRef.lstflt = !realUnset
+	!filePathOrigin = |$!pathName\_master\data\3D-dataset.xlsx|
+	!filePath = |$!pathName\_master\data\_history\3D-dataset-$!<year>-$!<month>-$!<date>_$!<hour>.xlsx|
+	var !gridGroupName CATNAM of LSTGRP of $!gridRef
+	!!tags.exportasxls(!gridGroupName, '$!<gridRef.LSTNAM>', '$!filepath')
+	SYSCOM |copy /y "$!<filePath>" "$!<filePathOrigin>"|
+endif
+
+--=== 12. Export RDL class attribute mappings dataset ===
+var !grid collect all LSTDEF with (Upcase(LSTNAM) eq |RDL_CLASSATTRIBUTEMAPPINGS|)
+if (!grid.size() eq 1) then
+	!gridRef = !grid.first().dbref()
+	!gridRef.lstflt = !realUnset
+	!filePathOrigin = |$!pathName\_master\data\RDL-dataset.xlsx|
+	!filePath = |$!pathName\_master\data\_history\RDL-dataset-$!<year>-$!<month>-$!<date>_$!<hour>.xlsx|
+	var !gridGroupName CATNAM of LSTGRP of $!gridRef
+	!!tags.exportasxls(!gridGroupName, '$!<gridRef.LSTNAM>', '$!filepath')
+	SYSCOM |copy /y "$!<filePath>" "$!<filePathOrigin>"|
+endif
+
+--=== 13. Sync with PVE ===
+SYSCOM |call "C:\Path\To\rclone-v1.72.1-windows-amd64\ram-jackdaw-masterData-sync-to-pve.bat"|
+
+--=== 14. Error handler ===
+LABEL /Error
+handle any
+	!logFile = |$!<pathName>\BI-reports-log-$!<year>-$!<month>-$!<date>_$!<hour>.xlsx|
+	!!ramCommonLogger.writeErrorDataToExcel(!logFile, false)
+	SAVEWORK
+	UNCLAIM ALL
+endhandle
+
+FINISH

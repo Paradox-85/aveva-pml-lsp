@@ -1,0 +1,36 @@
+$* Factory benchmark generated from semantic source summary only for mac_42
+$* Source path: docs/codebase/macros/pipe-3D-transfer.pmlmac
+$* $m "C:\Users\ADZV\OneDrive - Ramboll\AVEVA_SERVER\Addons\PMLLIB\RAM\Engineering\jackdow\run-macro\pipe-3D-transfer.pmlmac"
+
+
+handle any
+endhandle
+
+
+!headers = ARRAY()
+!rows = ARRAY()
+!headers.Append(|Source File|)
+!headers.Append(|Pattern|)
+!headers.Append(|Value|)
+
+!patterns = ARRAY()
+
+
+DO !i FROM 1 TO !patterns.Size()
+  !row = ARRAY()
+  !row.Append(|pipe-3D-transfer.pmlmac|)
+  !row.Append(!patterns[!i])
+  !row.Append(!i.String())
+  !rows.Append(!row)
+ENDDO
+
+handle any
+  import 'GridControl'
+endhandle
+using namespace |Aveva.Core.Presentation|
+!grid = object NETGRIDCONTROL()
+!grid.clearGrid()
+!source = object NETDATASOURCE('data', !headers, !rows)
+!grid.BindToDataSource(!source)
+!out = |C:\Temp\mac_42_benchmark.xlsx|
+!grid.saveGridToExcel(!out, |data|)

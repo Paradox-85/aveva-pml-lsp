@@ -1,0 +1,107 @@
+{
+  "fileId": "frm_06",
+  "filePath": "docs/codebase/forms/ramImportExcelValidationForm.pmlfrm",
+  "reviewDate": "2026-06-03",
+  "overallGapScore": 0.91,
+  "dimensions": {
+    "D1_syntax": {
+      "score": 0.5,
+      "gaps": [
+        "Source has 7 definitions and 4 members; generated benchmark validated with parseErrorCount=0"
+      ]
+    },
+    "D2_patterns": {
+      "score": 0.75,
+      "gaps": [
+        {
+          "pattern": "DO ",
+          "suggestedKbId": "cb_frm_06_do"
+        },
+        {
+          "pattern": "do ",
+          "suggestedKbId": "cb_frm_06_do"
+        },
+        {
+          "pattern": "handle",
+          "suggestedKbId": "cb_frm_06_handle"
+        },
+        {
+          "pattern": "NETGRIDCONTROL",
+          "suggestedKbId": "cb_frm_06_netgridcontrol"
+        },
+        {
+          "pattern": "NETDATASOURCE",
+          "suggestedKbId": "cb_frm_06_netdatasource"
+        },
+        {
+          "pattern": "ATTRIBUTE",
+          "suggestedKbId": "cb_frm_06_attribute"
+        },
+        {
+          "pattern": "BLOCK",
+          "suggestedKbId": "cb_frm_06_block"
+        },
+        {
+          "pattern": "Evaluate",
+          "suggestedKbId": "cb_frm_06_evaluate"
+        },
+        {
+          "pattern": "!!",
+          "suggestedKbId": "cb_frm_06_"
+        },
+        {
+          "pattern": "ARRAY",
+          "suggestedKbId": "cb_frm_06_array"
+        },
+        {
+          "pattern": "FILE",
+          "suggestedKbId": "cb_frm_06_file"
+        },
+        {
+          "pattern": "GridControl",
+          "suggestedKbId": "cb_frm_06_gridcontrol"
+        }
+      ]
+    },
+    "D3_structure": {
+      "score": 0.7,
+      "gaps": [
+        "Benchmark preserves signatures/major declarations where possible but does not copy implementation bodies."
+      ]
+    },
+    "D4_naming": {
+      "score": 0.55,
+      "gaps": [
+        "Project naming extracted from ramImportExcelValidationForm.pmlfrm; benchmark may simplify local variable names."
+      ]
+    },
+    "D5_logic": {
+      "score": 0.8,
+      "gaps": [
+        "Original operational logic is intentionally not copied; rerun_worker may improve semantic fidelity for complex files."
+      ]
+    },
+    "D6_dependencies": {
+      "score": 0.85,
+      "gaps": [
+        "NETGRIDCONTROL",
+        "ATTRIBUTE",
+        "FILE",
+        "GridControl"
+      ]
+    },
+    "D7_kbCompleteness": {
+      "newEntriesNeeded": [
+        "cb_frm_06_do",
+        "cb_frm_06_do",
+        "cb_frm_06_handle",
+        "cb_frm_06_netgridcontrol",
+        "cb_frm_06_netdatasource",
+        "cb_frm_06_attribute",
+        "cb_frm_06_block",
+        "cb_frm_06_evaluate"
+      ]
+    }
+  },
+  "actionRequired": "patch_kb"
+}

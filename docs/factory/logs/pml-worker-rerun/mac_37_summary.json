@@ -1,0 +1,45 @@
+{
+  "fileId": "mac_37",
+  "filePath": "docs/codebase/macros/JDE_tagProperties_upload.pmlmac",
+  "fileType": "macro",
+  "runDate": "2026-06-03",
+  "runMode": "rerun_single",
+  "benchmarkPath": "docs/factory/benchmarks/mac_37_benchmark.pmlmac",
+  "gapReportPath": "docs/factory/gap-reports/mac_37_gap.json",
+  "kbPatchPath": "docs/factory/kb-patches/mac_37_kb_patch.ts",
+  "summary": {
+    "originalLines": 62,
+    "benchmarkLines": 84,
+    "lintDiagnostics": 0,
+    "lintParseErrors": 0,
+    "validateDiagnostics": 0,
+    "validateParseErrors": 0,
+    "confidenceScore": 0.9,
+    "overallGapScore": 0.15,
+    "actionRequired": "patch_kb",
+    "patternsUsed": [
+      "import_gridcontrol_handle",
+      "net_datasource_gridcontrol_binding",
+      "do_values_array_iteration",
+      "dbref_attribute_access",
+      "handle_any_elsehandle_none",
+      "string_interpolation_dollar",
+      "file_writefile_overwrite",
+      "array_append",
+      "string_lowcase_trim_neq",
+      "unset_method_check"
+    ],
+    "kbGaps": [
+      "NETDATASOURCE + NETGRIDCONTROL binding workflow not in KB as standalone entry",
+      "dbref .:AttributeName read/write pattern not fully documented",
+      "Dollar-string interpolation $!/$< for tag references needs dedicated KB entry"
+    ],
+    "kbEntriesDrafted": 3,
+    "fixesApplied": [
+      "Replaced 'is UNSET' with .Unset() method for PML2 compliance",
+      "Added blank-row guard (improvement over original)",
+      "Corrected typo 'is not exis' → 'does not exist'",
+      "Added file name resolution check before proceeding"
+    ]
+  }
+}

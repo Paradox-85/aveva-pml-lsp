@@ -1,0 +1,10 @@
+define function !!jacUpdateTagName(!sourceAttribute is STRING, !destinationAttribute is STRING, !replaceDetails is ARRAY, !filter is STRING, !isForceUpdate is BOOLEAN)
+  $* Factory benchmark generated from semantic summary for docs/codebase/functions/jacUpdateTagName.pmlfnc
+  !result = ||
+  handle any
+    !result = |fnc_14|
+  endhandle
+  !arr = ARRAY()
+  !arr.Append(!result)
+  return !arr
+endfunction

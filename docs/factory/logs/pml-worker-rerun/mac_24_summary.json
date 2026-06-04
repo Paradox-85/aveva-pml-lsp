@@ -1,0 +1,37 @@
+{
+  "fileId": "mac_24",
+  "filePath": "docs/codebase/macros/JDE_fullDataProperties-export.pmlmac",
+  "fileType": "macro",
+  "reviewDate": "2026-06-03",
+  "semantics": "Экспорт полных свойств тегов (tag data properties) в Excel. Макрос получает текущую дату/время, строит фильтр для активных именованных тегов с атрибутом RAMTAGOWNER, формирует путь к выходному файлу с timestamp и вызывает глобальную функцию экспорта.",
+  "patternsUsed": [
+    "OBJECT DATETIME()",
+    "datetime.year()/.month()/.date()/.hour()/.minute()",
+    "string('I2') zero-padding",
+    "pipe-delimited string |text|",
+    "$!<var> variable interpolation",
+    "!!global_function_call",
+    "filter construction with :TagStatus, ISNAMED, NOT(EMPTY())"
+  ],
+  "lintResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 54
+  },
+  "validateResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 54
+  },
+  "kbGaps": [
+    "DATETIME object methods not in KB",
+    "$!<var> interpolation syntax not documented",
+    "--$m metadata comment pattern not documented"
+  ],
+  "gapReport": "docs/factory/gap-reports/mac_24_gap.json",
+  "kbPatch": "docs/factory/kb-patches/mac_24_kb_patch.ts",
+  "benchmarkFile": "docs/factory/benchmarks/mac_24_benchmark.pmlmac",
+  "actionRequired": "patch_kb",
+  "overallGapScore": 0.15,
+  "confidenceScore": 0.85
+}

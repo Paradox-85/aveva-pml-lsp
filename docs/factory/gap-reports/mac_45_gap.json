@@ -1,0 +1,38 @@
+{
+  "fileId": "mac_45",
+  "filePath": "docs/codebase/macros/tag-doc-cleanup.pmlmac",
+  "reviewDate": "2026-06-03",
+  "overallGapScore": 0.0,
+  "dimensions": {
+    "D1_syntax": {
+      "score": 0.0,
+      "gaps": []
+    },
+    "D2_patterns": {
+      "score": 0.0,
+      "gaps": []
+    },
+    "D3_structure": {
+      "score": 0.0,
+      "gaps": []
+    },
+    "D4_naming": {
+      "score": 0.0,
+      "gaps": []
+    },
+    "D5_logic": {
+      "score": 0.0,
+      "gaps": []
+    },
+    "D6_dependencies": {
+      "score": 0.0,
+      "gaps": [
+        "TAGMANAGEMENTTMP object is not in KB; usage pattern (reload + default constructor + method call) is consistent across 12+ macros but the object definition itself is external to KB."
+      ]
+    },
+    "D7_kbCompleteness": {
+      "newEntriesNeeded": []
+    }
+  },
+  "actionRequired": "skip"
+}

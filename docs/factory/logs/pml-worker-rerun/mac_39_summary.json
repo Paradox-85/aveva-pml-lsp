@@ -1,0 +1,57 @@
+{
+  "fileId": "mac_39",
+  "filePath": "docs/codebase/macros/loop-create.pmlmac",
+  "fileType": "macro",
+  "taskDescription": "loop-create: reload LOOPDATA custom object, instantiate, call GetData/LoopCreate, set pathName, save log",
+  "benchmarkSaved": "docs/factory/benchmarks/mac_39_benchmark.pmlmac",
+  "gapReportSaved": "docs/factory/gap-reports/mac_39_gap.json",
+  "kbPatchSaved": "docs/factory/kb-patches/mac_39_kb_patch.ts",
+  "summaryDate": "2026-06-03",
+  "kbResearch": {
+    "searchesPerformed": [
+      "PML RELOAD OBJECT macro",
+      "macro RELOAD OBJECT object creation",
+      "macro object creation method call PML",
+      "PML RELOAD OBJECT",
+      "LOOPDATA GetData LoopCreate pathName SaveLog",
+      "macro reload object custom user-defined",
+      "SaveLog pathName property assignment macro",
+      "LOOPDATA object method"
+    ],
+    "kbEntriesFound": [
+      "PML syntax reference (control flow, variables, comments, dollar commands)",
+      "PML objects and methods (ARRAY, FILE, COLLECTION, UNDOABLE, FMSYS, CMSYS)",
+      "PML loop examples (DO/ENDDO)"
+    ],
+    "kbEntriesNotFound": [
+      "LOOPDATA object definition and methods",
+      "RAM-specific custom objects",
+      "PML RELOAD OBJECT command details"
+    ]
+  },
+  "patternsUsed": [
+    "mac_basic_structure",
+    "obj_handle_any_pattern",
+    "syntax_dollar_commands",
+    "syntax_string_pipes",
+    "syntax_exit_macro"
+  ],
+  "lintResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 35
+  },
+  "validateResult": {
+    "diagnostics": [],
+    "parseErrorCount": 0,
+    "astNodeCount": 35
+  },
+  "kbGaps": [
+    "LOOPDATA custom object (RAM-specific) not documented in KB",
+    "PML RELOAD OBJECT command not detailed in KB",
+    "SaveLog method signature not documented"
+  ],
+  "kbGapEntries": 1,
+  "confidenceScore": 0.7,
+  "actionRequired": "patch_kb"
+}

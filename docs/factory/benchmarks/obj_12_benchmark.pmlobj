@@ -1,0 +1,19 @@
+DEFINE OBJECT RAMTagMaturityData
+
+  MEMBER .name IS TEXT
+  MEMBER .description IS TEXT
+  MEMBER .maturity IS TEXT
+
+  CONSTRUCT()
+    -- Default constructor
+  ENDCONSTRUCT
+
+  DEFINE METHOD .GETNAME() PUBLIC
+    EVAL !!RETURN = !!THIS.name
+  ENDMETHOD
+
+  DEFINE METHOD .SETMATURITY( !AText IS TEXT ) PUBLIC
+    EVAL !!THIS.maturity = !AText
+  ENDMETHOD
+
+ENDOBJECT

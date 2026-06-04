@@ -1,0 +1,85 @@
+{
+  "fileId": "fnc_15",
+  "filePath": "docs/codebase/functions/jacUpdateTagNameWithBore.pmlfnc",
+  "reviewDate": "2026-06-03",
+  "overallGapScore": 0.73,
+  "dimensions": {
+    "D1_syntax": {
+      "score": 0.5,
+      "gaps": [
+        "Source has 1 definitions and 0 members; generated benchmark validated with parseErrorCount=0"
+      ]
+    },
+    "D2_patterns": {
+      "score": 0.75,
+      "gaps": [
+        {
+          "pattern": "DO ",
+          "suggestedKbId": "cb_fnc_15_do"
+        },
+        {
+          "pattern": "do ",
+          "suggestedKbId": "cb_fnc_15_do"
+        },
+        {
+          "pattern": "RAMCOMMONLOGGER",
+          "suggestedKbId": "cb_fnc_15_ramcommonlogger"
+        },
+        {
+          "pattern": "ATTRIBUTE",
+          "suggestedKbId": "cb_fnc_15_attribute"
+        },
+        {
+          "pattern": "undefined",
+          "suggestedKbId": "cb_fnc_15_undefined"
+        },
+        {
+          "pattern": "!!",
+          "suggestedKbId": "cb_fnc_15_"
+        },
+        {
+          "pattern": "FILE",
+          "suggestedKbId": "cb_fnc_15_file"
+        }
+      ]
+    },
+    "D3_structure": {
+      "score": 0.7,
+      "gaps": [
+        "Benchmark preserves signatures/major declarations where possible but does not copy implementation bodies."
+      ]
+    },
+    "D4_naming": {
+      "score": 0.55,
+      "gaps": [
+        "Project naming extracted from jacUpdateTagNameWithBore.pmlfnc; benchmark may simplify local variable names."
+      ]
+    },
+    "D5_logic": {
+      "score": 0.8,
+      "gaps": [
+        "Original operational logic is intentionally not copied; rerun_worker may improve semantic fidelity for complex files."
+      ]
+    },
+    "D6_dependencies": {
+      "score": 0.85,
+      "gaps": [
+        "RAMCOMMONLOGGER",
+        "ATTRIBUTE",
+        "FILE"
+      ]
+    },
+    "D7_kbCompleteness": {
+      "newEntriesNeeded": [
+        "cb_fnc_15_do",
+        "cb_fnc_15_do",
+        "cb_fnc_15_ramcommonlogger",
+        "cb_fnc_15_attribute",
+        "cb_fnc_15_undefined",
+        "cb_fnc_15_",
+        "cb_fnc_15_file"
+      ]
+    }
+  },
+  "actionRequired": "patch_kb"
+}
